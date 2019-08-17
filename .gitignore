@@ -2,3 +2,11 @@
 \.idea/
 
 \target/
+
+src/main/java/me/mattstudios/mf/CMDTest\.java
+
+src/main/java/me/mattstudios/mf/CMDTest2\.java
+
+src/main/java/me/mattstudios/mf/test/CommandTest\.java
+
+src/main/resources/

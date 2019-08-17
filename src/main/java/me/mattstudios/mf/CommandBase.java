@@ -1,5 +1,6 @@
-package me.mattstudios.framework;
+package me.mattstudios.mf;
 
 public abstract class CommandBase {
+
 
 }

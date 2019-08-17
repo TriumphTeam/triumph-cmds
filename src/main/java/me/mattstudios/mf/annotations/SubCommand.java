@@ -1,4 +1,4 @@
-package me.mattstudios.framework.annotations;
+package me.mattstudios.mf.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Default {
+public @interface SubCommand {
+
+    String value();
+
 }

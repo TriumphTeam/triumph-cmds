@@ -1,8 +1,8 @@
-package me.mattstudios.framework;
+package me.mattstudios.mf;
 
-import me.mattstudios.framework.annotations.Alias;
-import me.mattstudios.framework.annotations.Command;
-import me.mattstudios.framework.exceptions.NoCommandException;
+import me.mattstudios.mf.annotations.Alias;
+import me.mattstudios.mf.annotations.Command;
+import me.mattstudios.mf.exceptions.NoCommandException;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,8 +16,12 @@ public class CommandManager {
     private JavaPlugin plugin;
     private List<CommandBase> commands;
 
+    private ParameterTypes parameterTypes;
+
     public CommandManager(JavaPlugin plugin) {
         this.plugin = plugin;
+
+        parameterTypes = new ParameterTypes();
     }
 
     public void register(CommandBase command) {
@@ -36,7 +40,8 @@ public class CommandManager {
             bukkitCommandMap.setAccessible(true);
 
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
-            commandMap.register(plugin.getName(), new CommandHandler(command, commandName, Arrays.asList(aliases)));
+            commandMap.register(plugin.getName(), new CommandHandler(parameterTypes, command, commandName, Arrays.asList(aliases)));
+            
         } catch(Exception e) {
             e.printStackTrace();
         }
