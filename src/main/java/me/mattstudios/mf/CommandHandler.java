@@ -6,13 +6,14 @@ import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.exceptions.NoParamException;
 import me.mattstudios.mf.exceptions.NoSenderParamException;
+import me.mattstudios.mf.exceptions.UnregisteredParamException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -47,8 +48,14 @@ public class CommandHandler extends Command {
                 throw new NoParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - needs to have Parameters!");
 
             // Checks if the fist parameter is either a player or a sender.
-            if (!method.getGenericParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !method.getGenericParameterTypes()[0].getTypeName().equals(Player.class.getTypeName()))
+            if (!method.getParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !method.getParameterTypes()[0].getTypeName().equals(Player.class.getTypeName()))
                 throw new NoSenderParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender or a Player!");
+
+            // Checks if the parameters in class are registered.
+            for (int i = 1; i < method.getParameterTypes().length; i++) {
+                if (!parameterTypes.isRegisteredType(method.getParameterTypes()[i]))
+                    throw new UnregisteredParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
+            }
 
             // Checks if it is a default method.
             if (method.isAnnotationPresent(Default.class)) defaultMethod = method;
@@ -85,7 +92,7 @@ public class CommandHandler extends Command {
             }
 
             // Checks if the command can be accessed from console
-            if (!defaultMethod.getGenericParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
+            if (!defaultMethod.getParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
                 // Error handler later
                 sender.sendMessage("Can't be console");
                 return true;
@@ -116,7 +123,7 @@ public class CommandHandler extends Command {
         }
 
         // Checks if the command can be accessed from console
-        if (!method.getGenericParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
+        if (!method.getParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
             // Error handler later
             sender.sendMessage("Can't be console");
             return true;
@@ -129,7 +136,7 @@ public class CommandHandler extends Command {
     private boolean executeCommand(Method method, CommandSender sender, String[] arguments, boolean def) {
         try {
             // Removes the Player/CommandSender from the parameters list.
-            List<Type> paramList = new LinkedList<>(Arrays.asList(method.getGenericParameterTypes()));
+            List<Class> paramList = new LinkedList<>(Arrays.asList(method.getParameterTypes()));
             paramList.remove(0);
 
             System.out.println(paramList);
@@ -158,10 +165,16 @@ public class CommandHandler extends Command {
                 return true;
             }
 
+            List<Object> invokeParams = new ArrayList<>();
+            invokeParams.add(sender);
+            for (int i = 0; i < paramList.size(); i++) {
+                invokeParams.add(parameterTypes.getTypeResult(paramList.get(i), argumentsList.get(i), (Player) sender));
+            }
 
-            //for ()
+            Object[] invokeArray = invokeParams.toArray();
 
-            parameterTypes.getTypeResult(Short.class, "sdasdsa");
+            method.invoke(command, invokeArray);
+            return true;
 
             /*if (paramList.size() == 1 && paramList.get(0).getTypeName().equals(String[].class.getTypeName())){
                 method.invoke(command, sender, arguments);

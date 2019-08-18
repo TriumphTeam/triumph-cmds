@@ -1,6 +1,8 @@
 package me.mattstudios.mf;
 
 import me.mattstudios.mf.exceptions.InvalidArgumentException;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,88 +12,100 @@ class ParameterTypes {
     private final Map<Class<?>, TypeResolver> registeredTypes = new HashMap<>();
 
     // Registers all the types;
-    public ParameterTypes() {
-        register(Short.class, (t) -> {
+    ParameterTypes() {
+        register(Short.class, (arg, player) -> {
             try {
-                return tryParseNumber(Short.class, String.valueOf(t));
+                return tryParseNumber(Short.class, String.valueOf(arg));
+            } catch (NumberFormatException e) {
+                player.sendMessage("test");
+                return null;
+            }
+        });
+        register(short.class, (arg, player) -> {
+            try {
+                return tryParseNumber(Short.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException();
             }
         });
-        register(short.class, (t) -> {
+        register(int.class, (arg, player) -> {
             try {
-                return tryParseNumber(Short.class, String.valueOf(t));
+                return tryParseNumber(Integer.class, String.valueOf(arg));
+            } catch (NumberFormatException e) {
+                player.sendMessage("test");
+                return null;
+            }
+        });
+        register(Integer.class, (arg, player) -> {
+            try {
+                return tryParseNumber(Integer.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException();
             }
         });
-        register(int.class, (t) -> {
+        register(long.class, (arg, player) -> {
             try {
-                return tryParseNumber(Integer.class, String.valueOf(t));
+                return tryParseNumber(Long.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException();
             }
         });
-        register(Integer.class, (t) -> {
+        register(Long.class, (arg, player) -> {
             try {
-                return tryParseNumber(Integer.class, String.valueOf(t));
+                return tryParseNumber(Long.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException();
             }
         });
-        register(long.class, (t) -> {
+        register(float.class, (arg, player) -> {
             try {
-                return tryParseNumber(Long.class, String.valueOf(t));
+                return tryParseNumber(Float.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException();
             }
         });
-        register(Long.class, (t) -> {
+        register(Float.class, (arg, player) -> {
             try {
-                return tryParseNumber(Long.class, String.valueOf(t));
+                return tryParseNumber(Float.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException();
             }
         });
-        register(float.class, (t) -> {
+        register(double.class, (arg, player) -> {
             try {
-                return tryParseNumber(Float.class, String.valueOf(t));
+                return tryParseNumber(Double.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException();
             }
         });
-        register(Float.class, (t) -> {
+        register(Double.class, (arg, player) -> {
             try {
-                return tryParseNumber(Float.class, String.valueOf(t));
+                return tryParseNumber(Double.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgumentException();
             }
         });
-        register(double.class, (t) -> {
-            try {
-                return tryParseNumber(Double.class, String.valueOf(t));
-            } catch (NumberFormatException e) {
-                throw new InvalidArgumentException();
-            }
-        });
-        register(Double.class, (t) -> {
-            try {
-                return tryParseNumber(Double.class, String.valueOf(t));
-            } catch (NumberFormatException e) {
-                throw new InvalidArgumentException();
-            }
+        register(String.class, (arg, player) -> arg instanceof String ? arg : new InvalidArgumentException());
+        register(String[].class, (arg, player) -> arg instanceof String[] ? arg : new InvalidArgumentException());
+        register(Player.class, (arg, player) -> {
+            return Bukkit.getServer().getPlayer(String.valueOf(arg)) != null ? Bukkit.getServer().getPlayer(String.valueOf(arg)) : new InvalidArgumentException();
         });
     }
 
-    public void register(Class<?> context, TypeResolver method) {
+    // Allows people to register their own types.
+    void register(Class<?> context, TypeResolver method) {
         registeredTypes.put(context, method);
     }
 
-    public Object getTypeResult(Class<?> clss, Object object) {
-        return registeredTypes.get(clss).getResolved(object);
+    // Gets the type result.
+    Object getTypeResult(Class<?> clss, Object object, Player player) {
+        System.out.println("on get");
+        System.out.println(registeredTypes.get(clss).getResolved(object, player).getClass().isInterface());
+        System.out.println("on get end");
+        return registeredTypes.get(clss).getResolved(object, player);
     }
 
-    public boolean isRegisteredType(Class<?> clss) {
+    boolean isRegisteredType(Class<?> clss) {
         return registeredTypes.containsKey(clss);
     }
 
