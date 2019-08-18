@@ -7,8 +7,10 @@ import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.exceptions.NoParamException;
 import me.mattstudios.mf.exceptions.NoSenderParamException;
 import me.mattstudios.mf.exceptions.UnregisteredParamException;
+import me.mattstudios.mf.parameters.ParameterTypes;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
@@ -20,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class CommandHandler extends Command {
+public class CommandHandler extends Command implements TabCompleter {
 
     private CommandBase command;
 
@@ -53,8 +55,11 @@ public class CommandHandler extends Command {
 
             // Checks if the parameters in class are registered.
             for (int i = 1; i < method.getParameterTypes().length; i++) {
-                if (!parameterTypes.isRegisteredType(method.getParameterTypes()[i]))
+                Class clss = method.getParameterTypes()[i];
+                if (clss.isEnum()) clss = Enum.class;
+                if (!parameterTypes.isRegisteredType(clss)) {
                     throw new UnregisteredParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
+                }
             }
 
             // Checks if it is a default method.
@@ -165,10 +170,23 @@ public class CommandHandler extends Command {
                 return true;
             }
 
+            // Creates a list of the params to send.
             List<Object> invokeParams = new ArrayList<>();
+            // Adds the sender as one of the params.
             invokeParams.add(sender);
+
+            // Iterates through all the parameters to check them.
             for (int i = 0; i < paramList.size(); i++) {
-                invokeParams.add(parameterTypes.getTypeResult(paramList.get(i), argumentsList.get(i), (Player) sender));
+                Class parameter = paramList.get(i);
+
+                Object result;
+                // Checks weather the parameter is an enum, because it needs to be sent as Enum.class.
+                if (parameter.isEnum()) result = parameterTypes.getTypeResult(Enum.class, argumentsList.get(i), sender, parameter);
+                else result = parameterTypes.getTypeResult(parameter, argumentsList.get(i), sender);
+
+                // Will be null if error occurs.
+                if (result == null) return true;
+                invokeParams.add(result);
             }
 
             Object[] invokeArray = invokeParams.toArray();
@@ -195,5 +213,10 @@ public class CommandHandler extends Command {
         }
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] strings) {
+        return null;
     }
 }
