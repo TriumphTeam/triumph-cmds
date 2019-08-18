@@ -12,19 +12,19 @@ import me.mattstudios.mf.exceptions.UnregisteredParamException;
 import me.mattstudios.mf.exceptions.WrongParamException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class CommandHandler extends Command implements TabCompleter {
+public class CommandHandler extends Command {
 
     private CommandBase command;
 
@@ -113,7 +113,7 @@ public class CommandHandler extends Command implements TabCompleter {
             if (commandData.hasPermission()) {
                 // Checks whether the command sender has the permission set in the annotation.
                 if (!sender.hasPermission(commandData.getPermission())) {
-                    // Error handler later
+                    // TODO Error handler later
                     sender.sendMessage("No permission!");
                     return true;
                 }
@@ -121,7 +121,7 @@ public class CommandHandler extends Command implements TabCompleter {
 
             // Checks if the command can be accessed from console
             if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-                // Error handler later
+                // TODO Error handler later
                 sender.sendMessage("Can't be console");
                 return true;
             }
@@ -132,7 +132,7 @@ public class CommandHandler extends Command implements TabCompleter {
 
         // Checks if the sub command is registered or not.
         if (!methods.containsKey(arguments[0])) {
-            // Error handler later
+            // TODO Error handler later
             sender.sendMessage("Command doesn't exist!");
             return true;
         }
@@ -144,7 +144,7 @@ public class CommandHandler extends Command implements TabCompleter {
         if (commandData.hasPermission()) {
             // Checks whether the command sender has the permission set in the annotation.
             if (!sender.hasPermission(commandData.getPermission())) {
-                // Error handler later
+                // TODO Error handler later
                 sender.sendMessage("No permission!");
                 return true;
             }
@@ -152,7 +152,7 @@ public class CommandHandler extends Command implements TabCompleter {
 
         // Checks if the command can be accessed from console
         if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-            // Error handler later
+            // TODO Error handler later
             sender.sendMessage("Can't be console");
             return true;
         }
@@ -186,7 +186,8 @@ public class CommandHandler extends Command implements TabCompleter {
             // Checks for correct command usage.
             if (commandData.getParams().size() != argumentsList.size()
                     && !commandData.getParams().get(commandData.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
-                System.out.println("wrong usage");
+                // TODO Error later
+                sender.sendMessage("wrong usage");
                 return true;
             }
 
@@ -215,20 +216,6 @@ public class CommandHandler extends Command implements TabCompleter {
             method.invoke(command, invokeArray);
             return true;
 
-            /*if (paramList.size() == 1 && paramList.get(0).getTypeName().equals(String[].class.getTypeName())){
-                method.invoke(command, sender, arguments);
-                return true;
-            }
-
-            if (paramList.size() > argumentsList.size()) System.out.println("wrong usage");
-
-            System.out.println();
-
-            List<Object> argumentsToPass = new ArrayList<>();
-            argumentsToPass.add(sender);*/
-
-
-            //method.invoke(command);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -237,8 +224,30 @@ public class CommandHandler extends Command implements TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] strings) {
-        return null;
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
+
+        if (args.length == 1) {
+            List<String> commandNames = new ArrayList<>();
+
+            if (!args[0].equals("")) {
+                for (String commandName : methods.keySet()) {
+                    if (!commandName.startsWith(args[0].toLowerCase())) continue;
+                    commandNames.add(commandName);
+                }
+            } else {
+                commandNames = new ArrayList<>(methods.keySet());;
+            }
+
+            Collections.sort(commandNames);
+
+            return commandNames;
+        }
+
+        if (args.length == 2) sender.sendMessage(String.valueOf(2));
+        if (args.length == 3) sender.sendMessage(String.valueOf(3));
+        if (args.length == 4) sender.sendMessage(String.valueOf(4));
+
+        return super.tabComplete(sender, alias, args);
     }
 
     private CommandData getDefaultMethod() {
