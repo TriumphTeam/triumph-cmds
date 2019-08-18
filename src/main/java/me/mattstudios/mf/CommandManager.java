@@ -2,8 +2,8 @@ package me.mattstudios.mf;
 
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
+import me.mattstudios.mf.components.ParameterTypes;
 import me.mattstudios.mf.exceptions.NoCommandException;
-import me.mattstudios.mf.parameters.ParameterTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.java.JavaPlugin;

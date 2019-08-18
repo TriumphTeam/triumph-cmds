@@ -1,4 +1,4 @@
-package me.mattstudios.mf.parameters;
+package me.mattstudios.mf.components;
 
 import me.mattstudios.mf.exceptions.InvalidArgumentException;
 import org.bukkit.Bukkit;
@@ -145,6 +145,14 @@ public class ParameterTypes {
         }
     }
 
+    /**
+     * Speci
+     * @param clss
+     * @param object
+     * @param sender
+     * @param parseClass
+     * @return
+     */
     public Object getTypeResult(Class<?> clss, Object object, CommandSender sender, Class<?> parseClass) {
         try {
             return registeredTypes.get(clss).getResolved(object, parseClass);

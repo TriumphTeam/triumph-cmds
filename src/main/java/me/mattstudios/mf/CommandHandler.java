@@ -4,10 +4,12 @@ import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
+import me.mattstudios.mf.components.CommandData;
+import me.mattstudios.mf.components.ParameterTypes;
 import me.mattstudios.mf.exceptions.NoParamException;
 import me.mattstudios.mf.exceptions.NoSenderParamException;
 import me.mattstudios.mf.exceptions.UnregisteredParamException;
-import me.mattstudios.mf.parameters.ParameterTypes;
+import me.mattstudios.mf.exceptions.WrongParamException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -26,8 +28,7 @@ public class CommandHandler extends Command implements TabCompleter {
 
     private CommandBase command;
 
-    private Map<String, Method> methods;
-    private Method defaultMethod;
+    private Map<String, CommandData> methods;
 
     private ParameterTypes parameterTypes;
 
@@ -53,28 +54,47 @@ public class CommandHandler extends Command implements TabCompleter {
             if (!method.getParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !method.getParameterTypes()[0].getTypeName().equals(Player.class.getTypeName()))
                 throw new NoSenderParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender or a Player!");
 
+            // Starts the command data object.
+            CommandData commandData = new CommandData();
+            commandData.setMethod(method);
+            // Sets the first parameter as either player or command sender.
+            commandData.setFirstParam(method.getParameterTypes()[0]);
+
             // Checks if the parameters in class are registered.
             for (int i = 1; i < method.getParameterTypes().length; i++) {
                 Class clss = method.getParameterTypes()[i];
-                if (clss.isEnum()) clss = Enum.class;
-                if (!parameterTypes.isRegisteredType(clss)) {
+                if (!clss.isEnum() && !parameterTypes.isRegisteredType(clss)) {
                     throw new UnregisteredParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
                 }
+                commandData.getParams().add(clss);
             }
 
             // Checks if it is a default method.
-            if (method.isAnnotationPresent(Default.class)) defaultMethod = method;
+            if (method.isAnnotationPresent(Default.class)) {
+                commandData.setDef(true);
+                // Checks if there is more than one parameters in the default method.
+                if (commandData.getParams().size() != 0)
+                    throw new WrongParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Default method cannot have more than one parameter!");
+            }
+
+            // Checks if permission annotation is present.
+            if (method.isAnnotationPresent(Permission.class)) {
+                // Checks whether the command sender has the permission set in the annotation.
+                commandData.setPermission(method.getAnnotation(SubCommand.class).value());
+            }
 
             // Checks for aliases.
             if (method.isAnnotationPresent(Alias.class)) {
                 // Iterates through the alias and add each as a normal sub command.
                 for (String alias : method.getAnnotation(Alias.class).value()) {
-                    methods.put(alias, method);
+                    CommandData aliasCD = commandData;
+                    if (aliasCD.isDef()) aliasCD.setDef(false);
+                    methods.put(alias, aliasCD);
                 }
             }
 
             // puts the main method in the list.
-            methods.put(method.getAnnotation(SubCommand.class).value(), method);
+            methods.put(method.getAnnotation(SubCommand.class).value(), commandData);
         }
     }
 
@@ -83,13 +103,16 @@ public class CommandHandler extends Command implements TabCompleter {
 
         // Runs default command here as arguments are 0 or empty.
         if (arguments.length == 0 || arguments[0].isEmpty()) {
+
+            CommandData commandData = getDefaultMethod();
+
             // Will not run if there is no default methods.
-            if (defaultMethod == null) return true;
+            if (commandData == null) return true;
 
             // Checks if permission annotation is present.
-            if (defaultMethod.isAnnotationPresent(Permission.class)) {
+            if (commandData.hasPermission()) {
                 // Checks whether the command sender has the permission set in the annotation.
-                if (!sender.hasPermission(defaultMethod.getAnnotation(SubCommand.class).value())) {
+                if (!sender.hasPermission(commandData.getPermission())) {
                     // Error handler later
                     sender.sendMessage("No permission!");
                     return true;
@@ -97,14 +120,14 @@ public class CommandHandler extends Command implements TabCompleter {
             }
 
             // Checks if the command can be accessed from console
-            if (!defaultMethod.getParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
+            if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
                 // Error handler later
                 sender.sendMessage("Can't be console");
                 return true;
             }
 
             // Executes all the commands.
-            return executeCommand(defaultMethod, sender, arguments, true);
+            return executeCommand(commandData, sender, arguments, true);
         }
 
         // Checks if the sub command is registered or not.
@@ -115,12 +138,12 @@ public class CommandHandler extends Command implements TabCompleter {
         }
 
         // Gets the method from the list.
-        Method method = methods.get(arguments[0]);
+        CommandData commandData = methods.get(arguments[0]);
 
         // Checks if permission annotation is present.
-        if (method.isAnnotationPresent(Permission.class)) {
+        if (commandData.hasPermission()) {
             // Checks whether the command sender has the permission set in the annotation.
-            if (!sender.hasPermission(method.getAnnotation(SubCommand.class).value())) {
+            if (!sender.hasPermission(commandData.getPermission())) {
                 // Error handler later
                 sender.sendMessage("No permission!");
                 return true;
@@ -128,44 +151,41 @@ public class CommandHandler extends Command implements TabCompleter {
         }
 
         // Checks if the command can be accessed from console
-        if (!method.getParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
+        if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
             // Error handler later
             sender.sendMessage("Can't be console");
             return true;
         }
 
         // Runs the command executor.
-        return executeCommand(method, sender, arguments, false);
+        return executeCommand(commandData, sender, arguments, false);
     }
 
-    private boolean executeCommand(Method method, CommandSender sender, String[] arguments, boolean def) {
+    private boolean executeCommand(CommandData commandData, CommandSender sender, String[] arguments, boolean def) {
         try {
-            // Removes the Player/CommandSender from the parameters list.
-            List<Class> paramList = new LinkedList<>(Arrays.asList(method.getParameterTypes()));
-            paramList.remove(0);
 
-            System.out.println(paramList);
+            Method method = commandData.getMethod();
 
             // Checks if it the command is default and remove the sub command argument one if it is not.
             List<String> argumentsList = new LinkedList<>(Arrays.asList(arguments));
             if (!def && argumentsList.size() > 0) argumentsList.remove(0);
 
             // Checks if it is a default type command with just sender and args.
-            if (paramList.size() == 1
-                    && paramList.get(0).getTypeName().equals(String[].class.getTypeName())) {
+            if (commandData.getParams().size() == 1
+                    && commandData.getParams().get(0).getTypeName().equals(String[].class.getTypeName())) {
                 method.invoke(command, sender, arguments);
                 return true;
             }
 
             // Check if the method only has a sender as parameter.
-            if (paramList.size() == 0 && argumentsList.size() == 0) {
+            if (commandData.getParams().size() == 0 && argumentsList.size() == 0) {
                 method.invoke(command, sender);
                 return true;
             }
 
             // Checks for correct command usage.
-            if (paramList.size() != argumentsList.size()
-                    && !paramList.get(paramList.size() - 1).getTypeName().equals(String[].class.getTypeName())) {
+            if (commandData.getParams().size() != argumentsList.size()
+                    && !commandData.getParams().get(commandData.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
                 System.out.println("wrong usage");
                 return true;
             }
@@ -176,12 +196,13 @@ public class CommandHandler extends Command implements TabCompleter {
             invokeParams.add(sender);
 
             // Iterates through all the parameters to check them.
-            for (int i = 0; i < paramList.size(); i++) {
-                Class parameter = paramList.get(i);
+            for (int i = 0; i < commandData.getParams().size(); i++) {
+                Class parameter = commandData.getParams().get(i);
 
                 Object result;
                 // Checks weather the parameter is an enum, because it needs to be sent as Enum.class.
-                if (parameter.isEnum()) result = parameterTypes.getTypeResult(Enum.class, argumentsList.get(i), sender, parameter);
+                if (parameter.isEnum())
+                    result = parameterTypes.getTypeResult(Enum.class, argumentsList.get(i), sender, parameter);
                 else result = parameterTypes.getTypeResult(parameter, argumentsList.get(i), sender);
 
                 // Will be null if error occurs.
@@ -217,6 +238,13 @@ public class CommandHandler extends Command implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] strings) {
+        return null;
+    }
+
+    private CommandData getDefaultMethod() {
+        for (String subCommand : methods.keySet()) {
+            if (methods.get(subCommand).isDef()) return methods.get(subCommand);
+        }
         return null;
     }
 }

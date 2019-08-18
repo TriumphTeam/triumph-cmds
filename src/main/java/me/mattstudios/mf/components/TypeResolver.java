@@ -1,4 +1,4 @@
-package me.mattstudios.mf.parameters;
+package me.mattstudios.mf.components;
 
 import me.mattstudios.mf.exceptions.InvalidArgumentException;
 
