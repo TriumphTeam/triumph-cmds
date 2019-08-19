@@ -7,6 +7,9 @@ import me.mattstudios.mf.components.ParameterTypes;
 import me.mattstudios.mf.exceptions.NoCommandException;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
@@ -14,7 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommandManager {
+public class CommandManager implements Listener {
 
     private JavaPlugin plugin;
 
@@ -26,6 +29,8 @@ public class CommandManager {
 
     public CommandManager(JavaPlugin plugin) {
         this.plugin = plugin;
+
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         commands = new HashMap<>();
         parameterTypes = new ParameterTypes();
@@ -93,7 +98,16 @@ public class CommandManager {
         }
     }
 
-    public void unregisterAll() {
+    @EventHandler
+    public void onPluginDisable(PluginDisableEvent event) {
+        if (!(plugin.getName().equalsIgnoreCase(event.getPlugin().getName()))) {
+            return;
+        }
+
+        unregisterAll();
+    }
+
+    private void unregisterAll() {
         commands.clear();
     }
 }

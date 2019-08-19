@@ -68,6 +68,14 @@ public class CommandHandler extends Command {
             // Sets the first parameter as either player or command sender.
             commandData.setFirstParam(method.getParameterTypes()[0]);
 
+            // Checks if it is a default method.
+            if (method.isAnnotationPresent(Default.class)) {
+                commandData.setDef(true);
+                // Checks if there is more than one parameters in the default method.
+                if (commandData.getParams().size() != 0)
+                    throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Default method cannot have more than one parameter!");
+            }
+
             // Checks if the parameters in class are registered.
             for (int i = 1; i < method.getParameterTypes().length; i++) {
                 Class clss = method.getParameterTypes()[i];
@@ -77,18 +85,10 @@ public class CommandHandler extends Command {
                 commandData.getParams().add(clss);
             }
 
-            // Checks if it is a default method.
-            if (method.isAnnotationPresent(Default.class)) {
-                commandData.setDef(true);
-                // Checks if there is more than one parameters in the default method.
-                if (commandData.getParams().size() != 0)
-                    throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Default method cannot have more than one parameter!");
-            }
-
             // Checks if permission annotation is present.
             if (method.isAnnotationPresent(Permission.class)) {
                 // Checks whether the command sender has the permission set in the annotation.
-                commandData.setPermission(method.getAnnotation(SubCommand.class).value());
+                commandData.setPermission(method.getAnnotation(Permission.class).value());
             }
 
             // Checks for completion on the parameters.
@@ -141,7 +141,8 @@ public class CommandHandler extends Command {
             }
 
             // puts the main method in the list.
-            subCommands.put(method.getAnnotation(SubCommand.class).value(), commandData);
+            if (!commandData.isDef() || method.isAnnotationPresent(SubCommand.class))
+                subCommands.put(method.getAnnotation(SubCommand.class).value(), commandData);
         }
     }
 
