@@ -10,15 +10,15 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommandManager {
 
     private JavaPlugin plugin;
     // List of commands;
-    private List<CommandHandler> commands;
+    private Map<String, CommandHandler> commands;
 
     private ParameterTypes parameterTypes;
     private CompletionHandler completionHandler;
@@ -26,7 +26,7 @@ public class CommandManager {
     public CommandManager(JavaPlugin plugin) {
         this.plugin = plugin;
 
-        commands = new ArrayList<>();
+        commands = new HashMap<>();
         parameterTypes = new ParameterTypes();
         completionHandler = new CompletionHandler();
     }
@@ -75,11 +75,18 @@ public class CommandManager {
             bukkitCommandMap.setAccessible(true);
 
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
-            CommandHandler commandHandler = new CommandHandler(parameterTypes, completionHandler, command, commandName, Arrays.asList(aliases));
+
+            CommandHandler commandHandler;
+            if (commands.containsKey(commandName)) {
+                commands.get(commandName).addSubCommands(command);
+                return;
+            }
+
+            commandHandler = new CommandHandler(parameterTypes, completionHandler, command, commandName, Arrays.asList(aliases));
             commandMap.register(plugin.getName(), commandHandler);
 
             // Puts the handler in the list to unregister later.
-            commands.add(commandHandler);
+            commands.put(commandName, commandHandler);
         } catch (Exception e) {
             e.printStackTrace();
         }

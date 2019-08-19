@@ -31,8 +31,6 @@ import java.util.Map;
 
 public class CommandHandler extends Command {
 
-    private CommandBase command;
-
     private Map<String, CommandData> methods;
 
     private ParameterTypes parameterTypes;
@@ -40,13 +38,16 @@ public class CommandHandler extends Command {
 
     CommandHandler(ParameterTypes parameterTypes, CompletionHandler completionHandler, CommandBase command, String commandName, List<String> aliases) {
         super(commandName);
-        this.command = command;
         this.parameterTypes = parameterTypes;
         this.completionHandler = completionHandler;
         setAliases(aliases);
 
         methods = new HashMap<>();
 
+       addSubCommands(command);
+    }
+
+    public void addSubCommands(CommandBase command) {
         // Iterates through all the methods in the class.
         for (Method method : command.getClass().getDeclaredMethods()) {
             // Checks if the method is public and if it is annotated by @Default or @SubCommand.
@@ -62,7 +63,7 @@ public class CommandHandler extends Command {
                 throw new NoSenderParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender or a Player!");
 
             // Starts the command data object.
-            CommandData commandData = new CommandData();
+            CommandData commandData = new CommandData(command);
             commandData.setMethod(method);
             // Sets the first parameter as either player or command sender.
             commandData.setFirstParam(method.getParameterTypes()[0]);
@@ -218,13 +219,13 @@ public class CommandHandler extends Command {
             // Checks if it is a default type command with just sender and args.
             if (commandData.getParams().size() == 1
                     && commandData.getParams().get(0).getTypeName().equals(String[].class.getTypeName())) {
-                method.invoke(command, sender, arguments);
+                method.invoke(commandData.getCommand(), sender, arguments);
                 return true;
             }
 
             // Check if the method only has a sender as parameter.
             if (commandData.getParams().size() == 0 && argumentsList.size() == 0) {
-                method.invoke(command, sender);
+                method.invoke(commandData.getCommand(), sender);
                 return true;
             }
 
@@ -256,7 +257,7 @@ public class CommandHandler extends Command {
                 invokeParams.add(result);
             }
 
-            method.invoke(command, invokeParams.toArray());
+            method.invoke(commandData.getCommand(), invokeParams.toArray());
             return true;
 
         } catch (Exception e) {

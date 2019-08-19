@@ -1,5 +1,7 @@
 package me.mattstudios.mf.components;
 
+import me.mattstudios.mf.CommandBase;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +9,7 @@ import java.util.List;
 
 public class CommandData {
 
+    private CommandBase command;
     private Method method;
 
     private boolean def;
@@ -16,7 +19,9 @@ public class CommandData {
 
     private String permission;
 
-    public CommandData() {
+    public CommandData(CommandBase command) {
+        this.command = command;
+
         params = new ArrayList<>();
         completions = new HashMap<>();
     }
@@ -63,5 +68,9 @@ public class CommandData {
 
     public String getPermission() {
         return permission;
+    }
+
+    public CommandBase getCommand() {
+        return command;
     }
 }
