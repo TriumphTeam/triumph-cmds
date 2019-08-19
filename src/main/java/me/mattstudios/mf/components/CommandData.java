@@ -2,6 +2,7 @@ package me.mattstudios.mf.components;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CommandData {
@@ -11,11 +12,13 @@ public class CommandData {
     private boolean def;
     private Class firstParam;
     private List<Class> params;
+    private HashMap<Integer, String> completions;
 
     private String permission;
 
     public CommandData() {
         params = new ArrayList<>();
+        completions = new HashMap<>();
     }
 
     public Method getMethod() {
@@ -44,6 +47,10 @@ public class CommandData {
 
     public List<Class> getParams() {
         return params;
+    }
+
+    public HashMap<Integer, String> getCompletions() {
+        return completions;
     }
 
     public void setPermission(String permission) {

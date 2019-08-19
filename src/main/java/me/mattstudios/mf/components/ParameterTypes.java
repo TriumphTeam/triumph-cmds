@@ -6,12 +6,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ParameterTypes {
+
     // The map of registered types.
     private final Map<Class<?>, TypeResolver> registeredTypes = new HashMap<>();
 
@@ -108,14 +106,6 @@ public class ParameterTypes {
             }
             throw new InvalidArgumentException("error");
         });
-        register(Enum.class, (arg, type) -> {
-            // noinspection unchecked
-            Class<? extends Enum<?>> enumCls = (Class<? extends Enum<?>>) type;
-            for (Enum<?> enumVal : enumCls.getEnumConstants()) {
-                if (enumVal.name().equalsIgnoreCase(String.valueOf(arg))) return enumVal;
-            }
-            throw new InvalidArgumentException("error");
-        });
     }
 
     /**
@@ -146,12 +136,13 @@ public class ParameterTypes {
     }
 
     /**
-     * Speci
-     * @param clss
-     * @param object
-     * @param sender
-     * @param parseClass
-     * @return
+     * Special case for enums because it wasn't working the other way.
+     *
+     * @param clss       The class, should be Enum.class.
+     * @param object     The object to test.
+     * @param sender     The Player to send errors messages.
+     * @param parseClass The main class to get results from.
+     * @return The enum value or error.
      */
     public Object getTypeResult(Class<?> clss, Object object, CommandSender sender, Class<?> parseClass) {
         try {
@@ -202,10 +193,6 @@ public class ParameterTypes {
                 throw new NumberFormatException();
 
         }
-    }
-
-    public static List<String> enumNames(Enum<?>[] values) {
-        return Stream.of(values).map(Enum::name).collect(Collectors.toList());
     }
 }
 

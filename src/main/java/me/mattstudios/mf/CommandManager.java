@@ -2,6 +2,7 @@ package me.mattstudios.mf;
 
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
+import me.mattstudios.mf.components.CompletionHandler;
 import me.mattstudios.mf.components.ParameterTypes;
 import me.mattstudios.mf.exceptions.NoCommandException;
 import org.bukkit.Bukkit;
@@ -9,24 +10,30 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class CommandManager {
 
     private JavaPlugin plugin;
-    private List<CommandBase> commands;
+    // List of commands;
+    private List<CommandHandler> commands;
 
     private ParameterTypes parameterTypes;
+    private CompletionHandler completionHandler;
 
     public CommandManager(JavaPlugin plugin) {
         this.plugin = plugin;
 
+        commands = new ArrayList<>();
         parameterTypes = new ParameterTypes();
+        completionHandler = new CompletionHandler();
     }
 
     /**
      * Gets the parameter types class to register new ones and to check too.
+     *
      * @return The parameter types class.
      */
     public ParameterTypes getParameterTypes() {
@@ -34,7 +41,17 @@ public class CommandManager {
     }
 
     /**
+     * Gets the completion handler class, which handles all the command completions in the plugin.
+     *
+     * @return The completion handler.
+     */
+    public CompletionHandler getCompletionHandler() {
+        return completionHandler;
+    }
+
+    /**
      * Registers a command.
+     *
      * @param command The command class to register.
      */
     public void register(CommandBase command) {
@@ -58,11 +75,17 @@ public class CommandManager {
             bukkitCommandMap.setAccessible(true);
 
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
-            commandMap.register(plugin.getName(), new CommandHandler(parameterTypes, command, commandName, Arrays.asList(aliases)));
-            
-        } catch(Exception e) {
+            CommandHandler commandHandler = new CommandHandler(parameterTypes, completionHandler, command, commandName, Arrays.asList(aliases));
+            commandMap.register(plugin.getName(), commandHandler);
+
+            // Puts the handler in the list to unregister later.
+            commands.add(commandHandler);
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    public void unregisterAll() {
+        commands.clear();
     }
 }

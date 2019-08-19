@@ -1,21 +1,26 @@
 package me.mattstudios.mf;
 
 import me.mattstudios.mf.annotations.Alias;
+import me.mattstudios.mf.annotations.Completion;
 import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.components.CommandData;
+import me.mattstudios.mf.components.CompletionHandler;
 import me.mattstudios.mf.components.ParameterTypes;
+import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
+import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
+import me.mattstudios.mf.exceptions.InvalidParamException;
 import me.mattstudios.mf.exceptions.NoParamException;
 import me.mattstudios.mf.exceptions.NoSenderParamException;
 import me.mattstudios.mf.exceptions.UnregisteredParamException;
-import me.mattstudios.mf.exceptions.WrongParamException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,11 +36,13 @@ public class CommandHandler extends Command {
     private Map<String, CommandData> methods;
 
     private ParameterTypes parameterTypes;
+    private CompletionHandler completionHandler;
 
-    CommandHandler(ParameterTypes parameterTypes, CommandBase command, String commandName, List<String> aliases) {
+    CommandHandler(ParameterTypes parameterTypes, CompletionHandler completionHandler, CommandBase command, String commandName, List<String> aliases) {
         super(commandName);
         this.command = command;
         this.parameterTypes = parameterTypes;
+        this.completionHandler = completionHandler;
         setAliases(aliases);
 
         methods = new HashMap<>();
@@ -63,7 +70,7 @@ public class CommandHandler extends Command {
             // Checks if the parameters in class are registered.
             for (int i = 1; i < method.getParameterTypes().length; i++) {
                 Class clss = method.getParameterTypes()[i];
-                if (!clss.isEnum() && !parameterTypes.isRegisteredType(clss)) {
+                if (!clss.isEnum() && !this.parameterTypes.isRegisteredType(clss)) {
                     throw new UnregisteredParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
                 }
                 commandData.getParams().add(clss);
@@ -74,13 +81,51 @@ public class CommandHandler extends Command {
                 commandData.setDef(true);
                 // Checks if there is more than one parameters in the default method.
                 if (commandData.getParams().size() != 0)
-                    throw new WrongParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Default method cannot have more than one parameter!");
+                    throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Default method cannot have more than one parameter!");
             }
 
             // Checks if permission annotation is present.
             if (method.isAnnotationPresent(Permission.class)) {
                 // Checks whether the command sender has the permission set in the annotation.
                 commandData.setPermission(method.getAnnotation(SubCommand.class).value());
+            }
+
+            // Checks for completion on the parameters.
+            for (int i = 0; i < method.getParameters().length; i++) {
+                Parameter parameter = method.getParameters()[i];
+
+                if (i == 0 && parameter.isAnnotationPresent(Completion.class))
+                    throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion annotation!");
+
+                if (!parameter.isAnnotationPresent(Completion.class)) continue;
+
+                String[] values = parameter.getAnnotation(Completion.class).value();
+
+                if (values.length != 1)
+                    throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Parameter completion can only have one value!");
+                if (!values[0].startsWith("#"))
+                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
+
+                if (!this.completionHandler.isRegistered(values[0]))
+                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID!");
+
+                commandData.getCompletions().put(i, values[0]);
+            }
+
+            // Checks for completion annotation in the method.
+            if (method.isAnnotationPresent(Completion.class)) {
+                String[] completionValues = method.getAnnotation(Completion.class).value();
+                for (int i = 0; i < completionValues.length; i++) {
+                    String id = completionValues[i];
+
+                    if (!id.startsWith("#"))
+                        throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
+
+                    if (!this.completionHandler.isRegistered(id))
+                        throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID!");
+
+                    commandData.getCompletions().put(i + 1, id);
+                }
             }
 
             // Checks for aliases.
@@ -211,9 +256,7 @@ public class CommandHandler extends Command {
                 invokeParams.add(result);
             }
 
-            Object[] invokeArray = invokeParams.toArray();
-
-            method.invoke(command, invokeArray);
+            method.invoke(command, invokeParams.toArray());
             return true;
 
         } catch (Exception e) {
@@ -226,30 +269,76 @@ public class CommandHandler extends Command {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
 
+        // Checks if args is 1 so it sends the sub comments completion.
         if (args.length == 1) {
             List<String> commandNames = new ArrayList<>();
 
+            // Checks if the typing command is empty.
             if (!args[0].equals("")) {
                 for (String commandName : methods.keySet()) {
                     if (!commandName.startsWith(args[0].toLowerCase())) continue;
                     commandNames.add(commandName);
                 }
             } else {
-                commandNames = new ArrayList<>(methods.keySet());;
+                commandNames = new ArrayList<>(methods.keySet());
             }
 
+            // Sorts the sub commands by alphabetical order.
             Collections.sort(commandNames);
 
+            // The complete values.
             return commandNames;
         }
 
-        if (args.length == 2) sender.sendMessage(String.valueOf(2));
-        if (args.length == 3) sender.sendMessage(String.valueOf(3));
-        if (args.length == 4) sender.sendMessage(String.valueOf(4));
+        String subCommand = args[0];
 
-        return super.tabComplete(sender, alias, args);
+        // Checks if it contains the sub command; Should always be true.
+        if (!methods.containsKey(subCommand)) return super.tabComplete(sender, alias, args);
+
+        CommandData commandData = methods.get(subCommand);
+
+        // Checks if the completion list has the current args position.
+        if (!commandData.getCompletions().containsKey(args.length - 1)) return super.tabComplete(sender, alias, args);
+
+        // Gets the current ID.
+        String id = commandData.getCompletions().get(args.length - 1);
+
+        // Checks one more time if the ID is registered.
+        if (!completionHandler.isRegistered(id)) return super.tabComplete(sender, alias, args);
+
+        List<String> completionList = new ArrayList<>();
+        Object inputClss = commandData.getParams().get(args.length - 2);
+
+        if (id.contains(":")) {
+            String[] values = id.split(":");
+            id = values[0];
+            inputClss = values[1];
+        }
+
+        String current = args[args.length - 1];
+
+        // Checks if the typing completion is empty.
+        if (!current.equals("")) {
+            for (String completion : completionHandler.getTypeResult(id, inputClss)) {
+                if (!completion.toLowerCase().contains(current.toLowerCase())) continue;
+                completionList.add(completion);
+            }
+        } else {
+            completionList = new ArrayList<>(completionHandler.getTypeResult(id, inputClss));
+        }
+
+        // Sorts the completion content by alphabetical order.
+        Collections.sort(completionList);
+
+        // The complete values.
+        return completionList;
     }
 
+    /**
+     * Gets the default method from the Command Data objects.
+     *
+     * @return The Command data of the default method if there is one.
+     */
     private CommandData getDefaultMethod() {
         for (String subCommand : methods.keySet()) {
             if (methods.get(subCommand).isDef()) return methods.get(subCommand);
