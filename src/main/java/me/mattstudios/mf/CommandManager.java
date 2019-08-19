@@ -17,6 +17,7 @@ import java.util.Map;
 public class CommandManager {
 
     private JavaPlugin plugin;
+
     // List of commands;
     private Map<String, CommandHandler> commands;
 

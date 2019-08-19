@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class CommandHandler extends Command {
 
-    private Map<String, CommandData> methods;
+    private Map<String, CommandData> subCommands;
 
     private ParameterTypes parameterTypes;
     private CompletionHandler completionHandler;
@@ -42,12 +42,12 @@ public class CommandHandler extends Command {
         this.completionHandler = completionHandler;
         setAliases(aliases);
 
-        methods = new HashMap<>();
+        subCommands = new HashMap<>();
 
        addSubCommands(command);
     }
 
-    public void addSubCommands(CommandBase command) {
+    void addSubCommands(CommandBase command) {
         // Iterates through all the methods in the class.
         for (Method method : command.getClass().getDeclaredMethods()) {
             // Checks if the method is public and if it is annotated by @Default or @SubCommand.
@@ -133,14 +133,15 @@ public class CommandHandler extends Command {
             if (method.isAnnotationPresent(Alias.class)) {
                 // Iterates through the alias and add each as a normal sub command.
                 for (String alias : method.getAnnotation(Alias.class).value()) {
+                    //noinspection UnnecessaryLocalVariable
                     CommandData aliasCD = commandData;
                     if (aliasCD.isDef()) aliasCD.setDef(false);
-                    methods.put(alias, aliasCD);
+                    subCommands.put(alias, aliasCD);
                 }
             }
 
             // puts the main method in the list.
-            methods.put(method.getAnnotation(SubCommand.class).value(), commandData);
+            subCommands.put(method.getAnnotation(SubCommand.class).value(), commandData);
         }
     }
 
@@ -177,14 +178,14 @@ public class CommandHandler extends Command {
         }
 
         // Checks if the sub command is registered or not.
-        if (!methods.containsKey(arguments[0])) {
+        if (!subCommands.containsKey(arguments[0])) {
             // TODO Error handler later
             sender.sendMessage("Command doesn't exist!");
             return true;
         }
 
         // Gets the method from the list.
-        CommandData commandData = methods.get(arguments[0]);
+        CommandData commandData = subCommands.get(arguments[0]);
 
         // Checks if permission annotation is present.
         if (commandData.hasPermission()) {
@@ -276,12 +277,12 @@ public class CommandHandler extends Command {
 
             // Checks if the typing command is empty.
             if (!args[0].equals("")) {
-                for (String commandName : methods.keySet()) {
+                for (String commandName : subCommands.keySet()) {
                     if (!commandName.startsWith(args[0].toLowerCase())) continue;
                     commandNames.add(commandName);
                 }
             } else {
-                commandNames = new ArrayList<>(methods.keySet());
+                commandNames = new ArrayList<>(subCommands.keySet());
             }
 
             // Sorts the sub commands by alphabetical order.
@@ -294,9 +295,9 @@ public class CommandHandler extends Command {
         String subCommand = args[0];
 
         // Checks if it contains the sub command; Should always be true.
-        if (!methods.containsKey(subCommand)) return super.tabComplete(sender, alias, args);
+        if (!subCommands.containsKey(subCommand)) return super.tabComplete(sender, alias, args);
 
-        CommandData commandData = methods.get(subCommand);
+        CommandData commandData = subCommands.get(subCommand);
 
         // Checks if the completion list has the current args position.
         if (!commandData.getCompletions().containsKey(args.length - 1)) return super.tabComplete(sender, alias, args);
@@ -341,8 +342,8 @@ public class CommandHandler extends Command {
      * @return The Command data of the default method if there is one.
      */
     private CommandData getDefaultMethod() {
-        for (String subCommand : methods.keySet()) {
-            if (methods.get(subCommand).isDef()) return methods.get(subCommand);
+        for (String subCommand : subCommands.keySet()) {
+            if (subCommands.get(subCommand).isDef()) return subCommands.get(subCommand);
         }
         return null;
     }

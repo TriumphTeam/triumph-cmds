@@ -16,6 +16,9 @@ public class CompletionHandler {
 
     private final Map<String, CompletionResolver> registeredCompletions = new HashMap<>();
 
+    /**
+     * Registers all the default completions.
+     */
     public CompletionHandler() {
         register("#players", input -> {
             List<String> players = new ArrayList<>();
@@ -52,16 +55,35 @@ public class CompletionHandler {
         });
     }
 
+    /**
+     * Registers a new completion.
+     *
+     * @param id                 The ID of the completion to register.
+     * @param completionResolver A function with the result you want.
+     */
     public void register(String id, CompletionResolver completionResolver) {
         if (!id.startsWith("#"))
             throw new InvalidCompletionIdException("Could not register completion, id - " + id + " does not start with #.");
         registeredCompletions.put(id, completionResolver);
     }
 
+    /**
+     * Gets the values from the registered functions.
+     *
+     * @param id    The ID to get from.
+     * @param input The input to base an output (normally not needed).
+     * @return The string list with all the completions.
+     */
     public List<String> getTypeResult(String id, Object input) {
-        return registeredCompletions.get(id).getResolved(input);
+        return registeredCompletions.get(id).resolve(input);
     }
 
+    /**
+     * Checks if the ID is currently registered.
+     *
+     * @param id The ID to check.
+     * @return The result of being registered or not.
+     */
     public boolean isRegistered(String id) {
         if (id.contains(":")) {
             String[] content = id.split(":");
