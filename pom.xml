@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.mattstudios.utils</groupId>
-    <artifactId>matt-framework</artifactId>
+    <artifactId>matts-framework</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
