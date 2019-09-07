@@ -205,12 +205,10 @@ public class CommandHandler extends Command {
         CommandData commandData = subCommands.get(arguments[0]);
 
         // Checks if permission annotation is present.
-        if (commandData.hasPermission()) {
-            // Checks whether the command sender has the permission set in the annotation.
-            if (!sender.hasPermission(commandData.getPermission())) {
-                messageHandler.sendMessage(Message.NO_PERMISSION, sender, null);
-                return true;
-            }
+        // Checks whether the command sender has the permission set in the annotation.
+        if (commandData.hasPermission() && !sender.hasPermission(commandData.getPermission())) {
+            messageHandler.sendMessage(Message.NO_PERMISSION, sender, null);
+            return true;
         }
 
         // Checks if the command can be accessed from console
@@ -365,7 +363,7 @@ public class CommandHandler extends Command {
         String current = args[args.length - 1];
 
         // Checks if the typing completion is empty.
-        if (!current.equals("")) {
+        if (!"".equals(current)) {
             for (String completion : completionHandler.getTypeResult(id, inputClss)) {
                 if (!completion.toLowerCase().contains(current.toLowerCase())) continue;
                 completionList.add(completion);
