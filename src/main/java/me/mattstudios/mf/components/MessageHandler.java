@@ -14,10 +14,14 @@ public class MessageHandler {
 
     // Registers all the default messages.
     public MessageHandler() {
-        register(Message.NO_PERMISSION, (sender) -> sender.sendMessage(color("&cYou don't have permission to execute this command!")));
-        register(Message.NO_CONSOLE, (sender) -> sender.sendMessage(color("&cCommand can't be executed through the console!")));
-        register(Message.DOESNT_EXISTS, (sender) -> sender.sendMessage(color("&cThe command you're trying to use doesn't exist!")));
-        register(Message.WRONG_USAGE, (sender) -> sender.sendMessage(color("&cWrong usage for the command!")));
+        register(Message.NO_PERMISSION, (sender, arg) -> sender.sendMessage(color("&cYou don't have permission to execute this command!")));
+        register(Message.NO_CONSOLE, (sender, arg) -> sender.sendMessage(color("&cCommand can't be executed through the console!")));
+        register(Message.DOESNT_EXISTS, (sender, arg) -> sender.sendMessage(color("&cThe command you're trying to use doesn't exist!")));
+        register(Message.WRONG_USAGE, (sender, arg) -> sender.sendMessage(color("&cWrong usage for the command!")));
+        register(Message.MUST_BE_NUMBER, (sender, arg) -> sender.sendMessage(color("&c" + arg + " must be a number!")));
+        register(Message.MUST_BE_NUMBER_DECIMAL, (sender, arg) -> sender.sendMessage(color("&c" + arg + " must be a number!")));
+        register(Message.MUST_BE_PLAYER, (sender, arg) -> sender.sendMessage(color("&c" + arg + " is not a valid player!")));
+        register(Message.INVALID_VALUE, (sender, arg) -> sender.sendMessage(color("&c" + arg + " is invalid!")));
     }
 
     /**
@@ -36,8 +40,8 @@ public class MessageHandler {
      * @param message       The message ENUM.
      * @param commandSender The command sender to send the message to.
      */
-    public void sendMessage(Message message, CommandSender commandSender) {
-        messages.get(message).resolve(commandSender);
+    public void sendMessage(Message message, CommandSender commandSender, String argument) {
+        messages.get(message).resolve(commandSender, argument);
     }
 
 }

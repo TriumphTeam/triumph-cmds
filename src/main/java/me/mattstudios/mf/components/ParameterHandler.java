@@ -11,93 +11,98 @@ import java.util.Map;
 public class ParameterHandler {
 
     // The map of registered parameters.
-    private final Map<Class<?>, parameterResolver> registeredTypes = new HashMap<>();
+    private final Map<Class<?>, ParameterResolver> registeredTypes = new HashMap<>();
+
+    private MessageHandler messageHandler;
 
     // Registers all the parameters;
-    public ParameterHandler() {
-        // TODO ERROR MESSAGES HERE
+    public ParameterHandler(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
+
         register(Short.class, (arg, type) -> {
             try {
                 return tryParseNumber(Short.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                return null;
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(short.class, (arg, type) -> {
             try {
                 return tryParseNumber(Short.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(int.class, (arg, type) -> {
             try {
                 return tryParseNumber(Integer.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error int");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(Integer.class, (arg, type) -> {
             try {
                 return tryParseNumber(Integer.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(long.class, (arg, type) -> {
             try {
                 return tryParseNumber(Long.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(Long.class, (arg, type) -> {
             try {
                 return tryParseNumber(Long.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(float.class, (arg, type) -> {
             try {
                 return tryParseNumber(Float.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(Float.class, (arg, type) -> {
             try {
                 return tryParseNumber(Float.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(double.class, (arg, type) -> {
             try {
                 return tryParseNumber(Double.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(Double.class, (arg, type) -> {
             try {
                 return tryParseNumber(Double.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
-                throw new InvalidArgumentException("error");
+                throw new InvalidArgumentException(Message.MUST_BE_NUMBER);
             }
         });
         register(String.class, (arg, type) -> {
             if (arg instanceof String) return arg;
-            throw new InvalidArgumentException("error");
+            // Will most likely never happen.
+            throw new InvalidArgumentException(Message.WRONG_USAGE);
         });
         register(String[].class, (arg, type) -> {
             if (arg instanceof String[]) return arg;
-            throw new InvalidArgumentException("error");
+            // Will most likely never happen.
+            throw new InvalidArgumentException(Message.WRONG_USAGE);
         });
         register(Player.class, (arg, type) -> {
             Player player = Bukkit.getServer().getPlayer(String.valueOf(arg));
             if (player != null) return player;
-            throw new InvalidArgumentException("error");
+            throw new InvalidArgumentException(Message.MUST_BE_PLAYER);
         });
         register(Enum.class, (arg, type) -> {
             // noinspection unchecked
@@ -105,7 +110,7 @@ public class ParameterHandler {
             for (Enum<?> enumValue : enumCls.getEnumConstants()) {
                 if (enumValue.name().equalsIgnoreCase(String.valueOf(arg))) return enumValue;
             }
-            throw new InvalidArgumentException("error");
+            throw new InvalidArgumentException(Message.INVALID_VALUE);
         });
     }
 
@@ -115,7 +120,7 @@ public class ParameterHandler {
      * @param clss         The class type to be added.
      * @param parameterResolver The built in method that returns the value wanted.
      */
-    public void register(Class<?> clss, parameterResolver parameterResolver) {
+    public void register(Class<?> clss, ParameterResolver parameterResolver) {
         registeredTypes.put(clss, parameterResolver);
     }
 
@@ -131,7 +136,7 @@ public class ParameterHandler {
         try {
             return registeredTypes.get(clss).getResolved(object, clss);
         } catch (InvalidArgumentException e) {
-            sender.sendMessage(e.getMessage());
+            messageHandler.sendMessage(e.getMessageEnum(), sender, String.valueOf(object));
             return null;
         }
     }
@@ -149,7 +154,7 @@ public class ParameterHandler {
         try {
             return registeredTypes.get(clss).getResolved(object, parseClass);
         } catch (InvalidArgumentException e) {
-            sender.sendMessage(e.getMessage());
+            messageHandler.sendMessage(e.getMessageEnum(), sender, String.valueOf(object));
             return null;
         }
     }

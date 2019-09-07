@@ -3,7 +3,7 @@ package me.mattstudios.mf.components;
 import java.util.List;
 
 @FunctionalInterface
-interface CompletionResolver {
+public interface CompletionResolver {
 
     /**
      * Resolves the command completion added.

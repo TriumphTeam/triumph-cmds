@@ -180,14 +180,14 @@ public class CommandHandler extends Command {
             if (commandData.hasPermission()) {
                 // Checks whether the command sender has the permission set in the annotation.
                 if (!sender.hasPermission(commandData.getPermission())) {
-                    messageHandler.sendMessage(Message.NO_PERMISSION, sender);
+                    messageHandler.sendMessage(Message.NO_PERMISSION, sender, null);
                     return true;
                 }
             }
 
             // Checks if the command can be accessed from console
             if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-                messageHandler.sendMessage(Message.NO_CONSOLE, sender);
+                messageHandler.sendMessage(Message.NO_CONSOLE, sender, null);
                 return true;
             }
 
@@ -197,7 +197,7 @@ public class CommandHandler extends Command {
 
         // Checks if the sub command is registered or not.
         if (!subCommands.containsKey(arguments[0])) {
-            messageHandler.sendMessage(Message.DOESNT_EXISTS, sender);
+            messageHandler.sendMessage(Message.DOESNT_EXISTS, sender, arguments[0]);
             return true;
         }
 
@@ -208,14 +208,14 @@ public class CommandHandler extends Command {
         if (commandData.hasPermission()) {
             // Checks whether the command sender has the permission set in the annotation.
             if (!sender.hasPermission(commandData.getPermission())) {
-                messageHandler.sendMessage(Message.NO_PERMISSION, sender);
+                messageHandler.sendMessage(Message.NO_PERMISSION, sender, null);
                 return true;
             }
         }
 
         // Checks if the command can be accessed from console
         if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-            messageHandler.sendMessage(Message.NO_CONSOLE, sender);
+            messageHandler.sendMessage(Message.NO_CONSOLE, sender, null);
             return true;
         }
 
@@ -248,7 +248,7 @@ public class CommandHandler extends Command {
             // Checks for correct command usage.
             if (commandData.getParams().size() != argumentsList.size()
                     && !commandData.getParams().get(commandData.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
-                messageHandler.sendMessage(Message.WRONG_USAGE, sender);
+                messageHandler.sendMessage(Message.WRONG_USAGE, sender, null);
                 return true;
             }
 
@@ -262,7 +262,7 @@ public class CommandHandler extends Command {
                 Class parameter = commandData.getParams().get(i);
 
                 if (commandData.getParams().size() > argumentsList.size()) {
-                    messageHandler.sendMessage(Message.WRONG_USAGE, sender);
+                    messageHandler.sendMessage(Message.WRONG_USAGE, sender, null);
                     return true;
                 }
 
@@ -273,12 +273,12 @@ public class CommandHandler extends Command {
                     String[] args = new String[argumentsList.size() - i];
 
                     if (commandData.getMaxArgs() != 0 && args.length > commandData.getMaxArgs()) {
-                        messageHandler.sendMessage(Message.WRONG_USAGE, sender);
+                        messageHandler.sendMessage(Message.WRONG_USAGE, sender, null);
                         return true;
                     }
 
                     if (commandData.getMinArgs() != 0 && args.length < commandData.getMinArgs()) {
-                        messageHandler.sendMessage(Message.WRONG_USAGE, sender);
+                        messageHandler.sendMessage(Message.WRONG_USAGE, sender, null);
                         return true;
                     }
 
