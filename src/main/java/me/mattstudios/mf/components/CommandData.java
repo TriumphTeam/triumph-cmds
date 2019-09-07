@@ -22,6 +22,10 @@ public class CommandData {
     private List<Class> params;
     // List of the completions.
     private HashMap<Integer, String> completions;
+    // Max args for String[].
+    private int maxArgs = 0;
+    // min args for String[].
+    private int minArgs = 0;
 
     // Permission node of the command.
     private String permission;
@@ -79,6 +83,22 @@ public class CommandData {
 
     public String getPermission() {
         return permission;
+    }
+
+    public int getMaxArgs() {
+        return maxArgs;
+    }
+
+    public void setMaxArgs(int maxArgs) {
+        this.maxArgs = maxArgs;
+    }
+
+    public int getMinArgs() {
+        return minArgs;
+    }
+
+    public void setMinArgs(int minArgs) {
+        this.minArgs = minArgs;
     }
 
     public CommandBase getCommand() {

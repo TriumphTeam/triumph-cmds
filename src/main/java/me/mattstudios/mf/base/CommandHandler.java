@@ -3,6 +3,8 @@ package me.mattstudios.mf.base;
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Completion;
 import me.mattstudios.mf.annotations.Default;
+import me.mattstudios.mf.annotations.MaxArgs;
+import me.mattstudios.mf.annotations.MinArgs;
 import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.components.CommandData;
@@ -88,6 +90,7 @@ public class CommandHandler extends Command {
                 if (!clss.isEnum() && !this.parameterHandler.isRegisteredType(clss)) {
                     throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
                 }
+
                 commandData.getParams().add(clss);
             }
 
@@ -103,6 +106,17 @@ public class CommandHandler extends Command {
 
                 if (i == 0 && parameter.isAnnotationPresent(Completion.class))
                     throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion annotation!");
+
+                // Checks for max and min args on the String[] parameter
+                if (parameter.getType().getTypeName().equals(String[].class.getTypeName())) {
+                    if (parameter.isAnnotationPresent(MaxArgs.class)) {
+                        commandData.setMaxArgs(parameter.getAnnotation(MaxArgs.class).value());
+                    }
+
+                    if (parameter.isAnnotationPresent(MinArgs.class)) {
+                        commandData.setMinArgs(parameter.getAnnotation(MinArgs.class).value());
+                    }
+                }
 
                 if (!parameter.isAnnotationPresent(Completion.class)) continue;
 
@@ -243,19 +257,34 @@ public class CommandHandler extends Command {
             // Adds the sender as one of the params.
             invokeParams.add(sender);
 
-            List<String> argsModify = argumentsList;
-
             // Iterates through all the parameters to check them.
             for (int i = 0; i < commandData.getParams().size(); i++) {
                 Class parameter = commandData.getParams().get(i);
 
+                if (commandData.getParams().size() > argumentsList.size()) {
+                    messageHandler.sendMessage(Message.WRONG_USAGE, sender);
+                    return true;
+                }
+
                 Object argument = argumentsList.get(i);
 
+                // Checks for String[] args.
                 if (parameter.equals(String[].class)) {
                     String[] args = new String[argumentsList.size() - i];
 
+                    if (commandData.getMaxArgs() != 0 && args.length > commandData.getMaxArgs()) {
+                        messageHandler.sendMessage(Message.WRONG_USAGE, sender);
+                        return true;
+                    }
+
+                    if (commandData.getMinArgs() != 0 && args.length < commandData.getMinArgs()) {
+                        messageHandler.sendMessage(Message.WRONG_USAGE, sender);
+                        return true;
+                    }
+
+
                     for (int j = 0; j < args.length; j++) {
-                        args[j] = argumentsList.get(i+j);
+                        args[j] = argumentsList.get(i + j);
                     }
 
                     argument = args;
@@ -273,6 +302,7 @@ public class CommandHandler extends Command {
             }
 
             method.invoke(commandData.getCommand(), invokeParams.toArray());
+
             return true;
 
         } catch (Exception e) {
