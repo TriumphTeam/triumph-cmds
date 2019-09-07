@@ -1,6 +1,6 @@
 package me.mattstudios.mf.components;
 
-import me.mattstudios.mf.CommandBase;
+import me.mattstudios.mf.base.CommandBase;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -9,14 +9,21 @@ import java.util.List;
 
 public class CommandData {
 
+    // Command class
     private CommandBase command;
+    // Method
     private Method method;
 
+    // If the method is a default one or not
     private boolean def;
+    // First parameter of the method.
     private Class firstParam;
+    // The list with the other parameters.
     private List<Class> params;
+    // List of the completions.
     private HashMap<Integer, String> completions;
 
+    // Permission node of the command.
     private String permission;
 
     public CommandData(CommandBase command) {
@@ -25,6 +32,10 @@ public class CommandData {
         params = new ArrayList<>();
         completions = new HashMap<>();
     }
+
+    /*
+        Getters and setters from here on.
+     */
 
     public Method getMethod() {
         return method;

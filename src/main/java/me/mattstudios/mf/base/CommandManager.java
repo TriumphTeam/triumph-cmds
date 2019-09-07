@@ -1,9 +1,10 @@
-package me.mattstudios.mf;
+package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
 import me.mattstudios.mf.components.CompletionHandler;
-import me.mattstudios.mf.components.ParameterTypes;
+import me.mattstudios.mf.components.MessageHandler;
+import me.mattstudios.mf.components.ParameterHandler;
 import me.mattstudios.mf.exceptions.NoCommandException;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -24,8 +25,9 @@ public class CommandManager implements Listener {
     // List of commands;
     private Map<String, CommandHandler> commands;
 
-    private ParameterTypes parameterTypes;
+    private ParameterHandler parameterHandler;
     private CompletionHandler completionHandler;
+    private MessageHandler messageHandler;
 
     public CommandManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -33,8 +35,9 @@ public class CommandManager implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         commands = new HashMap<>();
-        parameterTypes = new ParameterTypes();
+        parameterHandler = new ParameterHandler();
         completionHandler = new CompletionHandler();
+        messageHandler = new MessageHandler();
     }
 
     /**
@@ -42,8 +45,8 @@ public class CommandManager implements Listener {
      *
      * @return The parameter types class.
      */
-    public ParameterTypes getParameterTypes() {
-        return parameterTypes;
+    public ParameterHandler getParameterHandler() {
+        return parameterHandler;
     }
 
     /**
@@ -53,6 +56,10 @@ public class CommandManager implements Listener {
      */
     public CompletionHandler getCompletionHandler() {
         return completionHandler;
+    }
+
+    public MessageHandler getMessageHandler() {
+        return messageHandler;
     }
 
     /**
@@ -88,7 +95,7 @@ public class CommandManager implements Listener {
                 return;
             }
 
-            commandHandler = new CommandHandler(parameterTypes, completionHandler, command, commandName, Arrays.asList(aliases));
+            commandHandler = new CommandHandler(parameterHandler, completionHandler, messageHandler, command, commandName, Arrays.asList(aliases));
             commandMap.register(plugin.getName(), commandHandler);
 
             // Puts the handler in the list to unregister later.

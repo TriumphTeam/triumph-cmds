@@ -1,4 +1,4 @@
-package me.mattstudios.mf;
+package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Completion;
@@ -7,7 +7,9 @@ import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.components.CommandData;
 import me.mattstudios.mf.components.CompletionHandler;
-import me.mattstudios.mf.components.ParameterTypes;
+import me.mattstudios.mf.components.Message;
+import me.mattstudios.mf.components.MessageHandler;
+import me.mattstudios.mf.components.ParameterHandler;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
 import me.mattstudios.mf.exceptions.InvalidParamException;
@@ -33,18 +35,20 @@ public class CommandHandler extends Command {
 
     private Map<String, CommandData> subCommands;
 
-    private ParameterTypes parameterTypes;
+    private ParameterHandler parameterHandler;
     private CompletionHandler completionHandler;
+    private MessageHandler messageHandler;
 
-    CommandHandler(ParameterTypes parameterTypes, CompletionHandler completionHandler, CommandBase command, String commandName, List<String> aliases) {
+    CommandHandler(ParameterHandler parameterHandler, CompletionHandler completionHandler, MessageHandler messageHandler, CommandBase command, String commandName, List<String> aliases) {
         super(commandName);
-        this.parameterTypes = parameterTypes;
+        this.parameterHandler = parameterHandler;
         this.completionHandler = completionHandler;
+        this.messageHandler = messageHandler;
         setAliases(aliases);
 
         subCommands = new HashMap<>();
 
-       addSubCommands(command);
+        addSubCommands(command);
     }
 
     void addSubCommands(CommandBase command) {
@@ -79,7 +83,7 @@ public class CommandHandler extends Command {
             // Checks if the parameters in class are registered.
             for (int i = 1; i < method.getParameterTypes().length; i++) {
                 Class clss = method.getParameterTypes()[i];
-                if (!clss.isEnum() && !this.parameterTypes.isRegisteredType(clss)) {
+                if (!clss.isEnum() && !this.parameterHandler.isRegisteredType(clss)) {
                     throw new UnregisteredParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
                 }
                 commandData.getParams().add(clss);
@@ -108,7 +112,7 @@ public class CommandHandler extends Command {
                     throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
 
                 if (!this.completionHandler.isRegistered(values[0]))
-                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID!");
+                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID '" + values[0] + "'!");
 
                 commandData.getCompletions().put(i, values[0]);
             }
@@ -123,7 +127,7 @@ public class CommandHandler extends Command {
                         throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
 
                     if (!this.completionHandler.isRegistered(id))
-                        throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID!");
+                        throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
 
                     commandData.getCompletions().put(i + 1, id);
                 }
@@ -148,7 +152,6 @@ public class CommandHandler extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String label, String[] arguments) {
-
         // Runs default command here as arguments are 0 or empty.
         if (arguments.length == 0 || arguments[0].isEmpty()) {
 
@@ -161,16 +164,14 @@ public class CommandHandler extends Command {
             if (commandData.hasPermission()) {
                 // Checks whether the command sender has the permission set in the annotation.
                 if (!sender.hasPermission(commandData.getPermission())) {
-                    // TODO Error handler later
-                    sender.sendMessage("No permission!");
+                    messageHandler.sendMessage(Message.NO_PERMISSION, sender);
                     return true;
                 }
             }
 
             // Checks if the command can be accessed from console
             if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-                // TODO Error handler later
-                sender.sendMessage("Can't be console");
+                messageHandler.sendMessage(Message.NO_CONSOLE, sender);
                 return true;
             }
 
@@ -180,8 +181,7 @@ public class CommandHandler extends Command {
 
         // Checks if the sub command is registered or not.
         if (!subCommands.containsKey(arguments[0])) {
-            // TODO Error handler later
-            sender.sendMessage("Command doesn't exist!");
+            messageHandler.sendMessage(Message.DOESNT_EXISTS, sender);
             return true;
         }
 
@@ -192,16 +192,14 @@ public class CommandHandler extends Command {
         if (commandData.hasPermission()) {
             // Checks whether the command sender has the permission set in the annotation.
             if (!sender.hasPermission(commandData.getPermission())) {
-                // TODO Error handler later
-                sender.sendMessage("No permission!");
+                messageHandler.sendMessage(Message.NO_PERMISSION, sender);
                 return true;
             }
         }
 
         // Checks if the command can be accessed from console
         if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-            // TODO Error handler later
-            sender.sendMessage("Can't be console");
+            messageHandler.sendMessage(Message.NO_CONSOLE, sender);
             return true;
         }
 
@@ -234,8 +232,7 @@ public class CommandHandler extends Command {
             // Checks for correct command usage.
             if (commandData.getParams().size() != argumentsList.size()
                     && !commandData.getParams().get(commandData.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
-                // TODO Error later
-                sender.sendMessage("wrong usage");
+                messageHandler.sendMessage(Message.WRONG_USAGE, sender);
                 return true;
             }
 
@@ -251,8 +248,8 @@ public class CommandHandler extends Command {
                 Object result;
                 // Checks weather the parameter is an enum, because it needs to be sent as Enum.class.
                 if (parameter.isEnum())
-                    result = parameterTypes.getTypeResult(Enum.class, argumentsList.get(i), sender, parameter);
-                else result = parameterTypes.getTypeResult(parameter, argumentsList.get(i), sender);
+                    result = parameterHandler.getTypeResult(Enum.class, argumentsList.get(i), sender, parameter);
+                else result = parameterHandler.getTypeResult(parameter, argumentsList.get(i), sender);
 
                 // Will be null if error occurs.
                 if (result == null) return true;
@@ -312,6 +309,7 @@ public class CommandHandler extends Command {
         List<String> completionList = new ArrayList<>();
         Object inputClss = commandData.getParams().get(args.length - 2);
 
+        // TODO range without thingy and also for double
         if (id.contains(":")) {
             String[] values = id.split(":");
             id = values[0];
@@ -327,6 +325,8 @@ public class CommandHandler extends Command {
                 completionList.add(completion);
             }
         } else {
+            System.out.println(inputClss.toString());
+            System.out.println(id);
             completionList = new ArrayList<>(completionHandler.getTypeResult(id, inputClss));
         }
 

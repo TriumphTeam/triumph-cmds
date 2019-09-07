@@ -8,13 +8,13 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ParameterTypes {
+public class ParameterHandler {
 
-    // The map of registered types.
-    private final Map<Class<?>, TypeResolver> registeredTypes = new HashMap<>();
+    // The map of registered parameters.
+    private final Map<Class<?>, parameterResolver> registeredTypes = new HashMap<>();
 
-    // Registers all the types;
-    public ParameterTypes() {
+    // Registers all the parameters;
+    public ParameterHandler() {
         register(Short.class, (arg, type) -> {
             try {
                 return tryParseNumber(Short.class, String.valueOf(arg));
@@ -112,10 +112,10 @@ public class ParameterTypes {
      * Registers the new class type of parameters and their results.
      *
      * @param clss         The class type to be added.
-     * @param typeResolver The built in method that returns the value wanted.
+     * @param parameterResolver The built in method that returns the value wanted.
      */
-    public void register(Class<?> clss, TypeResolver typeResolver) {
-        registeredTypes.put(clss, typeResolver);
+    public void register(Class<?> clss, parameterResolver parameterResolver) {
+        registeredTypes.put(clss, parameterResolver);
     }
 
     /**

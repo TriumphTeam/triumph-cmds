@@ -30,8 +30,9 @@ public class CompletionHandler {
         });
         register("#empty", input -> Collections.singletonList(""));
         register("#range", input -> {
+            System.out.println(input);
             String s = String.valueOf(input);
-            if (s.equals(""))
+            if (s.equalsIgnoreCase("int") || s.equalsIgnoreCase("double") || s.equalsIgnoreCase("float"))
                 return IntStream.rangeClosed(1, 10).mapToObj(Integer::toString).collect(Collectors.toList());
             if (!s.contains("-"))
                 return IntStream.rangeClosed(1, Integer.parseInt(s)).mapToObj(Integer::toString).collect(Collectors.toList());
