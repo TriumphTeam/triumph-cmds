@@ -13,9 +13,6 @@ import me.mattstudios.mf.components.ParameterHandler;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
 import me.mattstudios.mf.exceptions.InvalidParamException;
-import me.mattstudios.mf.exceptions.NoParamException;
-import me.mattstudios.mf.exceptions.NoSenderParamException;
-import me.mattstudios.mf.exceptions.UnregisteredParamException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -60,11 +57,11 @@ public class CommandHandler extends Command {
 
             // Checks if default method has no parameters.
             if (method.getParameterCount() == 0)
-                throw new NoParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - needs to have Parameters!");
+                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - needs to have Parameters!");
 
             // Checks if the fist parameter is either a player or a sender.
             if (!method.getParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !method.getParameterTypes()[0].getTypeName().equals(Player.class.getTypeName()))
-                throw new NoSenderParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender or a Player!");
+                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender or a Player!");
 
             // Starts the command data object.
             CommandData commandData = new CommandData(command);
@@ -83,8 +80,13 @@ public class CommandHandler extends Command {
             // Checks if the parameters in class are registered.
             for (int i = 1; i < method.getParameterTypes().length; i++) {
                 Class clss = method.getParameterTypes()[i];
+
+                if (clss.equals(String[].class) && i != method.getParameterTypes().length - 1) {
+                    throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
+                }
+
                 if (!clss.isEnum() && !this.parameterHandler.isRegisteredType(clss)) {
-                    throw new UnregisteredParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
+                    throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
                 }
                 commandData.getParams().add(clss);
             }
@@ -216,16 +218,16 @@ public class CommandHandler extends Command {
             List<String> argumentsList = new LinkedList<>(Arrays.asList(arguments));
             if (!def && argumentsList.size() > 0) argumentsList.remove(0);
 
+            // Check if the method only has a sender as parameter.
+            if (commandData.getParams().size() == 0 && argumentsList.size() == 0) {
+                method.invoke(commandData.getCommand(), sender);
+                return true;
+            }
+
             // Checks if it is a default type command with just sender and args.
             if (commandData.getParams().size() == 1
                     && commandData.getParams().get(0).getTypeName().equals(String[].class.getTypeName())) {
                 method.invoke(commandData.getCommand(), sender, arguments);
-                return true;
-            }
-
-            // Check if the method only has a sender as parameter.
-            if (commandData.getParams().size() == 0 && argumentsList.size() == 0) {
-                method.invoke(commandData.getCommand(), sender);
                 return true;
             }
 
@@ -241,15 +243,29 @@ public class CommandHandler extends Command {
             // Adds the sender as one of the params.
             invokeParams.add(sender);
 
+            List<String> argsModify = argumentsList;
+
             // Iterates through all the parameters to check them.
             for (int i = 0; i < commandData.getParams().size(); i++) {
                 Class parameter = commandData.getParams().get(i);
 
+                Object argument = argumentsList.get(i);
+
+                if (parameter.equals(String[].class)) {
+                    String[] args = new String[argumentsList.size() - i];
+
+                    for (int j = 0; j < args.length; j++) {
+                        args[j] = argumentsList.get(i+j);
+                    }
+
+                    argument = args;
+                }
+
                 Object result;
                 // Checks weather the parameter is an enum, because it needs to be sent as Enum.class.
                 if (parameter.isEnum())
-                    result = parameterHandler.getTypeResult(Enum.class, argumentsList.get(i), sender, parameter);
-                else result = parameterHandler.getTypeResult(parameter, argumentsList.get(i), sender);
+                    result = parameterHandler.getTypeResult(Enum.class, argument, sender, parameter);
+                else result = parameterHandler.getTypeResult(parameter, argument, sender);
 
                 // Will be null if error occurs.
                 if (result == null) return true;

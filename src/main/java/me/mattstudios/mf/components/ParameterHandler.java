@@ -15,6 +15,7 @@ public class ParameterHandler {
 
     // Registers all the parameters;
     public ParameterHandler() {
+        // TODO ERROR MESSAGES HERE
         register(Short.class, (arg, type) -> {
             try {
                 return tryParseNumber(Short.class, String.valueOf(arg));
