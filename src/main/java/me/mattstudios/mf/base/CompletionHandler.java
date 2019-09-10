@@ -1,5 +1,6 @@
-package me.mattstudios.mf.components;
+package me.mattstudios.mf.base;
 
+import me.mattstudios.mf.base.components.CompletionResolver;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,7 +20,7 @@ public class CompletionHandler {
     /**
      * Registers all the default completions.
      */
-    public CompletionHandler() {
+    CompletionHandler() {
         register("#players", input -> {
             List<String> players = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -75,7 +76,7 @@ public class CompletionHandler {
      * @param input The input to base an output (normally not needed).
      * @return The string list with all the completions.
      */
-    public List<String> getTypeResult(String id, Object input) {
+    List<String> getTypeResult(String id, Object input) {
         return registeredCompletions.get(id).resolve(input);
     }
 
@@ -85,7 +86,7 @@ public class CompletionHandler {
      * @param id The ID to check.
      * @return The result of being registered or not.
      */
-    public boolean isRegistered(String id) {
+    boolean isRegistered(String id) {
         if (id.contains(":")) {
             String[] content = id.split(":");
             id = content[0];

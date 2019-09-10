@@ -1,4 +1,4 @@
-package me.mattstudios.mf.components;
+package me.mattstudios.mf.base.components;
 
 import org.bukkit.ChatColor;
 

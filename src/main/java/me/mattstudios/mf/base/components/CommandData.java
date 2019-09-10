@@ -1,4 +1,4 @@
-package me.mattstudios.mf.components;
+package me.mattstudios.mf.base.components;
 
 import me.mattstudios.mf.base.CommandBase;
 
@@ -103,5 +103,9 @@ public class CommandData {
 
     public CommandBase getCommand() {
         return command;
+    }
+
+    public void command(String text) {
+
     }
 }

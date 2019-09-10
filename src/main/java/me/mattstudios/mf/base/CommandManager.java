@@ -2,9 +2,6 @@ package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
-import me.mattstudios.mf.components.CompletionHandler;
-import me.mattstudios.mf.components.MessageHandler;
-import me.mattstudios.mf.components.ParameterHandler;
 import me.mattstudios.mf.exceptions.NoCommandException;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -110,6 +107,11 @@ public class CommandManager implements Listener {
         }
     }
 
+    /**
+     * Unregisters all the commands on the disable of the plugin.
+     *
+     * @param event PluginDisableEvent.
+     */
     @EventHandler
     public void onPluginDisable(PluginDisableEvent event) {
         if (!(plugin.getName().equalsIgnoreCase(event.getPlugin().getName()))) {
@@ -119,6 +121,9 @@ public class CommandManager implements Listener {
         unregisterAll();
     }
 
+    /**
+     * Unregisters all commands.
+     */
     private void unregisterAll() {
         commands.clear();
     }

@@ -7,11 +7,7 @@ import me.mattstudios.mf.annotations.MaxArgs;
 import me.mattstudios.mf.annotations.MinArgs;
 import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
-import me.mattstudios.mf.components.CommandData;
-import me.mattstudios.mf.components.CompletionHandler;
-import me.mattstudios.mf.components.Message;
-import me.mattstudios.mf.components.MessageHandler;
-import me.mattstudios.mf.components.ParameterHandler;
+import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
 import me.mattstudios.mf.exceptions.InvalidParamException;
@@ -180,14 +176,14 @@ public class CommandHandler extends Command {
             if (commandData.hasPermission()) {
                 // Checks whether the command sender has the permission set in the annotation.
                 if (!sender.hasPermission(commandData.getPermission())) {
-                    messageHandler.sendMessage(Message.NO_PERMISSION, sender, null);
+                    messageHandler.sendMessage("cmd.no.permission", sender, null);
                     return true;
                 }
             }
 
             // Checks if the command can be accessed from console
             if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-                messageHandler.sendMessage(Message.NO_CONSOLE, sender, null);
+                messageHandler.sendMessage("cmd.no.console", sender, null);
                 return true;
             }
 
@@ -197,7 +193,7 @@ public class CommandHandler extends Command {
 
         // Checks if the sub command is registered or not.
         if (!subCommands.containsKey(arguments[0])) {
-            messageHandler.sendMessage(Message.DOESNT_EXISTS, sender, arguments[0]);
+            messageHandler.sendMessage("cmd.no.exists", sender, arguments[0]);
             return true;
         }
 
@@ -207,13 +203,13 @@ public class CommandHandler extends Command {
         // Checks if permission annotation is present.
         // Checks whether the command sender has the permission set in the annotation.
         if (commandData.hasPermission() && !sender.hasPermission(commandData.getPermission())) {
-            messageHandler.sendMessage(Message.NO_PERMISSION, sender, null);
+            messageHandler.sendMessage("cmd.no.permission", sender, null);
             return true;
         }
 
         // Checks if the command can be accessed from console
         if (!commandData.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-            messageHandler.sendMessage(Message.NO_CONSOLE, sender, null);
+            messageHandler.sendMessage("cmd.no.console", sender, null);
             return true;
         }
 
@@ -246,7 +242,7 @@ public class CommandHandler extends Command {
             // Checks for correct command usage.
             if (commandData.getParams().size() != argumentsList.size()
                     && !commandData.getParams().get(commandData.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
-                messageHandler.sendMessage(Message.WRONG_USAGE, sender, null);
+                messageHandler.sendMessage("cmd.wrong.usage", sender, null);
                 return true;
             }
 
@@ -260,7 +256,7 @@ public class CommandHandler extends Command {
                 Class parameter = commandData.getParams().get(i);
 
                 if (commandData.getParams().size() > argumentsList.size()) {
-                    messageHandler.sendMessage(Message.WRONG_USAGE, sender, null);
+                    messageHandler.sendMessage("cmd.wrong.usage", sender, null);
                     return true;
                 }
 
@@ -271,12 +267,12 @@ public class CommandHandler extends Command {
                     String[] args = new String[argumentsList.size() - i];
 
                     if (commandData.getMaxArgs() != 0 && args.length > commandData.getMaxArgs()) {
-                        messageHandler.sendMessage(Message.WRONG_USAGE, sender, null);
+                        messageHandler.sendMessage("cmd.wrong.usage", sender, null);
                         return true;
                     }
 
                     if (commandData.getMinArgs() != 0 && args.length < commandData.getMinArgs()) {
-                        messageHandler.sendMessage(Message.WRONG_USAGE, sender, null);
+                        messageHandler.sendMessage("cmd.wrong.usage", sender, null);
                         return true;
                     }
 
@@ -291,7 +287,7 @@ public class CommandHandler extends Command {
                 Object result;
                 // Checks weather the parameter is an enum, because it needs to be sent as Enum.class.
                 if (parameter.isEnum())
-                    result = parameterHandler.getTypeResult(Enum.class, argument, sender, parameter);
+                    result = parameterHandler.getTypeResult(argument, sender, parameter);
                 else result = parameterHandler.getTypeResult(parameter, argument, sender);
 
                 // Will be null if error occurs.

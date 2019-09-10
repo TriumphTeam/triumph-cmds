@@ -6,7 +6,7 @@
 
     <groupId>me.mattstudios.utils</groupId>
     <artifactId>matts-framework</artifactId>
-    <version>1.0.0-BETA</version>
+    <version>1.0.1-BETA</version>
     <packaging>jar</packaging>
 
     <name>Matt's Framework</name>
@@ -55,10 +55,6 @@
         <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>sonatype</id>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
     </repositories>
 
@@ -140,7 +136,8 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml
+                    </dependencyReducedPomLocation>
                 </configuration>
                 <executions>
                     <execution>
