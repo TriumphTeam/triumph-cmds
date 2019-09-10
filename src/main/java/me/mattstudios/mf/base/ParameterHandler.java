@@ -4,6 +4,7 @@ import me.mattstudios.mf.base.components.ParameterResolver;
 import me.mattstudios.mf.exceptions.InvalidArgException;
 import me.mattstudios.mf.exceptions.InvalidArgExceptionMsg;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -23,97 +24,94 @@ public class ParameterHandler {
     ParameterHandler(MessageHandler messageHandler) {
         this.messageHandler = messageHandler;
 
-        register(Short.class, (arg, type) -> {
+        register(Short.class, arg -> {
             try {
                 return tryParseNumber(Short.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(short.class, (arg, type) -> {
+        register(short.class, arg -> {
             try {
                 return tryParseNumber(Short.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(int.class, (arg, type) -> {
+        register(int.class, arg -> {
             try {
                 return tryParseNumber(Integer.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(Integer.class, (arg, type) -> {
+        register(Integer.class, arg -> {
             try {
                 return tryParseNumber(Integer.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(long.class, (arg, type) -> {
+        register(long.class, arg -> {
             try {
                 return tryParseNumber(Long.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(Long.class, (arg, type) -> {
+        register(Long.class, arg -> {
             try {
                 return tryParseNumber(Long.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(float.class, (arg, type) -> {
+        register(float.class, arg -> {
             try {
                 return tryParseNumber(Float.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(Float.class, (arg, type) -> {
+        register(Float.class, arg -> {
             try {
                 return tryParseNumber(Float.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(double.class, (arg, type) -> {
+        register(double.class, arg -> {
             try {
                 return tryParseNumber(Double.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(Double.class, (arg, type) -> {
+        register(Double.class, arg -> {
             try {
                 return tryParseNumber(Double.class, String.valueOf(arg));
             } catch (NumberFormatException e) {
                 throw new InvalidArgException("arg.must.be.number");
             }
         });
-        register(String.class, (arg, type) -> {
+        register(String.class, arg -> {
             if (arg instanceof String) return arg;
             // Will most likely never happen.
             throw new InvalidArgException("cmd.wrong.usage");
         });
-        register(String[].class, (arg, type) -> {
+        register(String[].class, arg -> {
             if (arg instanceof String[]) return arg;
             // Will most likely never happen.
             throw new InvalidArgException("cmd.wrong.usage");
         });
-        register(Player.class, (arg, type) -> {
+        register(Player.class, arg -> {
             Player player = Bukkit.getServer().getPlayer(String.valueOf(arg));
             if (player != null) return player;
             throw new InvalidArgException("arg.must.be.player");
         });
-        register(Enum.class, (arg, type) -> {
-            // noinspection unchecked
-            Class<? extends Enum<?>> enumCls = (Class<? extends Enum<?>>) type;
-            for (Enum<?> enumValue : enumCls.getEnumConstants()) {
-                if (enumValue.name().equalsIgnoreCase(String.valueOf(arg))) return enumValue;
-            }
+        register(Material.class, arg -> {
+            Material material = Material.matchMaterial(String.valueOf(arg));
+            if (material != null) return material;
             throw new InvalidArgException("arg.invalid.value");
         });
     }
@@ -138,27 +136,7 @@ public class ParameterHandler {
      */
     Object getTypeResult(Class<?> clss, Object object, CommandSender sender) {
         try {
-            return registeredTypes.get(clss).getResolved(object, clss);
-        } catch (InvalidArgException e) {
-            messageHandler.sendMessage(e.getMessageId(), sender, String.valueOf(object));
-            return null;
-        } catch (InvalidArgExceptionMsg e) {
-            sender.sendMessage(color(e.getMessage()));
-            return null;
-        }
-    }
-
-    /**
-     * Special case for enums because it wasn't working the other way.
-     *
-     * @param object     The object to test.
-     * @param sender     The Player to send errors messages.
-     * @param parseClass The main class to get results from.
-     * @return The enum value or error.
-     */
-    Object getTypeResult(Object object, CommandSender sender, Class<?> parseClass) {
-        try {
-            return registeredTypes.get(Enum.class).getResolved(object, parseClass);
+            return registeredTypes.get(clss).getResolved(object);
         } catch (InvalidArgException e) {
             messageHandler.sendMessage(e.getMessageId(), sender, String.valueOf(object));
             return null;

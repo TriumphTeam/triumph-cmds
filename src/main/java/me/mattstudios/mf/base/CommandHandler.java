@@ -284,11 +284,7 @@ public class CommandHandler extends Command {
                     argument = args;
                 }
 
-                Object result;
-                // Checks weather the parameter is an enum, because it needs to be sent as Enum.class.
-                if (parameter.isEnum())
-                    result = parameterHandler.getTypeResult(argument, sender, parameter);
-                else result = parameterHandler.getTypeResult(parameter, argument, sender);
+                Object result = parameterHandler.getTypeResult(parameter, argument, sender);
 
                 // Will be null if error occurs.
                 if (result == null) return true;
