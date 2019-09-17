@@ -1,12 +1,6 @@
 package me.mattstudios.mf.base;
 
-import me.mattstudios.mf.annotations.Alias;
-import me.mattstudios.mf.annotations.Completion;
-import me.mattstudios.mf.annotations.Default;
-import me.mattstudios.mf.annotations.MaxArgs;
-import me.mattstudios.mf.annotations.MinArgs;
-import me.mattstudios.mf.annotations.Permission;
-import me.mattstudios.mf.annotations.SubCommand;
+import me.mattstudios.mf.annotations.*;
 import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
@@ -18,13 +12,7 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommandHandler extends Command {
 
@@ -43,10 +31,10 @@ public class CommandHandler extends Command {
 
         subCommands = new HashMap<>();
 
-        addSubCommands(command);
+        addSubCommands(command, commandName);
     }
 
-    void addSubCommands(CommandBase command) {
+    void addSubCommands(CommandBase command, String commandName) {
         // Iterates through all the methods in the class.
         for (Method method : command.getClass().getDeclaredMethods()) {
             // Checks if the method is public and if it is annotated by @Default or @SubCommand.
@@ -157,8 +145,13 @@ public class CommandHandler extends Command {
             }
 
             // puts the main method in the list.
-            if (!commandData.isDef() || method.isAnnotationPresent(SubCommand.class))
+            if (!commandData.isDef() && method.isAnnotationPresent(SubCommand.class)) {
                 subCommands.put(method.getAnnotation(SubCommand.class).value(), commandData);
+            }
+
+            if (commandData.isDef()) {
+                subCommands.put(commandName, commandData);
+            }
         }
     }
 
@@ -192,7 +185,7 @@ public class CommandHandler extends Command {
         }
 
         // Checks if the sub command is registered or not.
-        if (!subCommands.containsKey(arguments[0])) {
+        if (!subCommands.containsKey(arguments[0]) || getName().equalsIgnoreCase(arguments[0])) {
             messageHandler.sendMessage("cmd.no.exists", sender, arguments[0]);
             return true;
         }
@@ -309,14 +302,17 @@ public class CommandHandler extends Command {
         if (args.length == 1) {
             List<String> commandNames = new ArrayList<>();
 
+            List<String> subCmd = new ArrayList<>(subCommands.keySet());
+            subCmd.remove(getName());
+
             // Checks if the typing command is empty.
             if (!args[0].equals("")) {
-                for (String commandName : subCommands.keySet()) {
+                for (String commandName : subCmd) {
                     if (!commandName.startsWith(args[0].toLowerCase())) continue;
                     commandNames.add(commandName);
                 }
             } else {
-                commandNames = new ArrayList<>(subCommands.keySet());
+                commandNames = subCmd;
             }
 
             // Sorts the sub commands by alphabetical order.
@@ -361,8 +357,6 @@ public class CommandHandler extends Command {
                 completionList.add(completion);
             }
         } else {
-            System.out.println(inputClss.toString());
-            System.out.println(id);
             completionList = new ArrayList<>(completionHandler.getTypeResult(id, inputClss));
         }
 
@@ -380,8 +374,11 @@ public class CommandHandler extends Command {
      */
     private CommandData getDefaultMethod() {
         for (String subCommand : subCommands.keySet()) {
-            if (subCommands.get(subCommand).isDef()) return subCommands.get(subCommand);
+            if (subCommands.get(subCommand).isDef()) {
+                return subCommands.get(subCommand);
+            }
         }
+
         return null;
     }
 }

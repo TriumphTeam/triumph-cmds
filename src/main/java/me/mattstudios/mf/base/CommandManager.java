@@ -93,7 +93,7 @@ public class CommandManager implements Listener {
 
             CommandHandler commandHandler;
             if (commands.containsKey(commandName)) {
-                commands.get(commandName).addSubCommands(command);
+                commands.get(commandName).addSubCommands(command, commandName);
                 return;
             }
 

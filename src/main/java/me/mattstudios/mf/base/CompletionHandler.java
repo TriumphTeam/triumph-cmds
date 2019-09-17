@@ -5,11 +5,7 @@ import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -31,7 +27,6 @@ public class CompletionHandler {
         });
         register("#empty", input -> Collections.singletonList(""));
         register("#range", input -> {
-            System.out.println(input);
             String s = String.valueOf(input);
             if (s.equalsIgnoreCase("int") || s.equalsIgnoreCase("double") || s.equalsIgnoreCase("float"))
                 return IntStream.rangeClosed(1, 10).mapToObj(Integer::toString).collect(Collectors.toList());
