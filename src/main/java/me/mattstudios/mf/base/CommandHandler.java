@@ -184,14 +184,19 @@ public class CommandHandler extends Command {
             return executeCommand(commandData, sender, arguments, true);
         }
 
-        // Checks if the sub command is registered or not.
-        if (!subCommands.containsKey(arguments[0]) || getName().equalsIgnoreCase(arguments[0])) {
-            messageHandler.sendMessage("cmd.no.exists", sender, arguments[0]);
-            return true;
-        }
+        CommandData commandData = getDefaultMethod();
 
-        // Gets the method from the list.
-        CommandData commandData = subCommands.get(arguments[0]);
+        assert commandData != null;
+        if (commandData.getParams().size() == 0) {
+            // Checks if the sub command is registered or not.
+            if (!subCommands.containsKey(arguments[0]) || getName().equalsIgnoreCase(arguments[0])) {
+                messageHandler.sendMessage("cmd.no.exists", sender, arguments[0]);
+                return true;
+            }
+
+            // Gets the method from the list.
+            commandData = subCommands.get(arguments[0]);
+        }
 
         // Checks if permission annotation is present.
         // Checks whether the command sender has the permission set in the annotation.
@@ -207,7 +212,7 @@ public class CommandHandler extends Command {
         }
 
         // Runs the command executor.
-        return executeCommand(commandData, sender, arguments, false);
+        return executeCommand(commandData, sender, arguments, commandData.isDef());
     }
 
     private boolean executeCommand(CommandData commandData, CommandSender sender, String[] arguments, boolean def) {
@@ -233,10 +238,16 @@ public class CommandHandler extends Command {
             }
 
             // Checks for correct command usage.
-            if (commandData.getParams().size() != argumentsList.size()
-                    && !commandData.getParams().get(commandData.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
-                messageHandler.sendMessage("cmd.wrong.usage", sender, null);
-                return true;
+            if (commandData.getParams().size() != argumentsList.size()) {
+                if (!commandData.isDef() && commandData.getParams().size() == 0) {
+                    messageHandler.sendMessage("cmd.wrong.usage", sender, null);
+                    return true;
+                }
+
+                if (!commandData.getParams().get(commandData.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
+                    messageHandler.sendMessage("cmd.wrong.usage", sender, null);
+                    return true;
+                }
             }
 
             // Creates a list of the params to send.
