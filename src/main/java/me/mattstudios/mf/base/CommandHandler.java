@@ -186,15 +186,21 @@ public class CommandHandler extends Command {
 
         CommandData commandData = getDefaultMethod();
 
-        assert commandData != null;
-        if (commandData.getParams().size() == 0) {
+        if (commandData != null && commandData.getParams().size() == 0) {
             // Checks if the sub command is registered or not.
             if (!subCommands.containsKey(arguments[0]) || getName().equalsIgnoreCase(arguments[0])) {
                 messageHandler.sendMessage("cmd.no.exists", sender, arguments[0]);
                 return true;
             }
+        }
 
-            // Gets the method from the list.
+        // Checks if the sub command is registered or not.
+        if (getDefaultMethod() == null && !subCommands.containsKey(arguments[0])) {
+            messageHandler.sendMessage("cmd.no.exists", sender, arguments[0]);
+            return true;
+        }
+
+        if (subCommands.containsKey(arguments[0])) {
             commandData = subCommands.get(arguments[0]);
         }
 
@@ -313,8 +319,26 @@ public class CommandHandler extends Command {
         if (args.length == 1) {
             List<String> commandNames = new ArrayList<>();
 
+            CommandData commandDataDef = getDefaultMethod();
+
             List<String> subCmd = new ArrayList<>(subCommands.keySet());
             subCmd.remove(getName());
+
+            if (commandDataDef != null) {
+                if (commandDataDef.getCompletions().size() != 0) {
+                    String id = commandDataDef.getCompletions().get(1);
+                    Object inputClss = commandDataDef.getParams().get(0);
+
+                    // TODO range without thingy and also for double
+                    if (id.contains(":")) {
+                        String[] values = id.split(":");
+                        id = values[0];
+                        inputClss = values[1];
+                    }
+
+                    subCmd.addAll(completionHandler.getTypeResult(id, inputClss));
+                }
+            }
 
             // Checks if the typing command is empty.
             if (!args[0].equals("")) {
