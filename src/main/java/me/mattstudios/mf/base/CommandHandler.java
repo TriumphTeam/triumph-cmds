@@ -1,6 +1,13 @@
 package me.mattstudios.mf.base;
 
-import me.mattstudios.mf.annotations.*;
+
+import me.mattstudios.mf.annotations.Alias;
+import me.mattstudios.mf.annotations.Completion;
+import me.mattstudios.mf.annotations.Default;
+import me.mattstudios.mf.annotations.MaxArgs;
+import me.mattstudios.mf.annotations.MinArgs;
+import me.mattstudios.mf.annotations.Permission;
+import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
@@ -12,7 +19,13 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class CommandHandler extends Command {
 
@@ -206,6 +219,7 @@ public class CommandHandler extends Command {
 
         // Checks if permission annotation is present.
         // Checks whether the command sender has the permission set in the annotation.
+        assert commandData != null;
         if (commandData.hasPermission() && !sender.hasPermission(commandData.getPermission())) {
             messageHandler.sendMessage("cmd.no.permission", sender, null);
             return true;
@@ -324,20 +338,18 @@ public class CommandHandler extends Command {
             List<String> subCmd = new ArrayList<>(subCommands.keySet());
             subCmd.remove(getName());
 
-            if (commandDataDef != null) {
-                if (commandDataDef.getCompletions().size() != 0) {
-                    String id = commandDataDef.getCompletions().get(1);
-                    Object inputClss = commandDataDef.getParams().get(0);
+            if (commandDataDef != null && commandDataDef.getCompletions().size() != 0) {
+                String id = commandDataDef.getCompletions().get(1);
+                Object inputClss = commandDataDef.getParams().get(0);
 
-                    // TODO range without thingy and also for double
-                    if (id.contains(":")) {
-                        String[] values = id.split(":");
-                        id = values[0];
-                        inputClss = values[1];
-                    }
-
-                    subCmd.addAll(completionHandler.getTypeResult(id, inputClss));
+                // TODO range without thingy and also for double
+                if (id.contains(":")) {
+                    String[] values = id.split(":");
+                    id = values[0];
+                    inputClss = values[1];
                 }
+
+                subCmd.addAll(completionHandler.getTypeResult(id, inputClss));
             }
 
             // Checks if the typing command is empty.
