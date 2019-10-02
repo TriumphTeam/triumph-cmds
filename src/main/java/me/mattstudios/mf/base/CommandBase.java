@@ -36,7 +36,7 @@ public abstract class CommandBase {
         this.method = method;
     }
 
-    boolean isDef() {
+    boolean isDefault() {
         return def;
     }
 

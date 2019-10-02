@@ -66,101 +66,30 @@ public class CommandHandler extends Command {
             // Sets the first parameter as either player or command sender.
             command.setFirstParam(method.getParameterTypes()[0]);
 
-            // Checks if it is a default method.
-            if (method.isAnnotationPresent(Default.class)) {
-                command.setDef(true);
-                // Checks if there is more than one parameters in the default method.
-                if (command.getParams().size() != 0)
-                    throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Default method cannot have more than one parameter!");
-            }
+            // Checks if it's a default method.
+            checkDefault(method, command);
 
             // Checks if the parameters in class are registered.
-            for (int i = 1; i < method.getParameterTypes().length; i++) {
-                Class clss = method.getParameterTypes()[i];
-
-                if (clss.equals(String[].class) && i != method.getParameterTypes().length - 1) {
-                    throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
-                }
-
-                if (!clss.isEnum() && !this.parameterHandler.isRegisteredType(clss)) {
-                    throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
-                }
-
-                command.getParams().add(clss);
-            }
+            checkRegisteredParams(method, command);
 
             // Checks if permission annotation is present.
-            if (method.isAnnotationPresent(Permission.class)) {
-                // Checks whether the command sender has the permission set in the annotation.
-                command.setPermission(method.getAnnotation(Permission.class).value());
-            }
+            checkPermission(method, command);
 
             // Checks for completion on the parameters.
-            for (int i = 0; i < method.getParameters().length; i++) {
-                Parameter parameter = method.getParameters()[i];
-
-                if (i == 0 && parameter.isAnnotationPresent(Completion.class))
-                    throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion annotation!");
-
-                // Checks for max and min args on the String[] parameter
-                if (parameter.getType().getTypeName().equals(String[].class.getTypeName())) {
-                    if (parameter.isAnnotationPresent(MaxArgs.class)) {
-                        command.setMaxArgs(parameter.getAnnotation(MaxArgs.class).value());
-                    }
-
-                    if (parameter.isAnnotationPresent(MinArgs.class)) {
-                        command.setMinArgs(parameter.getAnnotation(MinArgs.class).value());
-                    }
-                }
-
-                if (!parameter.isAnnotationPresent(Completion.class)) continue;
-
-                String[] values = parameter.getAnnotation(Completion.class).value();
-
-                if (values.length != 1)
-                    throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Parameter completion can only have one value!");
-                if (!values[0].startsWith("#"))
-                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
-
-                if (!this.completionHandler.isRegistered(values[0]))
-                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID '" + values[0] + "'!");
-
-                command.getCompletions().put(i, values[0]);
-            }
+            checkParamCompletion(method, command);
 
             // Checks for completion annotation in the method.
-            if (method.isAnnotationPresent(Completion.class)) {
-                String[] completionValues = method.getAnnotation(Completion.class).value();
-                for (int i = 0; i < completionValues.length; i++) {
-                    String id = completionValues[i];
-
-                    if (!id.startsWith("#"))
-                        throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
-
-                    if (!this.completionHandler.isRegistered(id))
-                        throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
-
-                    command.getCompletions().put(i + 1, id);
-                }
-            }
+            checkMethodCompletion(method, command);
 
             // Checks for aliases.
-            if (method.isAnnotationPresent(Alias.class)) {
-                // Iterates through the alias and add each as a normal sub command.
-                for (String alias : method.getAnnotation(Alias.class).value()) {
-                    //noinspection UnnecessaryLocalVariable
-                    CommandBase aliasCD = command;
-                    if (aliasCD.isDef()) aliasCD.setDef(false);
-                    subCommands.put(alias, aliasCD);
-                }
-            }
+            checkAlias(method, command);
 
             // puts the main method in the list.
-            if (!command.isDef() && method.isAnnotationPresent(SubCommand.class)) {
+            if (!command.isDefault() && method.isAnnotationPresent(SubCommand.class)) {
                 subCommands.put(method.getAnnotation(SubCommand.class).value(), command);
             }
 
-            if (command.isDef()) {
+            if (command.isDefault()) {
                 subCommands.put(commandName, command);
             }
         }
@@ -177,12 +106,9 @@ public class CommandHandler extends Command {
             if (command == null) return true;
 
             // Checks if permission annotation is present.
-            if (command.hasPermission()) {
-                // Checks whether the command sender has the permission set in the annotation.
-                if (!sender.hasPermission(command.getPermission())) {
-                    messageHandler.sendMessage("cmd.no.permission", sender, null);
-                    return true;
-                }
+            if (command.hasPermission() && !sender.hasPermission(command.getPermission())) {
+                messageHandler.sendMessage("cmd.no.permission", sender, null);
+                return true;
             }
 
             // Checks if the command can be accessed from console
@@ -230,14 +156,11 @@ public class CommandHandler extends Command {
         }
 
         // Runs the command executor.
-        return executeCommand(command, sender, arguments, command.isDef());
+        return executeCommand(command, sender, arguments, command.isDefault());
     }
 
     private boolean executeCommand(CommandBase command, CommandSender sender, String[] arguments, boolean def) {
         try {
-
-            command.clearArgs();
-
             Method method = command.getMethod();
 
             // Checks if it the command is default and remove the sub command argument one if it is not.
@@ -259,7 +182,7 @@ public class CommandHandler extends Command {
 
             // Checks for correct command usage.
             if (command.getParams().size() != argumentsList.size()) {
-                if (!command.isDef() && command.getParams().size() == 0) {
+                if (!command.isDefault() && command.getParams().size() == 0) {
                     messageHandler.sendMessage("cmd.wrong.usage", sender, null);
                     return true;
                 }
@@ -313,7 +236,7 @@ public class CommandHandler extends Command {
             }
 
             method.invoke(command, invokeParams.toArray());
-
+            command.clearArgs();
             return true;
 
         } catch (Exception e) {
@@ -418,11 +341,113 @@ public class CommandHandler extends Command {
      */
     private CommandBase getDefaultMethod() {
         for (String subCommand : subCommands.keySet()) {
-            if (subCommands.get(subCommand).isDef()) {
+            if (subCommands.get(subCommand).isDefault()) {
                 return subCommands.get(subCommand);
             }
         }
 
         return null;
+    }
+
+    private void checkDefault(Method method, CommandBase command) {
+        // Checks if it is a default method.
+        if (method.isAnnotationPresent(Default.class)) {
+            command.setDef(true);
+            // Checks if there is more than one parameters in the default method.
+            if (command.getParams().size() != 0) {
+                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Default method cannot have more than one parameter!");
+            }
+        }
+    }
+
+    private void checkRegisteredParams(Method method, CommandBase command) {
+        // Checks if the parameters in class are registered.
+        for (int i = 1; i < method.getParameterTypes().length; i++) {
+            Class clss = method.getParameterTypes()[i];
+
+            if (clss.equals(String[].class) && i != method.getParameterTypes().length - 1) {
+                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
+            }
+
+            if (!clss.isEnum() && !this.parameterHandler.isRegisteredType(clss)) {
+                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
+            }
+
+            command.getParams().add(clss);
+        }
+    }
+
+    private void checkPermission(Method method, CommandBase command) {
+        // Checks if permission annotation is present.
+        if (method.isAnnotationPresent(Permission.class)) {
+            // Checks whether the command sender has the permission set in the annotation.
+            command.setPermission(method.getAnnotation(Permission.class).value());
+        }
+    }
+
+    private void checkParamCompletion(Method method, CommandBase command) {
+        // Checks for completion on the parameters.
+        for (int i = 0; i < method.getParameters().length; i++) {
+            Parameter parameter = method.getParameters()[i];
+
+            if (i == 0 && parameter.isAnnotationPresent(Completion.class))
+                throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion annotation!");
+
+            // Checks for max and min args on the String[] parameter
+            if (parameter.getType().getTypeName().equals(String[].class.getTypeName())) {
+                if (parameter.isAnnotationPresent(MaxArgs.class)) {
+                    command.setMaxArgs(parameter.getAnnotation(MaxArgs.class).value());
+                }
+
+                if (parameter.isAnnotationPresent(MinArgs.class)) {
+                    command.setMinArgs(parameter.getAnnotation(MinArgs.class).value());
+                }
+            }
+
+            if (!parameter.isAnnotationPresent(Completion.class)) continue;
+
+            String[] values = parameter.getAnnotation(Completion.class).value();
+
+            if (values.length != 1)
+                throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Parameter completion can only have one value!");
+            if (!values[0].startsWith("#"))
+                throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
+
+            if (!this.completionHandler.isRegistered(values[0]))
+                throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID '" + values[0] + "'!");
+
+            command.getCompletions().put(i, values[0]);
+        }
+    }
+
+    private void checkMethodCompletion(Method method, CommandBase command) {
+        // Checks for completion annotation in the method.
+        if (method.isAnnotationPresent(Completion.class)) {
+            String[] completionValues = method.getAnnotation(Completion.class).value();
+            for (int i = 0; i < completionValues.length; i++) {
+                String id = completionValues[i];
+
+                if (!id.startsWith("#"))
+                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
+
+                if (!this.completionHandler.isRegistered(id))
+                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
+
+                command.getCompletions().put(i + 1, id);
+            }
+        }
+    }
+
+    private void checkAlias(Method method, CommandBase command) {
+        // Checks for aliases.
+        if (method.isAnnotationPresent(Alias.class)) {
+            // Iterates through the alias and add each as a normal sub command.
+            for (String alias : method.getAnnotation(Alias.class).value()) {
+                //noinspection UnnecessaryLocalVariable
+                CommandBase aliasCD = command;
+                if (aliasCD.isDefault()) aliasCD.setDef(false);
+                subCommands.put(alias, aliasCD);
+            }
+        }
     }
 }

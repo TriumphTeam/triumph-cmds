@@ -18,3 +18,7 @@ temp.java
 pom.xml.versionsBackup
 !/src/main/java/me/mattstudios/mf/main.java
 !/src/main/java/me/mattstudios/mf/test.java
+
+src/main/java/me/mattstudios/mf/CMD.java
+
+src/main/java/me/mattstudios/mf/Main.java
