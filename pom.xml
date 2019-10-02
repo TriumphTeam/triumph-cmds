@@ -6,7 +6,7 @@
 
     <groupId>me.mattstudios.utils</groupId>
     <artifactId>matts-framework</artifactId>
-    <version>1.0.5-BETA</version>
+    <version>1.0.8-BETA</version>
     <packaging>jar</packaging>
 
     <name>Matt's Framework</name>

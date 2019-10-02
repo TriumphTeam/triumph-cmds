@@ -1,8 +1,6 @@
 package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.base.components.ParameterResolver;
-import me.mattstudios.mf.exceptions.InvalidArgException;
-import me.mattstudios.mf.exceptions.InvalidArgExceptionMsg;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -10,8 +8,6 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static me.mattstudios.mf.base.components.Util.color;
 
 public class ParameterHandler {
 
@@ -26,93 +22,93 @@ public class ParameterHandler {
 
         register(Short.class, arg -> {
             try {
-                return tryParseNumber(Short.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Short.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(short.class, arg -> {
             try {
-                return tryParseNumber(Short.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Short.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(int.class, arg -> {
             try {
-                return tryParseNumber(Integer.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Integer.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(Integer.class, arg -> {
             try {
-                return tryParseNumber(Integer.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Integer.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(long.class, arg -> {
             try {
-                return tryParseNumber(Long.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Long.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(Long.class, arg -> {
             try {
-                return tryParseNumber(Long.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Long.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(float.class, arg -> {
             try {
-                return tryParseNumber(Float.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Float.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(Float.class, arg -> {
             try {
-                return tryParseNumber(Float.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Float.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(double.class, arg -> {
             try {
-                return tryParseNumber(Double.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Double.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(Double.class, arg -> {
             try {
-                return tryParseNumber(Double.class, String.valueOf(arg));
+                return new Object[]{tryParseNumber(Double.class, String.valueOf(arg)), arg};
             } catch (NumberFormatException e) {
-                throw new InvalidArgException("arg.must.be.number");
+                return new Object[]{null, arg};
             }
         });
         register(String.class, arg -> {
-            if (arg instanceof String) return arg;
+            if (arg instanceof String) return new Object[]{arg, arg};
             // Will most likely never happen.
-            throw new InvalidArgException("cmd.wrong.usage");
+            return new Object[]{null, arg};
         });
         register(String[].class, arg -> {
-            if (arg instanceof String[]) return arg;
+            if (arg instanceof String[]) return new Object[]{arg, arg};
             // Will most likely never happen.
-            throw new InvalidArgException("cmd.wrong.usage");
+            return new Object[]{null, arg};
         });
         register(Player.class, arg -> {
             Player player = Bukkit.getServer().getPlayer(String.valueOf(arg));
-            if (player != null) return player;
-            throw new InvalidArgException("arg.must.be.player");
+            if (player != null) return new Object[]{player, arg};
+            return new Object[]{null, arg};
         });
         register(Material.class, arg -> {
             Material material = Material.matchMaterial(String.valueOf(arg));
-            if (material != null) return material;
-            throw new InvalidArgException("arg.invalid.value");
+            if (material != null) return new Object[]{material, arg};
+            return new Object[]{null, arg};
         });
     }
 
@@ -134,16 +130,11 @@ public class ParameterHandler {
      * @param sender The console sender to send messages to.
      * @return The output object of the functional interface.
      */
-    Object getTypeResult(Class<?> clss, Object object, CommandSender sender) {
-        try {
-            return registeredTypes.get(clss).getResolved(object);
-        } catch (InvalidArgException e) {
-            messageHandler.sendMessage(e.getMessageId(), sender, String.valueOf(object));
-            return null;
-        } catch (InvalidArgExceptionMsg e) {
-            sender.sendMessage(color(e.getMessage()));
-            return null;
-        }
+    Object getTypeResult(Class<?> clss, Object object,CommandBase command, CommandSender sender) {
+        Object[] registeredObjects = registeredTypes.get(clss).getResolved(object);
+        command.getArguments().add(String.valueOf(registeredObjects[1]));
+
+        return registeredObjects[0];
     }
 
     /**
