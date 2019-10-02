@@ -3,7 +3,6 @@ package me.mattstudios.mf.base;
 import me.mattstudios.mf.base.components.ParameterResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -14,11 +13,8 @@ public class ParameterHandler {
     // The map of registered parameters.
     private final Map<Class<?>, ParameterResolver> registeredTypes = new HashMap<>();
 
-    private MessageHandler messageHandler;
-
     // Registers all the parameters;
-    ParameterHandler(MessageHandler messageHandler) {
-        this.messageHandler = messageHandler;
+    ParameterHandler() {
 
         register(Short.class, arg -> {
             try {
@@ -130,9 +126,9 @@ public class ParameterHandler {
      * @param sender The console sender to send messages to.
      * @return The output object of the functional interface.
      */
-    Object getTypeResult(Class<?> clss, Object object,CommandBase command, CommandSender sender) {
+    Object getTypeResult(Class<?> clss, Object object,CommandBase command, String paramName) {
         Object[] registeredObjects = registeredTypes.get(clss).getResolved(object);
-        command.getArguments().add(String.valueOf(registeredObjects[1]));
+        command.getArguments().put(paramName, String.valueOf(registeredObjects[1]));
 
         return registeredObjects[0];
     }

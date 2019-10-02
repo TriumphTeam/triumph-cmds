@@ -231,7 +231,7 @@ public class CommandHandler extends Command {
                     argument = args;
                 }
 
-                Object result = parameterHandler.getTypeResult(parameter, argument, command, sender);
+                Object result = parameterHandler.getTypeResult(parameter, argument, command, command.getParameterNames().get(i));
                 invokeParams.add(result);
             }
 
@@ -349,6 +349,12 @@ public class CommandHandler extends Command {
         return null;
     }
 
+    /**
+     * Checks if the method is default.
+     *
+     * @param method  The method to check.
+     * @param command The commandBase object with the data.
+     */
     private void checkDefault(Method method, CommandBase command) {
         // Checks if it is a default method.
         if (method.isAnnotationPresent(Default.class)) {
@@ -360,6 +366,12 @@ public class CommandHandler extends Command {
         }
     }
 
+    /**
+     * Checks if the method has registered parameters or not.
+     *
+     * @param method  The method to check.
+     * @param command The commandBase object with the data.
+     */
     private void checkRegisteredParams(Method method, CommandBase command) {
         // Checks if the parameters in class are registered.
         for (int i = 1; i < method.getParameterTypes().length; i++) {
@@ -374,9 +386,16 @@ public class CommandHandler extends Command {
             }
 
             command.getParams().add(clss);
+            command.getParameterNames().add(method.getParameters()[i].getName());
         }
     }
 
+    /**
+     * Checks if the permission annotation is present.
+     *
+     * @param method  The method to check.
+     * @param command The commandBase object with the data.
+     */
     private void checkPermission(Method method, CommandBase command) {
         // Checks if permission annotation is present.
         if (method.isAnnotationPresent(Permission.class)) {
@@ -385,6 +404,12 @@ public class CommandHandler extends Command {
         }
     }
 
+    /**
+     * Checks if there is any completion on the parameters.
+     *
+     * @param method  The method to check.
+     * @param command The commandBase object with the data.
+     */
     private void checkParamCompletion(Method method, CommandBase command) {
         // Checks for completion on the parameters.
         for (int i = 0; i < method.getParameters().length; i++) {
@@ -420,6 +445,12 @@ public class CommandHandler extends Command {
         }
     }
 
+    /**
+     * Checks if there is any completion on the method.
+     *
+     * @param method  The method to check.
+     * @param command The commandBase object with the data.
+     */
     private void checkMethodCompletion(Method method, CommandBase command) {
         // Checks for completion annotation in the method.
         if (method.isAnnotationPresent(Completion.class)) {
@@ -438,6 +469,12 @@ public class CommandHandler extends Command {
         }
     }
 
+    /**
+     * Checks for aliases to be used.
+     *
+     * @param method  The method to check.
+     * @param command The commandBase object with the data.
+     */
     private void checkAlias(Method method, CommandBase command) {
         // Checks for aliases.
         if (method.isAnnotationPresent(Alias.class)) {

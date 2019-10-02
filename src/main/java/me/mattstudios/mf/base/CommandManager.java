@@ -34,7 +34,7 @@ public class CommandManager implements Listener {
         commands = new HashMap<>();
         completionHandler = new CompletionHandler();
         messageHandler = new MessageHandler();
-        parameterHandler = new ParameterHandler(messageHandler);
+        parameterHandler = new ParameterHandler();
     }
 
     /**

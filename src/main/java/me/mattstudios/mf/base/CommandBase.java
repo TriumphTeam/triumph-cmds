@@ -18,7 +18,8 @@ public abstract class CommandBase {
     private List<Class> params = new ArrayList<>();
     // List of the completions.
     private HashMap<Integer, String> completions = new HashMap<>();
-    private List<String> arguments = new ArrayList<>();
+    private HashMap<String, String> arguments = new HashMap<>();
+    private List<String> parameterNames = new ArrayList<>();
 
     // Max args for String[].
     private int maxArgs = 0;
@@ -88,11 +89,15 @@ public abstract class CommandBase {
         this.minArgs = minArgs;
     }
 
-    public List<String> getArguments() {
-        return arguments;
-    }
-
     void clearArgs() {
         arguments.clear();
+    }
+
+    List<String> getParameterNames() {
+        return parameterNames;
+    }
+
+    public HashMap<String, String> getArguments() {
+        return arguments;
     }
 }
