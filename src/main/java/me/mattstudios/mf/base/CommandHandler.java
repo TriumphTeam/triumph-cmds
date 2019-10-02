@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 Matt
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package me.mattstudios.mf.base;
 
 
@@ -107,13 +131,13 @@ public class CommandHandler extends Command {
 
             // Checks if permission annotation is present.
             if (command.hasPermission() && !sender.hasPermission(command.getPermission())) {
-                messageHandler.sendMessage("cmd.no.permission", sender, null);
+                messageHandler.sendMessage("cmd.no.permission", sender);
                 return true;
             }
 
             // Checks if the command can be accessed from console
             if (!command.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-                messageHandler.sendMessage("cmd.no.console", sender, null);
+                messageHandler.sendMessage("cmd.no.console", sender);
                 return true;
             }
 
@@ -123,17 +147,15 @@ public class CommandHandler extends Command {
 
         CommandBase command = getDefaultMethod();
 
-        if (command != null && command.getParams().size() == 0) {
-            // Checks if the sub command is registered or not.
-            if (!subCommands.containsKey(arguments[0]) || getName().equalsIgnoreCase(arguments[0])) {
-                messageHandler.sendMessage("cmd.no.exists", sender, arguments[0]);
-                return true;
-            }
+        // Checks if the sub command is registered or not.
+        if ((command != null && command.getParams().size() == 0) && (!subCommands.containsKey(arguments[0]) || getName().equalsIgnoreCase(arguments[0]))) {
+            messageHandler.sendMessage("cmd.no.exists", sender);
+            return true;
         }
 
         // Checks if the sub command is registered or not.
         if (getDefaultMethod() == null && !subCommands.containsKey(arguments[0])) {
-            messageHandler.sendMessage("cmd.no.exists", sender, arguments[0]);
+            messageHandler.sendMessage("cmd.no.exists", sender);
             return true;
         }
 
@@ -145,13 +167,13 @@ public class CommandHandler extends Command {
         // Checks whether the command sender has the permission set in the annotation.
         assert command != null;
         if (command.hasPermission() && !sender.hasPermission(command.getPermission())) {
-            messageHandler.sendMessage("cmd.no.permission", sender, null);
+            messageHandler.sendMessage("cmd.no.permission", sender);
             return true;
         }
 
         // Checks if the command can be accessed from console
         if (!command.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-            messageHandler.sendMessage("cmd.no.console", sender, null);
+            messageHandler.sendMessage("cmd.no.console", sender);
             return true;
         }
 
@@ -183,12 +205,12 @@ public class CommandHandler extends Command {
             // Checks for correct command usage.
             if (command.getParams().size() != argumentsList.size()) {
                 if (!command.isDefault() && command.getParams().size() == 0) {
-                    messageHandler.sendMessage("cmd.wrong.usage", sender, null);
+                    messageHandler.sendMessage("cmd.wrong.usage", sender);
                     return true;
                 }
 
                 if (!command.getParams().get(command.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
-                    messageHandler.sendMessage("cmd.wrong.usage", sender, null);
+                    messageHandler.sendMessage("cmd.wrong.usage", sender);
                     return true;
                 }
             }
@@ -203,7 +225,7 @@ public class CommandHandler extends Command {
                 Class parameter = command.getParams().get(i);
 
                 if (command.getParams().size() > argumentsList.size()) {
-                    messageHandler.sendMessage("cmd.wrong.usage", sender, null);
+                    messageHandler.sendMessage("cmd.wrong.usage", sender);
                     return true;
                 }
 
@@ -214,12 +236,12 @@ public class CommandHandler extends Command {
                     String[] args = new String[argumentsList.size() - i];
 
                     if (command.getMaxArgs() != 0 && args.length > command.getMaxArgs()) {
-                        messageHandler.sendMessage("cmd.wrong.usage", sender, null);
+                        messageHandler.sendMessage("cmd.wrong.usage", sender);
                         return true;
                     }
 
                     if (command.getMinArgs() != 0 && args.length < command.getMinArgs()) {
-                        messageHandler.sendMessage("cmd.wrong.usage", sender, null);
+                        messageHandler.sendMessage("cmd.wrong.usage", sender);
                         return true;
                     }
 
@@ -235,8 +257,10 @@ public class CommandHandler extends Command {
                 invokeParams.add(result);
             }
 
+            // Calls the command method method.
             method.invoke(command, invokeParams.toArray());
             command.clearArgs();
+
             return true;
 
         } catch (Exception e) {

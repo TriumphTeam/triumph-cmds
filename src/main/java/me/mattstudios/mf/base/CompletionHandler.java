@@ -84,38 +84,38 @@ public class CompletionHandler {
     /**
      * Registers a new completion.
      *
-     * @param id                 The ID of the completion to register.
+     * @param completionId       The ID of the completion to register.
      * @param completionResolver A function with the result you want.
      */
-    public void register(String id, CompletionResolver completionResolver) {
-        if (!id.startsWith("#"))
-            throw new InvalidCompletionIdException("Could not register completion, id - " + id + " does not start with #.");
-        registeredCompletions.put(id, completionResolver);
+    public void register(String completionId, CompletionResolver completionResolver) {
+        if (!completionId.startsWith("#"))
+            throw new InvalidCompletionIdException("Could not register completion, id - " + completionId + " does not start with #.");
+        registeredCompletions.put(completionId, completionResolver);
     }
 
     /**
      * Gets the values from the registered functions.
      *
-     * @param id    The ID to get from.
-     * @param input The input to base an output (normally not needed).
+     * @param completionId The ID to get from.
+     * @param input        The input to base an output (normally not needed).
      * @return The string list with all the completions.
      */
-    List<String> getTypeResult(String id, Object input) {
-        return registeredCompletions.get(id).resolve(input);
+    List<String> getTypeResult(String completionId, Object input) {
+        return registeredCompletions.get(completionId).resolve(input);
     }
 
     /**
      * Checks if the ID is currently registered.
      *
-     * @param id The ID to check.
+     * @param completionId The ID to check.
      * @return The result of being registered or not.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    boolean isRegistered(String id) {
-        if (id.contains(":")) {
-            String[] content = id.split(":");
-            id = content[0];
+    boolean isRegistered(String completionId) {
+        if (completionId.contains(":")) {
+            String[] content = completionId.split(":");
+            completionId = content[0];
         }
-        return registeredCompletions.containsKey(id);
+        return registeredCompletions.containsKey(completionId);
     }
 }
