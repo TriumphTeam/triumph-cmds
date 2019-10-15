@@ -383,10 +383,6 @@ public class CommandHandler extends Command {
         // Checks if it is a default method.
         if (method.isAnnotationPresent(Default.class)) {
             command.setDef(true);
-            // Checks if there is more than one parameters in the default method.
-            if (command.getParams().size() != 0) {
-                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Default method cannot have more than one parameter!");
-            }
         }
     }
 
