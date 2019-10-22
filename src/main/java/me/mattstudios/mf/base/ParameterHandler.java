@@ -25,6 +25,7 @@
 package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.base.components.ParameterResolver;
+import me.mattstudios.mf.base.components.CommandData;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -148,13 +149,13 @@ public class ParameterHandler {
      *
      * @param clss      The class to check.
      * @param object    The input object of the functional interface.
-     * @param command   The command base class.
+     * @param subCommand   The command base class.
      * @param paramName The parameter name from the command method.
      * @return The output object of the functional interface.
      */
-    Object getTypeResult(Class<?> clss, Object object, CommandBase command, String paramName) {
+    Object getTypeResult(Class<?> clss, Object object, CommandData subCommand, String paramName) {
         Object[] registeredObjects = registeredTypes.get(clss).getResolved(object);
-        command.getArguments().put(paramName, String.valueOf(registeredObjects[1]));
+        subCommand.getCommandBase().getArguments().put(paramName, String.valueOf(registeredObjects[1]));
 
         return registeredObjects[0];
     }

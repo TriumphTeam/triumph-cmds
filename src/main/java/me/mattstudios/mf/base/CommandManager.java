@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("unused")
-public class CommandManager implements Listener {
+public final class CommandManager implements Listener {
 
     private JavaPlugin plugin;
 
@@ -118,7 +118,7 @@ public class CommandManager implements Listener {
 
             CommandHandler commandHandler;
             if (commands.containsKey(commandName)) {
-                commands.get(commandName).addSubCommands(command, commandName);
+                commands.get(commandName).addSubCommands(command);
                 return;
             }
 
