@@ -110,7 +110,7 @@ public final class CommandHandler extends Command {
             checkMethodCompletion(method, command, subCommand);
 
             // Checks for aliases.
-            checkAlias(method, command, subCommand);
+            checkAlias(method, subCommand);
 
             // puts the main method in the list.
             if (!subCommand.isDefault() && method.isAnnotationPresent(SubCommand.class)) {
@@ -140,6 +140,7 @@ public final class CommandHandler extends Command {
             return true;
         }
 
+        // Checks if the command is on the list, which means it's no longer a default command.
         if (commands.containsKey(arguments[0])) {
             subCommand = commands.get(arguments[0]);
         }
@@ -466,10 +467,9 @@ public final class CommandHandler extends Command {
     /**
      * Checks for aliases to be used.
      *  @param method  The method to check.
-     * @param command The commandBase object with the data.
      * @param subCommand The SubCommand object with the data.
      */
-    private void checkAlias(Method method, CommandBase command, CommandData subCommand) {
+    private void checkAlias(Method method, CommandData subCommand) {
         // Checks for aliases.
         if (method.isAnnotationPresent(Alias.class)) {
             // Iterates through the alias and add each as a normal sub command.
