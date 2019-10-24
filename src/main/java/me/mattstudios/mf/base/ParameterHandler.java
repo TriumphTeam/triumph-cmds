@@ -155,7 +155,7 @@ public class ParameterHandler {
      */
     Object getTypeResult(Class<?> clss, Object object, CommandData subCommand, String paramName) {
         Object[] registeredObjects = registeredTypes.get(clss).getResolved(object);
-        subCommand.getCommandBase().getArguments().put(paramName, String.valueOf(registeredObjects[1]));
+        subCommand.getCommandBase().addArgument(paramName, String.valueOf(registeredObjects[1]));
 
         return registeredObjects[0];
     }
