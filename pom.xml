@@ -30,7 +30,7 @@
 
     <groupId>me.mattstudios.utils</groupId>
     <artifactId>matts-framework</artifactId>
-    <version>1.1.0-BETA</version>
+    <version>1.2.0-BETA</version>
     <packaging>jar</packaging>
 
     <name>Matt's Framework</name>
