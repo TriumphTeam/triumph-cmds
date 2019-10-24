@@ -34,8 +34,12 @@ public abstract class CommandBase {
         arguments.clear();
     }
 
+    void addArgument(String name, String argument) {
+        arguments.put(name, argument);
+    }
+
     @SuppressWarnings("WeakerAccess")
-    public HashMap<String, String> getArguments() {
-        return arguments;
+    public String getArgument(String name) {
+        return arguments.getOrDefault(name, null);
     }
 }
