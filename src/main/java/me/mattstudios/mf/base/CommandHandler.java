@@ -128,6 +128,31 @@ public final class CommandHandler extends Command {
 
         CommandData subCommand = getDefaultSubCommand();
 
+        if (arguments.length == 0 || arguments[0].isEmpty()) {
+
+            // Will not run if there is no default methods.
+            if (subCommand == null) {
+                messageHandler.sendMessage("cmd.no.exists", sender);
+                return true;
+            }
+
+            // Checks if permission annotation is present.
+            // Checks whether the command sender has the permission set in the annotation.
+            if (subCommand.hasPermission() && !sender.hasPermission(subCommand.getPermission())) {
+                messageHandler.sendMessage("cmd.no.permission", sender);
+                return true;
+            }
+
+            // Checks if the command can be accessed from console
+            if (!subCommand.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
+                messageHandler.sendMessage("cmd.no.console", sender);
+                return true;
+            }
+
+            // Executes all the commands.
+            return executeCommand(subCommand, sender, arguments);
+        }
+
         // Checks if the sub command is registered or not.
         if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(arguments[0]) || getName().equalsIgnoreCase(arguments[0]))) {
             messageHandler.sendMessage("cmd.no.exists", sender);
@@ -174,14 +199,14 @@ public final class CommandHandler extends Command {
 
             // Check if the method only has a sender as parameter.
             if (subCommand.getParams().size() == 0 && argumentsList.size() == 0) {
-                method.invoke(subCommand, sender);
+                method.invoke(subCommand.getCommandBase(), sender);
                 return true;
             }
 
             // Checks if it is a default type command with just sender and args.
             if (subCommand.getParams().size() == 1
                     && subCommand.getParams().get(0).getTypeName().equals(String[].class.getTypeName())) {
-                method.invoke(subCommand, sender, arguments);
+                method.invoke(subCommand.getCommandBase(), sender, arguments);
                 return true;
             }
 
@@ -352,7 +377,8 @@ public final class CommandHandler extends Command {
 
     /**
      * Checks if the method is default.
-     *  @param method  The method to check.
+     *
+     * @param method     The method to check.
      * @param subCommand The subCommand object with the data.
      */
     private void checkDefault(Method method, CommandData subCommand) {
@@ -364,8 +390,9 @@ public final class CommandHandler extends Command {
 
     /**
      * Checks if the method has registered parameters or not.
-     *  @param method  The method to check.
-     * @param command The commandBase object with the data.
+     *
+     * @param method     The method to check.
+     * @param command    The commandBase object with the data.
      * @param subCommand The SubCommand object with the data.
      */
     private void checkRegisteredParams(Method method, CommandBase command, CommandData subCommand) {
@@ -388,7 +415,8 @@ public final class CommandHandler extends Command {
 
     /**
      * Checks if the permission annotation is present.
-     *  @param method  The method to check.
+     *
+     * @param method     The method to check.
      * @param subCommand The commandBase object with the data.
      */
     private void checkPermission(Method method, CommandData subCommand) {
@@ -401,8 +429,9 @@ public final class CommandHandler extends Command {
 
     /**
      * Checks if there is any completion on the parameters.
-     *  @param method  The method to check.
-     * @param command The commandBase object with the data.
+     *
+     * @param method     The method to check.
+     * @param command    The commandBase object with the data.
      * @param subCommand The Subcommand object with the data.
      */
     private void checkParamCompletion(Method method, CommandBase command, CommandData subCommand) {
@@ -442,8 +471,9 @@ public final class CommandHandler extends Command {
 
     /**
      * Checks if there is any completion on the method.
-     *  @param method  The method to check.
-     * @param command The commandBase object with the data.
+     *
+     * @param method     The method to check.
+     * @param command    The commandBase object with the data.
      * @param subCommand The SubCommand object with the data.
      */
     private void checkMethodCompletion(Method method, CommandBase command, CommandData subCommand) {
@@ -466,7 +496,8 @@ public final class CommandHandler extends Command {
 
     /**
      * Checks for aliases to be used.
-     *  @param method  The method to check.
+     *
+     * @param method     The method to check.
      * @param subCommand The SubCommand object with the data.
      */
     private void checkAlias(Method method, CommandData subCommand) {
