@@ -34,7 +34,7 @@ import java.util.List;
 public final class CommandData {
 
     // Base
-    CommandBase commandBase;
+    private CommandBase commandBase;
 
     // Method
     private Method method;
