@@ -55,6 +55,9 @@ public final class CommandData {
     // min args for String[].
     private int minArgs = 0;
 
+    // Optional argument
+    private boolean optional;
+
     // Permission node of the command.
     private String permission;
 
@@ -128,5 +131,13 @@ public final class CommandData {
 
     public CommandBase getCommandBase() {
         return commandBase;
+    }
+
+    public boolean hasOptional() {
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
     }
 }
