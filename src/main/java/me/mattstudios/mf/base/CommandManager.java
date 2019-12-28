@@ -133,6 +133,17 @@ public final class CommandManager implements Listener {
     }
 
     /**
+     * Sets whether you want to hide or not commands from tab completion if players don't have permission to use them.
+     *
+     * @param hideTab Hide or Not.
+     */
+    public void hideTabComplete(boolean hideTab) {
+        for (String cmdName : commands.keySet()) {
+            commands.get(cmdName).setHideTab(hideTab);
+        }
+    }
+
+    /**
      * Unregisters all the commands on the disable of the plugin.
      *
      * @param event PluginDisableEvent.

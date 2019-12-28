@@ -30,6 +30,7 @@ import me.mattstudios.mf.annotations.Completion;
 import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.MaxArgs;
 import me.mattstudios.mf.annotations.MinArgs;
+import me.mattstudios.mf.annotations.Optional;
 import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.base.components.CommandData;
@@ -58,12 +59,14 @@ public final class CommandHandler extends Command {
     private ParameterHandler parameterHandler;
     private CompletionHandler completionHandler;
     private MessageHandler messageHandler;
+    private boolean hideTab;
 
     CommandHandler(ParameterHandler parameterHandler, CompletionHandler completionHandler, MessageHandler messageHandler, CommandBase command, String commandName, List<String> aliases) {
         super(commandName);
         this.parameterHandler = parameterHandler;
         this.completionHandler = completionHandler;
         this.messageHandler = messageHandler;
+
         setAliases(aliases);
 
         commands = new HashMap<>();
@@ -103,6 +106,9 @@ public final class CommandHandler extends Command {
             // Checks if permission annotation is present.
             checkPermission(method, subCommand);
 
+            // Check if optional parameter is present.
+            checkOptionalParam(method, command, subCommand);
+
             // Checks for completion on the parameters.
             checkParamCompletion(method, command, subCommand);
 
@@ -114,9 +120,10 @@ public final class CommandHandler extends Command {
 
             // puts the main method in the list.
             if (!subCommand.isDefault() && method.isAnnotationPresent(SubCommand.class)) {
-                commands.put(method.getAnnotation(SubCommand.class).value(), subCommand);
+                commands.put(method.getAnnotation(SubCommand.class).value().toLowerCase(), subCommand);
             }
 
+            // Puts a default command in the list.
             if (subCommand.isDefault()) {
                 commands.put("default", subCommand);
             }
@@ -153,21 +160,24 @@ public final class CommandHandler extends Command {
             return executeCommand(subCommand, sender, arguments);
         }
 
+        // Sets the command to lower case so it can be typed either way.
+        String argCommand = arguments[0].toLowerCase();
+
         // Checks if the sub command is registered or not.
-        if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(arguments[0]) || getName().equalsIgnoreCase(arguments[0]))) {
+        if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(argCommand) || getName().equalsIgnoreCase(argCommand))) {
             messageHandler.sendMessage("cmd.no.exists", sender);
             return true;
         }
 
         // Checks if the sub command is registered or not.
-        if (subCommand == null && !commands.containsKey(arguments[0])) {
+        if (subCommand == null && !commands.containsKey(argCommand)) {
             messageHandler.sendMessage("cmd.no.exists", sender);
             return true;
         }
 
         // Checks if the command is on the list, which means it's no longer a default command.
-        if (commands.containsKey(arguments[0])) {
-            subCommand = commands.get(arguments[0]);
+        if (commands.containsKey(argCommand)) {
+            subCommand = commands.get(argCommand);
         }
 
         // Checks if permission annotation is present.
@@ -211,16 +221,13 @@ public final class CommandHandler extends Command {
             }
 
             // Checks for correct command usage.
-            if (subCommand.getParams().size() != argumentsList.size()) {
-                if (!subCommand.isDefault() && subCommand.getParams().size() == 0) {
-                    messageHandler.sendMessage("cmd.wrong.usage", sender);
-                    return true;
-                }
+            if (subCommand.getParams().size() != argumentsList.size() && !subCommand.hasOptional()) {
 
-                if (!subCommand.getParams().get(subCommand.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName())) {
-                    messageHandler.sendMessage("cmd.wrong.usage", sender);
-                    return true;
-                }
+                if (!subCommand.isDefault() && subCommand.getParams().size() == 0) return wrongUsage(sender);
+
+                if (!subCommand.getParams().get(subCommand.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName()))
+                    return wrongUsage(sender);
+
             }
 
             // Creates a list of the params to send.
@@ -230,12 +237,22 @@ public final class CommandHandler extends Command {
 
             // Iterates through all the parameters to check them.
             for (int i = 0; i < subCommand.getParams().size(); i++) {
-                Class parameter = subCommand.getParams().get(i);
+                Class<?> parameter = subCommand.getParams().get(i);
 
-                if (subCommand.getParams().size() > argumentsList.size()) {
-                    messageHandler.sendMessage("cmd.wrong.usage", sender);
-                    return true;
+                // Checks for optional parameter.
+                if (subCommand.hasOptional()) {
+
+                    if (argumentsList.size() > subCommand.getParams().size()) return wrongUsage(sender);
+
+                    if (argumentsList.size() < subCommand.getParams().size() - 1) return wrongUsage(sender);
+
+                    if (argumentsList.size() < subCommand.getParams().size()) argumentsList.add(null);
+
                 }
+
+                // checks if the parameters and arguments are valid
+                if (subCommand.getParams().size() > argumentsList.size()) return wrongUsage(sender);
+
 
                 Object argument = argumentsList.get(i);
 
@@ -290,6 +307,13 @@ public final class CommandHandler extends Command {
             List<String> subCmd = new ArrayList<>(commands.keySet());
             subCmd.remove("default");
 
+            // removes commands that the player can't access.
+            for (String subCmdName : commands.keySet()) {
+                CommandData subCmdData = commands.get(subCmdName);
+                if (hideTab && subCmdData.hasPermission() && !sender.hasPermission(subCmdData.getPermission()))
+                    subCmd.remove(subCmdName);
+            }
+
             if (subCommand != null && subCommand.getCompletions().size() != 0) {
                 String id = subCommand.getCompletions().get(1);
                 Object inputClss = subCommand.getParams().get(0);
@@ -317,6 +341,9 @@ public final class CommandHandler extends Command {
             // Sorts the sub commands by alphabetical order.
             Collections.sort(commandNames);
 
+            // Returns default tab completion if empty.
+            if (commandNames.isEmpty()) return super.tabComplete(sender, alias, args);
+
             // The complete values.
             return commandNames;
         }
@@ -327,6 +354,10 @@ public final class CommandHandler extends Command {
         if (!commands.containsKey(subCommand)) return super.tabComplete(sender, alias, args);
 
         CommandData subCommands = commands.get(subCommand);
+
+        // removes completion from commands that the player can't access.
+        if (hideTab && subCommands.hasPermission() && !sender.hasPermission(subCommands.getPermission()))
+            return super.tabComplete(sender, alias, args);
 
         // Checks if the completion list has the current args position.
         if (!subCommands.getCompletions().containsKey(args.length - 1)) return super.tabComplete(sender, alias, args);
@@ -364,6 +395,15 @@ public final class CommandHandler extends Command {
 
         // The complete values.
         return completionList;
+    }
+
+    /**
+     * Sets whether you want to hide or not commands from tab completion if players don't have permission to use them.
+     *
+     * @param hideTab Hide or Not.
+     */
+    public void setHideTab(boolean hideTab) {
+        this.hideTab = hideTab;
     }
 
     /**
@@ -508,8 +548,26 @@ public final class CommandHandler extends Command {
                 //noinspection UnnecessaryLocalVariable
                 CommandData aliasCD = subCommand;
                 if (aliasCD.isDefault()) aliasCD.setDefault(false);
-                commands.put(alias, subCommand);
+                commands.put(alias.toLowerCase(), subCommand);
             }
         }
+    }
+
+    private void checkOptionalParam(Method method, CommandBase command, CommandData subCommand) {
+        // Checks for completion on the parameters.
+        for (int i = 0; i < method.getParameters().length; i++) {
+            Parameter parameter = method.getParameters()[i];
+
+            if (i != method.getParameters().length - 1 && parameter.isAnnotationPresent(Optional.class))
+                throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Optional parameters can only be used as the last parameter of a method!");
+
+
+            if (parameter.isAnnotationPresent(Optional.class)) subCommand.setOptional(true);
+        }
+    }
+
+    private boolean wrongUsage(CommandSender sender) {
+        messageHandler.sendMessage("cmd.wrong.usage", sender);
+        return true;
     }
 }
