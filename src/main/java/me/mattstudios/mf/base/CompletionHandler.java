@@ -37,7 +37,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-class CompletionHandler {
+@SuppressWarnings("WeakerAccess")
+public class CompletionHandler {
 
     private final Map<String, CompletionResolver> registeredCompletions = new HashMap<>();
 

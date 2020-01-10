@@ -22,3 +22,7 @@ pom.xml.versionsBackup
 src/main/java/me/mattstudios/mf/CMD.java
 
 src/main/java/me/mattstudios/mf/Main.java
+
+src/main/java/me/mattstudios/mf/cmds/CMD.java
+
+src/main/java/me/mattstudios/mf/cmds/

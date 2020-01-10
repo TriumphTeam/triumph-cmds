@@ -24,8 +24,8 @@
 
 package me.mattstudios.mf.base;
 
-import me.mattstudios.mf.base.components.ParameterResolver;
 import me.mattstudios.mf.base.components.CommandData;
+import me.mattstudios.mf.base.components.ParameterResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

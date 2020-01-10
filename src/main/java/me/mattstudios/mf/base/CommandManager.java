@@ -39,6 +39,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static me.mattstudios.mf.base.components.Util.getCommandsInPackage;
+
 @SuppressWarnings("unused")
 public final class CommandManager implements Listener {
 
@@ -130,6 +132,15 @@ public final class CommandManager implements Listener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void registerCommands(String packge) {
+        int count = 0;
+        for (CommandBase command : getCommandsInPackage(plugin, packge)) {
+            register(command);
+            count++;
+        }
+        System.out.println("registered: " + count + " commands!");
     }
 
     /**
