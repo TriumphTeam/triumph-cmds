@@ -24,15 +24,7 @@
 
 package me.mattstudios.mf.base.components;
 
-import me.mattstudios.mf.base.CommandBase;
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.security.CodeSource;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class Util {
 
@@ -44,51 +36,6 @@ public class Util {
      */
     public static String color(String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
-    }
-
-    /**
-     * Utility to get all the commands in a package for easy registration.
-     * Special thanks to @PiggyPiglet - https://github.com/PiggyPiglet
-     *
-     * @param plugin The plugin's main class.
-     * @param packge The package to search commands on.
-     * @return A set containing all commands found in the specified package.
-     */
-    public static Set<CommandBase> getCommandsInPackage(JavaPlugin plugin, String packge) {
-
-        final Set<CommandBase> commands = new HashSet<>();
-
-        try {
-            final ClassLoader loader = plugin.getClass().getClassLoader();
-            final CodeSource src = plugin.getClass().getProtectionDomain().getCodeSource();
-
-            if (src == null) return commands;
-
-            final ZipInputStream zip = new ZipInputStream(src.getLocation().openStream());
-            ZipEntry entry;
-
-            while ((entry = zip.getNextEntry()) != null) {
-                final String name = entry.getName();
-
-                if (name.endsWith(".class") && name.startsWith(packge.replace('.', '/'))) {
-                    final Class<?> clss;
-
-                    try {
-                        clss = loader.loadClass(name.replace('/', '.').replace(".class", ""));
-                    } catch (Exception e) {
-                        continue;
-                    }
-
-                    if (clss.getSuperclass() != CommandBase.class) continue;
-
-                    commands.add((CommandBase) clss.newInstance());
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error registering commands!");
-        }
-
-        return commands;
     }
 
 }
