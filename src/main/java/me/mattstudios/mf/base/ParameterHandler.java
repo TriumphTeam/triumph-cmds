@@ -24,8 +24,8 @@
 
 package me.mattstudios.mf.base;
 
-import me.mattstudios.mf.base.components.ParameterResolver;
 import me.mattstudios.mf.base.components.CommandData;
+import me.mattstudios.mf.base.components.ParameterResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -123,12 +123,12 @@ public class ParameterHandler {
             return new Object[]{null, arg};
         });
         register(Player.class, arg -> {
-            Player player = Bukkit.getServer().getPlayer(String.valueOf(arg));
+            final Player player = Bukkit.getPlayer(String.valueOf(arg));
             if (player != null) return new Object[]{player, arg};
             return new Object[]{null, arg};
         });
         register(Material.class, arg -> {
-            Material material = Material.matchMaterial(String.valueOf(arg));
+            final Material material = Material.matchMaterial(String.valueOf(arg));
             if (material != null) return new Object[]{material, arg};
             return new Object[]{null, arg};
         });
@@ -140,21 +140,21 @@ public class ParameterHandler {
      * @param clss              The class type to be added.
      * @param parameterResolver The built in method that returns the value wanted.
      */
-    public void register(Class<?> clss, ParameterResolver parameterResolver) {
+    public void register(final Class<?> clss, final ParameterResolver parameterResolver) {
         registeredTypes.put(clss, parameterResolver);
     }
 
     /**
      * Gets a specific type result based on a class type.
      *
-     * @param clss      The class to check.
-     * @param object    The input object of the functional interface.
-     * @param subCommand   The command base class.
-     * @param paramName The parameter name from the command method.
+     * @param clss       The class to check.
+     * @param object     The input object of the functional interface.
+     * @param subCommand The command base class.
+     * @param paramName  The parameter name from the command method.
      * @return The output object of the functional interface.
      */
-    Object getTypeResult(Class<?> clss, Object object, CommandData subCommand, String paramName) {
-        Object[] registeredObjects = registeredTypes.get(clss).getResolved(object);
+    Object getTypeResult(final Class<?> clss, final Object object, final CommandData subCommand, final String paramName) {
+        final Object[] registeredObjects = registeredTypes.get(clss).getResolved(object);
         subCommand.getCommandBase().addArgument(paramName, String.valueOf(registeredObjects[1]));
 
         return registeredObjects[0];
@@ -166,7 +166,7 @@ public class ParameterHandler {
      * @param clss The class type to check.
      * @return Returns true if it contains.
      */
-    boolean isRegisteredType(Class<?> clss) {
+    boolean isRegisteredType(final Class<?> clss) {
         return registeredTypes.containsKey(clss);
     }
 
@@ -178,7 +178,7 @@ public class ParameterHandler {
      * @return The number if successfully parsed.
      * @throws NumberFormatException If can't parse it.
      */
-    private Number tryParseNumber(Class<?> clss, String number) throws NumberFormatException {
+    private Number tryParseNumber(final Class<?> clss, final String number) throws NumberFormatException {
         switch (clss.getName()) {
 
             case "java.lang.Short":

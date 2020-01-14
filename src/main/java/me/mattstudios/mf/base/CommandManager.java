@@ -32,7 +32,7 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -42,16 +42,16 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public final class CommandManager implements Listener {
 
-    private JavaPlugin plugin;
+    private final Plugin plugin;
 
     // List of commands;
-    private Map<String, CommandHandler> commands;
+    private final Map<String, CommandHandler> commands;
 
-    private ParameterHandler parameterHandler;
-    private CompletionHandler completionHandler;
-    private MessageHandler messageHandler;
+    private final ParameterHandler parameterHandler;
+    private final CompletionHandler completionHandler;
+    private final MessageHandler messageHandler;
 
-    public CommandManager(JavaPlugin plugin) {
+    public CommandManager(final Plugin plugin) {
         this.plugin = plugin;
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -94,29 +94,29 @@ public final class CommandManager implements Listener {
      *
      * @param command The command class to register.
      */
-    public void register(CommandBase command) {
-        Class commandClass = command.getClass();
+    public void register(final CommandBase command) {
+        final Class<?> commandClass = command.getClass();
 
         // Checks for the command annotation.
         if (!commandClass.isAnnotationPresent(Command.class))
             throw new NoCommandException("Class " + command.getClass().getName() + " needs to have @Command!");
 
         // Gets the command annotation value.
-        String commandName = ((Command) commandClass.getAnnotation(Command.class)).value();
+        final String commandName = commandClass.getAnnotation(Command.class).value();
         String[] aliases = new String[0];
 
         //Checks if the class has some alias and adds them.
         if (commandClass.isAnnotationPresent(Alias.class))
-            aliases = ((Alias) commandClass.getAnnotation(Alias.class)).value();
+            aliases = commandClass.getAnnotation(Alias.class).value();
 
         // Used to get the command map to register the commands.
         try {
             final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
             bukkitCommandMap.setAccessible(true);
 
-            CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+            final CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
-            CommandHandler commandHandler;
+            final CommandHandler commandHandler;
             if (commands.containsKey(commandName)) {
                 commands.get(commandName).addSubCommands(command);
                 return;
@@ -137,7 +137,7 @@ public final class CommandManager implements Listener {
      *
      * @param hideTab Hide or Not.
      */
-    public void hideTabComplete(boolean hideTab) {
+    public void hideTabComplete(final boolean hideTab) {
         for (String cmdName : commands.keySet()) {
             commands.get(cmdName).setHideTab(hideTab);
         }
@@ -149,7 +149,7 @@ public final class CommandManager implements Listener {
      * @param event PluginDisableEvent.
      */
     @EventHandler
-    public void onPluginDisable(PluginDisableEvent event) {
+    public void onPluginDisable(final PluginDisableEvent event) {
         if (!(plugin.getName().equalsIgnoreCase(event.getPlugin().getName()))) {
             return;
         }

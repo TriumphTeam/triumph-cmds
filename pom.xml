@@ -30,7 +30,7 @@
 
     <groupId>me.mattstudios.utils</groupId>
     <artifactId>matts-framework</artifactId>
-    <version>1.2.1-BETA</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>Matt's Framework</name>
@@ -43,7 +43,7 @@
             <url>http://www.opensource.org/licenses/mit-license.php</url>
         </license>
     </licenses>
-
+    
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
