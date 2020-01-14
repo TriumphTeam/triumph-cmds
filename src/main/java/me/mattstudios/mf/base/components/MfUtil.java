@@ -26,7 +26,7 @@ package me.mattstudios.mf.base.components;
 
 import org.bukkit.ChatColor;
 
-public class Util {
+public final class MfUtil {
 
     /**
      * Utility to use color codes easily

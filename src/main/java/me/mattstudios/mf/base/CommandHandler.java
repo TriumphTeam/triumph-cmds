@@ -54,14 +54,18 @@ import java.util.Map;
 
 public final class CommandHandler extends Command {
 
-    private Map<String, CommandData> commands;
+    private final Map<String, CommandData> commands;
 
-    private ParameterHandler parameterHandler;
-    private CompletionHandler completionHandler;
-    private MessageHandler messageHandler;
+    private final ParameterHandler parameterHandler;
+    private final CompletionHandler completionHandler;
+    private final MessageHandler messageHandler;
+
     private boolean hideTab;
 
-    CommandHandler(ParameterHandler parameterHandler, CompletionHandler completionHandler, MessageHandler messageHandler, CommandBase command, String commandName, List<String> aliases) {
+    CommandHandler(final ParameterHandler parameterHandler, final CompletionHandler completionHandler,
+                   final MessageHandler messageHandler, final CommandBase command,
+                   final String commandName, final List<String> aliases) {
+
         super(commandName);
         this.parameterHandler = parameterHandler;
         this.completionHandler = completionHandler;
@@ -74,11 +78,11 @@ public final class CommandHandler extends Command {
         addSubCommands(command);
     }
 
-    void addSubCommands(CommandBase command) {
+    void addSubCommands(final CommandBase command) {
         // Iterates through all the methods in the class.
         for (Method method : command.getClass().getDeclaredMethods()) {
 
-            CommandData subCommand = new CommandData(command);
+            final CommandData subCommand = new CommandData(command);
 
             // Checks if the method is public and if it is annotated by @Default or @SubCommand.
             if ((!method.isAnnotationPresent(Default.class) && !method.isAnnotationPresent(SubCommand.class)) || !Modifier.isPublic(method.getModifiers()))
@@ -131,7 +135,7 @@ public final class CommandHandler extends Command {
     }
 
     @Override
-    public boolean execute(CommandSender sender, String label, String[] arguments) {
+    public boolean execute(final CommandSender sender, final String label, final String[] arguments) {
 
         CommandData subCommand = getDefaultSubCommand();
 
@@ -161,7 +165,7 @@ public final class CommandHandler extends Command {
         }
 
         // Sets the command to lower case so it can be typed either way.
-        String argCommand = arguments[0].toLowerCase();
+        final String argCommand = arguments[0].toLowerCase();
 
         // Checks if the sub command is registered or not.
         if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(argCommand) || getName().equalsIgnoreCase(argCommand))) {
@@ -198,10 +202,10 @@ public final class CommandHandler extends Command {
         return executeCommand(subCommand, sender, arguments);
     }
 
-    private boolean executeCommand(CommandData subCommand, CommandSender sender, String[] arguments) {
+    private boolean executeCommand(final CommandData subCommand, final CommandSender sender, final String[] arguments) {
         try {
 
-            Method method = subCommand.getMethod();
+            final Method method = subCommand.getMethod();
 
             // Checks if it the command is default and remove the sub command argument one if it is not.
             List<String> argumentsList = new LinkedList<>(Arrays.asList(arguments));
@@ -231,13 +235,13 @@ public final class CommandHandler extends Command {
             }
 
             // Creates a list of the params to send.
-            List<Object> invokeParams = new ArrayList<>();
+            final List<Object> invokeParams = new ArrayList<>();
             // Adds the sender as one of the params.
             invokeParams.add(sender);
 
             // Iterates through all the parameters to check them.
             for (int i = 0; i < subCommand.getParams().size(); i++) {
-                Class<?> parameter = subCommand.getParams().get(i);
+                final Class<?> parameter = subCommand.getParams().get(i);
 
                 // Checks for optional parameter.
                 if (subCommand.hasOptional()) {
@@ -278,7 +282,7 @@ public final class CommandHandler extends Command {
                     argument = args;
                 }
 
-                Object result = parameterHandler.getTypeResult(parameter, argument, subCommand, subCommand.getParameterNames().get(i));
+                final Object result = parameterHandler.getTypeResult(parameter, argument, subCommand, subCommand.getParameterNames().get(i));
                 invokeParams.add(result);
             }
 
@@ -296,20 +300,20 @@ public final class CommandHandler extends Command {
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
+    public List<String> tabComplete(final CommandSender sender, final String alias, final String[] args) throws IllegalArgumentException {
 
         // Checks if args is 1 so it sends the sub comments completion.
         if (args.length == 1) {
             List<String> commandNames = new ArrayList<>();
 
-            CommandData subCommand = getDefaultSubCommand();
+            final CommandData subCommand = getDefaultSubCommand();
 
-            List<String> subCmd = new ArrayList<>(commands.keySet());
+            final List<String> subCmd = new ArrayList<>(commands.keySet());
             subCmd.remove("default");
 
             // removes commands that the player can't access.
             for (String subCmdName : commands.keySet()) {
-                CommandData subCmdData = commands.get(subCmdName);
+                final CommandData subCmdData = commands.get(subCmdName);
                 if (hideTab && subCmdData.hasPermission() && !sender.hasPermission(subCmdData.getPermission()))
                     subCmd.remove(subCmdName);
             }
@@ -348,28 +352,28 @@ public final class CommandHandler extends Command {
             return commandNames;
         }
 
-        String subCommand = args[0];
+        final String subCommandArg = args[0];
 
         // Checks if it contains the sub command; Should always be true.
-        if (!commands.containsKey(subCommand)) return super.tabComplete(sender, alias, args);
+        if (!commands.containsKey(subCommandArg)) return super.tabComplete(sender, alias, args);
 
-        CommandData subCommands = commands.get(subCommand);
+        final CommandData subCommand = commands.get(subCommandArg);
 
         // removes completion from commands that the player can't access.
-        if (hideTab && subCommands.hasPermission() && !sender.hasPermission(subCommands.getPermission()))
+        if (hideTab && subCommand.hasPermission() && !sender.hasPermission(subCommand.getPermission()))
             return super.tabComplete(sender, alias, args);
 
         // Checks if the completion list has the current args position.
-        if (!subCommands.getCompletions().containsKey(args.length - 1)) return super.tabComplete(sender, alias, args);
+        if (!subCommand.getCompletions().containsKey(args.length - 1)) return super.tabComplete(sender, alias, args);
 
         // Gets the current ID.
-        String id = subCommands.getCompletions().get(args.length - 1);
+        String id = subCommand.getCompletions().get(args.length - 1);
 
         // Checks one more time if the ID is registered.
         if (!completionHandler.isRegistered(id)) return super.tabComplete(sender, alias, args);
 
         List<String> completionList = new ArrayList<>();
-        Object inputClss = subCommands.getParams().get(args.length - 2);
+        Object inputClss = subCommand.getParams().get(args.length - 2);
 
         // TODO range without thingy and also for double
         if (id.contains(":")) {
@@ -378,7 +382,7 @@ public final class CommandHandler extends Command {
             inputClss = values[1];
         }
 
-        String current = args[args.length - 1];
+        final String current = args[args.length - 1];
 
         // Checks if the typing completion is empty.
         if (!"".equals(current)) {
@@ -402,7 +406,7 @@ public final class CommandHandler extends Command {
      *
      * @param hideTab Hide or Not.
      */
-    public void setHideTab(boolean hideTab) {
+    public void setHideTab(final boolean hideTab) {
         this.hideTab = hideTab;
     }
 
@@ -421,7 +425,7 @@ public final class CommandHandler extends Command {
      * @param method     The method to check.
      * @param subCommand The subCommand object with the data.
      */
-    private void checkDefault(Method method, CommandData subCommand) {
+    private void checkDefault(final Method method, final CommandData subCommand) {
         // Checks if it is a default method.
         if (method.isAnnotationPresent(Default.class)) {
             subCommand.setDefault(true);
@@ -435,10 +439,10 @@ public final class CommandHandler extends Command {
      * @param command    The commandBase object with the data.
      * @param subCommand The SubCommand object with the data.
      */
-    private void checkRegisteredParams(Method method, CommandBase command, CommandData subCommand) {
+    private void checkRegisteredParams(final Method method, final CommandBase command, final CommandData subCommand) {
         // Checks if the parameters in class are registered.
         for (int i = 1; i < method.getParameterTypes().length; i++) {
-            Class clss = method.getParameterTypes()[i];
+            final Class<?> clss = method.getParameterTypes()[i];
 
             if (clss.equals(String[].class) && i != method.getParameterTypes().length - 1) {
                 throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
@@ -459,7 +463,7 @@ public final class CommandHandler extends Command {
      * @param method     The method to check.
      * @param subCommand The commandBase object with the data.
      */
-    private void checkPermission(Method method, CommandData subCommand) {
+    private void checkPermission(final Method method, final CommandData subCommand) {
         // Checks if permission annotation is present.
         if (method.isAnnotationPresent(Permission.class)) {
             // Checks whether the command sender has the permission set in the annotation.
@@ -472,12 +476,12 @@ public final class CommandHandler extends Command {
      *
      * @param method     The method to check.
      * @param command    The commandBase object with the data.
-     * @param subCommand The Subcommand object with the data.
+     * @param subCommand The SubCommand object with the data.
      */
-    private void checkParamCompletion(Method method, CommandBase command, CommandData subCommand) {
+    private void checkParamCompletion(final Method method, final CommandBase command, final CommandData subCommand) {
         // Checks for completion on the parameters.
         for (int i = 0; i < method.getParameters().length; i++) {
-            Parameter parameter = method.getParameters()[i];
+            final Parameter parameter = method.getParameters()[i];
 
             if (i == 0 && parameter.isAnnotationPresent(Completion.class))
                 throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion annotation!");
@@ -495,7 +499,7 @@ public final class CommandHandler extends Command {
 
             if (!parameter.isAnnotationPresent(Completion.class)) continue;
 
-            String[] values = parameter.getAnnotation(Completion.class).value();
+            final String[] values = parameter.getAnnotation(Completion.class).value();
 
             if (values.length != 1)
                 throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Parameter completion can only have one value!");
@@ -516,12 +520,12 @@ public final class CommandHandler extends Command {
      * @param command    The commandBase object with the data.
      * @param subCommand The SubCommand object with the data.
      */
-    private void checkMethodCompletion(Method method, CommandBase command, CommandData subCommand) {
+    private void checkMethodCompletion(final Method method, final CommandBase command, final CommandData subCommand) {
         // Checks for completion annotation in the method.
         if (method.isAnnotationPresent(Completion.class)) {
-            String[] completionValues = method.getAnnotation(Completion.class).value();
+            final String[] completionValues = method.getAnnotation(Completion.class).value();
             for (int i = 0; i < completionValues.length; i++) {
-                String id = completionValues[i];
+                final String id = completionValues[i];
 
                 if (!id.startsWith("#"))
                     throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
@@ -540,23 +544,23 @@ public final class CommandHandler extends Command {
      * @param method     The method to check.
      * @param subCommand The SubCommand object with the data.
      */
-    private void checkAlias(Method method, CommandData subCommand) {
+    private void checkAlias(final Method method, final CommandData subCommand) {
         // Checks for aliases.
         if (method.isAnnotationPresent(Alias.class)) {
             // Iterates through the alias and add each as a normal sub command.
             for (String alias : method.getAnnotation(Alias.class).value()) {
                 //noinspection UnnecessaryLocalVariable
-                CommandData aliasCD = subCommand;
+                final CommandData aliasCD = subCommand;
                 if (aliasCD.isDefault()) aliasCD.setDefault(false);
                 commands.put(alias.toLowerCase(), subCommand);
             }
         }
     }
 
-    private void checkOptionalParam(Method method, CommandBase command, CommandData subCommand) {
+    private void checkOptionalParam(final Method method, final CommandBase command, final CommandData subCommand) {
         // Checks for completion on the parameters.
         for (int i = 0; i < method.getParameters().length; i++) {
-            Parameter parameter = method.getParameters()[i];
+            final Parameter parameter = method.getParameters()[i];
 
             if (i != method.getParameters().length - 1 && parameter.isAnnotationPresent(Optional.class))
                 throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Optional parameters can only be used as the last parameter of a method!");
@@ -566,7 +570,7 @@ public final class CommandHandler extends Command {
         }
     }
 
-    private boolean wrongUsage(CommandSender sender) {
+    private boolean wrongUsage(final CommandSender sender) {
         messageHandler.sendMessage("cmd.wrong.usage", sender);
         return true;
     }

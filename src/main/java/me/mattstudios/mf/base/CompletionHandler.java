@@ -47,7 +47,7 @@ public class CompletionHandler {
      */
     CompletionHandler() {
         register("#players", input -> {
-            List<String> players = new ArrayList<>();
+            final List<String> players = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 players.add(player.getName());
             }
@@ -56,26 +56,34 @@ public class CompletionHandler {
         });
         register("#empty", input -> Collections.singletonList(""));
         register("#range", input -> {
-            String s = String.valueOf(input);
+            final String s = String.valueOf(input);
+
             if (s.equalsIgnoreCase("int") || s.equalsIgnoreCase("double") || s.equalsIgnoreCase("float"))
                 return IntStream.rangeClosed(1, 10).mapToObj(Integer::toString).collect(Collectors.toList());
+
             if (!s.contains("-"))
                 return IntStream.rangeClosed(1, Integer.parseInt(s)).mapToObj(Integer::toString).collect(Collectors.toList());
-            String[] minMax = s.split("-");
-            int[] range = IntStream.rangeClosed(Integer.parseInt(minMax[0]), Integer.parseInt(minMax[1])).toArray();
-            List<String> rangeList = new ArrayList<>();
+
+            final String[] minMax = s.split("-");
+            final int[] range = IntStream.rangeClosed(Integer.parseInt(minMax[0]), Integer.parseInt(minMax[1])).toArray();
+
+            final List<String> rangeList = new ArrayList<>();
+
             for (int number : range) {
                 rangeList.add(String.valueOf(number));
             }
+
             return rangeList;
         });
         register("#enum", input -> {
             // noinspection unchecked
-            Class<? extends Enum<?>> enumCls = (Class<? extends Enum<?>>) input;
-            List<String> values = new ArrayList<>();
+            final Class<? extends Enum<?>> enumCls = (Class<? extends Enum<?>>) input;
+            final List<String> values = new ArrayList<>();
+
             for (Enum<?> enumValue : enumCls.getEnumConstants()) {
                 values.add(enumValue.name());
             }
+
             values.sort(String.CASE_INSENSITIVE_ORDER);
             return values;
         });
@@ -87,7 +95,7 @@ public class CompletionHandler {
      * @param completionId       The ID of the completion to register.
      * @param completionResolver A function with the result you want.
      */
-    public void register(String completionId, CompletionResolver completionResolver) {
+    public void register(final String completionId, final CompletionResolver completionResolver) {
         if (!completionId.startsWith("#"))
             throw new InvalidCompletionIdException("Could not register completion, id - " + completionId + " does not start with #.");
         registeredCompletions.put(completionId, completionResolver);
@@ -100,7 +108,7 @@ public class CompletionHandler {
      * @param input        The input to base an output (normally not needed).
      * @return The string list with all the completions.
      */
-    List<String> getTypeResult(String completionId, Object input) {
+    List<String> getTypeResult(final String completionId, final Object input) {
         return registeredCompletions.get(completionId).resolve(input);
     }
 
@@ -111,11 +119,12 @@ public class CompletionHandler {
      * @return The result of being registered or not.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    boolean isRegistered(String completionId) {
+    boolean isRegistered(final String completionId) {
+        String completionContent = "";
         if (completionId.contains(":")) {
-            String[] content = completionId.split(":");
-            completionId = content[0];
+            final String[] content = completionId.split(":");
+            completionContent = content[0];
         }
-        return registeredCompletions.containsKey(completionId);
+        return registeredCompletions.containsKey(completionContent);
     }
 }

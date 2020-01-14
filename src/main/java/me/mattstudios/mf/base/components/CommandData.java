@@ -31,10 +31,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+// TODO Better comments and organization of the class
 public final class CommandData {
 
     // Base
-    private CommandBase commandBase;
+    private final CommandBase commandBase;
 
     // Method
     private Method method;
@@ -42,9 +43,9 @@ public final class CommandData {
     // If the method is a default one or not
     private boolean defaultCmd;
     // First parameter of the method.
-    private Class firstParam;
+    private Class<?> firstParam;
     // The list with the other parameters.
-    private List<Class> params = new ArrayList<>();
+    private List<Class<?>> params = new ArrayList<>();
     // List of the completions.
     private HashMap<Integer, String> completions = new HashMap<>();
 
@@ -61,7 +62,7 @@ public final class CommandData {
     // Permission node of the command.
     private String permission;
 
-    public CommandData(CommandBase commandBase) {
+    public CommandData(final CommandBase commandBase) {
         this.commandBase = commandBase;
     }
 
@@ -69,7 +70,7 @@ public final class CommandData {
         return method;
     }
 
-    public void setMethod(Method method) {
+    public void setMethod(final Method method) {
         this.method = method;
     }
 
@@ -77,19 +78,19 @@ public final class CommandData {
         return defaultCmd;
     }
 
-    public void setDefault(boolean defaultCmd) {
+    public void setDefault(final boolean defaultCmd) {
         this.defaultCmd = defaultCmd;
     }
 
-    public Class getFirstParam() {
+    public Class<?> getFirstParam() {
         return firstParam;
     }
 
-    public void setFirstParam(Class firstParam) {
+    public void setFirstParam(final Class<?> firstParam) {
         this.firstParam = firstParam;
     }
 
-    public List<Class> getParams() {
+    public List<Class<?>> getParams() {
         return params;
     }
 
@@ -113,7 +114,7 @@ public final class CommandData {
         return maxArgs;
     }
 
-    public void setMaxArgs(int maxArgs) {
+    public void setMaxArgs(final int maxArgs) {
         this.maxArgs = maxArgs;
     }
 
@@ -121,7 +122,7 @@ public final class CommandData {
         return minArgs;
     }
 
-    public void setMinArgs(int minArgs) {
+    public void setMinArgs(final int minArgs) {
         this.minArgs = minArgs;
     }
 
@@ -137,7 +138,7 @@ public final class CommandData {
         return optional;
     }
 
-    public void setOptional(boolean optional) {
+    public void setOptional(final boolean optional) {
         this.optional = optional;
     }
 }

@@ -28,7 +28,7 @@ import java.util.HashMap;
 
 public abstract class CommandBase {
 
-    private HashMap<String, String> arguments = new HashMap<>();
+    private final HashMap<String, String> arguments = new HashMap<>();
 
     void clearArgs() {
         arguments.clear();

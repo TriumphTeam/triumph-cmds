@@ -30,13 +30,13 @@ import org.bukkit.command.CommandSender;
 import java.util.HashMap;
 import java.util.Map;
 
-import static me.mattstudios.mf.base.components.Util.color;
+import static me.mattstudios.mf.base.components.MfUtil.color;
 
 @SuppressWarnings("WeakerAccess")
 public class MessageHandler {
 
     // The map with the messages to send.
-    private Map<String, MessageResolver> messages = new HashMap<>();
+    private final Map<String, MessageResolver> messages = new HashMap<>();
 
     // Registers all the default messages.
     MessageHandler() {
@@ -49,20 +49,20 @@ public class MessageHandler {
     /**
      * Method to register new messages and overwrite the existing ones.
      *
-     * @param messageId         The message ID to be set.
+     * @param messageId       The message ID to be set.
      * @param messageResolver The message resolver function.
      */
-    public void register(String messageId, MessageResolver messageResolver) {
+    public void register(final String messageId, final MessageResolver messageResolver) {
         messages.put(messageId, messageResolver);
     }
 
     /**
      * Sends the registered message to the command sender.
      *
-     * @param messageId       The message ID.
+     * @param messageId     The message ID.
      * @param commandSender The command sender to send the message to.
      */
-    void sendMessage(String messageId, CommandSender commandSender) {
+    void sendMessage(final String messageId, final CommandSender commandSender) {
         messages.get(messageId).resolve(commandSender);
     }
 
