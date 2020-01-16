@@ -1,28 +1,16 @@
 
-\.idea/
+.idea/
 
-\target/
+.gradle/
 
-src/main/java/me/mattstudios/mf/CMDTest\.java
+build/
 
-src/main/java/me/mattstudios/mf/CMDTest2\.java
+*.iml
 
-src/main/java/me/mattstudios/mf/test/CommandTest\.java
-
-src/main/resources/
+gradle.properties
 
 temp.java.asc
 
 temp.java
 
-pom.xml.versionsBackup
-!/src/main/java/me/mattstudios/mf/main.java
-!/src/main/java/me/mattstudios/mf/test.java
-
-src/main/java/me/mattstudios/mf/CMD.java
-
-src/main/java/me/mattstudios/mf/Main.java
-
-src/main/java/me/mattstudios/mf/cmds/CMD.java
-
-src/main/java/me/mattstudios/mf/cmds/
+gradle/wrapper/
