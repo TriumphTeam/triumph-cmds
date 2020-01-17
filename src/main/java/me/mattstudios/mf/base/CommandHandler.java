@@ -27,6 +27,7 @@ package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Completion;
+import me.mattstudios.mf.annotations.CompletionFor;
 import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.MaxArgs;
 import me.mattstudios.mf.annotations.MinArgs;
@@ -42,6 +43,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -88,7 +90,7 @@ public final class CommandHandler extends Command {
 
     void addSubCommands(final CommandBase command) {
         // Iterates through all the methods in the class.
-        for (Method method : command.getClass().getDeclaredMethods()) {
+        for (final Method method : command.getClass().getDeclaredMethods()) {
 
             final CommandData subCommand = new CommandData(command);
 
@@ -135,13 +137,19 @@ public final class CommandHandler extends Command {
 
             // puts the main method in the list.
             if (!subCommand.isDefault() && method.isAnnotationPresent(SubCommand.class)) {
-                commands.put(method.getAnnotation(SubCommand.class).value().toLowerCase(), subCommand);
+                final String name = method.getAnnotation(SubCommand.class).value().toLowerCase();
+                subCommand.setName(name);
+                commands.put(name, subCommand);
             }
 
             // Puts a default command in the list.
             if (subCommand.isDefault()) {
+                subCommand.setName("default");
                 commands.put("default", subCommand);
             }
+
+            // Checks for a completion method
+            checkCompletionMethod(command, subCommand);
         }
     }
 
@@ -357,6 +365,17 @@ public final class CommandHandler extends Command {
         if (hideTab && subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
             return super.tabComplete(sender, alias, args);
 
+        final Method completionMethod = subCommand.getCompletionMethod();
+
+        if (completionMethod != null) {
+            try {
+                //noinspection unchecked
+                return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), Arrays.asList(args));
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+
         // Checks if the completion list has the current args position.
         if (!subCommand.getCompletions().containsKey(args.length - 1)) return super.tabComplete(sender, alias, args);
 
@@ -548,6 +567,24 @@ public final class CommandHandler extends Command {
         }
     }
 
+    private void checkCompletionMethod(final CommandBase command, final CommandData subCommand) {
+        // Checks for completion annotation in the method.
+        for (final Method method : command.getClass().getDeclaredMethods()) {
+            // Checks for CompletionFor annotation
+            if (!method.isAnnotationPresent(CompletionFor.class)) continue;
+            // Checks if the method returns List<String> or not
+            if (!method.getGenericReturnType().getTypeName().equalsIgnoreCase("java.util.List<java.lang.String>")) continue;
+            System.out.println("is it getting here at all?");
+            final String subCommandName = method.getAnnotation(CompletionFor.class).value();
+            System.out.println(subCommandName);
+            System.out.println(subCommand.getName());
+            if (!subCommandName.equalsIgnoreCase(subCommand.getName())) continue;
+            System.out.println("is it getting here at all 2?");
+
+            subCommand.setCompletionMethod(method);
+        }
+    }
+
     /**
      * Checks for aliases to be used.
      *
@@ -561,6 +598,7 @@ public final class CommandHandler extends Command {
             for (String alias : method.getAnnotation(Alias.class).value()) {
                 //noinspection UnnecessaryLocalVariable
                 final CommandData aliasCD = subCommand;
+                subCommand.setName(alias.toLowerCase());
                 if (aliasCD.isDefault()) aliasCD.setDefault(false);
                 commands.put(alias.toLowerCase(), subCommand);
             }
@@ -597,8 +635,7 @@ public final class CommandHandler extends Command {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean hasPermissions(final CommandSender sender, final CommandData subCommand) {
         for (final String permission : subCommand.getPermissions()) {
-            if (!sender.hasPermission(permission)) continue;
-            return true;
+            if (sender.hasPermission(permission)) return true;
         }
 
         return false;

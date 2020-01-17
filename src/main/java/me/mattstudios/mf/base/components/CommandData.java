@@ -39,6 +39,8 @@ public final class CommandData {
 
     // Method
     private Method method;
+    // The sub command name
+    private String name;
 
     // If the method is a default one or not
     private boolean defaultCmd;
@@ -47,10 +49,15 @@ public final class CommandData {
 
     // The list with the other parameters.
     private final List<Class<?>> params = new ArrayList<>();
-    // List of the completions.
-    private final HashMap<Integer, String> completions = new HashMap<>();
     // List of parameter names
     private final List<String> parameterNames = new ArrayList<>();
+    // Permission node of the command.
+    private final List<String> permissions = new ArrayList<>();
+    // List of the completions.
+    private final HashMap<Integer, String> completions = new HashMap<>();
+
+    // Secondary tab completion
+    private Method completionMethod;
 
     // Max args for String[].
     private int maxArgs = 0;
@@ -59,9 +66,6 @@ public final class CommandData {
 
     // Optional argument
     private boolean optional;
-
-    // Permission node of the command.
-    private final List<String> permissions = new ArrayList<>();
     // Wrong usage message
     private String wrongUsage;
 
@@ -72,6 +76,14 @@ public final class CommandData {
      */
     public CommandData(final CommandBase commandBase) {
         this.commandBase = commandBase;
+    }
+
+    /**
+     * Sets the sub command name
+     * @param name The name to set
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 
     /**
@@ -144,6 +156,24 @@ public final class CommandData {
      */
     public void setWrongUsage(final String wrongUsage) {
         this.wrongUsage = wrongUsage;
+    }
+
+    /**
+     * Sets the completion method to run later
+     *
+     * @param completionMethod The completion method
+     */
+    public void setCompletionMethod(final Method completionMethod) {
+        this.completionMethod = completionMethod;
+    }
+
+    /**
+     * Gets the sub command name
+     *
+     * @return The sub command name
+     */
+    public String getName() {
+        return name;
     }
 
     /**
@@ -234,6 +264,15 @@ public final class CommandData {
      */
     public CommandBase getCommandBase() {
         return commandBase;
+    }
+
+    /**
+     * Gets the completion method
+     *
+     * @return The completion method
+     */
+    public Method getCompletionMethod() {
+        return completionMethod;
     }
 
     /**
