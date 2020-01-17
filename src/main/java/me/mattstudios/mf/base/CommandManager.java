@@ -138,7 +138,7 @@ public final class CommandManager implements Listener {
      * @param hideTab Hide or Not.
      */
     public void hideTabComplete(final boolean hideTab) {
-        for (String cmdName : commands.keySet()) {
+        for (final String cmdName : commands.keySet()) {
             commands.get(cmdName).setHideTab(hideTab);
         }
     }

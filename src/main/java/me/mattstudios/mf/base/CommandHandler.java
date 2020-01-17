@@ -33,6 +33,7 @@ import me.mattstudios.mf.annotations.MinArgs;
 import me.mattstudios.mf.annotations.Optional;
 import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
+import me.mattstudios.mf.annotations.WrongUsage;
 import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
@@ -52,24 +53,31 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public final class CommandHandler extends Command {
+import static me.mattstudios.mf.base.components.MfUtil.color;
 
+public final class CommandHandler extends Command {
+    // Contains all the sub commands
     private final Map<String, CommandData> commands;
 
+    // Handler for the parameter types
     private final ParameterHandler parameterHandler;
+    // Handler for the command completions
     private final CompletionHandler completionHandler;
+    // Handler for the message system
     private final MessageHandler messageHandler;
 
+    // If should tab complete without perms or not
     private boolean hideTab;
 
     CommandHandler(final ParameterHandler parameterHandler, final CompletionHandler completionHandler,
                    final MessageHandler messageHandler, final CommandBase command,
-                   final String commandName, final List<String> aliases) {
+                   final String commandName, final List<String> aliases, final boolean hideTab) {
 
         super(commandName);
         this.parameterHandler = parameterHandler;
         this.completionHandler = completionHandler;
         this.messageHandler = messageHandler;
+        this.hideTab = hideTab;
 
         setAliases(aliases);
 
@@ -110,6 +118,9 @@ public final class CommandHandler extends Command {
             // Checks if permission annotation is present.
             checkPermission(method, subCommand);
 
+            // Checks if wrong usage annotation is present.
+            checkWrongUsage(method, subCommand);
+
             // Check if optional parameter is present.
             checkOptionalParam(method, command, subCommand);
 
@@ -142,23 +153,17 @@ public final class CommandHandler extends Command {
         if (arguments.length == 0 || arguments[0].isEmpty()) {
 
             // Will not run if there is no default methods.
-            if (subCommand == null) {
-                messageHandler.sendMessage("cmd.no.exists", sender);
-                return true;
-            }
+            if (subCommand == null) return unknownCommand(sender);
 
             // Checks if permission annotation is present.
             // Checks whether the command sender has the permission set in the annotation.
-            if (subCommand.hasPermission() && !sender.hasPermission(subCommand.getPermission())) {
-                messageHandler.sendMessage("cmd.no.permission", sender);
-                return true;
-            }
+            if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
+                return noPermission(sender);
 
             // Checks if the command can be accessed from console
-            if (!subCommand.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-                messageHandler.sendMessage("cmd.no.console", sender);
-                return true;
-            }
+            if (!subCommand.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player))
+                return noConsole(sender);
+
 
             // Executes all the commands.
             return executeCommand(subCommand, sender, arguments);
@@ -168,35 +173,24 @@ public final class CommandHandler extends Command {
         final String argCommand = arguments[0].toLowerCase();
 
         // Checks if the sub command is registered or not.
-        if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(argCommand) || getName().equalsIgnoreCase(argCommand))) {
-            messageHandler.sendMessage("cmd.no.exists", sender);
-            return true;
-        }
+        if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(argCommand) || getName().equalsIgnoreCase(argCommand)))
+            return unknownCommand(sender);
 
         // Checks if the sub command is registered or not.
-        if (subCommand == null && !commands.containsKey(argCommand)) {
-            messageHandler.sendMessage("cmd.no.exists", sender);
-            return true;
-        }
+        if (subCommand == null && !commands.containsKey(argCommand)) return unknownCommand(sender);
 
         // Checks if the command is on the list, which means it's no longer a default command.
-        if (commands.containsKey(argCommand)) {
-            subCommand = commands.get(argCommand);
-        }
+        if (commands.containsKey(argCommand)) subCommand = commands.get(argCommand);
 
         // Checks if permission annotation is present.
         // Checks whether the command sender has the permission set in the annotation.
         assert subCommand != null;
-        if (subCommand.hasPermission() && !sender.hasPermission(subCommand.getPermission())) {
-            messageHandler.sendMessage("cmd.no.permission", sender);
-            return true;
-        }
+        if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
+            return noPermission(sender);
 
         // Checks if the command can be accessed from console
-        if (!subCommand.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player)) {
-            messageHandler.sendMessage("cmd.no.console", sender);
-            return true;
-        }
+        if (!subCommand.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player))
+            return noConsole(sender);
 
         // Runs the command executor.
         return executeCommand(subCommand, sender, arguments);
@@ -208,7 +202,7 @@ public final class CommandHandler extends Command {
             final Method method = subCommand.getMethod();
 
             // Checks if it the command is default and remove the sub command argument one if it is not.
-            List<String> argumentsList = new LinkedList<>(Arrays.asList(arguments));
+            final List<String> argumentsList = new LinkedList<>(Arrays.asList(arguments));
             if (!subCommand.isDefault() && argumentsList.size() > 0) argumentsList.remove(0);
 
             // Check if the method only has a sender as parameter.
@@ -227,11 +221,11 @@ public final class CommandHandler extends Command {
             // Checks for correct command usage.
             if (subCommand.getParams().size() != argumentsList.size() && !subCommand.hasOptional()) {
 
-                if (!subCommand.isDefault() && subCommand.getParams().size() == 0) return wrongUsage(sender);
+                if (!subCommand.isDefault() && subCommand.getParams().size() == 0)
+                    return wrongUsage(sender, subCommand);
 
                 if (!subCommand.getParams().get(subCommand.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName()))
-                    return wrongUsage(sender);
-
+                    return wrongUsage(sender, subCommand);
             }
 
             // Creates a list of the params to send.
@@ -246,16 +240,16 @@ public final class CommandHandler extends Command {
                 // Checks for optional parameter.
                 if (subCommand.hasOptional()) {
 
-                    if (argumentsList.size() > subCommand.getParams().size()) return wrongUsage(sender);
+                    if (argumentsList.size() > subCommand.getParams().size()) return wrongUsage(sender, subCommand);
 
-                    if (argumentsList.size() < subCommand.getParams().size() - 1) return wrongUsage(sender);
+                    if (argumentsList.size() < subCommand.getParams().size() - 1) return wrongUsage(sender, subCommand);
 
                     if (argumentsList.size() < subCommand.getParams().size()) argumentsList.add(null);
 
                 }
 
                 // checks if the parameters and arguments are valid
-                if (subCommand.getParams().size() > argumentsList.size()) return wrongUsage(sender);
+                if (subCommand.getParams().size() > argumentsList.size()) return wrongUsage(sender, subCommand);
 
 
                 Object argument = argumentsList.get(i);
@@ -314,7 +308,7 @@ public final class CommandHandler extends Command {
             // removes commands that the player can't access.
             for (String subCmdName : commands.keySet()) {
                 final CommandData subCmdData = commands.get(subCmdName);
-                if (hideTab && subCmdData.hasPermission() && !sender.hasPermission(subCmdData.getPermission()))
+                if (hideTab && subCmdData.hasPermissions() && !hasPermissions(sender, subCmdData))
                     subCmd.remove(subCmdName);
             }
 
@@ -360,7 +354,7 @@ public final class CommandHandler extends Command {
         final CommandData subCommand = commands.get(subCommandArg);
 
         // removes completion from commands that the player can't access.
-        if (hideTab && subCommand.hasPermission() && !sender.hasPermission(subCommand.getPermission()))
+        if (hideTab && subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
             return super.tabComplete(sender, alias, args);
 
         // Checks if the completion list has the current args position.
@@ -467,7 +461,23 @@ public final class CommandHandler extends Command {
         // Checks if permission annotation is present.
         if (method.isAnnotationPresent(Permission.class)) {
             // Checks whether the command sender has the permission set in the annotation.
-            subCommand.setPermission(method.getAnnotation(Permission.class).value());
+            for (final String permission : method.getAnnotation(Permission.class).value()) {
+                subCommand.addPermission(permission);
+            }
+        }
+    }
+
+    /**
+     * Checks if the WrongUsage annotation is present.
+     *
+     * @param method     The method to check.
+     * @param subCommand The commandBase object with the data.
+     */
+    private void checkWrongUsage(final Method method, final CommandData subCommand) {
+        // Checks if WrongUsage annotation is present.
+        if (method.isAnnotationPresent(WrongUsage.class)) {
+            // Checks whether the command sender has the permission set in the annotation.
+            subCommand.setWrongUsage(method.getAnnotation(WrongUsage.class).value());
         }
     }
 
@@ -557,6 +567,13 @@ public final class CommandHandler extends Command {
         }
     }
 
+    /**
+     * Checks for optional parameter
+     *
+     * @param method     The method to check from
+     * @param command    The command base class
+     * @param subCommand The current sub command
+     */
     private void checkOptionalParam(final Method method, final CommandBase command, final CommandData subCommand) {
         // Checks for completion on the parameters.
         for (int i = 0; i < method.getParameters().length; i++) {
@@ -570,8 +587,76 @@ public final class CommandHandler extends Command {
         }
     }
 
-    private boolean wrongUsage(final CommandSender sender) {
+    /**
+     * Checks if the player has one of the permissions listed
+     *
+     * @param sender     The command sender
+     * @param subCommand The sub command class to check
+     * @return If has or not one of the permissions
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean hasPermissions(final CommandSender sender, final CommandData subCommand) {
+        for (final String permission : subCommand.getPermissions()) {
+            if (!sender.hasPermission(permission)) continue;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Sends the wrong message to the sender
+     *
+     * @param sender     The sender
+     * @param subCommand The current sub command to get info from
+     * @return Returns true
+     */
+    private boolean wrongUsage(final CommandSender sender, final CommandData subCommand) {
         messageHandler.sendMessage("cmd.wrong.usage", sender);
+
+        final String wrongMessage = subCommand.getWrongUsage();
+
+        if (wrongMessage == null) return true;
+
+        if (!wrongMessage.startsWith("#") || !messageHandler.hasId(wrongMessage)) {
+            sender.sendMessage(color(subCommand.getWrongUsage()));
+            return true;
+        }
+
+        messageHandler.sendMessage(wrongMessage, sender);
+        return true;
+    }
+
+    /**
+     * Sends the unknown message to the sender
+     *
+     * @param sender The sender
+     * @return Returns true
+     */
+    private boolean unknownCommand(final CommandSender sender) {
+        messageHandler.sendMessage("cmd.no.exists", sender);
+        return true;
+    }
+
+    /**
+     * Sends the no permission message to the sender
+     *
+     * @param sender The sender
+     * @return Returns true
+     */
+    private boolean noPermission(final CommandSender sender) {
+        messageHandler.sendMessage("cmd.no.permission", sender);
+        return true;
+    }
+
+    /**
+     * Sends the no console allowed message to the sender
+     *
+     * @param sender The sender
+     * @return Returns true
+     */
+    private boolean noConsole(final CommandSender sender) {
+        messageHandler.sendMessage("cmd.no.console", sender);
         return true;
     }
 }

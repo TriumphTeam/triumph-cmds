@@ -44,12 +44,13 @@ public final class CommandData {
     private boolean defaultCmd;
     // First parameter of the method.
     private Class<?> firstParam;
-    // The list with the other parameters.
-    private List<Class<?>> params = new ArrayList<>();
-    // List of the completions.
-    private HashMap<Integer, String> completions = new HashMap<>();
 
-    private List<String> parameterNames = new ArrayList<>();
+    // The list with the other parameters.
+    private final List<Class<?>> params = new ArrayList<>();
+    // List of the completions.
+    private final HashMap<Integer, String> completions = new HashMap<>();
+    // List of parameter names
+    private final List<String> parameterNames = new ArrayList<>();
 
     // Max args for String[].
     private int maxArgs = 0;
@@ -60,85 +61,205 @@ public final class CommandData {
     private boolean optional;
 
     // Permission node of the command.
-    private String permission;
+    private final List<String> permissions = new ArrayList<>();
+    // Wrong usage message
+    private String wrongUsage;
 
+    /**
+     * Constructor for the command data object
+     *
+     * @param commandBase The command base of the data
+     */
     public CommandData(final CommandBase commandBase) {
         this.commandBase = commandBase;
     }
 
-    public Method getMethod() {
-        return method;
-    }
-
+    /**
+     * Sets the method of the command
+     *
+     * @param method The method
+     */
     public void setMethod(final Method method) {
         this.method = method;
     }
 
-    public boolean isDefault() {
-        return defaultCmd;
-    }
-
+    /**
+     * Sets the command as default
+     *
+     * @param defaultCmd The value to set
+     */
     public void setDefault(final boolean defaultCmd) {
         this.defaultCmd = defaultCmd;
     }
 
-    public Class<?> getFirstParam() {
-        return firstParam;
-    }
-
+    /**
+     * Sets the first parameter class
+     *
+     * @param firstParam The first parameter
+     */
     public void setFirstParam(final Class<?> firstParam) {
         this.firstParam = firstParam;
     }
 
-    public List<Class<?>> getParams() {
-        return params;
+    /**
+     * Adds the permission nodes of the command
+     *
+     * @param permission the permission node
+     */
+    public void addPermission(String permission) {
+        permissions.add(permission);
     }
 
-    public HashMap<Integer, String> getCompletions() {
-        return completions;
-    }
-
-    public void setPermission(String permission) {
-        this.permission = permission;
-    }
-
-    public boolean hasPermission() {
-        return permission != null;
-    }
-
-    public String getPermission() {
-        return permission;
-    }
-
-    public int getMaxArgs() {
-        return maxArgs;
-    }
-
+    /**
+     * Sets the max arguments a String[] can have
+     *
+     * @param maxArgs The args max limit
+     */
     public void setMaxArgs(final int maxArgs) {
         this.maxArgs = maxArgs;
     }
 
-    public int getMinArgs() {
-        return minArgs;
-    }
-
+    /**
+     * Sets the min arguments a String[] can have
+     *
+     * @param minArgs The args min limit
+     */
     public void setMinArgs(final int minArgs) {
         this.minArgs = minArgs;
     }
 
+    /**
+     * Sets if the command has an optional parameter or not
+     *
+     * @param optional The value
+     */
+    public void setOptional(final boolean optional) {
+        this.optional = optional;
+    }
+
+    /**
+     * Sets the wrong usage message or id
+     *
+     * @param wrongUsage The wrong usage to set
+     */
+    public void setWrongUsage(final String wrongUsage) {
+        this.wrongUsage = wrongUsage;
+    }
+
+    /**
+     * Gets the method
+     *
+     * @return The method
+     */
+    public Method getMethod() {
+        return method;
+    }
+
+    /**
+     * Gets the first parameter class
+     *
+     * @return The first parameter class
+     */
+    public Class<?> getFirstParam() {
+        return firstParam;
+    }
+
+    /**
+     * Gets the list of parameters the method has
+     *
+     * @return The list of parameters
+     */
+    public List<Class<?>> getParams() {
+        return params;
+    }
+
+    /**
+     * Gets all the completions and the ids
+     *
+     * @return The HasMap with all the completions
+     */
+    public HashMap<Integer, String> getCompletions() {
+        return completions;
+    }
+
+    /**
+     * Gets list of permissions
+     *
+     * @return The list of permissions
+     */
+    public List<String> getPermissions() {
+        return permissions;
+    }
+
+    /**
+     * Gets the wrong usage message
+     *
+     * @return The wrong usage message
+     */
+    public String getWrongUsage() {
+        return wrongUsage;
+    }
+
+    /**
+     * Gets the max arguments for String[]
+     *
+     * @return The max args
+     */
+    public int getMaxArgs() {
+        return maxArgs;
+    }
+
+    /**
+     * Gets the min arguments for String[]
+     *
+     * @return The min args
+     */
+    public int getMinArgs() {
+        return minArgs;
+    }
+
+    /**
+     * Gets the parameter names
+     *
+     * @return The list of parameter names
+     */
     public List<String> getParameterNames() {
         return parameterNames;
     }
 
+    /**
+     * Gets the command base of the command for the invoke later
+     *
+     * @return The command base
+     */
     public CommandBase getCommandBase() {
         return commandBase;
     }
 
+    /**
+     * Checks if the command is default or not
+     *
+     * @return Default or not
+     */
+    public boolean isDefault() {
+        return defaultCmd;
+    }
+
+    /**
+     * Checks if the command has an optional argument
+     *
+     * @return If has or not optional
+     */
     public boolean hasOptional() {
         return optional;
     }
 
-    public void setOptional(final boolean optional) {
-        this.optional = optional;
+    /**
+     * Checks if the command has permissions or not
+     *
+     * @return If has permissions or not
+     */
+    public boolean hasPermissions() {
+        return !permissions.isEmpty();
     }
 }
