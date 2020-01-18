@@ -29,8 +29,6 @@ import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Completion;
 import me.mattstudios.mf.annotations.CompletionFor;
 import me.mattstudios.mf.annotations.Default;
-import me.mattstudios.mf.annotations.MaxArgs;
-import me.mattstudios.mf.annotations.MinArgs;
 import me.mattstudios.mf.annotations.Optional;
 import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
@@ -265,17 +263,6 @@ public final class CommandHandler extends Command {
                 // Checks for String[] args.
                 if (parameter.equals(String[].class)) {
                     String[] args = new String[argumentsList.size() - i];
-
-                    if (subCommand.getMaxArgs() != 0 && args.length > subCommand.getMaxArgs()) {
-                        messageHandler.sendMessage("cmd.wrong.usage", sender);
-                        return true;
-                    }
-
-                    if (subCommand.getMinArgs() != 0 && args.length < subCommand.getMinArgs()) {
-                        messageHandler.sendMessage("cmd.wrong.usage", sender);
-                        return true;
-                    }
-
 
                     for (int j = 0; j < args.length; j++) {
                         args[j] = argumentsList.get(i + j);
@@ -514,17 +501,6 @@ public final class CommandHandler extends Command {
 
             if (i == 0 && parameter.isAnnotationPresent(Completion.class))
                 throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion annotation!");
-
-            // Checks for max and min args on the String[] parameter
-            if (parameter.getType().getTypeName().equals(String[].class.getTypeName())) {
-                if (parameter.isAnnotationPresent(MaxArgs.class)) {
-                    subCommand.setMaxArgs(parameter.getAnnotation(MaxArgs.class).value());
-                }
-
-                if (parameter.isAnnotationPresent(MinArgs.class)) {
-                    subCommand.setMinArgs(parameter.getAnnotation(MinArgs.class).value());
-                }
-            }
 
             if (!parameter.isAnnotationPresent(Completion.class)) continue;
 

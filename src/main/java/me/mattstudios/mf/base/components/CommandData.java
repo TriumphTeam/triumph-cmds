@@ -59,11 +59,6 @@ public final class CommandData {
     // Secondary tab completion
     private Method completionMethod;
 
-    // Max args for String[].
-    private int maxArgs = 0;
-    // min args for String[].
-    private int minArgs = 0;
-
     // Optional argument
     private boolean optional;
     // Wrong usage message
@@ -120,24 +115,6 @@ public final class CommandData {
      */
     public void addPermission(String permission) {
         permissions.add(permission);
-    }
-
-    /**
-     * Sets the max arguments a String[] can have
-     *
-     * @param maxArgs The args max limit
-     */
-    public void setMaxArgs(final int maxArgs) {
-        this.maxArgs = maxArgs;
-    }
-
-    /**
-     * Sets the min arguments a String[] can have
-     *
-     * @param minArgs The args min limit
-     */
-    public void setMinArgs(final int minArgs) {
-        this.minArgs = minArgs;
     }
 
     /**
@@ -228,24 +205,6 @@ public final class CommandData {
      */
     public String getWrongUsage() {
         return wrongUsage;
-    }
-
-    /**
-     * Gets the max arguments for String[]
-     *
-     * @return The max args
-     */
-    public int getMaxArgs() {
-        return maxArgs;
-    }
-
-    /**
-     * Gets the min arguments for String[]
-     *
-     * @return The min args
-     */
-    public int getMinArgs() {
-        return minArgs;
     }
 
     /**
