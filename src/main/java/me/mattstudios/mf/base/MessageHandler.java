@@ -33,7 +33,7 @@ import java.util.Map;
 import static me.mattstudios.mf.base.components.MfUtil.color;
 
 @SuppressWarnings("WeakerAccess")
-public class MessageHandler {
+public final class MessageHandler {
 
     // The map with the messages to send.
     private final Map<String, MessageResolver> messages = new HashMap<>();
@@ -56,14 +56,18 @@ public class MessageHandler {
         messages.put(messageId, messageResolver);
     }
 
+    boolean hasId(String messageId) {
+        return messages.get(messageId) != null;
+    }
+
     /**
      * Sends the registered message to the command sender.
      *
      * @param messageId     The message ID.
-     * @param commandSender The command sender to send the message to.
+     * @param sender The command sender to send the message to.
      */
-    void sendMessage(final String messageId, final CommandSender commandSender) {
-        messages.get(messageId).resolve(commandSender);
+    void sendMessage(final String messageId, final CommandSender sender) {
+        messages.get(messageId).resolve(sender);
     }
 
 }

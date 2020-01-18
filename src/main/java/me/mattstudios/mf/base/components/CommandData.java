@@ -39,106 +39,225 @@ public final class CommandData {
 
     // Method
     private Method method;
+    // The sub command name
+    private String name;
 
     // If the method is a default one or not
     private boolean defaultCmd;
     // First parameter of the method.
     private Class<?> firstParam;
+
     // The list with the other parameters.
-    private List<Class<?>> params = new ArrayList<>();
+    private final List<Class<?>> params = new ArrayList<>();
+    // List of parameter names
+    private final List<String> parameterNames = new ArrayList<>();
+    // Permission node of the command.
+    private final List<String> permissions = new ArrayList<>();
     // List of the completions.
-    private HashMap<Integer, String> completions = new HashMap<>();
+    private final HashMap<Integer, String> completions = new HashMap<>();
 
-    private List<String> parameterNames = new ArrayList<>();
-
-    // Max args for String[].
-    private int maxArgs = 0;
-    // min args for String[].
-    private int minArgs = 0;
+    // Secondary tab completion
+    private Method completionMethod;
 
     // Optional argument
     private boolean optional;
+    // Wrong usage message
+    private String wrongUsage;
 
-    // Permission node of the command.
-    private String permission;
-
+    /**
+     * Constructor for the command data object
+     *
+     * @param commandBase The command base of the data
+     */
     public CommandData(final CommandBase commandBase) {
         this.commandBase = commandBase;
     }
 
-    public Method getMethod() {
-        return method;
+    /**
+     * Sets the sub command name
+     * @param name The name to set
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 
+    /**
+     * Sets the method of the command
+     *
+     * @param method The method
+     */
     public void setMethod(final Method method) {
         this.method = method;
     }
 
-    public boolean isDefault() {
-        return defaultCmd;
-    }
-
+    /**
+     * Sets the command as default
+     *
+     * @param defaultCmd The value to set
+     */
     public void setDefault(final boolean defaultCmd) {
         this.defaultCmd = defaultCmd;
     }
 
-    public Class<?> getFirstParam() {
-        return firstParam;
-    }
-
+    /**
+     * Sets the first parameter class
+     *
+     * @param firstParam The first parameter
+     */
     public void setFirstParam(final Class<?> firstParam) {
         this.firstParam = firstParam;
     }
 
+    /**
+     * Adds the permission nodes of the command
+     *
+     * @param permission the permission node
+     */
+    public void addPermission(String permission) {
+        permissions.add(permission);
+    }
+
+    /**
+     * Sets if the command has an optional parameter or not
+     *
+     * @param optional The value
+     */
+    public void setOptional(final boolean optional) {
+        this.optional = optional;
+    }
+
+    /**
+     * Sets the wrong usage message or id
+     *
+     * @param wrongUsage The wrong usage to set
+     */
+    public void setWrongUsage(final String wrongUsage) {
+        this.wrongUsage = wrongUsage;
+    }
+
+    /**
+     * Sets the completion method to run later
+     *
+     * @param completionMethod The completion method
+     */
+    public void setCompletionMethod(final Method completionMethod) {
+        this.completionMethod = completionMethod;
+    }
+
+    /**
+     * Gets the sub command name
+     *
+     * @return The sub command name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Gets the method
+     *
+     * @return The method
+     */
+    public Method getMethod() {
+        return method;
+    }
+
+    /**
+     * Gets the first parameter class
+     *
+     * @return The first parameter class
+     */
+    public Class<?> getFirstParam() {
+        return firstParam;
+    }
+
+    /**
+     * Gets the list of parameters the method has
+     *
+     * @return The list of parameters
+     */
     public List<Class<?>> getParams() {
         return params;
     }
 
+    /**
+     * Gets all the completions and the ids
+     *
+     * @return The HasMap with all the completions
+     */
     public HashMap<Integer, String> getCompletions() {
         return completions;
     }
 
-    public void setPermission(String permission) {
-        this.permission = permission;
+    /**
+     * Gets list of permissions
+     *
+     * @return The list of permissions
+     */
+    public List<String> getPermissions() {
+        return permissions;
     }
 
-    public boolean hasPermission() {
-        return permission != null;
+    /**
+     * Gets the wrong usage message
+     *
+     * @return The wrong usage message
+     */
+    public String getWrongUsage() {
+        return wrongUsage;
     }
 
-    public String getPermission() {
-        return permission;
-    }
-
-    public int getMaxArgs() {
-        return maxArgs;
-    }
-
-    public void setMaxArgs(final int maxArgs) {
-        this.maxArgs = maxArgs;
-    }
-
-    public int getMinArgs() {
-        return minArgs;
-    }
-
-    public void setMinArgs(final int minArgs) {
-        this.minArgs = minArgs;
-    }
-
+    /**
+     * Gets the parameter names
+     *
+     * @return The list of parameter names
+     */
     public List<String> getParameterNames() {
         return parameterNames;
     }
 
+    /**
+     * Gets the command base of the command for the invoke later
+     *
+     * @return The command base
+     */
     public CommandBase getCommandBase() {
         return commandBase;
     }
 
+    /**
+     * Gets the completion method
+     *
+     * @return The completion method
+     */
+    public Method getCompletionMethod() {
+        return completionMethod;
+    }
+
+    /**
+     * Checks if the command is default or not
+     *
+     * @return Default or not
+     */
+    public boolean isDefault() {
+        return defaultCmd;
+    }
+
+    /**
+     * Checks if the command has an optional argument
+     *
+     * @return If has or not optional
+     */
     public boolean hasOptional() {
         return optional;
     }
 
-    public void setOptional(final boolean optional) {
-        this.optional = optional;
+    /**
+     * Checks if the command has permissions or not
+     *
+     * @return If has permissions or not
+     */
+    public boolean hasPermissions() {
+        return !permissions.isEmpty();
     }
 }

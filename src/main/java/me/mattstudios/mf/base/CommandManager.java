@@ -42,16 +42,38 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public final class CommandManager implements Listener {
 
+    // The plugin's main class
     private final Plugin plugin;
 
     // List of commands;
     private final Map<String, CommandHandler> commands;
 
+    // The parameter handler
     private final ParameterHandler parameterHandler;
+    // The completion handler
     private final CompletionHandler completionHandler;
+    // The messages handler
     private final MessageHandler messageHandler;
 
+    // If should or not hide tab complete for no permissions
+    private boolean hideTab;
+
+    /**
+     * Main constructor for the manager
+     *
+     * @param plugin The plugin's main class
+     */
     public CommandManager(final Plugin plugin) {
+        this(plugin, false);
+    }
+
+    /**
+     * Constructor for the manager
+     *
+     * @param plugin  The plugin's main class
+     * @param hideTab If should or not hide tab
+     */
+    public CommandManager(final Plugin plugin, final boolean hideTab) {
         this.plugin = plugin;
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -60,6 +82,8 @@ public final class CommandManager implements Listener {
         completionHandler = new CompletionHandler();
         messageHandler = new MessageHandler();
         parameterHandler = new ParameterHandler();
+
+        this.hideTab = hideTab;
     }
 
     /**
@@ -122,7 +146,8 @@ public final class CommandManager implements Listener {
                 return;
             }
 
-            commandHandler = new CommandHandler(parameterHandler, completionHandler, messageHandler, command, commandName, Arrays.asList(aliases));
+            commandHandler = new CommandHandler(parameterHandler, completionHandler,
+                    messageHandler, command, commandName, Arrays.asList(aliases), hideTab);
             commandMap.register(plugin.getName(), commandHandler);
 
             // Puts the handler in the list to unregister later.
@@ -138,7 +163,9 @@ public final class CommandManager implements Listener {
      * @param hideTab Hide or Not.
      */
     public void hideTabComplete(final boolean hideTab) {
-        for (String cmdName : commands.keySet()) {
+        this.hideTab = hideTab;
+
+        for (final String cmdName : commands.keySet()) {
             commands.get(cmdName).setHideTab(hideTab);
         }
     }

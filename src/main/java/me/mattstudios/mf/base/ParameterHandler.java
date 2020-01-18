@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("WeakerAccess")
-public class ParameterHandler {
+public final class ParameterHandler {
 
     // The map of registered parameters.
     private final Map<Class<?>, ParameterResolver> registeredTypes = new HashMap<>();

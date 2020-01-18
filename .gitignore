@@ -1,10 +1,6 @@
 
 .idea/
 
-.gradle/
-
-build/
-
 *.iml
 
 gradle.properties
@@ -13,4 +9,10 @@ temp.java.asc
 
 temp.java
 
-gradle/wrapper/
+target/
+
+src/main/resources/
+
+src/main/java/me/mattstudios/mf/CMD.java
+
+src/main/java/me/mattstudios/mf/Main.java
