@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 // TODO Better comments and organization of the class
 public final class CommandData {
@@ -54,7 +55,7 @@ public final class CommandData {
     // Permission node of the command.
     private final List<String> permissions = new ArrayList<>();
     // List of the completions.
-    private final HashMap<Integer, String> completions = new HashMap<>();
+    private final Map<Integer, String> completions = new HashMap<>();
 
     // Secondary tab completion
     private Method completionMethod;
@@ -185,7 +186,7 @@ public final class CommandData {
      *
      * @return The HasMap with all the completions
      */
-    public HashMap<Integer, String> getCompletions() {
+    public Map<Integer, String> getCompletions() {
         return completions;
     }
 

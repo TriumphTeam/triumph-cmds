@@ -25,21 +25,25 @@
 package me.mattstudios.mf.base;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public abstract class CommandBase {
 
-    private final HashMap<String, String> arguments = new HashMap<>();
-
-    void clearArgs() {
-        arguments.clear();
-    }
-
-    void addArgument(String name, String argument) {
-        arguments.put(name, argument);
-    }
+    // The map containing the arguments, for error handling
+    private final Map<String, String> arguments = new HashMap<>();
 
     @SuppressWarnings("WeakerAccess")
     public String getArgument(String name) {
         return arguments.getOrDefault(name, null);
+    }
+
+    // Clears the args
+    void clearArgs() {
+        arguments.clear();
+    }
+
+    // Adds a new argument
+    void addArgument(String name, String argument) {
+        arguments.put(name, argument);
     }
 }

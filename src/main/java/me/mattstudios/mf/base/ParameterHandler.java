@@ -24,6 +24,10 @@
 
 package me.mattstudios.mf.base;
 
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Floats;
+import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.base.components.ParameterResolver;
 import org.bukkit.Bukkit;
@@ -33,7 +37,7 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "UnstableApiUsage"})
 public final class ParameterHandler {
 
     // The map of registered parameters.
@@ -43,95 +47,23 @@ public final class ParameterHandler {
     ParameterHandler() {
 
         register(Short.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Short.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
+            final Integer integer = Ints.tryParse(String.valueOf(arg));
+            return integer == null ? new Object[]{null, arg} : new Object[]{integer.shortValue(), arg};
         });
-        register(short.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Short.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(int.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Integer.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(Integer.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Integer.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(long.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Long.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(Long.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Long.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(float.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Float.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(Float.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Float.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(double.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Double.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(Double.class, arg -> {
-            try {
-                return new Object[]{tryParseNumber(Double.class, String.valueOf(arg)), arg};
-            } catch (NumberFormatException e) {
-                return new Object[]{null, arg};
-            }
-        });
-        register(String.class, arg -> {
-            if (arg instanceof String) return new Object[]{arg, arg};
-            // Will most likely never happen.
-            return new Object[]{null, arg};
-        });
+        register(Integer.class, arg -> new Object[]{Ints.tryParse(String.valueOf(arg)), arg});
+        register(Long.class, arg -> new Object[]{Longs.tryParse(String.valueOf(arg)), arg});
+        register(Float.class, arg -> new Object[]{Floats.tryParse(String.valueOf(arg)), arg});
+        register(Double.class, arg -> new Object[]{Doubles.tryParse(String.valueOf(arg)), arg});
+
+        register(String.class, arg -> arg instanceof String ? new Object[]{arg, arg} : new Object[]{null, arg});
+
         register(String[].class, arg -> {
             if (arg instanceof String[]) return new Object[]{arg, arg};
             // Will most likely never happen.
             return new Object[]{null, arg};
         });
-        register(Player.class, arg -> {
-            final Player player = Bukkit.getPlayer(String.valueOf(arg));
-            if (player != null) return new Object[]{player, arg};
-            return new Object[]{null, arg};
-        });
-        register(Material.class, arg -> {
-            final Material material = Material.matchMaterial(String.valueOf(arg));
-            if (material != null) return new Object[]{material, arg};
-            return new Object[]{null, arg};
-        });
+        register(Player.class, arg -> new Object[]{Bukkit.getPlayer(String.valueOf(arg)), arg});
+        register(Material.class, arg -> new Object[]{Material.matchMaterial(String.valueOf(arg)), arg});
     }
 
     /**
@@ -170,36 +102,5 @@ public final class ParameterHandler {
         return registeredTypes.containsKey(clss);
     }
 
-    /**
-     * Tries to parse a number from a string.
-     *
-     * @param clss   The class type of number it is.
-     * @param number The number string.
-     * @return The number if successfully parsed.
-     * @throws NumberFormatException If can't parse it.
-     */
-    private Number tryParseNumber(final Class<?> clss, final String number) throws NumberFormatException {
-        switch (clss.getName()) {
-
-            case "java.lang.Short":
-                return Short.parseShort(number);
-
-            case "java.lang.Integer":
-                return Integer.parseInt(number);
-
-            case "java.lang.Long":
-                return Long.parseLong(number);
-
-            case "java.lang.Float":
-                return Float.parseFloat(number);
-
-            case "java.lang.Double":
-                return Double.parseDouble(number);
-
-            default:
-                throw new NumberFormatException();
-
-        }
-    }
 }
 
