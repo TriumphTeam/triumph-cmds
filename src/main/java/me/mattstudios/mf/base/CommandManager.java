@@ -45,8 +45,11 @@ public final class CommandManager implements Listener {
     // The plugin's main class
     private final Plugin plugin;
 
+    // The command map
+    private CommandMap commandMap;
+
     // List of commands;
-    private final Map<String, CommandHandler> commands;
+    private final Map<String, CommandHandler> commands = new HashMap<>();
 
     // The parameter handler
     private final ParameterHandler parameterHandler;
@@ -78,12 +81,20 @@ public final class CommandManager implements Listener {
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
-        commands = new HashMap<>();
         completionHandler = new CompletionHandler();
         messageHandler = new MessageHandler();
         parameterHandler = new ParameterHandler();
 
         this.hideTab = hideTab;
+
+        try {
+            final Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+
+            commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -135,11 +146,6 @@ public final class CommandManager implements Listener {
 
         // Used to get the command map to register the commands.
         try {
-            final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            bukkitCommandMap.setAccessible(true);
-
-            final CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
-
             final CommandHandler commandHandler;
             if (commands.containsKey(commandName)) {
                 commands.get(commandName).addSubCommands(command);

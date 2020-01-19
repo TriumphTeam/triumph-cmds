@@ -27,7 +27,7 @@ package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Completion;
-import me.mattstudios.mf.annotations.CompletionFor;
+import me.mattstudios.mf.annotations.CompleteFor;
 import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.Optional;
 import me.mattstudios.mf.annotations.Permission;
@@ -45,6 +45,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,7 +58,7 @@ import static me.mattstudios.mf.base.components.MfUtil.color;
 
 public final class CommandHandler extends Command {
     // Contains all the sub commands
-    private final Map<String, CommandData> commands;
+    private final Map<String, CommandData> commands = new HashMap<>();
 
     // Handler for the parameter types
     private final ParameterHandler parameterHandler;
@@ -74,14 +75,13 @@ public final class CommandHandler extends Command {
                    final String commandName, final List<String> aliases, final boolean hideTab) {
 
         super(commandName);
+
         this.parameterHandler = parameterHandler;
         this.completionHandler = completionHandler;
         this.messageHandler = messageHandler;
         this.hideTab = hideTab;
 
         setAliases(aliases);
-
-        commands = new HashMap<>();
 
         addSubCommands(command);
     }
@@ -101,7 +101,7 @@ public final class CommandHandler extends Command {
                 throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - needs to have Parameters!");
 
             // Checks if the fist parameter is either a player or a sender.
-            if (!method.getParameterTypes()[0].getTypeName().equals(CommandSender.class.getTypeName()) && !method.getParameterTypes()[0].getTypeName().equals(Player.class.getTypeName()))
+            if (!CommandSender.class.isAssignableFrom(method.getParameterTypes()[0]) && !Player.class.isAssignableFrom(method.getParameterTypes()[0]))
                 throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender or a Player!");
 
             // Starts the command data object.
@@ -167,9 +167,8 @@ public final class CommandHandler extends Command {
                 return noPermission(sender);
 
             // Checks if the command can be accessed from console
-            if (!subCommand.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player))
+            if (!CommandSender.class.equals(subCommand.getFirstParam()) && !(sender instanceof Player))
                 return noConsole(sender);
-
 
             // Executes all the commands.
             return executeCommand(subCommand, sender, arguments);
@@ -195,8 +194,9 @@ public final class CommandHandler extends Command {
             return noPermission(sender);
 
         // Checks if the command can be accessed from console
-        if (!subCommand.getFirstParam().getTypeName().equals(CommandSender.class.getTypeName()) && !(sender instanceof Player))
+        if (!CommandSender.class.equals(subCommand.getFirstParam()) && !(sender instanceof Player))
             return noConsole(sender);
+
 
         // Runs the command executor.
         return executeCommand(subCommand, sender, arguments);
@@ -219,7 +219,7 @@ public final class CommandHandler extends Command {
 
             // Checks if it is a default type command with just sender and args.
             if (subCommand.getParams().size() == 1
-                    && subCommand.getParams().get(0).getTypeName().equals(String[].class.getTypeName())) {
+                    && String[].class.isAssignableFrom(subCommand.getParams().get(0))) {
                 method.invoke(subCommand.getCommandBase(), sender, arguments);
                 return true;
             }
@@ -230,7 +230,7 @@ public final class CommandHandler extends Command {
                 if (!subCommand.isDefault() && subCommand.getParams().size() == 0)
                     return wrongUsage(sender, subCommand);
 
-                if (!subCommand.getParams().get(subCommand.getParams().size() - 1).getTypeName().equals(String[].class.getTypeName()))
+                if (!String[].class.isAssignableFrom(subCommand.getParams().get(subCommand.getParams().size() - 1)))
                     return wrongUsage(sender, subCommand);
             }
 
@@ -322,7 +322,7 @@ public final class CommandHandler extends Command {
             }
 
             // Checks if the typing command is empty.
-            if (!args[0].equals("")) {
+            if (!"".equals(args[0])) {
                 for (String commandName : subCmd) {
                     if (!commandName.startsWith(args[0].toLowerCase())) continue;
                     commandNames.add(commandName);
@@ -547,15 +547,20 @@ public final class CommandHandler extends Command {
         // Checks for completion annotation in the method.
         for (final Method method : command.getClass().getDeclaredMethods()) {
             // Checks for CompletionFor annotation
-            if (!method.isAnnotationPresent(CompletionFor.class)) continue;
-            // Checks if the method returns List<String> or not
-            if (!method.getGenericReturnType().getTypeName().equalsIgnoreCase("java.util.List<java.lang.String>")) continue;
-            System.out.println("is it getting here at all?");
-            final String subCommandName = method.getAnnotation(CompletionFor.class).value();
-            System.out.println(subCommandName);
-            System.out.println(subCommand.getName());
+            if (!method.isAnnotationPresent(CompleteFor.class)) continue;
+
+            // All the checks to make sure the complete for method returns String List
+            if (!(method.getGenericReturnType() instanceof ParameterizedType)) return;
+
+            final ParameterizedType parametrizedReturnType = (ParameterizedType) method.getGenericReturnType();
+
+            if (parametrizedReturnType.getRawType() != List.class) return;
+            if (parametrizedReturnType.getActualTypeArguments().length != 1) return;
+            if (parametrizedReturnType.getActualTypeArguments()[0] != String.class) return;
+
+            final String subCommandName = method.getAnnotation(CompleteFor.class).value();
+
             if (!subCommandName.equalsIgnoreCase(subCommand.getName())) continue;
-            System.out.println("is it getting here at all 2?");
 
             subCommand.setCompletionMethod(method);
         }
