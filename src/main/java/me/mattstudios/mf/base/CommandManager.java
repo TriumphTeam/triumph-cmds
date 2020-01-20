@@ -52,11 +52,11 @@ public final class CommandManager implements Listener {
     private final Map<String, CommandHandler> commands = new HashMap<>();
 
     // The parameter handler
-    private final ParameterHandler parameterHandler;
+    private final ParameterHandler parameterHandler = new ParameterHandler();
     // The completion handler
-    private final CompletionHandler completionHandler;
+    private final CompletionHandler completionHandler = new CompletionHandler();
     // The messages handler
-    private final MessageHandler messageHandler;
+    private final MessageHandler messageHandler = new MessageHandler();
 
     // If should or not hide tab complete for no permissions
     private boolean hideTab;
@@ -80,10 +80,6 @@ public final class CommandManager implements Listener {
         this.plugin = plugin;
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-
-        completionHandler = new CompletionHandler();
-        messageHandler = new MessageHandler();
-        parameterHandler = new ParameterHandler();
 
         this.hideTab = hideTab;
 

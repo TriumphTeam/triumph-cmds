@@ -113,18 +113,11 @@ public final class CompletionHandler {
     }
 
     /**
-     * Checks if the ID is currently registered.
+     * Gets all the registered completions
      *
-     * @param completionId The ID to check.
-     * @return The result of being registered or not.
+     * @return The map with the completions inside
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    boolean isRegistered(final String completionId) {
-        String completionContent = "";
-        if (completionId.contains(":")) {
-            final String[] content = completionId.split(":");
-            completionContent = content[0];
-        }
-        return registeredCompletions.containsKey(completionContent);
+    Map<String, CompletionResolver> getRegisteredCompletions() {
+        return registeredCompletions;
     }
 }
