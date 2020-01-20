@@ -26,12 +26,13 @@ package me.mattstudios.mf.base;
 
 
 import me.mattstudios.mf.annotations.Alias;
-import me.mattstudios.mf.annotations.Completion;
 import me.mattstudios.mf.annotations.CompleteFor;
+import me.mattstudios.mf.annotations.Completion;
 import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.Optional;
 import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
+import me.mattstudios.mf.annotations.Values;
 import me.mattstudios.mf.annotations.WrongUsage;
 import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
@@ -124,11 +125,11 @@ public final class CommandHandler extends Command {
             // Check if optional parameter is present.
             checkOptionalParam(method, command, subCommand);
 
-            // Checks for completion on the parameters.
-            checkParamCompletion(method, command, subCommand);
-
             // Checks for completion annotation in the method.
             checkMethodCompletion(method, command, subCommand);
+
+            // Checks for completion on the parameters.
+            checkParamCompletion(method, command, subCommand);
 
             // Checks for aliases.
             checkAlias(method, subCommand);
@@ -260,6 +261,14 @@ public final class CommandHandler extends Command {
 
                 Object argument = argumentsList.get(i);
 
+                // Checks if the current argument is annotated by @Values
+                if (subCommand.getArgValue().contains(i + 1)) {
+                    final String completionId = subCommand.getCompletions().get(i + 1);
+                    // Checks if the value introduced is part of the completion
+                    if (!completionHandler.getTypeResult(completionId, completionId).contains(argument))
+                        argument = null;
+                }
+
                 // Checks for String[] args.
                 if (parameter.equals(String[].class)) {
                     String[] args = new String[argumentsList.size() - i];
@@ -369,9 +378,6 @@ public final class CommandHandler extends Command {
         // Gets the current ID.
         String id = subCommand.getCompletions().get(args.length - 1);
 
-        // Checks one more time if the ID is registered.
-        if (!completionHandler.isRegistered(id)) return super.tabComplete(sender, alias, args);
-
         List<String> completionList = new ArrayList<>();
         Object inputClss = subCommand.getParams().get(args.length - 2);
 
@@ -427,9 +433,9 @@ public final class CommandHandler extends Command {
      */
     private void checkDefault(final Method method, final CommandData subCommand) {
         // Checks if it is a default method.
-        if (method.isAnnotationPresent(Default.class)) {
-            subCommand.setDefault(true);
-        }
+        if (!method.isAnnotationPresent(Default.class)) return;
+
+        subCommand.setDefault(true);
     }
 
     /**
@@ -465,12 +471,13 @@ public final class CommandHandler extends Command {
      */
     private void checkPermission(final Method method, final CommandData subCommand) {
         // Checks if permission annotation is present.
-        if (method.isAnnotationPresent(Permission.class)) {
-            // Checks whether the command sender has the permission set in the annotation.
-            for (final String permission : method.getAnnotation(Permission.class).value()) {
-                subCommand.addPermission(permission);
-            }
+        if (!method.isAnnotationPresent(Permission.class)) return;
+
+        // Checks whether the command sender has the permission set in the annotation.
+        for (final String permission : method.getAnnotation(Permission.class).value()) {
+            subCommand.addPermission(permission);
         }
+
     }
 
     /**
@@ -481,10 +488,10 @@ public final class CommandHandler extends Command {
      */
     private void checkWrongUsage(final Method method, final CommandData subCommand) {
         // Checks if WrongUsage annotation is present.
-        if (method.isAnnotationPresent(WrongUsage.class)) {
-            // Checks whether the command sender has the permission set in the annotation.
-            subCommand.setWrongUsage(method.getAnnotation(WrongUsage.class).value());
-        }
+        if (!method.isAnnotationPresent(WrongUsage.class)) return;
+
+        // Checks whether the command sender has the permission set in the annotation.
+        subCommand.setWrongUsage(method.getAnnotation(WrongUsage.class).value());
     }
 
     /**
@@ -500,21 +507,28 @@ public final class CommandHandler extends Command {
             final Parameter parameter = method.getParameters()[i];
 
             if (i == 0 && parameter.isAnnotationPresent(Completion.class))
-                throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion annotation!");
+                throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion/Values annotation!");
 
-            if (!parameter.isAnnotationPresent(Completion.class)) continue;
-
-            final String[] values = parameter.getAnnotation(Completion.class).value();
+            final String[] values;
+            if (parameter.isAnnotationPresent(Completion.class))
+                values = parameter.getAnnotation(Completion.class).value();
+            else if (parameter.isAnnotationPresent(Values.class)) {
+                values = new String[]{parameter.getAnnotation(Values.class).value()};
+            } else continue;
 
             if (values.length != 1)
                 throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Parameter completion can only have one value!");
+
             if (!values[0].startsWith("#"))
                 throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
 
-            if (!this.completionHandler.isRegistered(values[0]))
+            if (values[0].contains(":")) values[0] = values[0].split(":")[0];
+
+            if (completionHandler.getRegisteredCompletions().get(values[0]) == null)
                 throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID '" + values[0] + "'!");
 
             subCommand.getCompletions().put(i, values[0]);
+            if (parameter.isAnnotationPresent(Values.class)) subCommand.getArgValue().add(i);
         }
     }
 
@@ -527,19 +541,22 @@ public final class CommandHandler extends Command {
      */
     private void checkMethodCompletion(final Method method, final CommandBase command, final CommandData subCommand) {
         // Checks for completion annotation in the method.
-        if (method.isAnnotationPresent(Completion.class)) {
-            final String[] completionValues = method.getAnnotation(Completion.class).value();
-            for (int i = 0; i < completionValues.length; i++) {
-                final String id = completionValues[i];
+        if (!method.isAnnotationPresent(Completion.class)) return;
 
-                if (!id.startsWith("#"))
-                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
+        final String[] completionValues = method.getAnnotation(Completion.class).value();
 
-                if (!this.completionHandler.isRegistered(id))
-                    throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
+        for (int i = 0; i < completionValues.length; i++) {
+            String id = completionValues[i];
 
-                subCommand.getCompletions().put(i + 1, id);
-            }
+            if (!id.startsWith("#"))
+                throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
+
+            if (id.contains(":")) id = id.split(":")[0];
+
+            if (completionHandler.getRegisteredCompletions().get(id) == null)
+                throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
+
+            subCommand.getCompletions().put(i + 1, id);
         }
     }
 
@@ -574,16 +591,17 @@ public final class CommandHandler extends Command {
      */
     private void checkAlias(final Method method, final CommandData subCommand) {
         // Checks for aliases.
-        if (method.isAnnotationPresent(Alias.class)) {
-            // Iterates through the alias and add each as a normal sub command.
-            for (String alias : method.getAnnotation(Alias.class).value()) {
-                //noinspection UnnecessaryLocalVariable
-                final CommandData aliasCD = subCommand;
-                subCommand.setName(alias.toLowerCase());
-                if (aliasCD.isDefault()) aliasCD.setDefault(false);
-                commands.put(alias.toLowerCase(), subCommand);
-            }
+        if (!method.isAnnotationPresent(Alias.class)) return;
+
+        // Iterates through the alias and add each as a normal sub command.
+        for (String alias : method.getAnnotation(Alias.class).value()) {
+            //noinspection UnnecessaryLocalVariable
+            final CommandData aliasCD = subCommand;
+            subCommand.setName(alias.toLowerCase());
+            if (aliasCD.isDefault()) aliasCD.setDefault(false);
+            commands.put(alias.toLowerCase(), subCommand);
         }
+
     }
 
     /**

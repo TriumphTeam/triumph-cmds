@@ -54,6 +54,8 @@ public final class CommandData {
     private final List<String> parameterNames = new ArrayList<>();
     // Permission node of the command.
     private final List<String> permissions = new ArrayList<>();
+    // List with arguments with @Values annotation
+    private final List<Integer> valuesArgs = new ArrayList<>();
     // List of the completions.
     private final Map<Integer, String> completions = new HashMap<>();
 
@@ -76,6 +78,7 @@ public final class CommandData {
 
     /**
      * Sets the sub command name
+     *
      * @param name The name to set
      */
     public void setName(final String name) {
@@ -233,6 +236,15 @@ public final class CommandData {
      */
     public Method getCompletionMethod() {
         return completionMethod;
+    }
+
+    /**
+     * Gets the arg values
+     *
+     * @return The List value args
+     */
+    public List<Integer> getArgValue() {
+        return valuesArgs;
     }
 
     /**
