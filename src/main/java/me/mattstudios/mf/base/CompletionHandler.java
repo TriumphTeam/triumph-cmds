@@ -58,7 +58,7 @@ public final class CompletionHandler {
         register("#range", input -> {
             final String s = String.valueOf(input);
 
-            if (s.equalsIgnoreCase("int") || s.equalsIgnoreCase("double") || s.equalsIgnoreCase("float"))
+            if (s.contains("class"))
                 return IntStream.rangeClosed(1, 10).mapToObj(Integer::toString).collect(Collectors.toList());
 
             if (!s.contains("-"))
@@ -113,11 +113,13 @@ public final class CompletionHandler {
     }
 
     /**
-     * Gets all the registered completions
-     *
-     * @return The map with the completions inside
+     * Checks if the ID is registered
+     * @param id The ID
+     * @return True if it is or false if not
      */
-    Map<String, CompletionResolver> getRegisteredCompletions() {
-        return registeredCompletions;
+    boolean isRegistered(final String id) {
+        String identifier = id;
+        if (id.contains(":")) identifier = identifier.split(":")[0];
+        return registeredCompletions.get(identifier) != null;
     }
 }

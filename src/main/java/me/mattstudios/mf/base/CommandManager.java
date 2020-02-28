@@ -121,6 +121,17 @@ public final class CommandManager implements Listener {
     }
 
     /**
+     * Registers commands.
+     *
+     * @param commands The list of command classes to register.
+     */
+    public void register(final CommandBase... commands) {
+        for (CommandBase command : commands) {
+            register(command);
+        }
+    }
+
+    /**
      * Registers a command.
      *
      * @param command The command class to register.

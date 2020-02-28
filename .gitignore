@@ -16,3 +16,5 @@ src/main/resources/
 src/main/java/me/mattstudios/mf/CMD.java
 
 src/main/java/me/mattstudios/mf/Main.java
+
+*.versionsBackup
