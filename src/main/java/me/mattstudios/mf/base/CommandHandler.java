@@ -38,6 +38,7 @@ import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
 import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
 import me.mattstudios.mf.exceptions.InvalidParamException;
+import me.mattstudios.mf.exceptions.SyntaxError;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -214,14 +215,30 @@ public final class CommandHandler extends Command {
 
             // Check if the method only has a sender as parameter.
             if (subCommand.getParams().size() == 0 && argumentsList.size() == 0) {
-                method.invoke(subCommand.getCommandBase(), sender);
+                try {
+                    method.invoke(subCommand.getCommandBase(), sender);
+                } catch (InvocationTargetException e) {
+                    if (e.getCause() instanceof SyntaxError) {
+                        return wrongUsage(sender, subCommand);
+                    }
+
+                    throw e.getCause();
+                }
                 return true;
             }
 
             // Checks if it is a default type command with just sender and args.
             if (subCommand.getParams().size() == 1
                     && String[].class.isAssignableFrom(subCommand.getParams().get(0))) {
-                method.invoke(subCommand.getCommandBase(), sender, arguments);
+                try {
+                    method.invoke(subCommand.getCommandBase(), sender, arguments);
+                } catch (InvocationTargetException e) {
+                    if (e.getCause() instanceof SyntaxError) {
+                        return wrongUsage(sender, subCommand);
+                    }
+
+                    throw e.getCause();
+                }
                 return true;
             }
 
@@ -285,12 +302,20 @@ public final class CommandHandler extends Command {
             }
 
             // Calls the command method method.
-            method.invoke(subCommand.getCommandBase(), invokeParams.toArray());
+            try {
+                method.invoke(subCommand.getCommandBase(), invokeParams.toArray());
+            } catch (InvocationTargetException e) {
+                if (e.getCause() instanceof SyntaxError) {
+                    return wrongUsage(sender, subCommand);
+                }
+
+                throw e.getCause();
+            }
             subCommand.getCommandBase().clearArgs();
 
             return true;
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
 
@@ -300,7 +325,7 @@ public final class CommandHandler extends Command {
     @Override
     public List<String> tabComplete(final CommandSender sender, final String alias, final String[] args) throws IllegalArgumentException {
 
-        // Checks if args is 1 so it sends the sub comments completion.
+        // Checks if args is 1 so it sends the sub commands completion.
         if (args.length == 1) {
             List<String> commandNames = new ArrayList<>();
 
@@ -333,7 +358,7 @@ public final class CommandHandler extends Command {
             // Checks if the typing command is empty.
             if (!"".equals(args[0])) {
                 for (String commandName : subCmd) {
-                    if (!commandName.startsWith(args[0].toLowerCase())) continue;
+                    if (!commandName.toLowerCase().startsWith(args[0].toLowerCase())) continue;
                     commandNames.add(commandName);
                 }
             } else {
@@ -365,8 +390,10 @@ public final class CommandHandler extends Command {
 
         if (completionMethod != null) {
             try {
+                List<String> argsList = new LinkedList<>(Arrays.asList(args));
+                argsList.remove(subCommandArg);
                 //noinspection unchecked
-                return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), Arrays.asList(args));
+                return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), argsList);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
@@ -522,9 +549,7 @@ public final class CommandHandler extends Command {
             if (!values[0].startsWith("#"))
                 throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
 
-            if (values[0].contains(":")) values[0] = values[0].split(":")[0];
-
-            if (completionHandler.getRegisteredCompletions().get(values[0]) == null)
+            if (completionHandler.isRegistered(values[0]))
                 throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID '" + values[0] + "'!");
 
             subCommand.getCompletions().put(i, values[0]);
@@ -551,9 +576,7 @@ public final class CommandHandler extends Command {
             if (!id.startsWith("#"))
                 throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
 
-            if (id.contains(":")) id = id.split(":")[0];
-
-            if (completionHandler.getRegisteredCompletions().get(id) == null)
+            if (!completionHandler.isRegistered(id))
                 throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
 
             subCommand.getCompletions().put(i + 1, id);
@@ -648,13 +671,15 @@ public final class CommandHandler extends Command {
      * @return Returns true
      */
     private boolean wrongUsage(final CommandSender sender, final CommandData subCommand) {
-        messageHandler.sendMessage("cmd.wrong.usage", sender);
-
         final String wrongMessage = subCommand.getWrongUsage();
 
-        if (wrongMessage == null) return true;
+        if (wrongMessage == null) {
+            messageHandler.sendMessage("cmd.wrong.usage", sender);
+            return true;
+        }
 
         if (!wrongMessage.startsWith("#") || !messageHandler.hasId(wrongMessage)) {
+            messageHandler.sendMessage("cmd.wrong.usage", sender);
             sender.sendMessage(color(subCommand.getWrongUsage()));
             return true;
         }
