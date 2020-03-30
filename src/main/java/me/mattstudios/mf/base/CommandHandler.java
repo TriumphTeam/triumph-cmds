@@ -549,7 +549,7 @@ public final class CommandHandler extends Command {
             if (!values[0].startsWith("#"))
                 throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
 
-            if (completionHandler.isRegistered(values[0]))
+            if (!completionHandler.isRegistered(values[0]))
                 throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID '" + values[0] + "'!");
 
             subCommand.getCompletions().put(i, values[0]);

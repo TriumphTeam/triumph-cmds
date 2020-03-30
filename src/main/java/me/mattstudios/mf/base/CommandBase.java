@@ -46,4 +46,5 @@ public abstract class CommandBase {
     void addArgument(String name, String argument) {
         arguments.put(name, argument);
     }
+
 }

@@ -6,7 +6,7 @@ public final class TypeResult {
     private String argumentName;
 
     /**
-     * Main constructor
+     * me.mattstudios.mf.Main constructor
      *
      * @param resolvedValue The resolved value
      * @param argumentName  The argument
