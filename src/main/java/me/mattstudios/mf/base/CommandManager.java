@@ -26,7 +26,7 @@ package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
-import me.mattstudios.mf.exceptions.NoCommandException;
+import me.mattstudios.mf.exceptions.MfException;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandMap;
@@ -90,15 +90,6 @@ public final class CommandManager implements Listener {
         this.hideTab = hideTab;
 
         this.commandMap = getCommandMap();
-
-        /*try {
-            final Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            commandMapField.setAccessible(true);
-
-            commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }*/
     }
 
     /**
@@ -145,11 +136,12 @@ public final class CommandManager implements Listener {
      * @param command The command class to register.
      */
     public void register(final CommandBase command) {
+
         final Class<?> commandClass = command.getClass();
 
         // Checks for the command annotation.
         if (!commandClass.isAnnotationPresent(Command.class))
-            throw new NoCommandException("Class " + command.getClass().getName() + " needs to have @Command!");
+            throw new MfException("Class " + command.getClass().getName() + " needs to have @Command!");
 
         // Gets the command annotation value.
         final String commandName = commandClass.getAnnotation(Command.class).value();
@@ -176,9 +168,14 @@ public final class CommandManager implements Listener {
                 return;
             }
 
+            // Sets the message handler to be used in the command class
+            command.setMessageHandler(messageHandler);
+
+            // Creates the command handler
             commandHandler = new CommandHandler(parameterHandler, completionHandler,
                     messageHandler, command, commandName, Arrays.asList(aliases), hideTab);
 
+            // Registers the command
             commandMap.register(commandName, plugin.getName(), commandHandler);
 
             // Puts the handler in the list to unregister later.
@@ -221,6 +218,7 @@ public final class CommandManager implements Listener {
 
     /**
      * Gets the Command Map to register the commands
+     *
      * @return The Command Map
      */
     private CommandMap getCommandMap() {

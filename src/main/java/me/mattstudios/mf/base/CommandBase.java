@@ -24,6 +24,8 @@
 
 package me.mattstudios.mf.base;
 
+import org.bukkit.command.CommandSender;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,18 +34,47 @@ public abstract class CommandBase {
     // The map containing the arguments, for error handling
     private final Map<String, String> arguments = new HashMap<>();
 
+    // The message handler
+    private MessageHandler messageHandler;
+
     @SuppressWarnings("WeakerAccess")
-    public String getArgument(String name) {
+    public String getArgument(final String name) {
         return arguments.getOrDefault(name, null);
     }
 
-    // Clears the args
+    /**
+     * Sends an IDed message to the sender
+     *
+     * @param messageId The message ID
+     * @param sender    The sender
+     */
+    public void sendMessage(final String messageId, final CommandSender sender) {
+        messageHandler.sendMessage(messageId, sender);
+    }
+
+    /**
+     * Sets the message handler when made
+     *
+     * @param messageHandler The message handler
+     */
+    void setMessageHandler(final MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
+    }
+
+    /**
+     * Clears the args
+     */
     void clearArgs() {
         arguments.clear();
     }
 
-    // Adds a new argument
-    void addArgument(String name, String argument) {
+    /**
+     * Adds a new argument
+     *
+     * @param name     The variable name
+     * @param argument The argument
+     */
+    void addArgument(final String name, final String argument) {
         arguments.put(name, argument);
     }
 
