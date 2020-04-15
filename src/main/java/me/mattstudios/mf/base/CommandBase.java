@@ -26,7 +26,9 @@ package me.mattstudios.mf.base;
 
 import org.bukkit.command.CommandSender;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class CommandBase {
@@ -37,6 +39,27 @@ public abstract class CommandBase {
     // The message handler
     private MessageHandler messageHandler;
 
+    // The mutable list with aliases that can be altered any time
+    private final List<String> aliases = new ArrayList<>();
+
+    // Method that'll run on the registering of the command
+    public void onRegister() {
+    }
+
+    /**
+     * Sets the alias list for the method
+     *
+     * @param aliases The list new aliases to register
+     */
+    public void setAliases(final List<String> aliases) {
+        this.aliases.addAll(aliases);
+    }
+
+    /**
+     * Gets the argument used for the command
+     *
+     * @param name The argument name
+     */
     @SuppressWarnings("WeakerAccess")
     public String getArgument(final String name) {
         return arguments.getOrDefault(name, null);
@@ -76,6 +99,15 @@ public abstract class CommandBase {
      */
     void addArgument(final String name, final String argument) {
         arguments.put(name, argument);
+    }
+
+    /**
+     * Gets the list of aliases
+     *
+     * @return The aliases
+     */
+    List<String> getAliases() {
+        return aliases;
     }
 
 }

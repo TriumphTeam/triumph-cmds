@@ -41,6 +41,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -51,7 +52,7 @@ public final class CommandManager implements Listener {
     private final Plugin plugin;
 
     // The command map
-    private CommandMap commandMap;
+    private final CommandMap commandMap;
 
     // List of commands;
     private final Map<String, CommandHandler> commands = new HashMap<>();
@@ -136,20 +137,25 @@ public final class CommandManager implements Listener {
      * @param command The command class to register.
      */
     public void register(final CommandBase command) {
+        // Calls the code to run on command register
+        command.onRegister();
 
         final Class<?> commandClass = command.getClass();
 
         // Checks for the command annotation.
-        if (!commandClass.isAnnotationPresent(Command.class))
+        if (!commandClass.isAnnotationPresent(Command.class)) {
             throw new MfException("Class " + command.getClass().getName() + " needs to have @Command!");
+        }
 
         // Gets the command annotation value.
         final String commandName = commandClass.getAnnotation(Command.class).value();
-        String[] aliases = new String[0];
+        // Gets the aliases from the setAlias method
+        final List<String> aliases = command.getAliases();
 
         //Checks if the class has some alias and adds them.
-        if (commandClass.isAnnotationPresent(Alias.class))
-            aliases = commandClass.getAnnotation(Alias.class).value();
+        if (commandClass.isAnnotationPresent(Alias.class)) {
+            aliases.addAll(Arrays.asList(commandClass.getAnnotation(Alias.class).value()));
+        }
 
         org.bukkit.command.Command oldCommand = commandMap.getCommand(commandName);
 
@@ -173,7 +179,7 @@ public final class CommandManager implements Listener {
 
             // Creates the command handler
             commandHandler = new CommandHandler(parameterHandler, completionHandler,
-                    messageHandler, command, commandName, Arrays.asList(aliases), hideTab);
+                    messageHandler, command, commandName, aliases, hideTab);
 
             // Registers the command
             commandMap.register(commandName, plugin.getName(), commandHandler);
