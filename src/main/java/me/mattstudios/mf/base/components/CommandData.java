@@ -45,8 +45,9 @@ public final class CommandData {
 
     // If the method is a default one or not
     private boolean defaultCmd;
+
     // First parameter of the method.
-    private Class<?> firstParam;
+    private Class<?> senderClass;
 
     // The list with the other parameters.
     private final List<Class<?>> params = new ArrayList<>();
@@ -106,10 +107,10 @@ public final class CommandData {
     /**
      * Sets the first parameter class
      *
-     * @param firstParam The first parameter
+     * @param senderClass The first parameter
      */
-    public void setFirstParam(final Class<?> firstParam) {
-        this.firstParam = firstParam;
+    public void setSenderClass(final Class<?> senderClass) {
+        this.senderClass = senderClass;
     }
 
     /**
@@ -171,8 +172,8 @@ public final class CommandData {
      *
      * @return The first parameter class
      */
-    public Class<?> getFirstParam() {
-        return firstParam;
+    public Class<?> getSenderClass() {
+        return senderClass;
     }
 
     /**

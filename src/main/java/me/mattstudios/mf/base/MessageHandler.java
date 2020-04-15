@@ -43,6 +43,7 @@ public final class MessageHandler {
     MessageHandler() {
         register("cmd.no.permission", sender -> sender.sendMessage(color("&cYou don't have permission to execute this command!")));
         register("cmd.no.console", sender -> sender.sendMessage(color("&cCommand can't be executed through the console!")));
+        register("cmd.no.player", sender -> sender.sendMessage(color("&cCommand can only be executed through the console!")));
         register("cmd.no.exists", sender -> sender.sendMessage(color("&cThe command you're trying to use doesn't exist!")));
         register("cmd.wrong.usage", sender -> sender.sendMessage(color("&cWrong usage for the command!")));
     }

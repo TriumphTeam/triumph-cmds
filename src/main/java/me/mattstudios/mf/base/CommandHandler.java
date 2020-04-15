@@ -38,6 +38,7 @@ import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.MfException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
@@ -100,13 +101,13 @@ public final class CommandHandler extends Command {
                 throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - needs to have Parameters!");
 
             // Checks if the fist parameter is either a player or a sender.
-            if (!CommandSender.class.isAssignableFrom(method.getParameterTypes()[0]) && !Player.class.isAssignableFrom(method.getParameterTypes()[0]))
-                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender or a Player!");
+            if (!CommandSender.class.isAssignableFrom(method.getParameterTypes()[0]))
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender, Player, or ConsoleCommandSender!");
 
             // Starts the command data object.
             subCommand.setMethod(method);
             // Sets the first parameter as either player or command sender.
-            subCommand.setFirstParam(method.getParameterTypes()[0]);
+            subCommand.setSenderClass(method.getParameterTypes()[0]);
 
             // Checks if the parameters in class are registered.
             checkRegisteredParams(method, command, subCommand);
@@ -150,6 +151,7 @@ public final class CommandHandler extends Command {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean execute(final CommandSender sender, final String label, final String[] arguments) {
 
@@ -162,12 +164,19 @@ public final class CommandHandler extends Command {
 
             // Checks if permission annotation is present.
             // Checks whether the command sender has the permission set in the annotation.
-            if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
+            if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
                 return noPermission(sender);
+            }
 
             // Checks if the command can be accessed from console
-            if (!CommandSender.class.equals(subCommand.getFirstParam()) && !(sender instanceof Player))
+            if (!(CommandSender.class.equals(subCommand.getSenderClass()) || ConsoleCommandSender.class.equals(subCommand.getSenderClass())) && !(sender instanceof Player)) {
                 return noConsole(sender);
+            }
+
+            // Checks if the command can be accessed from console
+            if (ConsoleCommandSender.class.equals(subCommand.getSenderClass()) && sender instanceof Player) {
+                return noPlayer(sender);
+            }
 
             // Executes all the commands.
             return executeCommand(subCommand, sender, arguments);
@@ -177,8 +186,9 @@ public final class CommandHandler extends Command {
         final String argCommand = arguments[0].toLowerCase();
 
         // Checks if the sub command is registered or not.
-        if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(argCommand) || getName().equalsIgnoreCase(argCommand)))
+        if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(argCommand) || getName().equalsIgnoreCase(argCommand))) {
             return unknownCommand(sender);
+        }
 
         // Checks if the sub command is registered or not.
         if (subCommand == null && !commands.containsKey(argCommand)) return unknownCommand(sender);
@@ -189,12 +199,19 @@ public final class CommandHandler extends Command {
         // Checks if permission annotation is present.
         // Checks whether the command sender has the permission set in the annotation.
         assert subCommand != null;
-        if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
+        if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
             return noPermission(sender);
+        }
 
         // Checks if the command can be accessed from console
-        if (!CommandSender.class.equals(subCommand.getFirstParam()) && !(sender instanceof Player))
+        if (!(CommandSender.class.equals(subCommand.getSenderClass()) || ConsoleCommandSender.class.equals(subCommand.getSenderClass())) && !(sender instanceof Player)) {
             return noConsole(sender);
+        }
+
+        // Checks if the command can be accessed from console
+        if (ConsoleCommandSender.class.equals(subCommand.getSenderClass()) && sender instanceof Player) {
+            return noPlayer(sender);
+        }
 
 
         // Runs the command executor.
@@ -454,7 +471,7 @@ public final class CommandHandler extends Command {
                 throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
             }
 
-            if (!clss.isEnum() && !this.parameterHandler.isRegisteredType(clss)) {
+            if (!this.parameterHandler.isRegisteredType(clss)) {
                 throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
             }
 
@@ -691,6 +708,17 @@ public final class CommandHandler extends Command {
      */
     private boolean noConsole(final CommandSender sender) {
         messageHandler.sendMessage("cmd.no.console", sender);
+        return true;
+    }
+
+    /**
+     * Sends the no console allowed message to the sender
+     *
+     * @param sender The sender
+     * @return Returns true
+     */
+    private boolean noPlayer(final CommandSender sender) {
+        messageHandler.sendMessage("cmd.no.player", sender);
         return true;
     }
 }

@@ -33,9 +33,11 @@ import me.mattstudios.mf.base.components.ParameterResolver;
 import me.mattstudios.mf.base.components.TypeResult;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +49,6 @@ public final class ParameterHandler {
 
     // Registers all the parameters;
     ParameterHandler() {
-
         register(Short.class, arg -> {
             final Integer integer = Ints.tryParse(String.valueOf(arg));
             return integer == null ? new TypeResult(arg) : new TypeResult(integer.shortValue(), arg);
@@ -70,6 +71,16 @@ public final class ParameterHandler {
 
         register(Player.class, arg -> new TypeResult(Bukkit.getPlayer(String.valueOf(arg)), arg));
         register(Material.class, arg -> new TypeResult(Material.matchMaterial(String.valueOf(arg)), arg));
+
+        register(Sound.class, arg -> {
+            final String soundValue = Arrays.stream(Sound.values())
+                    .map(Enum::name)
+                    .filter(name -> name.equalsIgnoreCase(String.valueOf(arg)))
+                    .findFirst().orElse(null);
+
+            return soundValue == null ? new TypeResult(null, arg) : new TypeResult(Sound.valueOf(soundValue), arg);
+        });
+
         register(World.class, arg -> new TypeResult(Bukkit.getWorld(String.valueOf(arg)), arg));
 
     }
