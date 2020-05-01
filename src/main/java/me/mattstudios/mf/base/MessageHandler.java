@@ -25,6 +25,7 @@
 package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.base.components.MessageResolver;
+import me.mattstudios.mf.exceptions.MfException;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
@@ -42,6 +43,7 @@ public final class MessageHandler {
     MessageHandler() {
         register("cmd.no.permission", sender -> sender.sendMessage(color("&cYou don't have permission to execute this command!")));
         register("cmd.no.console", sender -> sender.sendMessage(color("&cCommand can't be executed through the console!")));
+        register("cmd.no.player", sender -> sender.sendMessage(color("&cCommand can only be executed through the console!")));
         register("cmd.no.exists", sender -> sender.sendMessage(color("&cThe command you're trying to use doesn't exist!")));
         register("cmd.wrong.usage", sender -> sender.sendMessage(color("&cWrong usage for the command!")));
     }
@@ -63,11 +65,13 @@ public final class MessageHandler {
     /**
      * Sends the registered message to the command sender.
      *
-     * @param messageId     The message ID.
-     * @param sender The command sender to send the message to.
+     * @param messageId The message ID.
+     * @param sender    The command sender to send the message to.
      */
     void sendMessage(final String messageId, final CommandSender sender) {
-        messages.get(messageId).resolve(sender);
+        final MessageResolver messageResolver = messages.get(messageId);
+        if (messageResolver == null) throw new MfException("The message ID \"" + messageId + "\" does not exist!");
+        messageResolver.resolve(sender);
     }
 
 }

@@ -35,12 +35,10 @@ import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.annotations.Values;
 import me.mattstudios.mf.annotations.WrongUsage;
 import me.mattstudios.mf.base.components.CommandData;
-import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
-import me.mattstudios.mf.exceptions.InvalidParamAnnotationException;
-import me.mattstudios.mf.exceptions.InvalidParamException;
-import me.mattstudios.mf.exceptions.SyntaxError;
+import me.mattstudios.mf.exceptions.MfException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
@@ -100,16 +98,16 @@ public final class CommandHandler extends Command {
 
             // Checks if default method has no parameters.
             if (method.getParameterCount() == 0)
-                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - needs to have Parameters!");
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - needs to have Parameters!");
 
             // Checks if the fist parameter is either a player or a sender.
-            if (!CommandSender.class.isAssignableFrom(method.getParameterTypes()[0]) && !Player.class.isAssignableFrom(method.getParameterTypes()[0]))
-                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender or a Player!");
+            if (!CommandSender.class.isAssignableFrom(method.getParameterTypes()[0]))
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - first parameter needs to be a CommandSender, Player, or ConsoleCommandSender!");
 
             // Starts the command data object.
             subCommand.setMethod(method);
             // Sets the first parameter as either player or command sender.
-            subCommand.setFirstParam(method.getParameterTypes()[0]);
+            subCommand.setSenderClass(method.getParameterTypes()[0]);
 
             // Checks if the parameters in class are registered.
             checkRegisteredParams(method, command, subCommand);
@@ -153,6 +151,7 @@ public final class CommandHandler extends Command {
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean execute(final CommandSender sender, final String label, final String[] arguments) {
 
@@ -165,12 +164,19 @@ public final class CommandHandler extends Command {
 
             // Checks if permission annotation is present.
             // Checks whether the command sender has the permission set in the annotation.
-            if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
+            if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
                 return noPermission(sender);
+            }
 
             // Checks if the command can be accessed from console
-            if (!CommandSender.class.equals(subCommand.getFirstParam()) && !(sender instanceof Player))
+            if (!(CommandSender.class.equals(subCommand.getSenderClass()) || ConsoleCommandSender.class.equals(subCommand.getSenderClass())) && !(sender instanceof Player)) {
                 return noConsole(sender);
+            }
+
+            // Checks if the command can be accessed from console
+            if (ConsoleCommandSender.class.equals(subCommand.getSenderClass()) && sender instanceof Player) {
+                return noPlayer(sender);
+            }
 
             // Executes all the commands.
             return executeCommand(subCommand, sender, arguments);
@@ -180,8 +186,9 @@ public final class CommandHandler extends Command {
         final String argCommand = arguments[0].toLowerCase();
 
         // Checks if the sub command is registered or not.
-        if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(argCommand) || getName().equalsIgnoreCase(argCommand)))
+        if ((subCommand != null && subCommand.getParams().size() == 0) && (!commands.containsKey(argCommand) || getName().equalsIgnoreCase(argCommand))) {
             return unknownCommand(sender);
+        }
 
         // Checks if the sub command is registered or not.
         if (subCommand == null && !commands.containsKey(argCommand)) return unknownCommand(sender);
@@ -192,12 +199,19 @@ public final class CommandHandler extends Command {
         // Checks if permission annotation is present.
         // Checks whether the command sender has the permission set in the annotation.
         assert subCommand != null;
-        if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
+        if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
             return noPermission(sender);
+        }
 
         // Checks if the command can be accessed from console
-        if (!CommandSender.class.equals(subCommand.getFirstParam()) && !(sender instanceof Player))
+        if (!(CommandSender.class.equals(subCommand.getSenderClass()) || ConsoleCommandSender.class.equals(subCommand.getSenderClass())) && !(sender instanceof Player)) {
             return noConsole(sender);
+        }
+
+        // Checks if the command can be accessed from console
+        if (ConsoleCommandSender.class.equals(subCommand.getSenderClass()) && sender instanceof Player) {
+            return noPlayer(sender);
+        }
 
 
         // Runs the command executor.
@@ -215,30 +229,14 @@ public final class CommandHandler extends Command {
 
             // Check if the method only has a sender as parameter.
             if (subCommand.getParams().size() == 0 && argumentsList.size() == 0) {
-                try {
-                    method.invoke(subCommand.getCommandBase(), sender);
-                } catch (InvocationTargetException e) {
-                    if (e.getCause() instanceof SyntaxError) {
-                        return wrongUsage(sender, subCommand);
-                    }
-
-                    throw e.getCause();
-                }
+                method.invoke(subCommand.getCommandBase(), sender);
                 return true;
             }
 
             // Checks if it is a default type command with just sender and args.
             if (subCommand.getParams().size() == 1
                     && String[].class.isAssignableFrom(subCommand.getParams().get(0))) {
-                try {
-                    method.invoke(subCommand.getCommandBase(), sender, arguments);
-                } catch (InvocationTargetException e) {
-                    if (e.getCause() instanceof SyntaxError) {
-                        return wrongUsage(sender, subCommand);
-                    }
-
-                    throw e.getCause();
-                }
+                method.invoke(subCommand.getCommandBase(), sender, arguments);
                 return true;
             }
 
@@ -302,15 +300,8 @@ public final class CommandHandler extends Command {
             }
 
             // Calls the command method method.
-            try {
-                method.invoke(subCommand.getCommandBase(), invokeParams.toArray());
-            } catch (InvocationTargetException e) {
-                if (e.getCause() instanceof SyntaxError) {
-                    return wrongUsage(sender, subCommand);
-                }
+            method.invoke(subCommand.getCommandBase(), invokeParams.toArray());
 
-                throw e.getCause();
-            }
             subCommand.getCommandBase().clearArgs();
 
             return true;
@@ -324,7 +315,6 @@ public final class CommandHandler extends Command {
 
     @Override
     public List<String> tabComplete(final CommandSender sender, final String alias, final String[] args) throws IllegalArgumentException {
-
         // Checks if args is 1 so it sends the sub commands completion.
         if (args.length == 1) {
             List<String> commandNames = new ArrayList<>();
@@ -478,11 +468,11 @@ public final class CommandHandler extends Command {
             final Class<?> clss = method.getParameterTypes()[i];
 
             if (clss.equals(String[].class) && i != method.getParameterTypes().length - 1) {
-                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
             }
 
-            if (!clss.isEnum() && !this.parameterHandler.isRegisteredType(clss)) {
-                throw new InvalidParamException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
+            if (!this.parameterHandler.isRegisteredType(clss)) {
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
             }
 
             subCommand.getParams().add(clss);
@@ -534,7 +524,7 @@ public final class CommandHandler extends Command {
             final Parameter parameter = method.getParameters()[i];
 
             if (i == 0 && parameter.isAnnotationPresent(Completion.class))
-                throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion/Values annotation!");
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - First parameter of a command method cannot have Completion/Values annotation!");
 
             final String[] values;
             if (parameter.isAnnotationPresent(Completion.class))
@@ -544,13 +534,13 @@ public final class CommandHandler extends Command {
             } else continue;
 
             if (values.length != 1)
-                throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Parameter completion can only have one value!");
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Parameter completion can only have one value!");
 
             if (!values[0].startsWith("#"))
-                throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
 
-            if (completionHandler.isRegistered(values[0]))
-                throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID '" + values[0] + "'!");
+            if (completionHandler.isNotRegistered(values[0]))
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID '" + values[0] + "'!");
 
             subCommand.getCompletions().put(i, values[0]);
             if (parameter.isAnnotationPresent(Values.class)) subCommand.getArgValue().add(i);
@@ -574,10 +564,10 @@ public final class CommandHandler extends Command {
             String id = completionValues[i];
 
             if (!id.startsWith("#"))
-                throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - The completion ID must start with #!");
 
-            if (!completionHandler.isRegistered(id))
-                throw new InvalidCompletionIdException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
+            if (completionHandler.isNotRegistered(id))
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
 
             subCommand.getCompletions().put(i + 1, id);
         }
@@ -640,7 +630,7 @@ public final class CommandHandler extends Command {
             final Parameter parameter = method.getParameters()[i];
 
             if (i != method.getParameters().length - 1 && parameter.isAnnotationPresent(Optional.class))
-                throw new InvalidParamAnnotationException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Optional parameters can only be used as the last parameter of a method!");
+                throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " - Optional parameters can only be used as the last parameter of a method!");
 
 
             if (parameter.isAnnotationPresent(Optional.class)) subCommand.setOptional(true);
@@ -718,6 +708,17 @@ public final class CommandHandler extends Command {
      */
     private boolean noConsole(final CommandSender sender) {
         messageHandler.sendMessage("cmd.no.console", sender);
+        return true;
+    }
+
+    /**
+     * Sends the no console allowed message to the sender
+     *
+     * @param sender The sender
+     * @return Returns true
+     */
+    private boolean noPlayer(final CommandSender sender) {
+        messageHandler.sendMessage("cmd.no.player", sender);
         return true;
     }
 }

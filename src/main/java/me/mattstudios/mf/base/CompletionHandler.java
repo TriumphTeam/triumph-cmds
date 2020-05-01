@@ -25,7 +25,7 @@
 package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.base.components.CompletionResolver;
-import me.mattstudios.mf.exceptions.InvalidCompletionIdException;
+import me.mattstudios.mf.exceptions.MfException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static me.mattstudios.mf.base.components.MfUtil.color;
 
 @SuppressWarnings("WeakerAccess")
 public final class CompletionHandler {
@@ -97,7 +99,7 @@ public final class CompletionHandler {
      */
     public void register(final String completionId, final CompletionResolver completionResolver) {
         if (!completionId.startsWith("#"))
-            throw new InvalidCompletionIdException("Could not register completion, id - " + completionId + " does not start with #.");
+            throw new MfException("Could not register completion, id - " + completionId + " does not start with #.");
         registeredCompletions.put(completionId, completionResolver);
     }
 
@@ -109,7 +111,7 @@ public final class CompletionHandler {
      * @return The string list with all the completions.
      */
     List<String> getTypeResult(final String completionId, final Object input) {
-        return registeredCompletions.get(completionId).resolve(input);
+        return color(registeredCompletions.get(completionId).resolve(input));
     }
 
     /**
@@ -117,9 +119,10 @@ public final class CompletionHandler {
      * @param id The ID
      * @return True if it is or false if not
      */
-    boolean isRegistered(final String id) {
+    boolean isNotRegistered(final String id) {
         String identifier = id;
         if (id.contains(":")) identifier = identifier.split(":")[0];
-        return registeredCompletions.get(identifier) != null;
+        return registeredCompletions.get(identifier) == null;
     }
+
 }

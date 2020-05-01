@@ -24,8 +24,8 @@
 
 package me.mattstudios.mf.exceptions;
 
-public final class InvalidParamAnnotationException extends RuntimeException {
-    public InvalidParamAnnotationException(String message) {
-        super(message);
+public final class MfException extends RuntimeException {
+    public MfException(String exception) {
+        super(exception);
     }
 }

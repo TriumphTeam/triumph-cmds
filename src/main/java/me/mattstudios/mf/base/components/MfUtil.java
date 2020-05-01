@@ -26,6 +26,9 @@ package me.mattstudios.mf.base.components;
 
 import org.bukkit.ChatColor;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public final class MfUtil {
 
     /**
@@ -34,8 +37,18 @@ public final class MfUtil {
      * @param message The message String
      * @return returns the string with color
      */
-    public static String color(String message) {
+    public static String color(final String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    /**
+     * Utility to use color codes easily
+     *
+     * @param messages The messages list
+     * @return returns the string list with color
+     */
+    public static List<String> color(final List<String> messages) {
+        return messages.parallelStream().map(message -> ChatColor.translateAlternateColorCodes('&', message)).collect(Collectors.toList());
     }
 
 }
