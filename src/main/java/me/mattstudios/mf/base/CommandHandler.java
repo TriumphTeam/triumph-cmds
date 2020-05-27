@@ -683,8 +683,6 @@ public final class CommandHandler extends Command {
      * @return Returns true
      */
     private boolean noPermission(final CommandSender sender, final CommandData subCommand) {
-//        messageHandler.sendMessage("cmd.no.permission", sender);
-//        return true;
         final String noPermission = subCommand.getNoPermission();
 
         if (noPermission == null) {
