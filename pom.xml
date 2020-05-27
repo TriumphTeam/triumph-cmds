@@ -181,14 +181,14 @@
                 </executions>
             </plugin>
             <!-- COMMENT BEFORE RELEASE -->
-            <!--                        <plugin>-->
-            <!--                            <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                            <artifactId>maven-jar-plugin</artifactId>-->
-            <!--                            <version>2.3.1</version>-->
-            <!--                            <configuration>-->
-            <!--                                <outputDirectory>T:/servers/spigot-1.15/plugins</outputDirectory>-->
-            <!--                            </configuration>-->
-            <!--                        </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <outputDirectory>T:/servers/spigot-1.15/plugins</outputDirectory>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>
