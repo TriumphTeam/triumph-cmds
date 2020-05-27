@@ -35,30 +35,20 @@ public abstract class CommandBase {
 
     // The map containing the arguments, for error handling
     private final Map<String, String> arguments = new HashMap<>();
-
-    // The message handler
-    private MessageHandler messageHandler;
-
     // The mutable list with aliases that can be altered any time
     private final List<String> aliases = new ArrayList<>();
+    // The message handler
+    private MessageHandler messageHandler;
 
     // Method that'll run on the registering of the command
     public void onRegister() {
     }
 
     /**
-     * Sets the alias list for the method
-     *
-     * @param aliases The list new aliases to register
-     */
-    public void setAliases(final List<String> aliases) {
-        this.aliases.addAll(aliases);
-    }
-
-    /**
      * Gets the argument used for the command
      *
      * @param name The argument name
+     * @return The argument
      */
     @SuppressWarnings("WeakerAccess")
     public String getArgument(final String name) {
@@ -108,6 +98,15 @@ public abstract class CommandBase {
      */
     List<String> getAliases() {
         return aliases;
+    }
+
+    /**
+     * Sets the alias list for the method
+     *
+     * @param aliases The list new aliases to register
+     */
+    public void setAliases(final List<String> aliases) {
+        this.aliases.addAll(aliases);
     }
 
 }

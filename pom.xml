@@ -23,14 +23,14 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.mattstudios.utils</groupId>
     <artifactId>matt-framework</artifactId>
-    <version>1.3</version>
+    <version>1.3.</version>
     <packaging>jar</packaging>
 
     <name>Matt's Framework</name>
@@ -181,14 +181,14 @@
                 </executions>
             </plugin>
             <!-- COMMENT BEFORE RELEASE -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.1</version>
-                <configuration>
-                    <outputDirectory>T:/servers/spigot-1.15/plugins</outputDirectory>
-                </configuration>
-            </plugin>
+            <!--                        <plugin>-->
+            <!--                            <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                            <artifactId>maven-jar-plugin</artifactId>-->
+            <!--                            <version>2.3.1</version>-->
+            <!--                            <configuration>-->
+            <!--                                <outputDirectory>T:/servers/spigot-1.15/plugins</outputDirectory>-->
+            <!--                            </configuration>-->
+            <!--                        </plugin>-->
         </plugins>
         <resources>
             <resource>
