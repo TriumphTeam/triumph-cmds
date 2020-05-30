@@ -25,15 +25,8 @@
 package me.mattstudios.mf.base;
 
 
-import me.mattstudios.mf.annotations.Alias;
-import me.mattstudios.mf.annotations.CompleteFor;
-import me.mattstudios.mf.annotations.Completion;
-import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.Optional;
-import me.mattstudios.mf.annotations.Permission;
-import me.mattstudios.mf.annotations.SubCommand;
-import me.mattstudios.mf.annotations.Values;
-import me.mattstudios.mf.annotations.WrongUsage;
+import me.mattstudios.mf.annotations.*;
 import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.MfException;
 import org.bukkit.command.Command;
@@ -41,18 +34,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 import static me.mattstudios.mf.base.components.MfUtil.color;
 
@@ -165,7 +148,7 @@ public final class CommandHandler extends Command {
             // Checks if permission annotation is present.
             // Checks whether the command sender has the permission set in the annotation.
             if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
-                return noPermission(sender);
+                return noPermission(sender, subCommand);
             }
 
             // Checks if the command can be accessed from console
@@ -200,7 +183,7 @@ public final class CommandHandler extends Command {
         // Checks whether the command sender has the permission set in the annotation.
         assert subCommand != null;
         if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
-            return noPermission(sender);
+            return noPermission(sender, subCommand);
         }
 
         // Checks if the command can be accessed from console
@@ -471,7 +454,7 @@ public final class CommandHandler extends Command {
                 throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
             }
 
-            if (!this.parameterHandler.isRegisteredType(clss)) {
+            if (!parameterHandler.isRegisteredType(clss)) {
                 throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
             }
 
@@ -494,7 +477,11 @@ public final class CommandHandler extends Command {
         for (final String permission : method.getAnnotation(Permission.class).value()) {
             subCommand.addPermission(permission);
         }
+        // Checks if NoPermission annotation is present.
+        if (!method.isAnnotationPresent(NoPermission.class)) return;
 
+        // Set the no permission to the annotation value
+        subCommand.setNoPermission(method.getAnnotation(NoPermission.class).value());
     }
 
     /**
@@ -507,7 +494,7 @@ public final class CommandHandler extends Command {
         // Checks if WrongUsage annotation is present.
         if (!method.isAnnotationPresent(WrongUsage.class)) return;
 
-        // Checks whether the command sender has the permission set in the annotation.
+        // Set the wrong usage to the annotation value
         subCommand.setWrongUsage(method.getAnnotation(WrongUsage.class).value());
     }
 
@@ -695,8 +682,21 @@ public final class CommandHandler extends Command {
      * @param sender The sender
      * @return Returns true
      */
-    private boolean noPermission(final CommandSender sender) {
-        messageHandler.sendMessage("cmd.no.permission", sender);
+    private boolean noPermission(final CommandSender sender, final CommandData subCommand) {
+        final String noPermission = subCommand.getNoPermission();
+
+        if (noPermission == null) {
+            messageHandler.sendMessage("cmd.no.permission", sender);
+            return true;
+        }
+
+        if (!noPermission.startsWith("#") || !messageHandler.hasId(noPermission)) {
+            messageHandler.sendMessage("cmd.no.permission", sender);
+            sender.sendMessage(color(subCommand.getNoPermission()));
+            return true;
+        }
+
+        messageHandler.sendMessage(noPermission, sender);
         return true;
     }
 

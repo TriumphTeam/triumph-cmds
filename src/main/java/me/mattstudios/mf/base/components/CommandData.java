@@ -37,18 +37,6 @@ public final class CommandData {
 
     // Base
     private final CommandBase commandBase;
-
-    // Method
-    private Method method;
-    // The sub command name
-    private String name;
-
-    // If the method is a default one or not
-    private boolean defaultCmd;
-
-    // First parameter of the method.
-    private Class<?> senderClass;
-
     // The list with the other parameters.
     private final List<Class<?>> params = new ArrayList<>();
     // List of parameter names
@@ -59,7 +47,14 @@ public final class CommandData {
     private final List<Integer> valuesArgs = new ArrayList<>();
     // List of the completions.
     private final Map<Integer, String> completions = new HashMap<>();
-
+    // Method
+    private Method method;
+    // The sub command name
+    private String name;
+    // If the method is a default one or not
+    private boolean defaultCmd;
+    // First parameter of the method.
+    private Class<?> senderClass;
     // Secondary tab completion
     private Method completionMethod;
 
@@ -67,6 +62,8 @@ public final class CommandData {
     private boolean optional;
     // Wrong usage message
     private String wrongUsage;
+    // No permission message
+    private String noPermission;
 
     /**
      * Constructor for the command data object
@@ -75,42 +72,6 @@ public final class CommandData {
      */
     public CommandData(final CommandBase commandBase) {
         this.commandBase = commandBase;
-    }
-
-    /**
-     * Sets the sub command name
-     *
-     * @param name The name to set
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    /**
-     * Sets the method of the command
-     *
-     * @param method The method
-     */
-    public void setMethod(final Method method) {
-        this.method = method;
-    }
-
-    /**
-     * Sets the command as default
-     *
-     * @param defaultCmd The value to set
-     */
-    public void setDefault(final boolean defaultCmd) {
-        this.defaultCmd = defaultCmd;
-    }
-
-    /**
-     * Sets the first parameter class
-     *
-     * @param senderClass The first parameter
-     */
-    public void setSenderClass(final Class<?> senderClass) {
-        this.senderClass = senderClass;
     }
 
     /**
@@ -132,30 +93,21 @@ public final class CommandData {
     }
 
     /**
-     * Sets the wrong usage message or id
-     *
-     * @param wrongUsage The wrong usage to set
-     */
-    public void setWrongUsage(final String wrongUsage) {
-        this.wrongUsage = wrongUsage;
-    }
-
-    /**
-     * Sets the completion method to run later
-     *
-     * @param completionMethod The completion method
-     */
-    public void setCompletionMethod(final Method completionMethod) {
-        this.completionMethod = completionMethod;
-    }
-
-    /**
      * Gets the sub command name
      *
      * @return The sub command name
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Sets the sub command name
+     *
+     * @param name The name to set
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 
     /**
@@ -168,12 +120,30 @@ public final class CommandData {
     }
 
     /**
+     * Sets the method of the command
+     *
+     * @param method The method
+     */
+    public void setMethod(final Method method) {
+        this.method = method;
+    }
+
+    /**
      * Gets the first parameter class
      *
      * @return The first parameter class
      */
     public Class<?> getSenderClass() {
         return senderClass;
+    }
+
+    /**
+     * Sets the first parameter class
+     *
+     * @param senderClass The first parameter
+     */
+    public void setSenderClass(final Class<?> senderClass) {
+        this.senderClass = senderClass;
     }
 
     /**
@@ -213,6 +183,33 @@ public final class CommandData {
     }
 
     /**
+     * Sets the wrong usage message or id
+     *
+     * @param wrongUsage The wrong usage to set
+     */
+    public void setWrongUsage(final String wrongUsage) {
+        this.wrongUsage = wrongUsage;
+    }
+
+    /**
+     * Gets the no permission message
+     *
+     * @return The no permission message
+     */
+    public String getNoPermission() {
+        return noPermission;
+    }
+
+    /**
+     * Sets the no permission message or id
+     *
+     * @param noPermission The no permission to set
+     */
+    public void setNoPermission(final String noPermission) {
+        this.noPermission = noPermission;
+    }
+
+    /**
      * Gets the parameter names
      *
      * @return The list of parameter names
@@ -240,6 +237,15 @@ public final class CommandData {
     }
 
     /**
+     * Sets the completion method to run later
+     *
+     * @param completionMethod The completion method
+     */
+    public void setCompletionMethod(final Method completionMethod) {
+        this.completionMethod = completionMethod;
+    }
+
+    /**
      * Gets the arg values
      *
      * @return The List value args
@@ -255,6 +261,15 @@ public final class CommandData {
      */
     public boolean isDefault() {
         return defaultCmd;
+    }
+
+    /**
+     * Sets the command as default
+     *
+     * @param defaultCmd The value to set
+     */
+    public void setDefault(final boolean defaultCmd) {
+        this.defaultCmd = defaultCmd;
     }
 
     /**
