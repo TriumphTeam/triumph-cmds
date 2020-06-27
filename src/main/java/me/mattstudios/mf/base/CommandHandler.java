@@ -125,8 +125,8 @@ public final class CommandHandler extends Command {
 
             // Puts a default command in the list.
             if (subCommand.isDefault()) {
-                subCommand.setName("default");
-                commands.put("default", subCommand);
+                subCommand.setName("mf-default");
+                commands.put("mf-default", subCommand);
             }
 
             // Checks for a completion method
@@ -134,7 +134,6 @@ public final class CommandHandler extends Command {
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean execute(final CommandSender sender, final String label, final String[] arguments) {
 
@@ -218,7 +217,7 @@ public final class CommandHandler extends Command {
 
             // Checks if it is a default type command with just sender and args.
             if (subCommand.getParams().size() == 1
-                    && String[].class.isAssignableFrom(subCommand.getParams().get(0))) {
+                && String[].class.isAssignableFrom(subCommand.getParams().get(0))) {
                 method.invoke(subCommand.getCommandBase(), sender, arguments);
                 return true;
             }
@@ -304,8 +303,23 @@ public final class CommandHandler extends Command {
 
             final CommandData subCommand = getDefaultSubCommand();
 
+            if (subCommand != null) {
+                final Method completionMethod = subCommand.getCompletionMethod();
+
+                if (completionMethod != null) {
+                    try {
+                        List<String> argsList = new LinkedList<>(Arrays.asList(args));
+                        argsList.remove("mf-default");
+                        //noinspection unchecked
+                        return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), argsList, sender);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             final List<String> subCmd = new ArrayList<>(commands.keySet());
-            subCmd.remove("default");
+            subCmd.remove("mf-default");
 
             // removes commands that the player can't access.
             for (String subCmdName : commands.keySet()) {
@@ -366,7 +380,7 @@ public final class CommandHandler extends Command {
                 List<String> argsList = new LinkedList<>(Arrays.asList(args));
                 argsList.remove(subCommandArg);
                 //noinspection unchecked
-                return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), argsList);
+                return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), argsList, sender);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
@@ -422,7 +436,7 @@ public final class CommandHandler extends Command {
      * @return The Command data of the default method if there is one.
      */
     private CommandData getDefaultSubCommand() {
-        return commands.getOrDefault("default", null);
+        return commands.getOrDefault("mf-default", null);
     }
 
     /**
@@ -567,13 +581,18 @@ public final class CommandHandler extends Command {
             if (!method.isAnnotationPresent(CompleteFor.class)) continue;
 
             // All the checks to make sure the complete for method returns String List
-            if (!(method.getGenericReturnType() instanceof ParameterizedType)) return;
+            if (!(method.getGenericReturnType() instanceof ParameterizedType)) continue;
 
             final ParameterizedType parametrizedReturnType = (ParameterizedType) method.getGenericReturnType();
 
-            if (parametrizedReturnType.getRawType() != List.class) return;
-            if (parametrizedReturnType.getActualTypeArguments().length != 1) return;
-            if (parametrizedReturnType.getActualTypeArguments()[0] != String.class) return;
+            if (method.getParameterTypes().length != 2)
+                throw new MfException("The complete for method has now changed to require 2 parameters, args and sender.");
+
+            if (parametrizedReturnType.getRawType() != List.class) continue;
+            if (parametrizedReturnType.getActualTypeArguments().length != 1) continue;
+            if (parametrizedReturnType.getActualTypeArguments()[0] != String.class) continue;
+
+            if (!CommandSender.class.isAssignableFrom(method.getParameterTypes()[1])) continue;
 
             final String subCommandName = method.getAnnotation(CompleteFor.class).value();
 
