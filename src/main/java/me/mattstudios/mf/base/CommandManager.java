@@ -67,6 +67,7 @@ public final class CommandManager implements Listener {
 
     // If should or not hide tab complete for no permissions
     private boolean hideTab;
+    private boolean completePlayers = false;
 
     /**
      * me.mattstudios.mf.Main constructor for the manager
@@ -137,18 +138,20 @@ public final class CommandManager implements Listener {
      * @param command The command class to register.
      */
     public void register(final CommandBase command) {
-        // Calls the code to run on command register
-        command.onRegister();
-
         final Class<?> commandClass = command.getClass();
+
+        String commandName;
 
         // Checks for the command annotation.
         if (!commandClass.isAnnotationPresent(Command.class)) {
-            throw new MfException("Class " + command.getClass().getName() + " needs to have @Command!");
+            commandName = command.getCommand();
+            if (commandName == null) {
+                throw new MfException("Class " + command.getClass().getName() + " needs to have @Command!");
+            }
+        } else {
+            commandName = commandClass.getAnnotation(Command.class).value();
         }
 
-        // Gets the command annotation value.
-        final String commandName = commandClass.getAnnotation(Command.class).value();
         // Gets the aliases from the setAlias method
         final List<String> aliases = command.getAliases();
 
@@ -179,7 +182,7 @@ public final class CommandManager implements Listener {
 
             // Creates the command handler
             commandHandler = new CommandHandler(parameterHandler, completionHandler,
-                    messageHandler, command, commandName, aliases, hideTab);
+                                                messageHandler, command, commandName, aliases, hideTab, completePlayers);
 
             // Registers the command
             commandMap.register(commandName, plugin.getName(), commandHandler);
@@ -201,6 +204,14 @@ public final class CommandManager implements Listener {
 
         for (final String cmdName : commands.keySet()) {
             commands.get(cmdName).setHideTab(hideTab);
+        }
+    }
+
+    public void setCompletePlayers(final boolean completePlayers) {
+        this.completePlayers = completePlayers;
+
+        for (final String cmdName : commands.keySet()) {
+            commands.get(cmdName).setCompletePlayers(completePlayers);
         }
     }
 

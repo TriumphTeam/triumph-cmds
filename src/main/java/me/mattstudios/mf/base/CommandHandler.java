@@ -52,10 +52,12 @@ public final class CommandHandler extends Command {
 
     // If should tab complete without perms or not
     private boolean hideTab;
+    private boolean completePlayers;
 
     CommandHandler(final ParameterHandler parameterHandler, final CompletionHandler completionHandler,
                    final MessageHandler messageHandler, final CommandBase command,
-                   final String commandName, final List<String> aliases, final boolean hideTab) {
+                   final String commandName, final List<String> aliases, final boolean hideTab,
+                   final boolean completePlayers) {
 
         super(commandName);
 
@@ -63,6 +65,7 @@ public final class CommandHandler extends Command {
         this.completionHandler = completionHandler;
         this.messageHandler = messageHandler;
         this.hideTab = hideTab;
+        this.completePlayers = completePlayers;
 
         setAliases(aliases);
 
@@ -297,7 +300,7 @@ public final class CommandHandler extends Command {
 
     @Override
     public List<String> tabComplete(final CommandSender sender, final String alias, final String[] args) throws IllegalArgumentException {
-        // Checks if args is 1 so it sends the sub commands completion.
+        // Checks if args is 1 so it sends the sub commands completion
         if (args.length == 1) {
             List<String> commandNames = new ArrayList<>();
 
@@ -356,7 +359,10 @@ public final class CommandHandler extends Command {
             Collections.sort(commandNames);
 
             // Returns default tab completion if empty.
-            if (commandNames.isEmpty()) return super.tabComplete(sender, alias, args);
+            if (commandNames.isEmpty()) {
+                if (completePlayers) return super.tabComplete(sender, alias, args);
+                return Collections.singletonList("");
+            }
 
             // The complete values.
             return commandNames;
@@ -365,13 +371,18 @@ public final class CommandHandler extends Command {
         final String subCommandArg = args[0];
 
         // Checks if it contains the sub command; Should always be true.
-        if (!commands.containsKey(subCommandArg)) return super.tabComplete(sender, alias, args);
+        if (!commands.containsKey(subCommandArg)) {
+            if (completePlayers) return super.tabComplete(sender, alias, args);
+            return Collections.singletonList("");
+        }
 
         final CommandData subCommand = commands.get(subCommandArg);
 
         // removes completion from commands that the player can't access.
-        if (hideTab && subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
-            return super.tabComplete(sender, alias, args);
+        if (hideTab && subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
+            if (completePlayers) return super.tabComplete(sender, alias, args);
+            return Collections.singletonList("");
+        }
 
         final Method completionMethod = subCommand.getCompletionMethod();
 
@@ -387,7 +398,10 @@ public final class CommandHandler extends Command {
         }
 
         // Checks if the completion list has the current args position.
-        if (!subCommand.getCompletions().containsKey(args.length - 1)) return super.tabComplete(sender, alias, args);
+        if (!subCommand.getCompletions().containsKey(args.length - 1)) {
+            if (completePlayers) return super.tabComplete(sender, alias, args);
+            return Collections.singletonList("");
+        }
 
         // Gets the current ID.
         String id = subCommand.getCompletions().get(args.length - 1);
@@ -428,6 +442,10 @@ public final class CommandHandler extends Command {
      */
     public void setHideTab(final boolean hideTab) {
         this.hideTab = hideTab;
+    }
+
+    public void setCompletePlayers(final boolean completePlayers) {
+        this.completePlayers = completePlayers;
     }
 
     /**

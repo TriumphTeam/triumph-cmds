@@ -30,6 +30,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -89,6 +90,7 @@ public final class CompletionHandler {
             values.sort(String.CASE_INSENSITIVE_ORDER);
             return values;
         });
+        register("#boolean", input -> Arrays.asList("false", "true"));
     }
 
     /**
@@ -116,6 +118,7 @@ public final class CompletionHandler {
 
     /**
      * Checks if the ID is registered
+     *
      * @param id The ID
      * @return True if it is or false if not
      */

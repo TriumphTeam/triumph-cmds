@@ -40,8 +40,14 @@ public abstract class CommandBase {
     // The message handler
     private MessageHandler messageHandler;
 
-    // Method that'll run on the registering of the command
-    public void onRegister() {
+    private String command;
+
+    public CommandBase() {
+    }
+
+    public CommandBase(final String command, final  List<String> aliases) {
+        this.command = command;
+        this.aliases.addAll(aliases);
     }
 
     /**
@@ -98,6 +104,10 @@ public abstract class CommandBase {
      */
     List<String> getAliases() {
         return aliases;
+    }
+
+    String getCommand() {
+        return command;
     }
 
     /**
