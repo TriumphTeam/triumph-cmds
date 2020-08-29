@@ -25,7 +25,7 @@
 package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.base.components.CompletionResolver;
-import me.mattstudios.mf.exceptions.MfException;
+import me.mattstudios.mfcmd.base.exceptions.MfException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

@@ -22,10 +22,15 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mf.exceptions;
+package me.mattstudios.mfcmd.base.components;
 
-public final class MfException extends RuntimeException {
-    public MfException(String exception) {
-        super(exception);
-    }
+public interface MessageResolver<T> {
+
+    /**
+     * Resolves messages and executes the code registered in it.
+     *
+     * @param sender The command sender to send the message to.
+     */
+    void resolve(T sender);
+
 }

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mf.annotations;
+package me.mattstudios.mfcmd.base.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

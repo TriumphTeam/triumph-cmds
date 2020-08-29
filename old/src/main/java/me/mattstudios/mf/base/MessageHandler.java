@@ -25,7 +25,7 @@
 package me.mattstudios.mf.base;
 
 import me.mattstudios.mf.base.components.MessageResolver;
-import me.mattstudios.mf.exceptions.MfException;
+import me.mattstudios.mfcmd.base.exceptions.MfException;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;

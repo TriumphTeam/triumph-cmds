@@ -24,9 +24,9 @@
 
 package me.mattstudios.mf.base;
 
-import me.mattstudios.mf.annotations.Alias;
-import me.mattstudios.mf.annotations.Command;
-import me.mattstudios.mf.exceptions.MfException;
+import me.mattstudios.mfcmd.base.annotations.Alias;
+import me.mattstudios.mfcmd.base.annotations.Command;
+import me.mattstudios.mfcmd.base.exceptions.MfException;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandMap;
@@ -162,7 +162,7 @@ public final class CommandManager implements Listener {
 
         org.bukkit.command.Command oldCommand = commandMap.getCommand(commandName);
 
-        // From ACF
+        // Taken from ACF
         // To allow commands to be registered on the plugin.yml
         if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == this.plugin) {
             bukkitCommands.remove(commandName);

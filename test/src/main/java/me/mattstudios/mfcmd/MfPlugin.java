@@ -1,6 +1,6 @@
 package me.mattstudios.mfcmd;
 
-import me.mattstudios.mf.base.CommandManager;
+import me.mattstudios.mfcmd.bukkit.BukkitCommandManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -10,7 +10,8 @@ public final class MfPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        final CommandManager commandManager = new CommandManager(this);
-
+        final BukkitCommandManager commandManager = new BukkitCommandManager(this);
+        commandManager.register(new Cmd());
     }
+
 }

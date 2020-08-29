@@ -2,12 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>me.mattstudios.utils</groupId>
         <artifactId>mf-cmd-main</artifactId>
         <version>2.0-ALPHA</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>mf-cmd-test</artifactId>
     <version>2.0-ALPHA</version>
@@ -15,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>me.mattstudios.utils</groupId>
-            <artifactId>mf-cmd-old</artifactId>
+            <artifactId>mf-cmd-bukkit</artifactId>
             <version>2.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
@@ -49,6 +50,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <outputDirectory>C:/Users/xpsyk/Desktop/servers/paper-1.16/plugins</outputDirectory>
+                </configuration>
             </plugin>
         </plugins>
         <resources>

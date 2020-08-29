@@ -25,10 +25,10 @@
 package me.mattstudios.mf.base;
 
 
-import me.mattstudios.mf.annotations.Optional;
-import me.mattstudios.mf.annotations.*;
+import me.mattstudios.mfcmd.base.annotations.Optional;
+import me.mattstudios.mfcmd.base.annotations.*;
 import me.mattstudios.mf.base.components.CommandData;
-import me.mattstudios.mf.exceptions.MfException;
+import me.mattstudios.mfcmd.base.exceptions.MfException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;

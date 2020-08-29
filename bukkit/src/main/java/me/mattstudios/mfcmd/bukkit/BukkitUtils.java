@@ -22,14 +22,22 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mf.annotations;
+package me.mattstudios.mfcmd.bukkit;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.bukkit.ChatColor;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Default {
+import java.util.List;
+import java.util.stream.Collectors;
+
+public final class BukkitUtils {
+
+
+    public static String color(final String message) {
+        return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    public static List<String> color(final List<String> messages) {
+        return messages.parallelStream().map(message -> ChatColor.translateAlternateColorCodes('&', message)).collect(Collectors.toList());
+    }
+
 }

@@ -22,15 +22,29 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mf.annotations;
+package me.mattstudios.mfcmd.base;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import me.mattstudios.mfcmd.base.components.MessageResolver;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface SubCommand {
-    String value();
+import java.util.HashMap;
+import java.util.Map;
+
+@SuppressWarnings("WeakerAccess")
+public final class MessageHandler<T> {
+
+    // The map with the messages to send.
+    private final Map<String, MessageResolver<T>> messages = new HashMap<>();
+
+    public void register(final String messageId, final MessageResolver<T> messageResolver) {
+        messages.put(messageId, messageResolver);
+    }
+
+    boolean hasId(String messageId) {
+        return messages.get(messageId) != null;
+    }
+
+    public void send(final String id, final T sender) {
+        messages.get(id).resolve(sender);
+    }
+
 }

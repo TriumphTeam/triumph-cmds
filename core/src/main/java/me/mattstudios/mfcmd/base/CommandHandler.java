@@ -22,20 +22,29 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mf.annotations;
+package me.mattstudios.mfcmd.base;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
-/**
- * Annotate a method with this annotation to add a required permission
- *
- * @see NoPermission NoPermission Annotation to change the no permission message
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Permission {
-    String[] value();
+import java.util.ArrayList;
+import java.util.List;
+
+public final class CommandHandler {
+
+    private final List<String> test = new ArrayList<>();
+
+    public CommandHandler() {
+
+        test.add("hello");
+        test.add("shit");
+
+    }
+
+    public void add(final String text) {
+        test.add(text);
+    }
+
+    public void fuck() {
+        System.out.println(test);
+    }
+
 }
