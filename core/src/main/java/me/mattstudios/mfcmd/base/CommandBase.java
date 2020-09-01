@@ -33,8 +33,6 @@ public abstract class CommandBase {
     private final String command;
     private final List<String> aliases = new ArrayList<>();
 
-    private final List<String> requirements = new ArrayList<>();
-
     protected CommandBase() {
         command = null;
     }
@@ -57,7 +55,4 @@ public abstract class CommandBase {
         return aliases;
     }
 
-    public List<String> getRequirements() {
-        return requirements;
-    }
 }

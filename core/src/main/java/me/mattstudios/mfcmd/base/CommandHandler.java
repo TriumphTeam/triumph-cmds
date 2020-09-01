@@ -39,8 +39,13 @@ public final class CommandHandler {
         this.parameterHandler = parameterHandler;
     }
 
-    public void addSubCommands(final CommandBase command) {
+    public void addSubCommand(final CommandData commandData) {
+
+        commands.put("test", commandData);
 
     }
 
+    public CommandData getCommand(final String commandName) {
+        return commands.get(commandName);
+    }
 }

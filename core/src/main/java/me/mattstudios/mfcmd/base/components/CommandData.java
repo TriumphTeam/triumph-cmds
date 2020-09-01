@@ -42,13 +42,13 @@ public final class CommandData {
     // List of parameter names
     private final List<String> parameterNames = new ArrayList<>();
     // Permission node of the command.
-    private final List<String> permissions = new ArrayList<>();
+    private final List<String> requirements = new ArrayList<>();
     // List with arguments with @Values annotation
     private final List<Integer> valuesArgs = new ArrayList<>();
     // List of the completions.
     private final Map<Integer, String> completions = new HashMap<>();
     // Method
-    private Method method;
+    private final Method method;
     // The sub command name
     private String name;
     // If the method is a default one or not
@@ -70,17 +70,13 @@ public final class CommandData {
      *
      * @param commandBase The command base of the data
      */
-    public CommandData(final CommandBase commandBase) {
+    public CommandData(final CommandBase commandBase, final Method method) {
         this.commandBase = commandBase;
+        this.method = method;
     }
 
-    /**
-     * Adds the permission nodes of the command
-     *
-     * @param permission the permission node
-     */
-    public void addPermission(String permission) {
-        permissions.add(permission);
+    public void addRequirement(String requirementId) {
+        requirements.add(requirementId);
     }
 
     /**
@@ -117,15 +113,6 @@ public final class CommandData {
      */
     public Method getMethod() {
         return method;
-    }
-
-    /**
-     * Sets the method of the command
-     *
-     * @param method The method
-     */
-    public void setMethod(final Method method) {
-        this.method = method;
     }
 
     /**
@@ -169,8 +156,8 @@ public final class CommandData {
      *
      * @return The list of permissions
      */
-    public List<String> getPermissions() {
-        return permissions;
+    public List<String> getRequirements() {
+        return requirements;
     }
 
     /**
@@ -287,6 +274,6 @@ public final class CommandData {
      * @return If has permissions or not
      */
     public boolean hasPermissions() {
-        return !permissions.isEmpty();
+        return !requirements.isEmpty();
     }
 }

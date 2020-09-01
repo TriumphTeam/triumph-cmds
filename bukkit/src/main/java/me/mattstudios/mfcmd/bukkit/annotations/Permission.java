@@ -22,31 +22,17 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mfcmd.base;
+package me.mattstudios.mfcmd.bukkit.annotations;
 
-import me.mattstudios.mfcmd.base.components.RequirementResolver;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.HashMap;
-import java.util.Map;
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Permission {
 
-@SuppressWarnings("WeakerAccess")
-public final class RequirementHandler<T> {
-
-    // The map with the messages to send.
-    private final Map<String, RequirementResolver<T>> requirements = new HashMap<>();
-
-    public void register(@NotNull final String messageId, @Nullable final RequirementResolver<T> requirementResolver) {
-        requirements.put(messageId, requirementResolver);
-    }
-
-    boolean hasId(String messageId) {
-        return requirements.get(messageId) != null;
-    }
-
-    public boolean resolve(final String id, final T sender) {
-        return requirements.get(id).resolve(sender);
-    }
+    String value();
 
 }
