@@ -25,26 +25,22 @@
 package me.mattstudios.mfcmd.base;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import me.mattstudios.mfcmd.base.components.CommandData;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public final class CommandHandler {
 
-    private final List<String> test = new ArrayList<>();
+    private final Map<String, CommandData> commands = new LinkedHashMap<>();
+    private final ParameterHandler parameterHandler;
 
-    public CommandHandler() {
-
-        test.add("hello");
-        test.add("shit");
-
+    public CommandHandler(final ParameterHandler parameterHandler) {
+        this.parameterHandler = parameterHandler;
     }
 
-    public void add(final String text) {
-        test.add(text);
-    }
+    public void addSubCommands(final CommandBase command) {
 
-    public void fuck() {
-        System.out.println(test);
     }
 
 }

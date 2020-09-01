@@ -22,22 +22,31 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mfcmd.bukkit;
+package me.mattstudios.mfcmd.base;
 
-import org.bukkit.ChatColor;
+import me.mattstudios.mfcmd.base.components.RequirementResolver;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
-public final class BukkitUtils {
+@SuppressWarnings("WeakerAccess")
+public final class RequirementHandler<T> {
 
+    // The map with the messages to send.
+    private final Map<String, RequirementResolver<T>> requirements = new HashMap<>();
 
-    public static String color(final String message) {
-        return ChatColor.translateAlternateColorCodes('&', message);
+    public void register(@NotNull final String messageId, @Nullable final RequirementResolver<T> requirementResolver) {
+        requirements.put(messageId, requirementResolver);
     }
 
-    public static List<String> color(final List<String> messages) {
-        return messages.parallelStream().map(message -> ChatColor.translateAlternateColorCodes('&', message)).collect(Collectors.toList());
+    boolean hasId(String messageId) {
+        return requirements.get(messageId) != null;
+    }
+
+    public void send(final String id, final T sender) {
+        System.out.println(requirements.get(id).resolve(sender));
     }
 
 }

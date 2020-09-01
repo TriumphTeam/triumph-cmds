@@ -22,31 +22,22 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mfcmd.base;
+package me.mattstudios.mfcmd.bukkit.components;
 
-import me.mattstudios.mfcmd.base.components.MessageResolver;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.bukkit.ChatColor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@SuppressWarnings("WeakerAccess")
-public final class MessageHandler<T> {
+public final class BukkitUtils {
 
-    // The map with the messages to send.
-    private final Map<String, MessageResolver<T>> messages = new HashMap<>();
 
-    public void register(@NotNull final String messageId, @Nullable final MessageResolver<T> messageResolver) {
-        messages.put(messageId, messageResolver);
+    public static String color(final String message) {
+        return ChatColor.translateAlternateColorCodes('&', message);
     }
 
-    boolean hasId(String messageId) {
-        return messages.get(messageId) != null;
-    }
-
-    public void send(final String id, final T sender) {
-        messages.get(id).resolve(sender);
+    public static List<String> color(final List<String> messages) {
+        return messages.parallelStream().map(message -> ChatColor.translateAlternateColorCodes('&', message)).collect(Collectors.toList());
     }
 
 }

@@ -22,31 +22,10 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mfcmd.base;
+package me.mattstudios.mfcmd.base.components;
 
-import me.mattstudios.mfcmd.base.components.MessageResolver;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+public interface RequirementResolver<T> {
 
-import java.util.HashMap;
-import java.util.Map;
-
-@SuppressWarnings("WeakerAccess")
-public final class MessageHandler<T> {
-
-    // The map with the messages to send.
-    private final Map<String, MessageResolver<T>> messages = new HashMap<>();
-
-    public void register(@NotNull final String messageId, @Nullable final MessageResolver<T> messageResolver) {
-        messages.put(messageId, messageResolver);
-    }
-
-    boolean hasId(String messageId) {
-        return messages.get(messageId) != null;
-    }
-
-    public void send(final String id, final T sender) {
-        messages.get(id).resolve(sender);
-    }
+    boolean resolve(final T sender);
 
 }

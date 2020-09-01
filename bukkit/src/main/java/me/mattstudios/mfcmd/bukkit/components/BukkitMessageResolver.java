@@ -1,4 +1,4 @@
-package me.mattstudios.mfcmd.bukkit;
+package me.mattstudios.mfcmd.bukkit.components;
 
 import me.mattstudios.mfcmd.base.components.MessageResolver;
 import org.bukkit.command.CommandSender;

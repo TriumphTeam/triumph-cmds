@@ -3,8 +3,12 @@ package me.mattstudios.mfcmd.bukkit;
 import me.mattstudios.mfcmd.base.CommandBase;
 import me.mattstudios.mfcmd.base.CommandManager;
 import me.mattstudios.mfcmd.base.MessageHandler;
+import me.mattstudios.mfcmd.base.RequirementHandler;
 import me.mattstudios.mfcmd.base.annotations.Command;
 import me.mattstudios.mfcmd.base.exceptions.MfException;
+import me.mattstudios.mfcmd.bukkit.components.BukkitMessageResolver;
+import me.mattstudios.mfcmd.bukkit.components.BukkitRequirementResolver;
+import me.mattstudios.mfcmd.bukkit.components.BukkitUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -17,6 +21,7 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -30,15 +35,22 @@ import java.util.logging.Level;
 
 public final class BukkitCommandManager extends CommandManager {
 
+    @NotNull
     private final Plugin plugin;
 
     // The command map
+    @Nullable
     private final CommandMap commandMap;
 
     // List of commands;
+    @NotNull
     private Map<String, org.bukkit.command.Command> bukkitCommands = new HashMap<>();
 
+    @NotNull
     private final MessageHandler<CommandSender> messageHandler = new MessageHandler<>();
+
+    @NotNull
+    private final RequirementHandler<CommandSender> requirementHandler = new RequirementHandler<>();
 
     public BukkitCommandManager(@NotNull final Plugin plugin) {
         this.plugin = plugin;
@@ -61,7 +73,7 @@ public final class BukkitCommandManager extends CommandManager {
     }
 
     @Override
-    public void register(final @NotNull CommandBase... commands) {
+    public void register(@NotNull final CommandBase... commands) {
         for (final CommandBase command: commands) {
             register(command);
         }
@@ -69,6 +81,8 @@ public final class BukkitCommandManager extends CommandManager {
 
     @Override
     public void register(@NotNull final CommandBase command) {
+        if (commandMap == null) return;
+
         final Class<?> commandClass = command.getClass();
 
         final List<String> aliases = new ArrayList<>();
@@ -105,9 +119,9 @@ public final class BukkitCommandManager extends CommandManager {
 
         // Used to get the command map to register the commands.
         try {
-            final BukkitCommandHandler commandHandler;
-            if (getCommands().get(commandName) != null) {
-                //commands.get(commandName).addSubCommands(command);
+            BukkitCommandHandler commandHandler = (BukkitCommandHandler) getCommands().get(commandName);
+            if (commandHandler != null) {
+                commandHandler.addSubCommands(command);
                 return;
             }
 
@@ -116,7 +130,7 @@ public final class BukkitCommandManager extends CommandManager {
 
             // Creates the command handler
             //commandHandler = new BukkitCommandHandler(getParameterHandler(), completionHandler, messageHandler, command, commandName, aliases, hideTab, completePlayers);
-            commandHandler = new BukkitCommandHandler(getParameterHandler(), messageHandler, command, commandName, aliases, true, true);
+            commandHandler = new BukkitCommandHandler(getParameterHandler(), messageHandler, requirementHandler, command, commandName, aliases, true, true);
 
             // Registers the command
             commandMap.register(commandName, plugin.getName(), commandHandler);
@@ -129,10 +143,15 @@ public final class BukkitCommandManager extends CommandManager {
         }
     }
 
-    public void registerMessage(final @NotNull String id, final @NotNull BukkitMessageResolver messageResolver) {
+    public void registerMessage(@NotNull final String id, @Nullable final BukkitMessageResolver messageResolver) {
         messageHandler.register(id, messageResolver);
     }
 
+    public void registerRequirement(@NotNull final String id, @Nullable final BukkitRequirementResolver requirementResolver) {
+        requirementHandler.register(id, requirementResolver);
+    }
+
+    @Nullable
     private CommandMap getCommandMap() {
         CommandMap commandMap = null;
 
