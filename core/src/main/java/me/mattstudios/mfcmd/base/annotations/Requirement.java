@@ -22,25 +22,17 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mfcmd.bukkit.components;
+package me.mattstudios.mfcmd.base.annotations;
 
-import org.bukkit.ChatColor;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.List;
-import java.util.stream.Collectors;
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Requirement {
 
-public final class BukkitUtils {
-
-    private BukkitUtils() {}
-
-    public static final String PERMISSION_ID = "#mf-permission-";
-
-    public static String color(final String message) {
-        return ChatColor.translateAlternateColorCodes('&', message);
-    }
-
-    public static List<String> color(final List<String> messages) {
-        return messages.parallelStream().map(message -> ChatColor.translateAlternateColorCodes('&', message)).collect(Collectors.toList());
-    }
+    String value();
 
 }

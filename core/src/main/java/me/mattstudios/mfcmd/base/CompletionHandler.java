@@ -22,76 +22,19 @@
  * SOFTWARE.
  */
 
-package me.mattstudios.mf.base;
+package me.mattstudios.mfcmd.base;
 
-import me.mattstudios.mf.base.components.CompletionResolver;
+import me.mattstudios.mfcmd.base.components.CompletionResolver;
 import me.mattstudios.mfcmd.base.exceptions.MfException;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static me.mattstudios.mf.base.components.MfUtil.color;
 
 @SuppressWarnings("WeakerAccess")
 public final class CompletionHandler {
 
     private final Map<String, CompletionResolver> registeredCompletions = new HashMap<>();
-
-    /**
-     * Registers all the default completions.
-     */
-    CompletionHandler() {
-        register("#players", input -> {
-            final List<String> players = new ArrayList<>();
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                players.add(player.getName());
-            }
-            players.sort(String.CASE_INSENSITIVE_ORDER);
-            return players;
-        });
-        register("#empty", input -> Collections.singletonList(""));
-        register("#range", input -> {
-            final String s = String.valueOf(input);
-
-            if (s.contains("class"))
-                return IntStream.rangeClosed(1, 10).mapToObj(Integer::toString).collect(Collectors.toList());
-
-            if (!s.contains("-"))
-                return IntStream.rangeClosed(1, Integer.parseInt(s)).mapToObj(Integer::toString).collect(Collectors.toList());
-
-            final String[] minMax = s.split("-");
-            final int[] range = IntStream.rangeClosed(Integer.parseInt(minMax[0]), Integer.parseInt(minMax[1])).toArray();
-
-            final List<String> rangeList = new ArrayList<>();
-
-            for (int number : range) {
-                rangeList.add(String.valueOf(number));
-            }
-
-            return rangeList;
-        });
-        register("#enum", input -> {
-            // noinspection unchecked
-            final Class<? extends Enum<?>> enumCls = (Class<? extends Enum<?>>) input;
-            final List<String> values = new ArrayList<>();
-
-            for (Enum<?> enumValue : enumCls.getEnumConstants()) {
-                values.add(enumValue.name());
-            }
-
-            values.sort(String.CASE_INSENSITIVE_ORDER);
-            return values;
-        });
-        register("#boolean", input -> Arrays.asList("false", "true"));
-    }
 
     /**
      * Registers a new completion.
@@ -113,7 +56,7 @@ public final class CompletionHandler {
      * @return The string list with all the completions.
      */
     List<String> getTypeResult(final String completionId, final Object input) {
-        return color(registeredCompletions.get(completionId).resolve(input));
+        return registeredCompletions.get(completionId).resolve(input);
     }
 
     /**
@@ -122,10 +65,10 @@ public final class CompletionHandler {
      * @param id The ID
      * @return True if it is or false if not
      */
-    boolean isNotRegistered(final String id) {
+    boolean isRegistered(final String id) {
         String identifier = id;
         if (id.contains(":")) identifier = identifier.split(":")[0];
-        return registeredCompletions.get(identifier) == null;
+        return registeredCompletions.get(identifier) != null;
     }
 
 }

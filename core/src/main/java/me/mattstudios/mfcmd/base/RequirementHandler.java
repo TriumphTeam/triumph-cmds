@@ -25,6 +25,7 @@
 package me.mattstudios.mfcmd.base;
 
 import me.mattstudios.mfcmd.base.components.RequirementResolver;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,17 +36,19 @@ import java.util.Map;
 public final class RequirementHandler<T> {
 
     // The map with the messages to send.
+    @NotNull
     private final Map<String, RequirementResolver<T>> requirements = new HashMap<>();
 
     public void register(@NotNull final String messageId, @Nullable final RequirementResolver<T> requirementResolver) {
         requirements.put(messageId, requirementResolver);
     }
 
-    boolean hasId(String messageId) {
+    boolean isRegistered(@NotNull final String messageId) {
         return requirements.get(messageId) != null;
     }
 
-    public boolean resolve(final String id, final T sender) {
+    @Contract("null , null -> false")
+    public boolean resolve(@Nullable String id, @Nullable final T sender) {
         return requirements.get(id).resolve(sender);
     }
 

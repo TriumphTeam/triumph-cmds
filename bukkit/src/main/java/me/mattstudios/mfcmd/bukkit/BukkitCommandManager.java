@@ -5,6 +5,7 @@ import me.mattstudios.mfcmd.base.CommandManager;
 import me.mattstudios.mfcmd.base.MessageHandler;
 import me.mattstudios.mfcmd.base.RequirementHandler;
 import me.mattstudios.mfcmd.base.annotations.Command;
+import me.mattstudios.mfcmd.base.components.CompletionResolver;
 import me.mattstudios.mfcmd.base.exceptions.MfException;
 import me.mattstudios.mfcmd.bukkit.components.BukkitMessageResolver;
 import me.mattstudios.mfcmd.bukkit.components.BukkitRequirementResolver;
@@ -18,6 +19,7 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class BukkitCommandManager extends CommandManager {
 
@@ -70,11 +74,46 @@ public final class BukkitCommandManager extends CommandManager {
         registerMessage("cmd.no.exists", sender -> sender.sendMessage(BukkitUtils.color("&cThe command you're trying to use doesn't exist!")));
         registerMessage("cmd.wrong.usage", sender -> sender.sendMessage(BukkitUtils.color("&cWrong usage for the command!")));
 
+        registerCompletion("#players", input -> Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).sorted(String.CASE_INSENSITIVE_ORDER).collect(Collectors.toList()));
+        registerCompletion("#empty", input -> Collections.emptyList());
+        registerCompletion("#range", input -> {
+            final String s = String.valueOf(input);
+
+            if (s.contains("class"))
+                return IntStream.rangeClosed(1, 10).mapToObj(Integer::toString).collect(Collectors.toList());
+
+            if (!s.contains("-"))
+                return IntStream.rangeClosed(1, Integer.parseInt(s)).mapToObj(Integer::toString).collect(Collectors.toList());
+
+            final String[] minMax = s.split("-");
+            final int[] range = IntStream.rangeClosed(Integer.parseInt(minMax[0]), Integer.parseInt(minMax[1])).toArray();
+
+            final List<String> rangeList = new ArrayList<>();
+
+            for (int number : range) {
+                rangeList.add(String.valueOf(number));
+            }
+
+            return rangeList;
+        });
+        registerCompletion("#enum", input -> {
+            // noinspection unchecked
+            final Class<? extends Enum<?>> enumCls = (Class<? extends Enum<?>>) input;
+            final List<String> values = new ArrayList<>();
+
+            for (Enum<?> enumValue : enumCls.getEnumConstants()) {
+                values.add(enumValue.name());
+            }
+
+            values.sort(String.CASE_INSENSITIVE_ORDER);
+            return values;
+        });
+
     }
 
     @Override
     public void register(@NotNull final CommandBase... commands) {
-        for (final CommandBase command: commands) {
+        for (final CommandBase command : commands) {
             register(command);
         }
     }
@@ -130,7 +169,7 @@ public final class BukkitCommandManager extends CommandManager {
 
             // Creates the command handler
             //commandHandler = new BukkitCommandHandler(getParameterHandler(), completionHandler, messageHandler, command, commandName, aliases, hideTab, completePlayers);
-            commandHandler = new BukkitCommandHandler(getParameterHandler(), messageHandler, requirementHandler, command, commandName, aliases, true, true);
+            commandHandler = new BukkitCommandHandler(getParameterHandler(), messageHandler, requirementHandler, getCompletionHandler(), command, commandName, aliases, true, true);
 
             // Registers the command
             commandMap.register(commandName, plugin.getName(), commandHandler);
@@ -149,6 +188,10 @@ public final class BukkitCommandManager extends CommandManager {
 
     public void registerRequirement(@NotNull final String id, @Nullable final BukkitRequirementResolver requirementResolver) {
         requirementHandler.register(id, requirementResolver);
+    }
+
+    public void registerCompletion(@NotNull final String id, @Nullable final CompletionResolver completionResolver) {
+        getCompletionHandler().register(id, completionResolver);
     }
 
     @Nullable

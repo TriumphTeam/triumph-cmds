@@ -15,6 +15,8 @@ public abstract class CommandManager {
     // The parameter handler
     private final ParameterHandler parameterHandler = new ParameterHandler();
 
+    private final CompletionHandler completionHandler = new CompletionHandler();
+
     public abstract void register(@NotNull final CommandBase command);
 
     public abstract void register(@NotNull final CommandBase... command);
@@ -31,6 +33,7 @@ public abstract class CommandManager {
         return parameterHandler;
     }
 
-
-
+    protected CompletionHandler getCompletionHandler() {
+        return completionHandler;
+    }
 }

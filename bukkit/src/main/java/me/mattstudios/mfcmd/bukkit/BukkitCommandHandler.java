@@ -3,6 +3,7 @@ package me.mattstudios.mfcmd.bukkit;
 
 import me.mattstudios.mfcmd.base.CommandBase;
 import me.mattstudios.mfcmd.base.CommandHandler;
+import me.mattstudios.mfcmd.base.CompletionHandler;
 import me.mattstudios.mfcmd.base.MessageHandler;
 import me.mattstudios.mfcmd.base.ParameterHandler;
 import me.mattstudios.mfcmd.base.RequirementHandler;
@@ -12,6 +13,7 @@ import me.mattstudios.mfcmd.base.components.CommandData;
 import me.mattstudios.mfcmd.base.components.MfCommand;
 import me.mattstudios.mfcmd.base.exceptions.MfException;
 import me.mattstudios.mfcmd.bukkit.annotations.Permission;
+import me.mattstudios.mfcmd.bukkit.components.BukkitUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -22,14 +24,21 @@ import java.util.List;
 
 public final class BukkitCommandHandler extends Command implements MfCommand {
 
+    @NotNull
     private final CommandHandler commandHandler;
+
+    @NotNull
     private final MessageHandler<CommandSender> messageHandler;
+    @NotNull
     private final RequirementHandler<CommandSender> requirementHandler;
+    @NotNull
+    private final CompletionHandler completionHandler;
 
     protected BukkitCommandHandler(
             @NotNull final ParameterHandler parameterHandler,
             @NotNull final MessageHandler<CommandSender> messageHandler,
             @NotNull final RequirementHandler<CommandSender> requirementHandler,
+            @NotNull final CompletionHandler completionHandler,
             @NotNull final CommandBase command,
             @NotNull final String name,
             @NotNull final List<String> aliases,
@@ -37,10 +46,11 @@ public final class BukkitCommandHandler extends Command implements MfCommand {
             final boolean b1
     ) {
         super(name);
-        commandHandler = new CommandHandler(parameterHandler);
+        commandHandler = new CommandHandler(parameterHandler, requirementHandler, completionHandler);
 
         this.messageHandler = messageHandler;
         this.requirementHandler = requirementHandler;
+        this.completionHandler = completionHandler;
 
         addSubCommands(command);
     }
@@ -67,27 +77,19 @@ public final class BukkitCommandHandler extends Command implements MfCommand {
             if (method.isAnnotationPresent(Permission.class)) {
                 final String permission = method.getAnnotation(Permission.class).value();
                 if (!permission.isEmpty()) {
-                    final String permissionId = "#mf-permission-" + method.getName();
+                    final String permissionId = BukkitUtils.PERMISSION_ID + method.getName();
                     commandData.addRequirement(permissionId);
                     requirementHandler.register(permissionId, sender -> sender.hasPermission(permission));
                 }
             }
 
-            commandHandler.addSubCommand(commandData);
+            commandHandler.addSubCommand(method, command, commandData);
 
         }
     }
 
     @Override
     public boolean execute(@NotNull final CommandSender commandSender, @NotNull final String s, final @NotNull String[] strings) {
-        final CommandData commandData = commandHandler.getCommand("test");
-
-        if (commandData.getRequirements().stream().anyMatch(id -> !requirementHandler.resolve(id, commandSender))) {
-            messageHandler.send("cmd.no.permission", commandSender);
-
-            return true;
-        }
-
         commandSender.sendMessage("what");
 
         return true;
