@@ -30,6 +30,7 @@ import me.mattstudios.mfcmd.base.annotations.Default;
 import me.mattstudios.mfcmd.base.annotations.Requirement;
 import me.mattstudios.mfcmd.base.annotations.SubCommand;
 import me.mattstudios.mfcmd.base.components.CommandData;
+import me.mattstudios.mfcmd.base.components.ParameterType;
 import me.mattstudios.mfcmd.base.components.util.Constant;
 import me.mattstudios.mfcmd.base.exceptions.MfException;
 import org.jetbrains.annotations.Contract;
@@ -108,12 +109,16 @@ public final class CommandHandler {
                 currentCompletion = methodCompletion.get(index - 1);
             }
 
-            System.out.println(currentCompletion);
+            if (parameter.isAnnotationPresent(Completion.class)) {
+                currentCompletion = parameter.getAnnotation(Completion.class).value()[0];
+            }
 
-            System.out.println(parameter.getType().getName() + " - " + index);
-            System.out.println(methodCompletion);
+            if (currentCompletion != null && completionHandler != null && !completionHandler.isRegistered(currentCompletion)) {
+                throw new MfException("Method " + method.getName() + " in class " + method.getClass().getName() + " - Unregistered completion ID'" + currentCompletion + "'!");
+            }
 
-
+            final ParameterType parameterType = new ParameterType(parameter.getType(), currentCompletion);
+            System.out.println(parameterType);
             //commandData.addParameter(parameter);
         }
     }
@@ -122,19 +127,7 @@ public final class CommandHandler {
         if (completionHandler == null) return Collections.emptyList();
         if (!method.isAnnotationPresent(Completion.class)) return Collections.emptyList();
 
-        final String[] completionValues = method.getAnnotation(Completion.class).value();
-
-        for (final String id : completionValues) {
-            if (!id.startsWith("#")) {
-                throw new MfException("Method " + method.getName() + " in class " + method.getClass().getName() + " - The completion ID must start with #!");
-            }
-
-            if (!completionHandler.isRegistered(id)) {
-                throw new MfException("Method " + method.getName() + " in class " + method.getClass().getName() + " - Unregistered completion ID'" + id + "'!");
-            }
-        }
-
-        return Arrays.asList(completionValues);
+        return Arrays.asList(method.getAnnotation(Completion.class).value());
     }
 
     /**
@@ -146,10 +139,6 @@ public final class CommandHandler {
     private void checkRequirements(@NotNull final Method method, @NotNull final CommandData commandData) {
         if (method.isAnnotationPresent(Requirement.class)) {
             final String requirementId = method.getAnnotation(Requirement.class).value();
-
-            if (!requirementId.startsWith("#")) {
-                throw new MfException("Method " + method.getName() + " in class " + method.getClass().getName() + " - The requirement ID must start with #!");
-            }
 
             if (!requirementHandler.isRegistered(requirementId)) {
                 throw new MfException("Method " + method.getName() + " in class " + method.getClass().getName() + " - The ID entered in the requirement doesn't exist!");

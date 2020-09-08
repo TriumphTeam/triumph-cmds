@@ -12,8 +12,8 @@ import org.bukkit.entity.Player;
 public final class Cmd extends CommandBase {
 
     @Default
-    @Completion({"#players", "#test"})
-    public void test2(final Player player, final Player player2, final String text) {
+    @Completion({"", "#test"})
+    public void test2(final Player player, @Completion("#empty") final Player player2, final String text) {
 
     }
 

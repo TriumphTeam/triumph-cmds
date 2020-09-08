@@ -18,4 +18,9 @@ public final class ParameterType {
         return completion;
     }
 
+    @Override
+    public String toString() {
+        return "[Parameter = " + type.getName() + " - Completion = " + completion + "]";
+    }
+
 }
