@@ -26,6 +26,7 @@ package me.mattstudios.mfcmd.base.components;
 
 import me.mattstudios.mfcmd.base.CommandBase;
 import me.mattstudios.mfcmd.base.components.util.Constant;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
@@ -80,6 +81,10 @@ public final class CommandData {
     public ParameterType getParameter(final int index) {
         if (index >= parameters.size()) return null;
         return parameters.get(index);
+    }
+
+    public void addParameter(@NotNull final ParameterType parameterType) {
+        parameters.add(parameterType);
     }
 
     public CommandBase getCommandBase() {

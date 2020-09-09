@@ -3,11 +3,12 @@ package me.mattstudios.mfcmd.base.components;
 public final class ParameterType {
 
     private final Class<?> type;
-    private final String completion;
 
-    public ParameterType(final Class<?> type, final String completion) {
+    private String completion;
+    private boolean value;
+
+    public ParameterType(final Class<?> type) {
         this.type = type;
-        this.completion = completion;
     }
 
     public Class<?> getType() {
@@ -16,6 +17,18 @@ public final class ParameterType {
 
     public String getCompletion() {
         return completion;
+    }
+
+    public void setCompletion(final String completion) {
+        this.completion = completion;
+    }
+
+    public boolean isValue() {
+        return value;
+    }
+
+    public void setValue(final boolean value) {
+        this.value = value;
     }
 
     @Override

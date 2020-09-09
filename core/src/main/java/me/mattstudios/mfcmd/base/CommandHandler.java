@@ -29,6 +29,7 @@ import me.mattstudios.mfcmd.base.annotations.Completion;
 import me.mattstudios.mfcmd.base.annotations.Default;
 import me.mattstudios.mfcmd.base.annotations.Requirement;
 import me.mattstudios.mfcmd.base.annotations.SubCommand;
+import me.mattstudios.mfcmd.base.annotations.Values;
 import me.mattstudios.mfcmd.base.components.CommandData;
 import me.mattstudios.mfcmd.base.components.ParameterType;
 import me.mattstudios.mfcmd.base.components.util.Constant;
@@ -95,6 +96,7 @@ public final class CommandHandler {
         while (iterator.hasNext()) {
             final int index = iterator.nextIndex();
             final Parameter parameter = iterator.next();
+            final ParameterType parameterType = new ParameterType(parameter.getType());
 
             if (parameter.getType().equals(String[].class) && !iterator.hasNext()) {
                 throw new MfException("Method " + method.getName() + " in class " + method.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
@@ -113,13 +115,18 @@ public final class CommandHandler {
                 currentCompletion = parameter.getAnnotation(Completion.class).value()[0];
             }
 
+            if (parameter.isAnnotationPresent(Values.class)) {
+                currentCompletion = parameter.getAnnotation(Values.class).value();
+                parameterType.setValue(true);
+            }
+
             if (currentCompletion != null && completionHandler != null && !completionHandler.isRegistered(currentCompletion)) {
                 throw new MfException("Method " + method.getName() + " in class " + method.getClass().getName() + " - Unregistered completion ID'" + currentCompletion + "'!");
             }
 
-            final ParameterType parameterType = new ParameterType(parameter.getType(), currentCompletion);
-            System.out.println(parameterType);
-            //commandData.addParameter(parameter);
+            parameterType.setCompletion(currentCompletion);
+
+            commandData.addParameter(parameterType);
         }
     }
 
