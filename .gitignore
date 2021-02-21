@@ -1,20 +1,18 @@
 
 .idea/
 
-*.iml
+.gradle/
+build/
 
-gradle.properties
+*.iml
 
 temp.java.asc
 
 temp.java
+gradle.properties
 
-target/
-
-src/main/resources/
-
-src/main/java/me/mattstudios/mf/CMD.java
-
-src/main/java/me/mattstudios/mf/Main.java
-
-*.versionsBackup
+adventure/out/
+bukkit/out/
+commonmark/out/
+core/out/
+plugin-test/out/
