@@ -1,9 +1,15 @@
-allprojects {
-    apply plugin: 'java-library'
-    apply plugin: 'maven-publish'
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.4.30"
+}
 
-    group 'me.mattstudios'
-    version '2.2.2-SNAPSHOT'
+
+allprojects {
+    apply plugin: "java-library"
+    apply plugin: "maven-publish"
+    apply plugin: "org.jetbrains.kotlin.jvm"
+
+    group "dev.triumphteam"
+    version "2.0.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
