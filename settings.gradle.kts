@@ -1,8 +1,8 @@
 rootProject.name = "triumph-cmds"
 
-["core",].each {
-    include "$it"
+listOf("core").forEach {
+    include(it)
     findProject(":$it")?.name = "triumph-cmds-$it"
 }
 
-include "test-module"
+include("test-module")
