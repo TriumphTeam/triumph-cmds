@@ -11,6 +11,7 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://repo.mattstudios.me/artifactory/public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://repo.mattstudios.me/artifactory/public/")
 }
 
 dependencies {
