@@ -25,15 +25,8 @@
 package me.mattstudios.mf.base;
 
 
-import me.mattstudios.mf.annotations.Alias;
-import me.mattstudios.mf.annotations.CompleteFor;
-import me.mattstudios.mf.annotations.Completion;
-import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.Optional;
-import me.mattstudios.mf.annotations.Permission;
-import me.mattstudios.mf.annotations.SubCommand;
-import me.mattstudios.mf.annotations.Values;
-import me.mattstudios.mf.annotations.WrongUsage;
+import me.mattstudios.mf.annotations.*;
 import me.mattstudios.mf.base.components.CommandData;
 import me.mattstudios.mf.exceptions.MfException;
 import org.bukkit.command.Command;
@@ -41,18 +34,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 import static me.mattstudios.mf.base.components.MfUtil.color;
 
@@ -69,10 +52,12 @@ public final class CommandHandler extends Command {
 
     // If should tab complete without perms or not
     private boolean hideTab;
+    private boolean completePlayers;
 
     CommandHandler(final ParameterHandler parameterHandler, final CompletionHandler completionHandler,
                    final MessageHandler messageHandler, final CommandBase command,
-                   final String commandName, final List<String> aliases, final boolean hideTab) {
+                   final String commandName, final List<String> aliases, final boolean hideTab,
+                   final boolean completePlayers) {
 
         super(commandName);
 
@@ -80,6 +65,7 @@ public final class CommandHandler extends Command {
         this.completionHandler = completionHandler;
         this.messageHandler = messageHandler;
         this.hideTab = hideTab;
+        this.completePlayers = completePlayers;
 
         setAliases(aliases);
 
@@ -142,8 +128,8 @@ public final class CommandHandler extends Command {
 
             // Puts a default command in the list.
             if (subCommand.isDefault()) {
-                subCommand.setName("default");
-                commands.put("default", subCommand);
+                subCommand.setName("mf-default");
+                commands.put("mf-default", subCommand);
             }
 
             // Checks for a completion method
@@ -151,7 +137,6 @@ public final class CommandHandler extends Command {
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public boolean execute(final CommandSender sender, final String label, final String[] arguments) {
 
@@ -165,7 +150,7 @@ public final class CommandHandler extends Command {
             // Checks if permission annotation is present.
             // Checks whether the command sender has the permission set in the annotation.
             if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
-                return noPermission(sender);
+                return noPermission(sender, subCommand);
             }
 
             // Checks if the command can be accessed from console
@@ -200,7 +185,7 @@ public final class CommandHandler extends Command {
         // Checks whether the command sender has the permission set in the annotation.
         assert subCommand != null;
         if (subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
-            return noPermission(sender);
+            return noPermission(sender, subCommand);
         }
 
         // Checks if the command can be accessed from console
@@ -235,7 +220,7 @@ public final class CommandHandler extends Command {
 
             // Checks if it is a default type command with just sender and args.
             if (subCommand.getParams().size() == 1
-                    && String[].class.isAssignableFrom(subCommand.getParams().get(0))) {
+                && String[].class.isAssignableFrom(subCommand.getParams().get(0))) {
                 method.invoke(subCommand.getCommandBase(), sender, arguments);
                 return true;
             }
@@ -315,14 +300,29 @@ public final class CommandHandler extends Command {
 
     @Override
     public List<String> tabComplete(final CommandSender sender, final String alias, final String[] args) throws IllegalArgumentException {
-        // Checks if args is 1 so it sends the sub commands completion.
+        // Checks if args is 1 so it sends the sub commands completion
         if (args.length == 1) {
             List<String> commandNames = new ArrayList<>();
 
             final CommandData subCommand = getDefaultSubCommand();
 
+            if (subCommand != null) {
+                final Method completionMethod = subCommand.getCompletionMethod();
+
+                if (completionMethod != null) {
+                    try {
+                        List<String> argsList = new LinkedList<>(Arrays.asList(args));
+                        argsList.remove("mf-default");
+                        //noinspection unchecked
+                        return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), argsList, sender);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             final List<String> subCmd = new ArrayList<>(commands.keySet());
-            subCmd.remove("default");
+            subCmd.remove("mf-default");
 
             // removes commands that the player can't access.
             for (String subCmdName : commands.keySet()) {
@@ -359,7 +359,10 @@ public final class CommandHandler extends Command {
             Collections.sort(commandNames);
 
             // Returns default tab completion if empty.
-            if (commandNames.isEmpty()) return super.tabComplete(sender, alias, args);
+            if (commandNames.isEmpty()) {
+                if (completePlayers) return super.tabComplete(sender, alias, args);
+                return Collections.singletonList("");
+            }
 
             // The complete values.
             return commandNames;
@@ -368,13 +371,18 @@ public final class CommandHandler extends Command {
         final String subCommandArg = args[0];
 
         // Checks if it contains the sub command; Should always be true.
-        if (!commands.containsKey(subCommandArg)) return super.tabComplete(sender, alias, args);
+        if (!commands.containsKey(subCommandArg)) {
+            if (completePlayers) return super.tabComplete(sender, alias, args);
+            return Collections.singletonList("");
+        }
 
         final CommandData subCommand = commands.get(subCommandArg);
 
         // removes completion from commands that the player can't access.
-        if (hideTab && subCommand.hasPermissions() && !hasPermissions(sender, subCommand))
-            return super.tabComplete(sender, alias, args);
+        if (hideTab && subCommand.hasPermissions() && !hasPermissions(sender, subCommand)) {
+            if (completePlayers) return super.tabComplete(sender, alias, args);
+            return Collections.singletonList("");
+        }
 
         final Method completionMethod = subCommand.getCompletionMethod();
 
@@ -383,14 +391,17 @@ public final class CommandHandler extends Command {
                 List<String> argsList = new LinkedList<>(Arrays.asList(args));
                 argsList.remove(subCommandArg);
                 //noinspection unchecked
-                return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), argsList);
+                return (List<String>) completionMethod.invoke(subCommand.getCommandBase(), argsList, sender);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
 
         // Checks if the completion list has the current args position.
-        if (!subCommand.getCompletions().containsKey(args.length - 1)) return super.tabComplete(sender, alias, args);
+        if (!subCommand.getCompletions().containsKey(args.length - 1)) {
+            if (completePlayers) return super.tabComplete(sender, alias, args);
+            return Collections.singletonList("");
+        }
 
         // Gets the current ID.
         String id = subCommand.getCompletions().get(args.length - 1);
@@ -433,13 +444,17 @@ public final class CommandHandler extends Command {
         this.hideTab = hideTab;
     }
 
+    public void setCompletePlayers(final boolean completePlayers) {
+        this.completePlayers = completePlayers;
+    }
+
     /**
      * Gets the default method from the Command Data objects.
      *
      * @return The Command data of the default method if there is one.
      */
     private CommandData getDefaultSubCommand() {
-        return commands.getOrDefault("default", null);
+        return commands.getOrDefault("mf-default", null);
     }
 
     /**
@@ -471,7 +486,7 @@ public final class CommandHandler extends Command {
                 throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " 'String[] args' have to be the last parameter if wants to be used!");
             }
 
-            if (!this.parameterHandler.isRegisteredType(clss)) {
+            if (!parameterHandler.isRegisteredType(clss)) {
                 throw new MfException("Method " + method.getName() + " in class " + command.getClass().getName() + " contains unregistered parameter types!");
             }
 
@@ -494,7 +509,11 @@ public final class CommandHandler extends Command {
         for (final String permission : method.getAnnotation(Permission.class).value()) {
             subCommand.addPermission(permission);
         }
+        // Checks if NoPermission annotation is present.
+        if (!method.isAnnotationPresent(NoPermission.class)) return;
 
+        // Set the no permission to the annotation value
+        subCommand.setNoPermission(method.getAnnotation(NoPermission.class).value());
     }
 
     /**
@@ -507,7 +526,7 @@ public final class CommandHandler extends Command {
         // Checks if WrongUsage annotation is present.
         if (!method.isAnnotationPresent(WrongUsage.class)) return;
 
-        // Checks whether the command sender has the permission set in the annotation.
+        // Set the wrong usage to the annotation value
         subCommand.setWrongUsage(method.getAnnotation(WrongUsage.class).value());
     }
 
@@ -580,13 +599,18 @@ public final class CommandHandler extends Command {
             if (!method.isAnnotationPresent(CompleteFor.class)) continue;
 
             // All the checks to make sure the complete for method returns String List
-            if (!(method.getGenericReturnType() instanceof ParameterizedType)) return;
+            if (!(method.getGenericReturnType() instanceof ParameterizedType)) continue;
 
             final ParameterizedType parametrizedReturnType = (ParameterizedType) method.getGenericReturnType();
 
-            if (parametrizedReturnType.getRawType() != List.class) return;
-            if (parametrizedReturnType.getActualTypeArguments().length != 1) return;
-            if (parametrizedReturnType.getActualTypeArguments()[0] != String.class) return;
+            if (method.getParameterTypes().length != 2)
+                throw new MfException("The complete for method has now changed to require 2 parameters, args and sender.");
+
+            if (parametrizedReturnType.getRawType() != List.class) continue;
+            if (parametrizedReturnType.getActualTypeArguments().length != 1) continue;
+            if (parametrizedReturnType.getActualTypeArguments()[0] != String.class) continue;
+
+            if (!CommandSender.class.isAssignableFrom(method.getParameterTypes()[1])) continue;
 
             final String subCommandName = method.getAnnotation(CompleteFor.class).value();
 
@@ -695,8 +719,21 @@ public final class CommandHandler extends Command {
      * @param sender The sender
      * @return Returns true
      */
-    private boolean noPermission(final CommandSender sender) {
-        messageHandler.sendMessage("cmd.no.permission", sender);
+    private boolean noPermission(final CommandSender sender, final CommandData subCommand) {
+        final String noPermission = subCommand.getNoPermission();
+
+        if (noPermission == null) {
+            messageHandler.sendMessage("cmd.no.permission", sender);
+            return true;
+        }
+
+        if (!noPermission.startsWith("#") || !messageHandler.hasId(noPermission)) {
+            messageHandler.sendMessage("cmd.no.permission", sender);
+            sender.sendMessage(color(subCommand.getNoPermission()));
+            return true;
+        }
+
+        messageHandler.sendMessage(noPermission, sender);
         return true;
     }
 
