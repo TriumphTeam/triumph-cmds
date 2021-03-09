@@ -7,11 +7,8 @@ import dev.triumphteam.core.internal.command.CommandData
 
 class TestCommandManager : CommandManager() {
 
-    val commands = mutableMapOf<String, TestCommandHandler>()
-
     override fun registerCommand(command: CommandBase) {
-        val commandClass = command.javaClass
-        val data = CommandData.from(commandClass)
+        val data = CommandData.process(command)
 
         println(data.commandName)
         println(data.aliases)

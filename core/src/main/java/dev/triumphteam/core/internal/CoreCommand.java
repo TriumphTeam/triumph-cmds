@@ -1,4 +1,4 @@
 package dev.triumphteam.core.internal;
 
-public interface CommandHandler {
+public interface CoreCommand {
 }

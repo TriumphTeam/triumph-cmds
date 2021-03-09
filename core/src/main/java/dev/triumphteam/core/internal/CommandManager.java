@@ -3,11 +3,18 @@ package dev.triumphteam.core.internal;
 import dev.triumphteam.core.internal.registry.ArgumentRegistry;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Base command manager for all platforms
  */
 public abstract class CommandManager {
 
+    @NotNull
+    private Map<String, CoreCommand> commands = new LinkedHashMap<>();
+
+    @NotNull
     private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
 
     /**

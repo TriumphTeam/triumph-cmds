@@ -27,12 +27,12 @@ public final class CommandData {
     /**
      * Extracts all the important information from the command class
      *
-     * @param commandClass The {@link CommandBase} class
+     * @param commandBase The {@link CommandBase}
      * @return A new {@link CommandData} with the extracted information
      */
     @NotNull
-    public static CommandData from(@NotNull final Class<? extends CommandBase> commandClass) {
-        final List<String> commandNames = extractCommandNames(commandClass);
+    public static CommandData process(@NotNull final CommandBase commandBase) {
+        final List<String> commandNames = extractCommandNames(commandBase);
         final String commandName = commandNames.get(0);
         commandNames.remove(0);
 
@@ -48,16 +48,29 @@ public final class CommandData {
     }
 
     @NotNull
-    private static List<String> extractCommandNames(@NotNull final Class<? extends CommandBase> commandClass) throws CommandRegistrationException {
+    private static List<String> extractCommandNames(@NotNull final CommandBase commandBase) throws CommandRegistrationException {
+        final Class<? extends CommandBase> commandClass = commandBase.getClass();
         final Command commandAnnotation = getAnnotationValue(commandClass, Command.class);
+        final List<String> commands = new LinkedList<>();
+
         if (commandAnnotation == null) {
-            throw new CommandRegistrationException("`@Command` annotation is missing in class: " + commandClass.getName() + "!");
+            final String commandName = commandBase.getCommand();
+            if (commandName == null) {
+                throw new CommandRegistrationException(
+                        "Class `" + commandClass.getName() + "`, does not contain a command name nor `@Command` annotation!"
+                );
+            }
+
+            commands.add(commandName);
+        } else {
+            commands.addAll(Arrays.asList(commandAnnotation.value()));
         }
 
-        final List<String> commands = new LinkedList<>(Arrays.asList(commandAnnotation.value()));
         if (commands.isEmpty()) {
-            throw new CommandRegistrationException("`@Command` annotation is empty in class " + commandClass.getName() + "!");
+            throw new CommandRegistrationException("Class `" + commandClass.getName() + "` doesn't contain any command name!");
         }
+
+        commands.addAll(commandBase.getAlias());
 
         return commands;
     }

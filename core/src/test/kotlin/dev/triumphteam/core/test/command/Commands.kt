@@ -10,3 +10,5 @@ class EmptyCommand : CommandBase()
 
 @Command("commandName")
 class NormalCommand : CommandBase()
+
+class NoAnnotationCommand : CommandBase("command", listOf("alias1"))

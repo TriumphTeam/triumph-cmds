@@ -2,6 +2,7 @@ package dev.triumphteam.core.test
 
 import dev.triumphteam.core.exceptions.CommandRegistrationException
 import dev.triumphteam.core.test.command.EmptyCommand
+import dev.triumphteam.core.test.command.NoAnnotationCommand
 import dev.triumphteam.core.test.command.NoCommand
 import dev.triumphteam.core.test.command.NormalCommand
 import dev.triumphteam.core.test.objects.TestCommandManager
@@ -31,6 +32,13 @@ class CommandRegistrationTest {
     fun `Normal command registration`() {
         assertThatCode {
             commandManager.registerCommand(NormalCommand())
+        }.doesNotThrowAnyException()
+    }
+
+    @Test
+    fun `No annotation command registration`() {
+        assertThatCode {
+            commandManager.registerCommand(NoAnnotationCommand())
         }.doesNotThrowAnyException()
     }
 
