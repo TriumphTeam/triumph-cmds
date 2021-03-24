@@ -4,6 +4,6 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Command {
 
-    void addSubCommand(@NotNull final CommandBase commandBase);
+    void addSubCommands(@NotNull final CommandBase commandBase);
 
 }

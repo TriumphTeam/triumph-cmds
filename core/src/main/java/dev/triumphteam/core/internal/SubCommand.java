@@ -11,5 +11,5 @@ public abstract class SubCommand {
     public boolean isDefault() {
         return isDefault;
     }
-    
+
 }
