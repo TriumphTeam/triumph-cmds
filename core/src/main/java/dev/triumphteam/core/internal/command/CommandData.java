@@ -67,7 +67,9 @@ public final class CommandData {
         }
 
         if (commands.isEmpty()) {
-            throw new CommandRegistrationException("Class `" + commandClass.getName() + "` doesn't contain any command name!");
+            throw new CommandRegistrationException(
+                    "Class `" + commandClass.getName() + "` doesn't contain any command name!"
+            );
         }
 
         commands.addAll(commandBase.getAlias());

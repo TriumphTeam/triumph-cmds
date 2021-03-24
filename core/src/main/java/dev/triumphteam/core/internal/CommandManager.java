@@ -12,7 +12,7 @@ import java.util.Map;
 public abstract class CommandManager {
 
     @NotNull
-    private Map<String, CoreCommand> commands = new LinkedHashMap<>();
+    private final Map<String, Command> commands = new LinkedHashMap<>();
 
     @NotNull
     private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
@@ -33,6 +33,21 @@ public abstract class CommandManager {
         for (final CommandBase command : commands) {
             registerCommand(command);
         }
+    }
+
+    /**
+     * To be called by manager implementations, registers the command in the {@link #commands} map
+     *
+     * @param commandName The command name
+     * @param command     The {@link Command} implementation
+     */
+    protected void register(@NotNull final String commandName, @NotNull final Command command) {
+        if (commands.containsKey(commandName)) {
+            // register subcommands from other classes
+            return;
+        }
+
+        commands.put(commandName, command);
     }
 
 }

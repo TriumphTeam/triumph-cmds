@@ -10,7 +10,8 @@ import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 
-class CommandRegistrationTest {
+@Suppress("ClassName")
+class `Command registration` {
 
     private val commandManager = TestCommandManager()
 

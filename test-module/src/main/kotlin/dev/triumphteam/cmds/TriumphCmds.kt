@@ -14,10 +14,6 @@ class CommandTest : CommandBase() {
     @SubCommand("sub")
     fun sub() {
 
-        @SubCommand("sub sub")
-        fun subsub() {
-        }
-
     }
 
 }

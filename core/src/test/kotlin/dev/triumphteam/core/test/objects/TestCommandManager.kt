@@ -10,8 +10,10 @@ class TestCommandManager : CommandManager() {
     override fun registerCommand(command: CommandBase) {
         val data = CommandData.process(command)
 
-        println(data.commandName)
-        println(data.aliases)
+        val coreCommand = TestCommand()
+
+        register(data.commandName, coreCommand)
+        data.aliases.forEach { register(it, coreCommand) }
     }
 
 }

@@ -19,7 +19,7 @@ allprojects {
     }
 
     dependencies {
-        compileOnly("org.jetbrains:annotations:20.0.0")
+        compileOnly("org.jetbrains:annotations:20.1.0")
     }
 
     java {
