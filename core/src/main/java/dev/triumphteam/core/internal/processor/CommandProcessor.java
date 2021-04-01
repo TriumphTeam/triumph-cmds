@@ -9,14 +9,14 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public final class CommonCommandProcessor {
+public final class CommandProcessor {
 
     @NotNull
     private final String commandName;
     @NotNull
     private final List<String> aliases;
 
-    public CommonCommandProcessor(
+    public CommandProcessor(
             @NotNull final String commandName,
             @NotNull final List<String> aliases
     ) {
@@ -28,15 +28,15 @@ public final class CommonCommandProcessor {
      * Extracts all the important information from the command class
      *
      * @param commandBase The {@link CommandBase}
-     * @return A new {@link CommonCommandProcessor} with the extracted information
+     * @return A new {@link CommandProcessor} with the extracted information
      */
     @NotNull
-    public static CommonCommandProcessor process(@NotNull final CommandBase commandBase) {
+    public static CommandProcessor process(@NotNull final CommandBase commandBase) {
         final List<String> commandNames = extractCommandNames(commandBase);
         final String commandName = commandNames.get(0);
         commandNames.remove(0);
 
-        return new CommonCommandProcessor(commandName, commandNames);
+        return new CommandProcessor(commandName, commandNames);
     }
 
     @NotNull

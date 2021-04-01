@@ -1,8 +1,6 @@
 package dev.triumphteam.core.test.command
 
 import dev.triumphteam.core.annotations.Command
-import dev.triumphteam.core.annotations.Default
-import dev.triumphteam.core.annotations.SubCommand
 import dev.triumphteam.core.internal.CommandBase
 
 class NoCommand : CommandBase()
@@ -11,18 +9,6 @@ class NoCommand : CommandBase()
 class EmptyCommand : CommandBase()
 
 @Command("commandName")
-class NormalCommand : CommandBase() {
-
-    @Default
-    fun defaultFun() {
-
-    }
-
-    @SubCommand("sub")
-    fun subFun() {
-
-    }
-
-}
+class NormalCommand : CommandBase()
 
 class NoAnnotationCommand : CommandBase("command", listOf("alias1"))

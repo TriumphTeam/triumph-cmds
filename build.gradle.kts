@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "1.4.31"
 }
@@ -27,10 +29,19 @@ allprojects {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    tasks.withType<JavaCompile> {
-        options.encoding = "UTF-8"
-    }
+    tasks{
+        withType<JavaCompile> {
+            options.encoding = "UTF-8"
+        }
 
-    // TODO Add publication
+        withType<KotlinCompile> {
+            kotlinOptions {
+                jvmTarget = "1.8"
+                javaParameters = true
+            }
+        }
+
+        // TODO Add publication
+    }
 
 }

@@ -10,4 +10,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Default {}
+public @interface Default {
+
+    String DEFAULT_CMD_NAME = "TH_DEFAULT";
+
+}

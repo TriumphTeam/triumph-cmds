@@ -5,7 +5,7 @@ import dev.triumphteam.core.annotations.SubCommand
 import dev.triumphteam.core.internal.CommandBase
 
 fun main() {
-
+    
 }
 
 @Command("command")
