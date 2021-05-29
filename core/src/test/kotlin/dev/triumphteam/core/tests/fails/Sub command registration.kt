@@ -1,8 +1,8 @@
-package dev.triumphteam.core.test
+package dev.triumphteam.core.tests.fails
 
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException
-import dev.triumphteam.core.test.command.EmptyFunction
-import dev.triumphteam.core.test.objects.TestCommandManager
+import dev.triumphteam.core.implementations.TestCommandManager
+import dev.triumphteam.core.tests.command.EmptyFunction
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 

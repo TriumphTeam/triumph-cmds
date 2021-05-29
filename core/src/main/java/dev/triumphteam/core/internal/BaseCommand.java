@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class CommandBase {
+public abstract class BaseCommand {
 
     @Nullable
     private final String command;
@@ -18,7 +18,7 @@ public abstract class CommandBase {
     /**
      * Normal constructor with no arguments for when using the {@link Command} annotation
      */
-    public CommandBase() {
+    public BaseCommand() {
         this(null, null);
     }
 
@@ -26,7 +26,7 @@ public abstract class CommandBase {
      * Constructor for alias only
      * @param alias The alias {@link List}
      */
-    public CommandBase(@Nullable final List<String> alias) {
+    public BaseCommand(@Nullable final List<String> alias) {
         this(null, alias);
     }
 
@@ -34,7 +34,7 @@ public abstract class CommandBase {
      * Constructor for command name only
      * @param command The command name
      */
-    public CommandBase(@Nullable final String command) {
+    public BaseCommand(@Nullable final String command) {
         this(command, null);
     }
 
@@ -44,7 +44,7 @@ public abstract class CommandBase {
      * @param command The command name
      * @param alias   The aliases for the command
      */
-    public CommandBase(@Nullable final String command, @Nullable final List<String> alias) {
+    public BaseCommand(@Nullable final String command, @Nullable final List<String> alias) {
         this.command = command;
         if (alias != null) {
             this.alias.addAll(alias);

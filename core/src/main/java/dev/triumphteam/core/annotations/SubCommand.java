@@ -16,6 +16,9 @@ import java.lang.annotation.Target;
 public @interface SubCommand {
 
     @NotNull
-    String[] value();
+    String value();
+
+    @NotNull
+    String[] aliases() default {};
 
 }

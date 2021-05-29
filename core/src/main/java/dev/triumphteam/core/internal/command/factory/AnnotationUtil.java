@@ -1,6 +1,6 @@
-package dev.triumphteam.core.internal.processor;
+package dev.triumphteam.core.internal.command.factory;
 
-import dev.triumphteam.core.internal.CommandBase;
+import dev.triumphteam.core.internal.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 
 final class AnnotationUtil {
 
+    // TODO
     private AnnotationUtil() {}
 
     /**
@@ -20,8 +21,8 @@ final class AnnotationUtil {
      * @return The annotation to use
      */
     @Nullable
-    static <T extends Annotation> T getAnnotationValue(
-            @NotNull final Class<? extends CommandBase> commandClass,
+    static <T extends Annotation> T getAnnotation(
+            @NotNull final Class<? extends BaseCommand> commandClass,
             @NotNull final Class<T> annotation
     ) {
         if (!commandClass.isAnnotationPresent(annotation)) return null;
@@ -37,7 +38,7 @@ final class AnnotationUtil {
      * @return The annotation to use
      */
     @Nullable
-    static <T extends Annotation> T getAnnotationValue(
+    static <T extends Annotation> T getAnnotation(
             @NotNull final Method method,
             @NotNull final Class<T> annotation
     ) {
