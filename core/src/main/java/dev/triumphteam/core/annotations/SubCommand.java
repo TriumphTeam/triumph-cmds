@@ -19,6 +19,6 @@ public @interface SubCommand {
     String value();
 
     @NotNull
-    String[] aliases() default {};
+    String[] alias() default {};
 
 }

@@ -11,17 +11,22 @@ import java.util.List;
 
 public abstract class AbstractCommandFactory<C extends Command> {
 
-    private String commandName;
+    private String name;
     private final List<String> alias = new ArrayList<>();
 
     protected AbstractCommandFactory(@NotNull final BaseCommand baseCommand) {
         extractCommandNames(baseCommand);
     }
 
+    /**
+     * Abstract method so children can handle the return of the new {@link Command}
+     *
+     * @return A {@link Command} implementation
+     */
     public abstract C create();
 
-    protected String getCommandName() {
-        return commandName;
+    protected String getName() {
+        return name;
     }
 
     protected List<String> getAlias() {
@@ -44,16 +49,16 @@ public abstract class AbstractCommandFactory<C extends Command> {
                 throw new CommandRegistrationException("Command name or `@Command` annotation missing", commandClass);
             }
 
-            this.commandName = commandName;
+            this.name = commandName;
             this.alias.addAll(baseCommand.getAlias());
         } else {
-            this.commandName = commandAnnotation.value();
-            Collections.addAll(this.alias, commandAnnotation.aliases());
+            this.name = commandAnnotation.value();
+            Collections.addAll(this.alias, commandAnnotation.alias());
         }
 
         this.alias.addAll(baseCommand.getAlias());
 
-        if (this.commandName.isEmpty()) {
+        if (this.name.isEmpty()) {
             throw new CommandRegistrationException("Command name is empty!", commandClass);
         }
     }

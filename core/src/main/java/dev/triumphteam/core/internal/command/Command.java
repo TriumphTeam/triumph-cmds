@@ -8,11 +8,13 @@ import java.util.List;
 public interface Command {
 
     @NotNull
-    String getCommandName();
+    String getName();
 
     @NotNull
     List<String> getAlias();
 
     boolean addSubCommands(@NotNull final BaseCommand baseCommand);
+
+    boolean isAlias();
 
 }

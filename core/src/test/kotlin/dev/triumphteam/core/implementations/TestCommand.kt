@@ -22,7 +22,11 @@ class TestCommand(private val commandName: String, private val alias: MutableLis
         return subCommands.isNotEmpty()
     }
 
-    override fun getCommandName(): String {
+    override fun isAlias(): Boolean {
+        return false
+    }
+
+    override fun getName(): String {
         return commandName
     }
 

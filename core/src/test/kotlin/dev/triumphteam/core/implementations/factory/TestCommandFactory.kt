@@ -7,7 +7,7 @@ import dev.triumphteam.core.internal.command.factory.AbstractCommandFactory
 class TestCommandFactory(baseCommand: BaseCommand) : AbstractCommandFactory<TestCommand>(baseCommand) {
 
     override fun create(): TestCommand {
-        return TestCommand(commandName, alias)
+        return TestCommand(name, alias)
     }
 
 }

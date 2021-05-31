@@ -15,7 +15,7 @@ class TestCommandManager : CommandManager<TestCommand>() {
             return
         }
 
-        register(testCommand.commandName, testCommand)
+        register(testCommand.name, testCommand)
         testCommand.alias.forEach { register(it, testCommand) }
     }
 

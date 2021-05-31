@@ -7,8 +7,8 @@ import java.lang.reflect.Method
 class TestSubCommandFactory(method: Method) : AbstractSubCommandFactory<TestSubCommand>(method) {
 
     override fun create(): TestSubCommand? {
-        if (commandName == null) return null
-        return TestSubCommand(commandName, alias)
+        if (name == null) return null
+        return TestSubCommand(name, alias)
     }
 
 }
