@@ -1,4 +1,4 @@
-package dev.triumphteam.core.internal;
+package dev.triumphteam.core;
 
 import dev.triumphteam.core.annotations.Command;
 import org.jetbrains.annotations.NotNull;

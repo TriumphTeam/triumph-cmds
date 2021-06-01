@@ -1,9 +1,9 @@
 package dev.triumphteam.core.implementations
 
 import dev.triumphteam.core.implementations.factory.TestSubCommandFactory
-import dev.triumphteam.core.internal.BaseCommand
-import dev.triumphteam.core.internal.SubCommand
-import dev.triumphteam.core.internal.command.Command
+import dev.triumphteam.core.BaseCommand
+import dev.triumphteam.core.SubCommand
+import dev.triumphteam.core.command.Command
 import java.lang.reflect.Modifier
 
 class TestCommand(private val commandName: String, private val alias: MutableList<String>) : Command {

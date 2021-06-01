@@ -1,8 +1,8 @@
 package dev.triumphteam.core.implementations.factory
 
 import dev.triumphteam.core.implementations.TestCommand
-import dev.triumphteam.core.internal.BaseCommand
-import dev.triumphteam.core.internal.command.factory.AbstractCommandFactory
+import dev.triumphteam.core.BaseCommand
+import dev.triumphteam.core.command.factory.AbstractCommandFactory
 
 class TestCommandFactory(baseCommand: BaseCommand) : AbstractCommandFactory<TestCommand>(baseCommand) {
 

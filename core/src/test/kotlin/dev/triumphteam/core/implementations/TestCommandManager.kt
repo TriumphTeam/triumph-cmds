@@ -1,8 +1,8 @@
 package dev.triumphteam.core.implementations
 
 import dev.triumphteam.core.implementations.factory.TestCommandFactory
-import dev.triumphteam.core.internal.BaseCommand
-import dev.triumphteam.core.internal.CommandManager
+import dev.triumphteam.core.BaseCommand
+import dev.triumphteam.core.CommandManager
 
 
 class TestCommandManager : CommandManager<TestCommand>() {

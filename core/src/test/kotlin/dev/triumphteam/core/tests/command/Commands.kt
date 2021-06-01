@@ -1,7 +1,7 @@
 package dev.triumphteam.core.tests.command
 
 import dev.triumphteam.core.annotations.Command
-import dev.triumphteam.core.internal.BaseCommand
+import dev.triumphteam.core.BaseCommand
 
 class NoCommand : BaseCommand()
 
@@ -11,7 +11,7 @@ class EmptyCommand : BaseCommand()
 @Command("commandName")
 class NormalCommand : BaseCommand()
 
-@Command("commandName", aliases = ["alias", "alias2"])
+@Command("commandName", alias = ["alias", "alias2"])
 class AnnotationAlias : BaseCommand()
 
 class NoAnnotationCommand : BaseCommand("commandName", listOf("alias", "alias2"))
