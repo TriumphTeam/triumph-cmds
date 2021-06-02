@@ -1,16 +1,20 @@
-package dev.triumphteam.core.internal.command.factory;
+package dev.triumphteam.core.command.factory;
 
-import dev.triumphteam.core.internal.BaseCommand;
+import dev.triumphteam.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-final class AnnotationUtil {
+public final class AnnotationUtil {
 
-    // TODO
-    private AnnotationUtil() {}
+    /**
+     * Private constructor since it's util class.
+     */
+    private AnnotationUtil() {
+        throw new AssertionError("Util must not be initialized");
+    }
 
     /**
      * Util for getting the annotation or null so it doesn't throw exception
@@ -21,7 +25,7 @@ final class AnnotationUtil {
      * @return The annotation to use
      */
     @Nullable
-    static <T extends Annotation> T getAnnotation(
+    public static <T extends Annotation> T getAnnotation(
             @NotNull final Class<? extends BaseCommand> commandClass,
             @NotNull final Class<T> annotation
     ) {
@@ -38,7 +42,7 @@ final class AnnotationUtil {
      * @return The annotation to use
      */
     @Nullable
-    static <T extends Annotation> T getAnnotation(
+    public static <T extends Annotation> T getAnnotation(
             @NotNull final Method method,
             @NotNull final Class<T> annotation
     ) {

@@ -1,8 +1,8 @@
-package dev.triumphteam.core.internal.command.factory;
+package dev.triumphteam.core.command.factory;
 
+import dev.triumphteam.core.BaseCommand;
+import dev.triumphteam.core.command.Command;
 import dev.triumphteam.core.exceptions.CommandRegistrationException;
-import dev.triumphteam.core.internal.BaseCommand;
-import dev.triumphteam.core.internal.command.Command;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -19,25 +19,38 @@ public abstract class AbstractCommandFactory<C extends Command> {
     }
 
     /**
-     * Abstract method so children can handle the return of the new {@link Command}
+     * Abstract method so children can handle the return of the new {@link Command}.
      *
-     * @return A {@link Command} implementation
+     * @return A {@link Command} implementation.
      */
+    @NotNull
     public abstract C create();
 
+    /**
+     * Used for the child factories to get the command name.
+     *
+     * @return The command name.
+     */
+    @NotNull
     protected String getName() {
         return name;
     }
 
+    /**
+     * Used for the child factories to get a {@link List<String>} with the command's alias.
+     *
+     * @return The command alias.
+     */
+    @NotNull
     protected List<String> getAlias() {
         return alias;
     }
 
     /**
-     * Helper method for getting the command names from the command annotation
+     * Helper method for getting the command names from the command annotation.
      *
-     * @param baseCommand The {@link BaseCommand} instance
-     * @throws CommandRegistrationException In case something goes wrong should throw exception
+     * @param baseCommand The {@link BaseCommand} instance.
+     * @throws CommandRegistrationException In case something goes wrong should throw exception.
      */
     private void extractCommandNames(final BaseCommand baseCommand) throws CommandRegistrationException {
         final Class<? extends BaseCommand> commandClass = baseCommand.getClass();

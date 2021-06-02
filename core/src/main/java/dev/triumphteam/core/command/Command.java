@@ -1,6 +1,6 @@
-package dev.triumphteam.core.internal.command;
+package dev.triumphteam.core.command;
 
-import dev.triumphteam.core.internal.BaseCommand;
+import dev.triumphteam.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -14,7 +14,5 @@ public interface Command {
     List<String> getAlias();
 
     boolean addSubCommands(@NotNull final BaseCommand baseCommand);
-
-    boolean isAlias();
 
 }

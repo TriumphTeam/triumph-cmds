@@ -1,4 +1,4 @@
-package dev.triumphteam.core.internal.command;
+package dev.triumphteam.core.command;
 
 public interface SubCommand {
 }

@@ -14,8 +14,7 @@ public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCom
     @NotNull
     @Override
     public BukkitCommand create() {
-        return new BukkitCommand();
+        return new BukkitCommand(getName(), getAlias());
     }
-
 
 }

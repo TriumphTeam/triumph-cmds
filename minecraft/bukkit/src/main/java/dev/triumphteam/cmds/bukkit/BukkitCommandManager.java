@@ -22,7 +22,7 @@ public final class BukkitCommandManager extends CommandManager {
             return;
         }
 
-
+        commands.put(bukkitCommand.getName(), bukkitCommand);
     }
 
 
