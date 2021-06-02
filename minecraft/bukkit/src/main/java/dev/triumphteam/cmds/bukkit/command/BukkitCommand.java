@@ -25,12 +25,13 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
 
     @Override
     public boolean addSubCommands(final @NotNull BaseCommand baseCommand) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean execute(@NotNull final CommandSender sender, @NotNull final String commandLabel, @NotNull final String[] args) {
-        return false;
+        sender.sendMessage("Fuck you, and your shitty commands");
+        return true;
     }
 
     @NotNull
