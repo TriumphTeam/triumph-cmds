@@ -31,7 +31,7 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
      * @return A {@link SubCommand} implementation.
      */
     @Nullable
-    public abstract S create();
+    protected abstract S create();
 
     /**
      * Used for the child factories to get the sub command name.

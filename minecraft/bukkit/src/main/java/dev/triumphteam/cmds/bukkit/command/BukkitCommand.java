@@ -1,10 +1,13 @@
 package dev.triumphteam.cmds.bukkit.command;
 
+import dev.triumphteam.cmds.bukkit.factory.BukkitSubCommandFactory;
 import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 public final class BukkitCommand extends org.bukkit.command.Command implements Command {
@@ -24,7 +27,14 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     }
 
     @Override
-    public boolean addSubCommands(final @NotNull BaseCommand baseCommand) {
+    public boolean addSubCommands(@NotNull final BaseCommand baseCommand) {
+        for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
+            if (!Modifier.isPublic(method.getModifiers())) continue;
+
+            final BukkitSubCommand subCommand = BukkitSubCommandFactory.of(method);
+            System.out.println(subCommand);
+        }
+
         return true;
     }
 

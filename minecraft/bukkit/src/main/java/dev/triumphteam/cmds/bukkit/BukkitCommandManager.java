@@ -35,7 +35,7 @@ public final class BukkitCommandManager extends CommandManager {
 
     @Override
     public void registerCommand(@NotNull final BaseCommand command) {
-        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command).create();
+        final BukkitCommand bukkitCommand = BukkitCommandFactory.of(command);
 
         // TODO multiple classes
         if (!bukkitCommand.addSubCommands(command)) {
@@ -65,7 +65,7 @@ public final class BukkitCommandManager extends CommandManager {
      */
     @NotNull
     private CommandMap getCommandMap() {
-        CommandMap commandMap = null;
+        final CommandMap commandMap;
 
         try {
             final Server server = Bukkit.getServer();
@@ -79,7 +79,7 @@ public final class BukkitCommandManager extends CommandManager {
 
             //noinspection unchecked
             this.bukkitCommands = (Map<String, org.bukkit.command.Command>) bukkitCommands.get(commandMap);
-        } catch (final Exception e) {
+        } catch (final Exception ignored) {
             throw new CommandRegistrationException("Could not get Command Map, Commands won't be registered!");
         }
 

@@ -24,7 +24,7 @@ public abstract class AbstractCommandFactory<C extends Command> {
      * @return A {@link Command} implementation.
      */
     @NotNull
-    public abstract C create();
+    protected abstract C create();
 
     /**
      * Used for the child factories to get the command name.

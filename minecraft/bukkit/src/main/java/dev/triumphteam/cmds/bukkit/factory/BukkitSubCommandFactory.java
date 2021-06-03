@@ -9,13 +9,23 @@ import java.lang.reflect.Method;
 
 public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<BukkitSubCommand> {
 
-    public BukkitSubCommandFactory(@NotNull final Method method) {
+    private BukkitSubCommandFactory(@NotNull final Method method) {
         super(method);
+    }
+
+    /**
+     * Factory method for creating a new {@link BukkitSubCommand}.
+     *
+     * @param method The {@link Method} to pass to the factory to retrieve the annotation data.
+     * @return A new {@link BukkitSubCommand}.
+     */
+    public static BukkitSubCommand of(@NotNull final Method method) {
+        return new BukkitSubCommandFactory(method).create();
     }
 
     @Nullable
     @Override
-    public BukkitSubCommand create() {
+    protected BukkitSubCommand create() {
         final String name = getName();
         if (name == null) return null;
         return new BukkitSubCommand();
