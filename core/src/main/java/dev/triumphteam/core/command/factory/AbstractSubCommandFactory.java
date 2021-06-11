@@ -1,27 +1,37 @@
 package dev.triumphteam.core.command.factory;
 
 import dev.triumphteam.core.annotations.Default;
+import dev.triumphteam.core.argument.Argument;
 import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
+import dev.triumphteam.core.registry.ArgumentRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractSubCommandFactory<S extends SubCommand> {
 
+    private final Method method;
     private String name = null;
     private final List<String> alias = new ArrayList<>();
     private boolean isDefault = false;
+    private final Map<Class<?>, Argument> arguments = new LinkedHashMap<>();
 
-    protected AbstractSubCommandFactory(@NotNull final Method method) {
-        extractSubCommandNames(method);
+    private final ArgumentRegistry argumentRegistry;
 
+    protected AbstractSubCommandFactory(@NotNull final Method method, @NotNull final ArgumentRegistry argumentRegistry) {
+        this.method = method;
+        this.argumentRegistry = argumentRegistry;
+
+        extractSubCommandNames();
         if (name == null) return;
-
     }
 
     /**
@@ -66,10 +76,9 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
     /**
      * Extracts the data from the method to retrieve the sub command name or the default name.
      *
-     * @param method The current method to check the annotations.
      * @throws SubCommandRegistrationException Throws exception if the sub command annotation has an empty command.
      */
-    private void extractSubCommandNames(@NotNull final Method method) throws SubCommandRegistrationException {
+    private void extractSubCommandNames() throws SubCommandRegistrationException {
         final Default defaultAnnotation = AnnotationUtil.getAnnotation(method, Default.class);
         final dev.triumphteam.core.annotations.SubCommand subCommandAnnotation = AnnotationUtil.getAnnotation(method, dev.triumphteam.core.annotations.SubCommand.class);
 
@@ -93,5 +102,12 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
         }
     }
 
+    protected void createArgument(@NotNull final Parameter parameter) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Type: ").append(parameter.getType().getName()).append(", ")
+                .append("Name: ").append(parameter.getName()).append(", ")
+                .append("Registered: ").append(argumentRegistry.isRegisteredType(parameter.getType()));
+        System.out.println(builder);
+    }
 
 }

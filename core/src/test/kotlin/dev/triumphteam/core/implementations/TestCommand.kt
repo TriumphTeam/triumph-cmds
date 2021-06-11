@@ -1,9 +1,8 @@
 package dev.triumphteam.core.implementations
 
-import dev.triumphteam.core.implementations.factory.TestSubCommandFactory
 import dev.triumphteam.core.BaseCommand
-import dev.triumphteam.core.SubCommand
 import dev.triumphteam.core.command.Command
+import dev.triumphteam.core.command.SubCommand
 import java.lang.reflect.Modifier
 
 class TestCommand(private val commandName: String, private val alias: MutableList<String>) : Command {
@@ -15,15 +14,11 @@ class TestCommand(private val commandName: String, private val alias: MutableLis
         baseCommand.javaClass.declaredMethods
             .filter { Modifier.isPublic(it.modifiers) }
             .forEach {
-                val subCommandData = TestSubCommandFactory(it).create() ?: return@forEach
-                println(subCommandData)
+                //val subCommandData = TestSubCommandFactory(it).create() ?: return@forEach
+                //println(subCommandData)
             }
 
         return subCommands.isNotEmpty()
-    }
-
-    override fun isAlias(): Boolean {
-        return false
     }
 
     override fun getName(): String {

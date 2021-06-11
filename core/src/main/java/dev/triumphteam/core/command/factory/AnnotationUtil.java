@@ -50,4 +50,8 @@ public final class AnnotationUtil {
         return method.getAnnotation(annotation);
     }
 
+    public static void println(Object obj) {
+
+    }
+
 }

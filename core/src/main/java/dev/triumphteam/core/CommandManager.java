@@ -28,4 +28,8 @@ public abstract class CommandManager {
         }
     }
 
+    protected ArgumentRegistry getArgumentRegistry() {
+        return argumentRegistry;
+    }
+
 }

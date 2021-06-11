@@ -35,7 +35,7 @@ public final class BukkitCommandManager extends CommandManager {
 
     @Override
     public void registerCommand(@NotNull final BaseCommand command) {
-        final BukkitCommand bukkitCommand = BukkitCommandFactory.of(command);
+        final BukkitCommand bukkitCommand = BukkitCommandFactory.of(command, getArgumentRegistry());
 
         // TODO multiple classes
         if (!bukkitCommand.addSubCommands(command)) {
