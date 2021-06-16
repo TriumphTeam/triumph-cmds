@@ -45,7 +45,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
-            final BukkitSubCommand subCommand = BukkitSubCommandFactory.of(method, argumentRegistry);
+            final BukkitSubCommand subCommand = BukkitSubCommandFactory.createFrom(method, argumentRegistry);
             if (subCommand == null) continue;
 
             // TODO add this later and add aliases

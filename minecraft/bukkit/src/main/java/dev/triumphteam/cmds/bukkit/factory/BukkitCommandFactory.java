@@ -7,9 +7,13 @@ import dev.triumphteam.core.registry.ArgumentRegistry;
 import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCommand> {
+
     private final ArgumentRegistry argumentRegistry;
 
-    public BukkitCommandFactory(@NotNull final BaseCommand baseCommand, final ArgumentRegistry argumentRegistry) {
+    public BukkitCommandFactory(
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final ArgumentRegistry argumentRegistry
+    ) {
         super(baseCommand);
         this.argumentRegistry = argumentRegistry;
     }
@@ -20,7 +24,10 @@ public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCom
      * @param baseCommand The {@link BaseCommand} to pass to the factory to retrieve the annotation data.
      * @return A new {@link BukkitCommand}.
      */
-    public static BukkitCommand of(@NotNull final BaseCommand baseCommand, final ArgumentRegistry argumentRegistry) {
+    public static BukkitCommand createFrom(
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final ArgumentRegistry argumentRegistry
+    ) {
         return new BukkitCommandFactory(baseCommand, argumentRegistry).create();
     }
 
