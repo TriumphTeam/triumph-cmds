@@ -9,6 +9,7 @@ import dev.triumphteam.core.exceptions.CommandRegistrationException;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
@@ -19,7 +20,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class BukkitCommandManager extends CommandManager {
+public final class BukkitCommandManager extends CommandManager<CommandSender> {
 
     private final Plugin plugin;
 

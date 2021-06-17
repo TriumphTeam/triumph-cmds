@@ -2,9 +2,9 @@ package dev.triumphteam.core.command.factory;
 
 import dev.triumphteam.core.annotations.Default;
 import dev.triumphteam.core.annotations.Join;
-import dev.triumphteam.core.argument.Argument;
-import dev.triumphteam.core.argument.BasicArgument;
-import dev.triumphteam.core.argument.JoinableStringArgument;
+import dev.triumphteam.core.command.argument.Argument;
+import dev.triumphteam.core.command.argument.BasicArgument;
+import dev.triumphteam.core.command.argument.JoinableStringArgument;
 import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.core.registry.ArgumentRegistry;
@@ -121,16 +121,14 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
             throw new SubCommandRegistrationException("No argument of type `" + type.getName() + "` registered.", method);
         }
 
+        // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            final Argument argument = new JoinableStringArgument(joinAnnotation.value());
-            System.out.println(argument.resolve(new String[]{"Hello", "there", "person"}));
             arguments.put(type, new JoinableStringArgument(joinAnnotation.value()));
             return;
         }
-
-        final Argument argument = new BasicArgument(type, argumentRegistry.getResolver(type));
-        arguments.put(type, argument);
+        
+        arguments.put(type, new BasicArgument(argumentRegistry.getResolver(type)));
     }
 
 }

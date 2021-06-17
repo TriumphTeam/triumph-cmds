@@ -1,14 +1,15 @@
 package dev.triumphteam.core;
 
+import dev.triumphteam.core.command.argument.ArgumentResolver;
 import dev.triumphteam.core.registry.ArgumentRegistry;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Base command manager for all platforms
  */
-public abstract class CommandManager {
+public abstract class CommandManager<S> {
 
-    private final ArgumentRegistry argumentRegistry = new ArgumentRegistry();
+    private final ArgumentRegistry<S> argumentRegistry = new ArgumentRegistry<>();
 
     /**
      * Main registering method to be implemented in other platform command managers
@@ -28,7 +29,11 @@ public abstract class CommandManager {
         }
     }
 
-    protected ArgumentRegistry getArgumentRegistry() {
+    public final void registerArgument(@NotNull final Class<?> clazz, @NotNull final ArgumentResolver<S> resolver) {
+        argumentRegistry.register(clazz, resolver);
+    }
+
+    protected ArgumentRegistry<S> getArgumentRegistry() {
         return argumentRegistry;
     }
 

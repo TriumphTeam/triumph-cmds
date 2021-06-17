@@ -4,15 +4,16 @@ import dev.triumphteam.cmds.bukkit.command.BukkitCommand;
 import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.command.factory.AbstractCommandFactory;
 import dev.triumphteam.core.registry.ArgumentRegistry;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCommand> {
 
-    private final ArgumentRegistry argumentRegistry;
+    private final ArgumentRegistry<CommandSender> argumentRegistry;
 
     public BukkitCommandFactory(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry argumentRegistry
+            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry
     ) {
         super(baseCommand);
         this.argumentRegistry = argumentRegistry;
@@ -26,7 +27,7 @@ public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCom
      */
     public static BukkitCommand createFrom(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry argumentRegistry
+            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry
     ) {
         return new BukkitCommandFactory(baseCommand, argumentRegistry).create();
     }

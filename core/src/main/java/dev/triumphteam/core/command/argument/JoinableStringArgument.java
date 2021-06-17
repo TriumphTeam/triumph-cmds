@@ -1,9 +1,9 @@
-package dev.triumphteam.core.argument;
+package dev.triumphteam.core.command.argument;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class JoinableStringArgument implements Argument {
+public final class JoinableStringArgument<S> implements Argument<S> {
 
     private final CharSequence delimiter;
 
@@ -13,7 +13,7 @@ public final class JoinableStringArgument implements Argument {
 
     @Nullable
     @Override
-    public Object resolve(@NotNull final Object value) {
+    public Object resolve(@NotNull S sender, @NotNull final Object value) {
         if (!(value instanceof String[])) {
             return null;
         }
