@@ -10,7 +10,11 @@ public final class SubCommandRegistrationException extends RuntimeException {
             @NotNull final String message,
             @NotNull final Method method
     ) {
-        super(message + " on Method: `" + method.getName() + "`");
+        super(message + " On Method: `" + method.getName() + "`");
+    }
+
+    public SubCommandRegistrationException(@NotNull final String message) {
+        super(message);
     }
 
 }

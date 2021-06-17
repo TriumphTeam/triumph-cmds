@@ -1,7 +1,10 @@
 package dev.triumphteam.core.command.factory;
 
 import dev.triumphteam.core.annotations.Default;
+import dev.triumphteam.core.annotations.Join;
 import dev.triumphteam.core.argument.Argument;
+import dev.triumphteam.core.argument.BasicArgument;
+import dev.triumphteam.core.argument.JoinableStringArgument;
 import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.core.registry.ArgumentRegistry;
@@ -22,6 +25,7 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
     private String name = null;
     private final List<String> alias = new ArrayList<>();
     private boolean isDefault = false;
+
     private final Map<Class<?>, Argument> arguments = new LinkedHashMap<>();
 
     private final ArgumentRegistry argumentRegistry;
@@ -74,6 +78,15 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
     }
 
     /**
+     * Gets the necessary arguments for the command.
+     *
+     * @return The arguments map.
+     */
+    protected Map<Class<?>, Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
      * Extracts the data from the method to retrieve the sub command name or the default name.
      *
      * @throws SubCommandRegistrationException Throws exception if the sub command annotation has an empty command.
@@ -103,11 +116,21 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
     }
 
     protected void createArgument(@NotNull final Parameter parameter) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("Type: ").append(parameter.getType().getName()).append(", ")
-                .append("Name: ").append(parameter.getName()).append(", ")
-                .append("Registered: ").append(argumentRegistry.isRegisteredType(parameter.getType()));
-        System.out.println(builder);
+        final Class<?> type = parameter.getType();
+        if (!argumentRegistry.isRegisteredType(type)) {
+            throw new SubCommandRegistrationException("No argument of type `" + type.getName() + "` registered.", method);
+        }
+
+        if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
+            final Join joinAnnotation = parameter.getAnnotation(Join.class);
+            final Argument argument = new JoinableStringArgument(joinAnnotation.value());
+            System.out.println(argument.resolve(new String[]{"Hello", "there", "person"}));
+            arguments.put(type, new JoinableStringArgument(joinAnnotation.value()));
+            return;
+        }
+
+        final Argument argument = new BasicArgument(type, argumentRegistry.getResolver(type));
+        arguments.put(type, argument);
     }
 
 }

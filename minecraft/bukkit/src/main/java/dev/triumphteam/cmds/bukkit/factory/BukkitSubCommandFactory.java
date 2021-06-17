@@ -2,8 +2,9 @@ package dev.triumphteam.cmds.bukkit.factory;
 
 import dev.triumphteam.cmds.bukkit.command.BukkitSubCommand;
 import dev.triumphteam.core.command.factory.AbstractSubCommandFactory;
+import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.core.registry.ArgumentRegistry;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,12 +13,17 @@ import java.lang.reflect.Parameter;
 
 public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<BukkitSubCommand> {
 
+    private Class<?> senderClass;
+
     private BukkitSubCommandFactory(
             @NotNull final Method method,
             @NotNull final ArgumentRegistry argumentRegistry
     ) {
         super(method, argumentRegistry);
         extractArguments(method);
+
+        System.out.println(senderClass);
+        System.out.println(getArguments());
     }
 
     /**
@@ -50,9 +56,14 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Buk
             final Parameter parameter = parameters[i];
 
             if (i == 0) {
-                if (parameter.getType().isAssignableFrom(Player.class)) {
-                    System.out.println("player boy");
+                if (!CommandSender.class.isAssignableFrom(parameter.getType())) {
+                    throw new SubCommandRegistrationException(
+                            "Invalid or missing sender parameter (must be a CommandSender, Player, or ConsoleCommandSender).",
+                            method
+                    );
                 }
+
+                senderClass = parameter.getType();
                 continue;
             }
 
