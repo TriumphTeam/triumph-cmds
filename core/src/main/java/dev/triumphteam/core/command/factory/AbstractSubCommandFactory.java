@@ -1,13 +1,16 @@
 package dev.triumphteam.core.command.factory;
 
+import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.annotations.Default;
 import dev.triumphteam.core.annotations.Join;
+import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.command.argument.Argument;
 import dev.triumphteam.core.command.argument.BasicArgument;
 import dev.triumphteam.core.command.argument.JoinableStringArgument;
-import dev.triumphteam.core.command.SubCommand;
+import dev.triumphteam.core.command.requirement.RequirementResolver;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.core.registry.ArgumentRegistry;
+import dev.triumphteam.core.registry.RequirementRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,24 +18,36 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public abstract class AbstractSubCommandFactory<S extends SubCommand> {
+public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
+    private final BaseCommand baseCommand;
     private final Method method;
     private String name = null;
     private final List<String> alias = new ArrayList<>();
     private boolean isDefault = false;
 
-    private final Map<Class<?>, Argument> arguments = new LinkedHashMap<>();
+    private final Map<Class<?>, Argument<S>> arguments = new LinkedHashMap<>();
+    private final Set<RequirementResolver<S>> requirements = new HashSet<>();
 
-    private final ArgumentRegistry argumentRegistry;
+    private final ArgumentRegistry<S> argumentRegistry;
+    private final RequirementRegistry<S> requirementRegistry;
 
-    protected AbstractSubCommandFactory(@NotNull final Method method, @NotNull final ArgumentRegistry argumentRegistry) {
+    protected AbstractSubCommandFactory(
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final Method method,
+            @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final RequirementRegistry<S> requirementRegistry) {
+        this.baseCommand = baseCommand;
         this.method = method;
+
         this.argumentRegistry = argumentRegistry;
+        this.requirementRegistry = requirementRegistry;
 
         extractSubCommandNames();
         if (name == null) return;
@@ -45,7 +60,7 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
      * @return A {@link SubCommand} implementation.
      */
     @Nullable
-    protected abstract S create();
+    protected abstract SC create();
 
     /**
      * Used for the child factories to get the sub command name.
@@ -77,12 +92,25 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
         return isDefault;
     }
 
+    // TODO comments
+    protected BaseCommand getBaseCommand() {
+        return baseCommand;
+    }
+
+    protected Method getMethod() {
+        return method;
+    }
+
+    protected Set<RequirementResolver<S>> getRequirements() {
+        return requirements;
+    }
+
     /**
      * Gets the necessary arguments for the command.
      *
      * @return The arguments map.
      */
-    protected Map<Class<?>, Argument> getArguments() {
+    protected Map<Class<?>, Argument<S>> getArguments() {
         return arguments;
     }
 
@@ -124,11 +152,11 @@ public abstract class AbstractSubCommandFactory<S extends SubCommand> {
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            arguments.put(type, new JoinableStringArgument(joinAnnotation.value()));
+            arguments.put(type, new JoinableStringArgument<>(joinAnnotation.value()));
             return;
         }
-        
-        arguments.put(type, new BasicArgument(argumentRegistry.getResolver(type)));
+
+        arguments.put(type, new BasicArgument<>(argumentRegistry.getResolver(type)));
     }
 
 }

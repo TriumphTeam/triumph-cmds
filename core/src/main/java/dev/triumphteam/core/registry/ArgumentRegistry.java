@@ -13,7 +13,7 @@ import java.util.Map;
 
 public final class ArgumentRegistry<S> {
 
-    private final Map<Class<?>, ArgumentResolver<S>> registeredArguments = new HashMap<>();
+    private final Map<Class<?>, ArgumentResolver<S>> arguments = new HashMap<>();
 
     @SuppressWarnings("UnstableApiUsage")
     public ArgumentRegistry() {
@@ -42,16 +42,16 @@ public final class ArgumentRegistry<S> {
     }
 
     public void register(@NotNull final Class<?> clazz, final ArgumentResolver<S> argument) {
-        registeredArguments.put(clazz, argument);
+        arguments.put(clazz, argument);
     }
 
     public boolean isRegisteredType(@NotNull final Class<?> clazz) {
-        return registeredArguments.get(clazz) != null;
+        return arguments.get(clazz) != null;
     }
 
     @NotNull
     public ArgumentResolver<S> getResolver(@NotNull final Class<?> clazz) {
-        final ArgumentResolver<S> resolver = registeredArguments.get(clazz);
+        final ArgumentResolver<S> resolver = arguments.get(clazz);
 
         // Should never throw, but, just in case
         if (resolver == null) {

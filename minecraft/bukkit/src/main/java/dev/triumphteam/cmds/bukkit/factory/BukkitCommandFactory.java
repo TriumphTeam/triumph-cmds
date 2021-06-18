@@ -4,19 +4,24 @@ import dev.triumphteam.cmds.bukkit.command.BukkitCommand;
 import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.command.factory.AbstractCommandFactory;
 import dev.triumphteam.core.registry.ArgumentRegistry;
+import dev.triumphteam.core.registry.RequirementRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCommand> {
 
+    // TODO probably move this lol
     private final ArgumentRegistry<CommandSender> argumentRegistry;
+    private final RequirementRegistry<CommandSender> requirementRegistry;
 
     public BukkitCommandFactory(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry
+            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
+            @NotNull final RequirementRegistry<CommandSender> requirementRegistry
     ) {
         super(baseCommand);
         this.argumentRegistry = argumentRegistry;
+        this.requirementRegistry = requirementRegistry;
     }
 
     /**
@@ -27,9 +32,10 @@ public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCom
      */
     public static BukkitCommand createFrom(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry
+            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
+            @NotNull final RequirementRegistry<CommandSender> requirementRegistry
     ) {
-        return new BukkitCommandFactory(baseCommand, argumentRegistry).create();
+        return new BukkitCommandFactory(baseCommand, argumentRegistry, requirementRegistry).create();
     }
 
     /**
@@ -40,7 +46,7 @@ public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCom
     @NotNull
     @Override
     protected BukkitCommand create() {
-        return new BukkitCommand(getName(), getAlias(), argumentRegistry);
+        return new BukkitCommand(getName(), getAlias(), argumentRegistry, requirementRegistry);
     }
 
 }
