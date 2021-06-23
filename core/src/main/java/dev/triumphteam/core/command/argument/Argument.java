@@ -5,6 +5,9 @@ import org.jetbrains.annotations.Nullable;
 
 public interface Argument<S> {
 
+    @NotNull
+    Class<?> getType();
+
     @Nullable
     Object resolve(@NotNull S sender, @NotNull final Object value);
 

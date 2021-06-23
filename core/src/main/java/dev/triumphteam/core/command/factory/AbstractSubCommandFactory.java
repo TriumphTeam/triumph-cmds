@@ -17,12 +17,12 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
@@ -32,8 +32,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     private final List<String> alias = new ArrayList<>();
     private boolean isDefault = false;
 
-    private final Map<Class<?>, Argument<S>> arguments = new LinkedHashMap<>();
-    private final Set<RequirementResolver<S>> requirements = new HashSet<>();
+    private final List<Argument<S>> arguments = new LinkedList<>();
+    private final Set<RequirementResolver<S>> requirements = new LinkedHashSet<>();
 
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
@@ -108,9 +108,9 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     /**
      * Gets the necessary arguments for the command.
      *
-     * @return The arguments map.
+     * @return The arguments list.
      */
-    protected Map<Class<?>, Argument<S>> getArguments() {
+    protected List<Argument<S>> getArguments() {
         return arguments;
     }
 
@@ -129,14 +129,14 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
         if (defaultAnnotation != null) {
             name = Default.DEFAULT_CMD_NAME;
-            Collections.addAll(alias, defaultAnnotation.alias());
+            alias.addAll(Arrays.stream(defaultAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
             isDefault = true;
 
             return;
         }
 
-        name = subCommandAnnotation.value();
-        Collections.addAll(alias, subCommandAnnotation.alias());
+        name = subCommandAnnotation.value().toLowerCase();
+        alias.addAll(Arrays.stream(subCommandAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
 
         if (this.name.isEmpty()) {
             throw new SubCommandRegistrationException("Command name is empty!", method);
@@ -152,11 +152,11 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            arguments.put(type, new JoinableStringArgument<>(joinAnnotation.value()));
+            arguments.add(new JoinableStringArgument<>(joinAnnotation.value()));
             return;
         }
 
-        arguments.put(type, new BasicArgument<>(argumentRegistry.getResolver(type)));
+        arguments.add(new BasicArgument<>(type, argumentRegistry.getResolver(type)));
     }
 
 }

@@ -18,7 +18,7 @@ public @interface Command {
     @NotNull
     String value();
 
-   @NotNull
+    @NotNull
     String[] alias() default {};
 
 }

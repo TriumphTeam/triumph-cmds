@@ -53,7 +53,15 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
     protected BukkitSubCommand create() {
         final String name = getName();
         if (name == null) return null;
-        return new BukkitSubCommand(getBaseCommand(), getMethod(), name, getAlias(), getRequirements(), isDefault());
+        return new BukkitSubCommand(
+                getBaseCommand(),
+                getMethod(),
+                name,
+                getAlias(),
+                getArguments(),
+                getRequirements(),
+                isDefault()
+        );
     }
 
     private void extractArguments(final Method method) {

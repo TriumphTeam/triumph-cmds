@@ -2,6 +2,7 @@ package dev.triumphteam.cmds.bukkit.command;
 
 import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.command.SubCommand;
+import dev.triumphteam.core.command.argument.Argument;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -17,10 +18,11 @@ public final class BukkitSubCommand extends SubCommand<CommandSender> {
             @NotNull final Method method,
             @NotNull final String name,
             @NotNull final List<String> alias,
+            @NotNull final List<Argument<CommandSender>> arguments,
             @NotNull final Set<RequirementResolver<CommandSender>> requirements,
             final boolean isDefault
     ) {
-        super(baseCommand, method, name, alias, requirements, isDefault);
+        super(baseCommand, method, name, alias, arguments, requirements, isDefault);
     }
 
 }
