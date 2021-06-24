@@ -3,6 +3,7 @@ package dev.triumphteam.core.command.factory;
 import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.annotations.Default;
 import dev.triumphteam.core.annotations.Join;
+import dev.triumphteam.core.annotations.Optional;
 import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.command.argument.Argument;
 import dev.triumphteam.core.command.argument.BasicArgument;
@@ -149,14 +150,16 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             throw new SubCommandRegistrationException("No argument of type `" + type.getName() + "` registered.", method);
         }
 
+        final boolean optional = parameter.isAnnotationPresent(Optional.class);
+
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            arguments.add(new JoinableStringArgument<>(joinAnnotation.value()));
+            arguments.add(new JoinableStringArgument<>(joinAnnotation.value(), optional));
             return;
         }
 
-        arguments.add(new BasicArgument<>(type, argumentRegistry.getResolver(type)));
+        arguments.add(new BasicArgument<>(type, argumentRegistry.getResolver(type), optional));
     }
 
 }

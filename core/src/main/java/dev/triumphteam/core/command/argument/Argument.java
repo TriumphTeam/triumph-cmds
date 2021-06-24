@@ -8,6 +8,8 @@ public interface Argument<S> {
     @NotNull
     Class<?> getType();
 
+    boolean isOptional();
+
     @Nullable
     Object resolve(@NotNull S sender, @NotNull final Object value);
 

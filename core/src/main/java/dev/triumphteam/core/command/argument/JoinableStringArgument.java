@@ -8,15 +8,25 @@ import java.util.List;
 public final class JoinableStringArgument<S> implements LimitlessArgument<S> {
 
     private final CharSequence delimiter;
+    private final boolean optional;
 
-    public JoinableStringArgument(@NotNull final CharSequence delimiter) {
+    public JoinableStringArgument(
+            @NotNull final CharSequence delimiter,
+            final boolean optional
+    ) {
         this.delimiter = delimiter;
+        this.optional = optional;
     }
 
     @NotNull
     @Override
     public Class<?> getType() {
         return String.class;
+    }
+
+    @Override
+    public boolean isOptional() {
+        return optional;
     }
 
     @Nullable

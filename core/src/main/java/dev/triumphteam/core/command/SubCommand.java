@@ -81,6 +81,10 @@ public abstract class SubCommand<S> {
             else arg = valueOrNull(args, i);
 
             if (arg == null) {
+                if (argument.isOptional()) {
+                    invokeArguments.add(null);
+                    continue;
+                }
                 // TODO error
                 System.out.println("hurr durr not enoug args");
                 return;
