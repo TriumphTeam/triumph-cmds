@@ -8,10 +8,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Join {
+@Target(ElementType.METHOD)
+public @interface Flag {
 
     @NotNull
-    String value() default " ";
+    String flag() default "";
+
+    @NotNull
+    String longFlag() default "";
+
+    @NotNull
+    Class<?> argument() default void.class;
+
+    boolean optionalArg() default false;
+
+    boolean required() default false;
 
 }

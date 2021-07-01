@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.5.20"
+    id("me.mattstudios.triumph") version "0.2.1"
 }
 
 
@@ -10,6 +11,7 @@ allprojects {
         plugin("java-library")
         plugin("maven-publish")
         plugin("org.jetbrains.kotlin.jvm")
+        plugin("me.mattstudios.triumph")
     }
 
     group = "dev.triumphteam"

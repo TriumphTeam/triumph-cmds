@@ -1,9 +1,11 @@
+import dev.triumphteam.helper.spigot
+
 repositories {
     mavenCentral()
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    spigot()
 }
 
 dependencies {
     api(project(":triumph-cmds-core"))
-    compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
+    compileOnly(spigot("1.17"))
 }

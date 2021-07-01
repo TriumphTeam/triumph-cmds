@@ -24,7 +24,7 @@ public abstract class AbstractCommandFactory<C extends Command> {
      * @return A {@link Command} implementation.
      */
     @NotNull
-    protected abstract C create();
+    public abstract C create();
 
     /**
      * Used for the child factories to get the command name.
@@ -59,7 +59,7 @@ public abstract class AbstractCommandFactory<C extends Command> {
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
             if (commandName == null) {
-                throw new CommandRegistrationException("Command name or `@Command` annotation missing", commandClass);
+                throw new CommandRegistrationException("Command name or `@" + Command.class.getSimpleName() + "` annotation missing", commandClass);
             }
 
             this.name = commandName;

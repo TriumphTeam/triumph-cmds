@@ -17,7 +17,7 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
 
     private Class<?> senderClass;
 
-    private BukkitSubCommandFactory(
+    public BukkitSubCommandFactory(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
@@ -30,27 +30,9 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
         System.out.println(getArguments());
     }
 
-    /**
-     * Factory method for creating a new {@link BukkitSubCommand}.
-     *
-     * @param baseCommand         The {@link BaseCommand} the method originates from.
-     * @param method              The {@link Method} to pass to the factory to retrieve the annotation data.
-     * @param requirementRegistry
-     * @return A new {@link BukkitSubCommand}.
-     */
-    @Nullable
-    public static BukkitSubCommand createFrom(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final Method method,
-            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry
-    ) {
-        return new BukkitSubCommandFactory(baseCommand, method, argumentRegistry, requirementRegistry).create();
-    }
-
     @Nullable
     @Override
-    protected BukkitSubCommand create() {
+    public BukkitSubCommand create() {
         final String name = getName();
         if (name == null) return null;
         return new BukkitSubCommand(

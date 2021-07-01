@@ -1,13 +1,17 @@
 package dev.triumphteam.core.command.factory;
 
 import dev.triumphteam.core.BaseCommand;
+import dev.triumphteam.core.annotations.CommandFlags;
 import dev.triumphteam.core.annotations.Default;
+import dev.triumphteam.core.annotations.Flag;
 import dev.triumphteam.core.annotations.Join;
 import dev.triumphteam.core.annotations.Optional;
 import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.command.argument.Argument;
 import dev.triumphteam.core.command.argument.BasicArgument;
 import dev.triumphteam.core.command.argument.JoinableStringArgument;
+import dev.triumphteam.core.command.flag.internal.FlagGroup;
+import dev.triumphteam.core.command.flag.internal.FlagValidator;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.core.registry.ArgumentRegistry;
@@ -19,9 +23,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,6 +39,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     private final List<String> alias = new ArrayList<>();
     private boolean isDefault = false;
 
+    private final Map<String, FlagGroup> flagGroups = new HashMap<>();
     private final List<Argument<S>> arguments = new LinkedList<>();
     private final Set<RequirementResolver<S>> requirements = new LinkedHashSet<>();
 
@@ -52,6 +59,9 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
         extractSubCommandNames();
         if (name == null) return;
+
+        extractFlags();
+        System.out.println(flagGroups);
     }
 
     /**
@@ -61,7 +71,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
      * @return A {@link SubCommand} implementation.
      */
     @Nullable
-    protected abstract SC create();
+    public abstract SC create();
 
     /**
      * Used for the child factories to get the sub command name.
@@ -115,6 +125,24 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         return arguments;
     }
 
+    protected void createArgument(@NotNull final Parameter parameter) {
+        final Class<?> type = parameter.getType();
+        if (!argumentRegistry.isRegisteredType(type)) {
+            throw new SubCommandRegistrationException("No argument of type (" + type.getName() + ") registered.", method);
+        }
+
+        final boolean optional = parameter.isAnnotationPresent(Optional.class);
+
+        // Handler for using String with `@Join`.
+        if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
+            final Join joinAnnotation = parameter.getAnnotation(Join.class);
+            arguments.add(new JoinableStringArgument<>(joinAnnotation.value(), optional));
+            return;
+        }
+
+        arguments.add(new BasicArgument<>(type, argumentRegistry.getResolver(type), optional));
+    }
+
     /**
      * Extracts the data from the method to retrieve the sub command name or the default name.
      *
@@ -144,22 +172,45 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         }
     }
 
-    protected void createArgument(@NotNull final Parameter parameter) {
-        final Class<?> type = parameter.getType();
-        if (!argumentRegistry.isRegisteredType(type)) {
-            throw new SubCommandRegistrationException("No argument of type `" + type.getName() + "` registered.", method);
+    private void extractFlags() {
+        final CommandFlags commandFlags = AnnotationUtil.getAnnotation(method, CommandFlags.class);
+        if (commandFlags == null) return;
+
+        final Flag[] flags = commandFlags.value();
+        if (flags.length == 0) {
+            throw new SubCommandRegistrationException(
+                    "`@" + CommandFlags.class.getSimpleName() + "` mustn't be empty.",
+                    method
+            );
         }
 
-        final boolean optional = parameter.isAnnotationPresent(Optional.class);
+        for (final Flag flagAnnotation : flags) {
+            String flag = flagAnnotation.flag();
+            if (flag.isEmpty()) flag = null;
+            FlagValidator.validate(flag, method);
 
-        // Handler for using String with `@Join`.
-        if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
-            final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            arguments.add(new JoinableStringArgument<>(joinAnnotation.value(), optional));
-            return;
+            String longFlag = flagAnnotation.longFlag();
+            if (longFlag.contains(" ")) {
+                throw new SubCommandRegistrationException(
+                        "@" + Flag.class.getSimpleName() + "'s identifier mustn't contain spaces.",
+                        method
+                );
+            }
+            if (longFlag.isEmpty()) longFlag = null;
+
+            Class<?> argument = flagAnnotation.argument();
+            if (argument == void.class) {
+                argument = null;
+            } else if (!argumentRegistry.isRegisteredType(argument)) {
+                throw new SubCommandRegistrationException(
+                        "@" + Flag.class.getSimpleName() + "'s argument contains unregistered type (" + argument.getName() + ").",
+                        method
+                );
+            }
+
+            //final CommandFlag commandFlag = new CommandFlag(flag, longFlag, argument, flagAnnotation.optionalArg(), flagAnnotation.required());
+            //System.out.println(commandFlag);
         }
-
-        arguments.add(new BasicArgument<>(type, argumentRegistry.getResolver(type), optional));
     }
 
 }

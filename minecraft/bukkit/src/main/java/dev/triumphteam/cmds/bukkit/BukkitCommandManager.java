@@ -23,20 +23,20 @@ import java.util.Map;
 public final class BukkitCommandManager extends CommandManager<CommandSender> {
 
     private final Plugin plugin;
-
     private final CommandMap commandMap;
 
     private final Map<String, Command> commands = new HashMap<>();
-    private Map<String, org.bukkit.command.Command> bukkitCommands = new HashMap<>();
+    private final Map<String, org.bukkit.command.Command> bukkitCommands;
 
     public BukkitCommandManager(@NotNull final Plugin plugin) {
         this.plugin = plugin;
-        this.commandMap = getCommandMap();
+        this.commandMap = commandMap();
+        this.bukkitCommands = bukkitCommands(commandMap);
     }
 
     @Override
     public void registerCommand(@NotNull final BaseCommand command) {
-        final BukkitCommand bukkitCommand = BukkitCommandFactory.createFrom(command, getArgumentRegistry(), getRequirementRegistry());
+        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry()).create();
 
         // TODO multiple classes
         if (!bukkitCommand.addSubCommands(command)) {
@@ -47,7 +47,7 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
 
         org.bukkit.command.Command oldCommand = commandMap.getCommand(commandName);
 
-        // From ACF
+        // From ACF (https://github.com/aikar/commands)
         // To allow commands to be registered on the plugin.yml
         if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
             bukkitCommands.remove(commandName);
@@ -65,26 +65,29 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
      * @return The Command Map
      */
     @NotNull
-    private CommandMap getCommandMap() {
-        final CommandMap commandMap;
-
+    private CommandMap commandMap() {
         try {
             final Server server = Bukkit.getServer();
             final Method getCommandMap = server.getClass().getDeclaredMethod("getCommandMap");
             getCommandMap.setAccessible(true);
 
-            commandMap = (CommandMap) getCommandMap.invoke(server);
-
-            final Field bukkitCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
-            bukkitCommands.setAccessible(true);
-
-            //noinspection unchecked
-            this.bukkitCommands = (Map<String, org.bukkit.command.Command>) bukkitCommands.get(commandMap);
+            return (CommandMap) getCommandMap.invoke(server);
         } catch (final Exception ignored) {
+            // TODO make this message better
             throw new CommandRegistrationException("Could not get Command Map, Commands won't be registered!");
         }
+    }
 
-        return commandMap;
+    @NotNull
+    private Map<String, org.bukkit.command.Command> bukkitCommands(@NotNull final CommandMap commandMap) {
+        try {
+            final Field bukkitCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            bukkitCommands.setAccessible(true);
+            //noinspection unchecked
+            return (Map<String, org.bukkit.command.Command>) bukkitCommands.get(commandMap);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new CommandRegistrationException("Could not get Command Map, Commands won't be registered!");
+        }
     }
 
 }

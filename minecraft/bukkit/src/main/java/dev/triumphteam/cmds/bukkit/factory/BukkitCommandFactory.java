@@ -25,27 +25,13 @@ public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCom
     }
 
     /**
-     * Factory method for creating a new {@link BukkitCommand}.
-     *
-     * @param baseCommand The {@link BaseCommand} to pass to the factory to retrieve the annotation data.
-     * @return A new {@link BukkitCommand}.
-     */
-    public static BukkitCommand createFrom(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry
-    ) {
-        return new BukkitCommandFactory(baseCommand, argumentRegistry, requirementRegistry).create();
-    }
-
-    /**
      * Creates the final {@link BukkitCommand}.
      *
      * @return A new {@link BukkitCommand}.
      */
     @NotNull
     @Override
-    protected BukkitCommand create() {
+    public BukkitCommand create() {
         return new BukkitCommand(getName(), getAlias(), argumentRegistry, requirementRegistry);
     }
 

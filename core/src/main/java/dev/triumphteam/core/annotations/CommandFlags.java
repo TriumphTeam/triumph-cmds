@@ -8,10 +8,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Join {
+@Target(ElementType.METHOD)
+public @interface CommandFlags {
 
     @NotNull
-    String value() default " ";
+    Flag[] value();
 
 }
