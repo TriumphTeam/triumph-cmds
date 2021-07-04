@@ -1,7 +1,6 @@
 package dev.triumphteam.core.command.flag.internal;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,60 +13,61 @@ public final class FlagParser<S> {
     private final FlagGroup<S> flagGroup;
     private final S sender;
     private final Scanner scanner;
-    private boolean skip = false;
     private boolean fail = false;
 
     public FlagParser(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
         this.flagGroup = flagGroup;
         this.sender = sender;
         this.scanner = new Scanner(args);
-        System.out.println(args);
     }
 
-    public void parse() {
+    @NotNull
+    public static <S> ParseResult parse(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
+        return new FlagParser<S>(flagGroup, sender, args).parseAndBuild();
+    }
+
+    @NotNull
+    public ParseResult parseAndBuild() {
         while (scanner.hasNext()) {
             if (fail) break;
 
             scanner.next();
             final String token = scanner.peek();
 
-            if (!skip && token.startsWith("--") && !"--".equals(token)) {
-                handleLongFlag(token);
+            if (token.startsWith("--") && !"--".equals(token)) {
+                handleFlag(token, true);
                 continue;
             }
 
-            if (!skip && token.startsWith("-") && !"-".equals(token)) {
-                // TODO handle short
-                //System.out.println("found short");
+            if (token.startsWith("-") && !"-".equals(token)) {
+                handleFlag(token, false);
                 continue;
             }
 
             leftOver.add(token);
         }
 
-        System.out.println("Failed: " + fail);
-        System.out.println(leftOver);
-        result.test();
+        //if (fail) return null;
+        return new ParseResult(leftOver, result);
     }
 
-    private void handleLongFlag(@NotNull String token) {
+    private void handleFlag(@NotNull final String token, final boolean longFlag) {
         int equalsIndex = token.indexOf('=');
         if (equalsIndex == -1) {
-            final CommandFlag<S> flag = flagGroup.getMatchingFlag(token);
-            if (flag == null) {
-                leftOver.add(token);
-                return;
-            }
-
-            handleArguments(flag);
+            handleFlagWithoutEquals(token, longFlag);
             return;
         }
 
-        String value = token.substring(equalsIndex + 1);
-        String flag = token.substring(0, equalsIndex);
+        handleFlagWithEquals(token, equalsIndex, longFlag);
     }
 
-    private void handleArguments(@NotNull final CommandFlag<S> flag, @Nullable String arg) {
+    private void handleFlagWithoutEquals(@NotNull final String token, final boolean longFlag) {
+        final CommandFlag<S> flag = flagGroup.getMatchingFlag(token, longFlag);
+        if (flag == null) {
+            leftOver.add(token);
+            return;
+        }
+
         if (flag.requiresArg() && !scanner.hasNext()) {
             fail = true;
             return;
@@ -79,8 +79,8 @@ public final class FlagParser<S> {
         }
 
         scanner.next();
-        final String token = scanner.peek();
-        final Object argument = flag.resolveArgument(sender, token);
+        final String argToken = scanner.peek();
+        final Object argument = flag.resolveArgument(sender, argToken);
 
         if (argument == null) {
             if (flag.requiresArg()) {
@@ -89,6 +89,30 @@ public final class FlagParser<S> {
             }
 
             scanner.previous();
+        }
+
+        result.addFlag(flag, argument);
+    }
+
+    private void handleFlagWithEquals(@NotNull final String token, final int equalsIndex, final boolean longFlag) {
+        final String argToken = token.substring(equalsIndex + 1);
+        final String flagToken = token.substring(0, equalsIndex);
+        final CommandFlag<S> flag = flagGroup.getMatchingFlag(flagToken, longFlag);
+        if (flag == null) {
+            leftOver.add(token);
+            return;
+        }
+
+        if (flag.requiresArg() && argToken.isEmpty()) {
+            fail = true;
+            return;
+        }
+
+        final Object argument = flag.resolveArgument(sender, argToken);
+
+        if (argument == null && flag.requiresArg()) {
+            fail = true;
+            return;
         }
 
         result.addFlag(flag, argument);

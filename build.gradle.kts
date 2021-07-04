@@ -5,7 +5,6 @@ plugins {
     id("me.mattstudios.triumph") version "0.2.1"
 }
 
-
 allprojects {
     apply {
         plugin("java-library")

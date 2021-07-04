@@ -47,9 +47,14 @@ public final class FlagGroup<S> {
     }
 
     @Nullable
-    public CommandFlag<S> getMatchingFlag(@NotNull final String token) {
+    public CommandFlag<S> getMatchingFlag(@NotNull final String token, final boolean longFlag) {
         final String stripped = stripLeadingHyphens(token);
-        return longFlags.get(stripped);
+
+        if (longFlag) {
+            return longFlags.get(stripped);
+        }
+
+        return flags.get(stripped);
     }
 
     private String stripLeadingHyphens(@NotNull final String str) {

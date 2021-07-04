@@ -22,8 +22,11 @@ final class FlagsResult implements Flags {
         if (longFlag != null) flags.put(longFlag, value);
     }
 
-    void test() {
-        System.out.println(flags);
+    @Override
+    public String toString() {
+        return "FlagsResult{" +
+                "flags=" + flags +
+                '}';
     }
-
+    
 }
