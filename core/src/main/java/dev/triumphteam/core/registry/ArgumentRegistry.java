@@ -5,6 +5,7 @@ import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import dev.triumphteam.core.command.argument.ArgumentResolver;
+import dev.triumphteam.core.command.flag.Flags;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +39,7 @@ public final class ArgumentRegistry<S> {
         register(boolean.class, (sender, arg) -> Boolean.valueOf(String.valueOf(arg)));
 
         register(String.class, (sender, arg) -> String.valueOf(arg));
+        register(Flags.class, (sender, arg) -> "");
 
     }
 

@@ -14,7 +14,7 @@ public final class FlagGroup<S> {
     private final Map<String, CommandFlag<S>> longFlags = new LinkedHashMap<>();
     private final Set<String> requiredFlags = new HashSet<>();
 
-    public FlagGroup<S> addFlag(@NotNull final CommandFlag<S> commandFlag) {
+    public void addFlag(@NotNull final CommandFlag<S> commandFlag) {
         final String key = commandFlag.getKey();
 
         final String longFlag = commandFlag.getLongFlag();
@@ -27,7 +27,10 @@ public final class FlagGroup<S> {
         }
 
         flags.put(key, commandFlag);
-        return this;
+    }
+
+    public boolean isEmpty() {
+        return flags.isEmpty() && longFlags.isEmpty();
     }
 
     @NotNull

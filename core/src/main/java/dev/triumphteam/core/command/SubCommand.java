@@ -4,6 +4,7 @@ import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.command.argument.Argument;
 import dev.triumphteam.core.command.argument.JoinableStringArgument;
 import dev.triumphteam.core.command.argument.LimitlessArgument;
+import dev.triumphteam.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +25,7 @@ public abstract class SubCommand<S> {
     private final boolean isDefault;
 
     private final List<Argument<S>> arguments;
+    private final FlagGroup<S> flagGroup;
     private final Set<RequirementResolver<S>> requirements;
 
     private final boolean containsLimitlessArgument;
@@ -34,6 +36,7 @@ public abstract class SubCommand<S> {
             @NotNull final String name,
             @NotNull final List<String> alias,
             @NotNull final List<Argument<S>> arguments,
+            @NotNull final FlagGroup<S> flagGroup,
             @NotNull final Set<RequirementResolver<S>> requirements,
             final boolean isDefault
     ) {
@@ -42,6 +45,7 @@ public abstract class SubCommand<S> {
         this.name = name;
         this.alias = alias;
         this.arguments = arguments;
+        this.flagGroup = flagGroup;
         this.requirements = requirements;
         this.isDefault = isDefault;
 

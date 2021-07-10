@@ -8,8 +8,13 @@ import dev.triumphteam.core.annotations.Join;
 import dev.triumphteam.core.annotations.Optional;
 import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.command.argument.Argument;
+import dev.triumphteam.core.command.argument.ArgumentResolver;
 import dev.triumphteam.core.command.argument.BasicArgument;
+import dev.triumphteam.core.command.argument.FlagArgument;
 import dev.triumphteam.core.command.argument.JoinableStringArgument;
+import dev.triumphteam.core.command.argument.LimitlessArgument;
+import dev.triumphteam.core.command.flag.Flags;
+import dev.triumphteam.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.core.command.flag.internal.FlagValidator;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
@@ -23,11 +28,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,11 +38,12 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
     private final BaseCommand baseCommand;
     private final Method method;
+    // Name is nullable to detect if the method should or not be considered a sub command.
     private String name = null;
     private final List<String> alias = new ArrayList<>();
     private boolean isDefault = false;
 
-    private final Map<String, FlagGroup> flagGroups = new HashMap<>();
+    private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S>> arguments = new LinkedList<>();
     private final Set<RequirementResolver<S>> requirements = new LinkedHashSet<>();
 
@@ -61,7 +65,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         if (name == null) return;
 
         extractFlags();
-        System.out.println(flagGroups);
+        extractArguments(method);
+        validateArguments();
     }
 
     /**
@@ -72,6 +77,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
      */
     @Nullable
     public abstract SC create();
+
+    protected abstract void extractArguments(@NotNull final Method method);
 
     /**
      * Used for the child factories to get the sub command name.
@@ -116,6 +123,10 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         return requirements;
     }
 
+    protected FlagGroup<S> getFlagGroup() {
+        return flagGroup;
+    }
+
     /**
      * Gets the necessary arguments for the command.
      *
@@ -127,20 +138,31 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
     protected void createArgument(@NotNull final Parameter parameter) {
         final Class<?> type = parameter.getType();
-        if (!argumentRegistry.isRegisteredType(type)) {
-            throw new SubCommandRegistrationException("No argument of type (" + type.getName() + ") registered.", method);
-        }
 
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            arguments.add(new JoinableStringArgument<>(joinAnnotation.value(), optional));
+            addArgument(new JoinableStringArgument<>(joinAnnotation.value(), optional));
             return;
         }
 
-        arguments.add(new BasicArgument<>(type, argumentRegistry.getResolver(type), optional));
+        // Handler for flags.
+        if (type == Flags.class) {
+            addArgument(new FlagArgument<>());
+            return;
+        }
+
+        if (!argumentRegistry.isRegisteredType(type)) {
+            throw new SubCommandRegistrationException("No argument of type (" + type.getName() + ") registered.", method);
+        }
+
+        addArgument(new BasicArgument<>(type, argumentRegistry.getResolver(type), optional));
+    }
+
+    private void addArgument(@NotNull final Argument<S> argument) {
+        arguments.add(argument);
     }
 
     /**
@@ -208,9 +230,74 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
                 );
             }
 
-            //final CommandFlag commandFlag = new CommandFlag(flag, longFlag, argument, flagAnnotation.optionalArg(), flagAnnotation.required());
-            //System.out.println(commandFlag);
+            final ArgumentResolver<S> resolver;
+            if (argument == null) resolver = null;
+            else resolver = argumentRegistry.getResolver(argument);
+
+            final CommandFlag<S> commandFlag = new CommandFlag<>(
+                    flag,
+                    longFlag,
+                    argument,
+                    flagAnnotation.optionalArg(),
+                    flagAnnotation.required(),
+                    resolver
+            );
+
+            flagGroup.addFlag(commandFlag);
         }
+    }
+
+    private void validateArguments() {
+        final int argSize = arguments.size();
+        int limitlessPosition = -1;
+        int flagsPosition = -1;
+        for (int i = 0; i < argSize; i++) {
+            final Argument<S> argument = arguments.get(i);
+
+            if (argument instanceof FlagArgument) {
+                if (flagGroup.isEmpty()) {
+                    throw new SubCommandRegistrationException("Flag arg but no flag declared, :thonk:", method);
+                }
+
+                if (flagsPosition != -1) {
+                    throw new SubCommandRegistrationException("Already has one cuh", method);
+                }
+
+                flagsPosition = i;
+                continue;
+            }
+
+            if (argument instanceof LimitlessArgument) {
+                if (limitlessPosition != -1) {
+                    throw new SubCommandRegistrationException("Already has one cuh", method);
+                }
+
+                limitlessPosition = i;
+            }
+        }
+
+        if (limitlessPosition == -1) {
+            if (flagsPosition != argSize - 1) {
+                throw new SubCommandRegistrationException("Flags must be last cuh", method);
+            }
+            return;
+        }
+
+        if (flagsPosition == -1) {
+            if (flagGroup.isEmpty()) {
+                throw new SubCommandRegistrationException("Flags declared but no parameter added", method);
+            }
+
+            if (limitlessPosition != argSize - 1) {
+                throw new SubCommandRegistrationException("Limitless must be last cuh", method);
+            }
+            return;
+        }
+
+        if (limitlessPosition != argSize - 2 || flagsPosition != argSize - 1) {
+            throw new SubCommandRegistrationException("Flags must be after limitless", method);
+        }
+
     }
 
 }

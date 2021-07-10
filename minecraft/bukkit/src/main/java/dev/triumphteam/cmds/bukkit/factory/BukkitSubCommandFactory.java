@@ -41,14 +41,15 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
                 name,
                 getAlias(),
                 getArguments(),
+                getFlagGroup(),
                 getRequirements(),
                 isDefault()
         );
     }
 
-    private void extractArguments(final Method method) {
+    @Override
+    protected void extractArguments(@NotNull final Method method) {
         final Parameter[] parameters = method.getParameters();
-
         for (int i = 0; i < parameters.length; i++) {
             // TODO handle @value and @completion
             final Parameter parameter = parameters[i];
