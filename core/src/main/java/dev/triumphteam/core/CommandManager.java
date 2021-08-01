@@ -31,6 +31,24 @@ public abstract class CommandManager<S> {
         }
     }
 
+    /**
+     * Main method for unregistering commands to be implemented in other platform command managers
+     *
+     * @param command The {@link BaseCommand} to be unregistered
+     */
+    public abstract void unregisterCommand(@NotNull final BaseCommand command);
+
+    /**
+     * Method to unregister commands with vararg
+     *
+     * @param commands A list of commands to be unregistered
+     */
+    public final void unregisterCommands(@NotNull final BaseCommand... commands) {
+        for (final BaseCommand command : commands) {
+            unregisterCommand(command);
+        }
+    }
+
     public final void registerArgument(@NotNull final Class<?> clazz, @NotNull final ArgumentResolver<S> resolver) {
         argumentRegistry.register(clazz, resolver);
     }
