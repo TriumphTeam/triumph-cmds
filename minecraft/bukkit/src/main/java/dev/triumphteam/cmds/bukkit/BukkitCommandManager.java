@@ -45,18 +45,25 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
 
         final String commandName = bukkitCommand.getName();
 
-        org.bukkit.command.Command oldCommand = commandMap.getCommand(commandName);
+        final org.bukkit.command.Command oldCommand = commandMap.getCommand(commandName);
 
         // From ACF (https://github.com/aikar/commands)
         // To allow commands to be registered on the plugin.yml
         if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
-            bukkitCommands.remove(commandName);
-            oldCommand.unregister(commandMap);
+            unregisterCommand(command);
         }
 
         // Registering
         commandMap.register(commandName, plugin.getName(), bukkitCommand);
-        commands.put(bukkitCommand.getName(), bukkitCommand);
+        commands.put(commandName, bukkitCommand);
+    }
+
+    @Override
+    public void unregisterCommand(@NotNull final BaseCommand command) {
+        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry()).create();
+        bukkitCommands.remove(bukkitCommand.getName());
+        bukkitCommand.unregister(commandMap);
+        commands.remove(bukkitCommand.getName());
     }
 
     /**
