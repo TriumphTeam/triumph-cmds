@@ -16,3 +16,5 @@ bukkit/out/
 commonmark/out/
 core/out/
 plugin-test/out/
+
+test-module/
