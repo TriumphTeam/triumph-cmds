@@ -137,8 +137,9 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     }
 
     protected void createArgument(@NotNull final Parameter parameter) {
+        //System.out.println(name);
         final Class<?> type = parameter.getType();
-
+        //System.out.println(type.getName());
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
         // Handler for using String with `@Join`.
@@ -276,7 +277,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             }
         }
 
-        if (limitlessPosition == -1) {
+        // TODO fix this shit
+       /* if (limitlessPosition == -1) {
             if (flagsPosition != argSize - 1) {
                 throw new SubCommandRegistrationException("Flags must be last cuh", method);
             }
@@ -296,7 +298,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
         if (limitlessPosition != argSize - 2 || flagsPosition != argSize - 1) {
             throw new SubCommandRegistrationException("Flags must be after limitless", method);
-        }
+        }*/
 
     }
 

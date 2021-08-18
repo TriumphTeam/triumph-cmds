@@ -1,18 +1,7 @@
 package dev.triumphteam.cmds.bukkit.command;
 
-import dev.triumphteam.core.BaseCommand;
-import dev.triumphteam.core.command.SubCommand;
-import dev.triumphteam.core.command.argument.Argument;
-import dev.triumphteam.core.command.flag.internal.FlagGroup;
-import dev.triumphteam.core.command.requirement.RequirementResolver;
-import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Set;
-
-public final class BukkitSubCommand extends SubCommand<CommandSender> {
+/*
+public final class BukkitSubCommand implements SubCommand<CommandSender> {
 
     public BukkitSubCommand(
             @NotNull final BaseCommand baseCommand,
@@ -24,7 +13,22 @@ public final class BukkitSubCommand extends SubCommand<CommandSender> {
             @NotNull final Set<RequirementResolver<CommandSender>> requirements,
             final boolean isDefault
     ) {
-        super(baseCommand, method, name, alias, arguments, flagGroup, requirements, isDefault);
+        //super(baseCommand, method, name, alias, arguments, flagGroup, requirements, isDefault);
     }
 
+    @Override
+    public @NotNull String getName() {
+        return null;
+    }
+
+    @Override
+    public @NotNull List<String> getAlias() {
+        return null;
+    }
+
+    @Override
+    public void execute(@NotNull final CommandSender sender, final @NotNull List<String> args) {
+
+    }
 }
+*/

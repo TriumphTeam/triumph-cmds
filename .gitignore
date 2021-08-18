@@ -1,18 +1,21 @@
-
-.idea/
-
-.gradle/
+### Gradle ###
+.gradle
 build/
 
-*.iml
+# Ignore Gradle GUI config
+gradle-app.setting
 
-temp.java.asc
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
 
-temp.java
-gradle.properties
+# Cache of project
+.gradletasknamecache
 
-adventure/out/
-bukkit/out/
-commonmark/out/
-core/out/
-plugin-test/out/
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+
+### Gradle Patch ###
+**/build/
+.idea/
+
+test-module/

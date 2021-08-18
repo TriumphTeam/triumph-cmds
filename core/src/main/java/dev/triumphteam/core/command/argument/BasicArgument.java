@@ -36,4 +36,11 @@ public final class BasicArgument<S> implements Argument<S> {
         return resolver.resolve(sender, value);
     }
 
+    @Override
+    public String toString() {
+        return "BasicArgument{" +
+                "type=" + type +
+                '}';
+    }
+
 }
