@@ -13,7 +13,10 @@ public interface SubCommand<S> {
     @NotNull
     List<String> getAlias();
 
+    @NotNull
     Method getMethod();
+
+    int getPriority();
 
     ResultTemp execute(@NotNull S sender, @NotNull final List<String> args);
 

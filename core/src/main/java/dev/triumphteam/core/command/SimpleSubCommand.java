@@ -22,6 +22,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final String name;
     private final List<String> alias;
     private final boolean isDefault;
+    private final int priority;
 
     private final List<Argument<S>> arguments;
     private final FlagGroup<S> flagGroup;
@@ -37,7 +38,8 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final List<Argument<S>> arguments,
             @NotNull final FlagGroup<S> flagGroup,
             @NotNull final Set<RequirementResolver<S>> requirements,
-            final boolean isDefault
+            final boolean isDefault,
+            final int priority
     ) {
         this.baseCommand = baseCommand;
         this.method = method;
@@ -47,6 +49,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         this.flagGroup = flagGroup;
         this.requirements = requirements;
         this.isDefault = isDefault;
+        this.priority = priority;
 
         this.containsLimitlessArgument = checkArguments();
     }
@@ -61,9 +64,15 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return alias;
     }
 
+    @NotNull
     @Override
     public Method getMethod() {
         return method;
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
     }
 
     public ResultTemp execute(@NotNull final S sender, @NotNull final List<String> args) {

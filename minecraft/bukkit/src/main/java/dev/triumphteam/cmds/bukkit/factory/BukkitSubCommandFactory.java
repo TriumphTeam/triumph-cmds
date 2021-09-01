@@ -24,9 +24,6 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
             @NotNull final RequirementRegistry<CommandSender> requirementRegistry
     ) {
         super(baseCommand, method, argumentRegistry, requirementRegistry);
-
-        System.out.println(senderClass);
-        System.out.println(getArguments());
     }
 
     @Nullable
@@ -42,7 +39,8 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
                 getArguments(),
                 getFlagGroup(),
                 getRequirements(),
-                isDefault()
+                isDefault(),
+                getPriority()
         );
     }
 

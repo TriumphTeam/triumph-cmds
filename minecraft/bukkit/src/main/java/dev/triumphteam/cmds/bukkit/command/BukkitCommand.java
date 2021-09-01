@@ -15,9 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,8 +51,8 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     @Override
     public boolean addSubCommands(@NotNull final BaseCommand baseCommand) {
         boolean added = false;
-        final List<Method> methods = Arrays.asList(baseCommand.getClass().getDeclaredMethods());
-        methods.sort(Comparator.comparing(Method::getName));
+        final Method[] methods = baseCommand.getClass().getDeclaredMethods();
+        //methods.sort(Comparator.comparing(Method::getName));
         for (final Method method : methods) {
             if (!Modifier.isPublic(method.getModifiers())) continue;
 

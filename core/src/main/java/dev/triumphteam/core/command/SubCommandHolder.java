@@ -2,6 +2,7 @@ package dev.triumphteam.core.command;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +16,9 @@ public final class SubCommandHolder<S> {
 
     public void add(@NotNull final SubCommand<S> subCommand) {
         subCommands.add(subCommand);
+        if (subCommands.size() <= 1) return;
+        // Sorts subcommands by priority on registration so no need to check on execution
+        subCommands.sort(Comparator.comparingInt(SubCommand::getPriority));
     }
 
     public void execute(@NotNull final S sender, @NotNull final List<String> args) {
