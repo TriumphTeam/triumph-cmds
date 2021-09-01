@@ -15,9 +15,9 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -105,7 +105,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
             return true;
         }
 
-        final List<String> commandArgs = new LinkedList<>();
+        final List<String> commandArgs = new ArrayList<>();
         Collections.addAll(commandArgs, args);
         subCommand.execute(sender, commandArgs);
 

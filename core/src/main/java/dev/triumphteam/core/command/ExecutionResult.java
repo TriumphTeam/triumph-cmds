@@ -1,8 +1,8 @@
 package dev.triumphteam.core.command;
 
-public enum ResultTemp {
+enum ExecutionResult {
 
     SUCCESS,
-    ERROR
+    ERROR;
 
 }

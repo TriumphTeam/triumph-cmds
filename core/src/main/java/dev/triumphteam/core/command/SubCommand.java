@@ -18,6 +18,6 @@ public interface SubCommand<S> {
 
     int getPriority();
 
-    ResultTemp execute(@NotNull S sender, @NotNull final List<String> args);
+    ExecutionResult execute(@NotNull S sender, @NotNull final List<String> args);
 
 }

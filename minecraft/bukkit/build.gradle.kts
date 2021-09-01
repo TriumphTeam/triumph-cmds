@@ -7,5 +7,5 @@ repositories {
 
 dependencies {
     api(project(":triumph-cmds-core"))
-    implementation(spigot("1.17"))
+    compileOnly(spigot("1.17"))
 }

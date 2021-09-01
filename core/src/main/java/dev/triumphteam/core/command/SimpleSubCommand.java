@@ -9,8 +9,9 @@ import dev.triumphteam.core.command.requirement.RequirementResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -75,61 +76,65 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return priority;
     }
 
-    public ResultTemp execute(@NotNull final S sender, @NotNull final List<String> args) {
+    public ExecutionResult execute(@NotNull final S sender, @NotNull final List<String> args) {
         // Removes the sub command from the args if it's not default.
+        final List<String> commandArgs;
         if (!isDefault) {
-            args.remove(0);
+            commandArgs = args.subList(1, args.size());
+        } else {
+            commandArgs = args;
         }
 
-        if (isDefault && arguments.isEmpty() && !args.isEmpty()) {
+        if (isDefault && arguments.isEmpty() && !commandArgs.isEmpty()) {
             // TODO error
             //System.out.println("hurr durr wrong usage");
-            return ResultTemp.ERROR;
+            return ExecutionResult.ERROR;
         }
 
-        final List<Object> invokeArguments = new LinkedList<>();
+        final List<Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
         for (int i = 0; i < arguments.size(); i++) {
             final Argument<S> argument = arguments.get(i);
 
             final Object arg;
-            if (argument instanceof JoinableStringArgument) arg = leftOversOrNull(args, i);
-            else arg = valueOrNull(args, i);
+            if (argument instanceof JoinableStringArgument) arg = leftOversOrNull(commandArgs, i);
+            else arg = valueOrNull(commandArgs, i);
 
             if (arg == null) {
                 if (argument.isOptional()) {
                     invokeArguments.add(null);
                     continue;
                 }
+
                 // TODO error
                 //System.out.println("hurr durr not enoug args");
-                return ResultTemp.ERROR;
+                return ExecutionResult.ERROR;
             }
 
             final Object result = argument.resolve(sender, arg);
             if (result == null) {
                 // TODO error
                 //System.out.println("hurr durr invalid arg");
-                return ResultTemp.ERROR;
+                return ExecutionResult.ERROR;
             }
 
             invokeArguments.add(result);
         }
 
-        if (!containsLimitlessArgument && args.size() >= invokeArguments.size()) {
+        if (!containsLimitlessArgument && commandArgs.size() >= invokeArguments.size()) {
             // TODO error
             //System.out.println("hurr durr too many args");
-            return ResultTemp.ERROR;
+            return ExecutionResult.ERROR;
         }
 
-        return ResultTemp.SUCCESS;
-        /*try {
-            //System.out.println("Executed correctly");
-            //method.invoke(baseCommand, invokeArguments.toArray());
+        try {
+            method.invoke(baseCommand, invokeArguments.toArray());
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
-        }*/
+        }
+
+        return ExecutionResult.SUCCESS;
     }
 
     @Nullable

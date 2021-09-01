@@ -23,8 +23,8 @@ public final class SubCommandHolder<S> {
 
     public void execute(@NotNull final S sender, @NotNull final List<String> args) {
         for (final SubCommand<S> subCommand : subCommands) {
-            final ResultTemp result = subCommand.execute(sender, args);
-            if (result == ResultTemp.ERROR) continue;
+            final ExecutionResult result = subCommand.execute(sender, args);
+            if (result == ExecutionResult.ERROR) continue;
             System.out.println("Executed correctly using subcommand `" + subCommand.getMethod().getName() + "`!");
             return;
         }
