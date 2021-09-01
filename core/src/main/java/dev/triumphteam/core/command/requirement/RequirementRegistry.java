@@ -1,6 +1,5 @@
-package dev.triumphteam.core.registry;
+package dev.triumphteam.core.command.requirement;
 
-import dev.triumphteam.core.command.requirement.RequirementResolver;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 

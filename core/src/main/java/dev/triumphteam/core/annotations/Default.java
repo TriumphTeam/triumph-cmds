@@ -19,4 +19,6 @@ public @interface Default {
     @NotNull
     String[] alias() default {};
 
+    int priority() default 1;
+
 }

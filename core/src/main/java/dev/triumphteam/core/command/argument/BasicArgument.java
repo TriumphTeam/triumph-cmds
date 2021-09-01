@@ -33,7 +33,15 @@ public final class BasicArgument<S> implements Argument<S> {
     @Nullable
     @Override
     public Object resolve(@NotNull S sender, @NotNull final Object value) {
-        return resolver.resolve(sender, value);
+        if (!(value instanceof String)) return null;
+        return resolver.resolve(sender, (String) value);
+    }
+
+    @Override
+    public String toString() {
+        return "BasicArgument{" +
+                "type=" + type +
+                '}';
     }
 
 }

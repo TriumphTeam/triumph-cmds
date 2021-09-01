@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier
 
 class TestCommand(private val commandName: String, private val alias: MutableList<String>) : Command {
 
-    private val subCommands = mapOf<String, SubCommand>()
+    private val subCommands = mapOf<String, SubCommand<Any>>()
 
     override fun addSubCommands(baseCommand: BaseCommand): Boolean {
 

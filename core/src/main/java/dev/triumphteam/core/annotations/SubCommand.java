@@ -21,4 +21,6 @@ public @interface SubCommand {
     @NotNull
     String[] alias() default {};
 
+    int priority() default 1;
+
 }

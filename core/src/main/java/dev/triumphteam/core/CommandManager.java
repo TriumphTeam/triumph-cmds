@@ -1,8 +1,10 @@
 package dev.triumphteam.core;
 
 import dev.triumphteam.core.command.argument.ArgumentResolver;
-import dev.triumphteam.core.registry.ArgumentRegistry;
-import dev.triumphteam.core.registry.RequirementRegistry;
+import dev.triumphteam.core.command.message.MessageResolver;
+import dev.triumphteam.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.core.command.message.MessageRegistry;
+import dev.triumphteam.core.command.requirement.RequirementRegistry;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,6 +14,7 @@ public abstract class CommandManager<S> {
 
     private final ArgumentRegistry<S> argumentRegistry = new ArgumentRegistry<>();
     private final RequirementRegistry<S> requirementRegistry = new RequirementRegistry<>();
+    private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
 
     /**
      * Main registering method to be implemented in other platform command managers
@@ -53,6 +56,10 @@ public abstract class CommandManager<S> {
         argumentRegistry.register(clazz, resolver);
     }
 
+    public final void registerMessage(@NotNull final String key, @NotNull final MessageResolver<S> resolver) {
+        messageRegistry.register(key, resolver);
+    }
+
     protected ArgumentRegistry<S> getArgumentRegistry() {
         return argumentRegistry;
     }
@@ -60,5 +67,9 @@ public abstract class CommandManager<S> {
     protected RequirementRegistry<S> getRequirementRegistry() {
         return requirementRegistry;
     }
-    
+
+    protected MessageRegistry<S> getMessageRegistry() {
+        return messageRegistry;
+    }
+
 }

@@ -7,6 +7,6 @@ import org.jetbrains.annotations.Nullable;
 public interface ArgumentResolver<S> {
 
     @Nullable
-    Object resolve(@NotNull S sender, @NotNull final Object arg);
+    Object resolve(@NotNull S sender, @NotNull final String arg);
 
 }

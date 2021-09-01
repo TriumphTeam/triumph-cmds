@@ -1,10 +1,9 @@
-package dev.triumphteam.core.registry;
+package dev.triumphteam.core.command.argument;
 
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
-import dev.triumphteam.core.command.argument.ArgumentResolver;
 import dev.triumphteam.core.command.flag.Flags;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
@@ -18,27 +17,28 @@ public final class ArgumentRegistry<S> {
 
     @SuppressWarnings("UnstableApiUsage")
     public ArgumentRegistry() {
-        register(int.class, (sender, arg) -> Ints.tryParse(String.valueOf(arg)));
-        register(Integer.class, (sender, arg) -> Ints.tryParse(String.valueOf(arg)));
+        register(int.class, (sender, arg) -> Ints.tryParse(arg));
+        register(Integer.class, (sender, arg) -> Ints.tryParse(arg));
 
-        register(long.class, (sender, arg) -> Longs.tryParse(String.valueOf(arg)));
-        register(Long.class, (sender, arg) -> Longs.tryParse(String.valueOf(arg)));
+        register(long.class, (sender, arg) -> Longs.tryParse(arg));
+        register(Long.class, (sender, arg) -> Longs.tryParse(arg));
 
-        register(float.class, (sender, arg) -> Floats.tryParse(String.valueOf(arg)));
-        register(Float.class, (sender, arg) -> Floats.tryParse(String.valueOf(arg)));
+        register(float.class, (sender, arg) -> Floats.tryParse(arg));
+        register(Float.class, (sender, arg) -> Floats.tryParse(arg));
 
-        register(double.class, (sender, arg) -> Doubles.tryParse(String.valueOf(arg)));
-        register(Double.class, (sender, arg) -> Doubles.tryParse(String.valueOf(arg)));
+        register(double.class, (sender, arg) -> Doubles.tryParse(arg));
+        register(Double.class, (sender, arg) -> Doubles.tryParse(arg));
 
+        // TODO move to specific Argument
         register(String[].class, (sender, arg) -> {
-            if (arg instanceof String[]) return arg;
+            //if (arg instanceof String[]) return arg;
             return null;
         });
 
-        register(Boolean.class, (sender, arg) -> Boolean.valueOf(String.valueOf(arg)));
-        register(boolean.class, (sender, arg) -> Boolean.valueOf(String.valueOf(arg)));
+        register(Boolean.class, (sender, arg) -> Boolean.valueOf(arg));
+        register(boolean.class, (sender, arg) -> Boolean.valueOf(arg));
 
-        register(String.class, (sender, arg) -> String.valueOf(arg));
+        register(String.class, (sender, arg) -> arg);
         register(Flags.class, (sender, arg) -> "");
 
     }

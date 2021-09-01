@@ -19,8 +19,8 @@ import dev.triumphteam.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.core.command.flag.internal.FlagValidator;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.core.registry.ArgumentRegistry;
-import dev.triumphteam.core.registry.RequirementRegistry;
+import dev.triumphteam.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.core.command.requirement.RequirementRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +42,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     private String name = null;
     private final List<String> alias = new ArrayList<>();
     private boolean isDefault = false;
+    private int priority = 1;
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S>> arguments = new LinkedList<>();
@@ -110,6 +111,10 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         return isDefault;
     }
 
+    protected int getPriority() {
+        return priority;
+    }
+
     // TODO comments
     protected BaseCommand getBaseCommand() {
         return baseCommand;
@@ -137,8 +142,9 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     }
 
     protected void createArgument(@NotNull final Parameter parameter) {
+        //System.out.println(name);
         final Class<?> type = parameter.getType();
-
+        //System.out.println(type.getName());
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
         // Handler for using String with `@Join`.
@@ -182,11 +188,13 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             name = Default.DEFAULT_CMD_NAME;
             alias.addAll(Arrays.stream(defaultAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
             isDefault = true;
+            priority = defaultAnnotation.priority();
 
             return;
         }
 
         name = subCommandAnnotation.value().toLowerCase();
+        priority = subCommandAnnotation.priority();
         alias.addAll(Arrays.stream(subCommandAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
 
         if (this.name.isEmpty()) {
@@ -276,7 +284,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             }
         }
 
-        if (limitlessPosition == -1) {
+        // TODO fix this shit
+       /* if (limitlessPosition == -1) {
             if (flagsPosition != argSize - 1) {
                 throw new SubCommandRegistrationException("Flags must be last cuh", method);
             }
@@ -296,7 +305,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
         if (limitlessPosition != argSize - 2 || flagsPosition != argSize - 1) {
             throw new SubCommandRegistrationException("Flags must be after limitless", method);
-        }
+        }*/
 
     }
 

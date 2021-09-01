@@ -32,6 +32,7 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
         this.plugin = plugin;
         this.commandMap = commandMap();
         this.bukkitCommands = bukkitCommands(commandMap);
+        //registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(String.valueOf(arg)));
     }
 
     @Override
