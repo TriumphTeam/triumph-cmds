@@ -76,7 +76,13 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return priority;
     }
 
-    public ExecutionResult execute(@NotNull final S sender, @NotNull final List<String> args) {
+    @Override
+    public List<Argument<S>> getArguments() {
+        return arguments;
+    }
+
+    @Override
+    public CommandExecutionResult execute(@NotNull final S sender, @NotNull final List<String> args) {
         // Removes the sub command from the args if it's not default.
         final List<String> commandArgs;
         if (!isDefault) {
@@ -88,7 +94,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         if (isDefault && arguments.isEmpty() && !commandArgs.isEmpty()) {
             // TODO error
             //System.out.println("hurr durr wrong usage");
-            return ExecutionResult.ERROR;
+            return CommandExecutionResult.WRONG_USAGE;
         }
 
         final List<Object> invokeArguments = new ArrayList<>();
@@ -109,14 +115,14 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
                 // TODO error
                 //System.out.println("hurr durr not enoug args");
-                return ExecutionResult.ERROR;
+                return CommandExecutionResult.WRONG_USAGE;
             }
 
             final Object result = argument.resolve(sender, arg);
             if (result == null) {
                 // TODO error
                 //System.out.println("hurr durr invalid arg");
-                return ExecutionResult.ERROR;
+                return CommandExecutionResult.WRONG_USAGE;
             }
 
             invokeArguments.add(result);
@@ -125,7 +131,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         if (!containsLimitlessArgument && commandArgs.size() >= invokeArguments.size()) {
             // TODO error
             //System.out.println("hurr durr too many args");
-            return ExecutionResult.ERROR;
+            return CommandExecutionResult.WRONG_USAGE;
         }
 
         try {
@@ -134,7 +140,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             e.printStackTrace();
         }
 
-        return ExecutionResult.SUCCESS;
+        return CommandExecutionResult.SUCCESS;
     }
 
     @Nullable
