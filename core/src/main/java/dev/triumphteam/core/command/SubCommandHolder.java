@@ -1,7 +1,7 @@
 package dev.triumphteam.core.command;
 
 import dev.triumphteam.core.annotations.Default;
-import dev.triumphteam.core.registry.MessageRegistry;
+import dev.triumphteam.core.command.message.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;

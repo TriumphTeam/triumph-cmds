@@ -2,9 +2,9 @@ package dev.triumphteam.core;
 
 import dev.triumphteam.core.command.argument.ArgumentResolver;
 import dev.triumphteam.core.command.message.MessageResolver;
-import dev.triumphteam.core.registry.ArgumentRegistry;
-import dev.triumphteam.core.registry.MessageRegistry;
-import dev.triumphteam.core.registry.RequirementRegistry;
+import dev.triumphteam.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.core.command.message.MessageRegistry;
+import dev.triumphteam.core.command.requirement.RequirementRegistry;
 import org.jetbrains.annotations.NotNull;
 
 /**

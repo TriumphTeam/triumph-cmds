@@ -19,8 +19,8 @@ import dev.triumphteam.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.core.command.flag.internal.FlagValidator;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.core.registry.ArgumentRegistry;
-import dev.triumphteam.core.registry.RequirementRegistry;
+import dev.triumphteam.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.core.command.requirement.RequirementRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

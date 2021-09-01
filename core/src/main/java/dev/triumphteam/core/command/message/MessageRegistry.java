@@ -1,6 +1,5 @@
-package dev.triumphteam.core.registry;
+package dev.triumphteam.core.command.message;
 
-import dev.triumphteam.core.command.message.MessageResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
