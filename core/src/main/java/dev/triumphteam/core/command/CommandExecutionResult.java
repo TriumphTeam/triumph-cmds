@@ -2,19 +2,21 @@ package dev.triumphteam.core.command;
 
 import org.jetbrains.annotations.NotNull;
 
-public enum CommandResult {
+public enum CommandExecutionResult {
 
     SUCCESS(""),
-    WRONG_USAGE("");
+    WRONG_USAGE("cmd.wrong.usage"),
+    NO_EXISTS("cmd.no.exists");
 
     private final String key;
 
-    CommandResult(@NotNull final String key) {
+    CommandExecutionResult(@NotNull final String key) {
         this.key = key;
     }
 
     @NotNull
-    public String messageKey() {
+    public String key() {
         return key;
     }
+
 }

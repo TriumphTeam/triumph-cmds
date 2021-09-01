@@ -1,5 +1,6 @@
 package dev.triumphteam.core.command;
 
+import dev.triumphteam.core.command.argument.Argument;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -18,6 +19,8 @@ public interface SubCommand<S> {
 
     int getPriority();
 
-    ExecutionResult execute(@NotNull S sender, @NotNull final List<String> args);
+    List<Argument<S>> getArguments();
+
+    CommandExecutionResult execute(@NotNull S sender, @NotNull final List<String> args);
 
 }
