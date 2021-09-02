@@ -10,6 +10,7 @@ import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.command.argument.Argument;
 import dev.triumphteam.core.command.argument.ArgumentResolver;
 import dev.triumphteam.core.command.argument.BasicArgument;
+import dev.triumphteam.core.command.argument.EnumArgument;
 import dev.triumphteam.core.command.argument.FlagArgument;
 import dev.triumphteam.core.command.argument.JoinableStringArgument;
 import dev.triumphteam.core.command.argument.LimitlessArgument;
@@ -103,9 +104,9 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     }
 
     /**
-     * Used for the child factories to get whether or not the sub command is default.
+     * Used for the child factories to get whether the sub command is default.
      *
-     * @return Whether or not the command is default.
+     * @return Whether the command is default.
      */
     protected boolean isDefault() {
         return isDefault;
@@ -146,6 +147,13 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         final Class<?> type = parameter.getType();
         //System.out.println(type.getName());
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
+
+        // Handler for using any Enum.
+        if (Enum.class.isAssignableFrom(type)) {
+            //noinspection unchecked
+            addArgument(new EnumArgument<>((Class<? extends Enum<?>>) type, optional));
+            return;
+        }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {

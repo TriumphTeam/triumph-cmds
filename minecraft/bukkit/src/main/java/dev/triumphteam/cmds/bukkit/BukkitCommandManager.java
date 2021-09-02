@@ -59,6 +59,7 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
         commands.put(commandName, bukkitCommand);
     }
 
+    // TODO remove the need to create a new command
     @Override
     public void unregisterCommand(@NotNull final BaseCommand command) {
         final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry()).create();
