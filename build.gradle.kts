@@ -1,25 +1,29 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.20"
+    java
+    kotlin("jvm") version "1.5.30"
+    id("com.github.hierynomus.license") version "0.16.1"
     id("me.mattstudios.triumph") version "0.2.1"
 }
 
-allprojects {
+allprojects{
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+subprojects {
     apply {
-        plugin("java-library")
-        plugin("maven-publish")
+        plugin("java")
         plugin("org.jetbrains.kotlin.jvm")
+        plugin("com.github.hierynomus.license")
         plugin("me.mattstudios.triumph")
     }
 
     group = "dev.triumphteam"
     version = "2.0.0-SNAPSHOT"
-
-    repositories {
-        mavenCentral()
-        mavenLocal()
-    }
 
     dependencies {
         compileOnly("org.jetbrains:annotations:20.1.0")
@@ -28,6 +32,15 @@ allprojects {
     java {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    license {
+        header = rootProject.file("LICENSE")
+        encoding = "UTF-8"
+        mapping("kotlin", "JAVADOC_STYLE")
+
+        include("**/*.kt")
+        include("**/*.java")
     }
 
     tasks{
