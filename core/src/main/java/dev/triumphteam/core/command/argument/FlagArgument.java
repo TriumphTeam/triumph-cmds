@@ -37,14 +37,14 @@ public final class FlagArgument<S> implements LimitlessArgument<S> {
 
     @Override
     public boolean isOptional() {
-        // TODO check a better way for this
+        // FIXME: 9/2/2021 
         return true;
     }
 
     @Nullable
     @Override
     public Object resolve(@NotNull S sender, @NotNull final Object value) {
-        // TODO resolve
+        // FIXME: 9/2/2021
         return null;
     }
 

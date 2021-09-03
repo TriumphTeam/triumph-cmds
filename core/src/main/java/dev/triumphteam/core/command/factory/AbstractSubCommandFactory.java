@@ -31,6 +31,7 @@ import dev.triumphteam.core.annotations.Join;
 import dev.triumphteam.core.annotations.Optional;
 import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.command.argument.Argument;
+import dev.triumphteam.core.command.argument.ArgumentRegistry;
 import dev.triumphteam.core.command.argument.ArgumentResolver;
 import dev.triumphteam.core.command.argument.BasicArgument;
 import dev.triumphteam.core.command.argument.EnumArgument;
@@ -41,10 +42,9 @@ import dev.triumphteam.core.command.flag.Flags;
 import dev.triumphteam.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.core.command.flag.internal.FlagValidator;
+import dev.triumphteam.core.command.requirement.RequirementRegistry;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.core.command.argument.ArgumentRegistry;
-import dev.triumphteam.core.command.requirement.RequirementRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +53,6 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,7 +68,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     private int priority = 1;
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
-    private final List<Argument<S>> arguments = new LinkedList<>();
+    private final List<Argument<S>> arguments = new ArrayList<>();
     private final Set<RequirementResolver<S>> requirements = new LinkedHashSet<>();
 
     private final ArgumentRegistry<S> argumentRegistry;

@@ -68,8 +68,9 @@ public final class EnumArgument<S> implements Argument<S> {
 
     @Override
     public String toString() {
-        return "BasicArgument{" +
+        return "EnumArgument{" +
                 "type=" + type +
+                ", optional=" + optional +
                 '}';
     }
 

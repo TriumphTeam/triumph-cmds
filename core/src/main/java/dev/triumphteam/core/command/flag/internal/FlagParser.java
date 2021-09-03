@@ -25,12 +25,12 @@ package dev.triumphteam.core.command.flag.internal;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class FlagParser<S> {
 
-    private final List<String> leftOver = new LinkedList<>();
+    private final List<String> leftOver = new ArrayList<>();
     private final FlagsResult result = new FlagsResult();
 
     private final FlagGroup<S> flagGroup;

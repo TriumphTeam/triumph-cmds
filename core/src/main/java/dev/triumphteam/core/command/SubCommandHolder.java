@@ -27,14 +27,14 @@ import dev.triumphteam.core.annotations.Default;
 import dev.triumphteam.core.command.message.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 
 public final class SubCommandHolder<S> {
 
     private final MessageRegistry<S> messageRegistry;
-    private final List<SubCommand<S>> subCommands = new LinkedList<>();
+    private final List<SubCommand<S>> subCommands = new ArrayList<>();
     private int argumentSize = 0;
     private final boolean isDefault;
 

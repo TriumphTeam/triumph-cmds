@@ -64,7 +64,8 @@ public final class BasicArgument<S> implements Argument<S> {
     public String toString() {
         return "BasicArgument{" +
                 "type=" + type +
+                ", resolver=" + resolver +
+                ", optional=" + optional +
                 '}';
     }
-
 }

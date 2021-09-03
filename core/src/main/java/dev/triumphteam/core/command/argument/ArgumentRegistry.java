@@ -27,7 +27,6 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
-import dev.triumphteam.core.command.flag.Flags;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,24 +51,17 @@ public final class ArgumentRegistry<S> {
         register(double.class, (sender, arg) -> Doubles.tryParse(arg));
         register(Double.class, (sender, arg) -> Doubles.tryParse(arg));
 
-        // TODO move to specific Argument
-        register(String[].class, (sender, arg) -> {
-            //if (arg instanceof String[]) return arg;
-            return null;
-        });
-
         register(Boolean.class, (sender, arg) -> Boolean.valueOf(arg));
         register(boolean.class, (sender, arg) -> Boolean.valueOf(arg));
 
         register(String.class, (sender, arg) -> arg);
-        register(Flags.class, (sender, arg) -> "");
-
     }
 
     public void register(@NotNull final Class<?> clazz, final ArgumentResolver<S> argument) {
         arguments.put(clazz, argument);
     }
 
+    // FIXME: 9/2/2021 invert it
     public boolean isRegisteredType(@NotNull final Class<?> clazz) {
         return arguments.get(clazz) != null;
     }
