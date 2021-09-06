@@ -23,10 +23,11 @@
  */
 package dev.triumphteam.core;
 
-import dev.triumphteam.core.command.argument.ArgumentResolver;
-import dev.triumphteam.core.command.message.MessageResolver;
 import dev.triumphteam.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.core.command.argument.ArgumentResolver;
+import dev.triumphteam.core.command.message.MessageKey;
 import dev.triumphteam.core.command.message.MessageRegistry;
+import dev.triumphteam.core.command.message.MessageResolver;
 import dev.triumphteam.core.command.requirement.RequirementRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,7 +80,7 @@ public abstract class CommandManager<S> {
         argumentRegistry.register(clazz, resolver);
     }
 
-    public final void registerMessage(@NotNull final String key, @NotNull final MessageResolver<S> resolver) {
+    public final void registerMessage(@NotNull final MessageKey key, @NotNull final MessageResolver<S> resolver) {
         messageRegistry.register(key, resolver);
     }
 

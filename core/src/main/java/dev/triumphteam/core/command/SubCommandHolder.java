@@ -24,6 +24,7 @@
 package dev.triumphteam.core.command;
 
 import dev.triumphteam.core.annotations.Default;
+import dev.triumphteam.core.command.message.MessageKey;
 import dev.triumphteam.core.command.message.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -60,7 +61,7 @@ public final class SubCommandHolder<S> {
         CommandExecutionResult lastResult = CommandExecutionResult.WRONG_USAGE;
         for (final SubCommand<S> subCommand : subCommands) {
             final CommandExecutionResult result = subCommand.execute(sender, args);
-            if (result == CommandExecutionResult.WRONG_USAGE) {
+            if (result != CommandExecutionResult.SUCCESS) {
                 lastResult = result;
                 continue;
             }
@@ -68,7 +69,7 @@ public final class SubCommandHolder<S> {
             return;
         }
 
-        messageRegistry.sendMessage(lastResult.key(), sender);
+        messageRegistry.sendMessage(MessageKey.of(lastResult.key()), sender);
     }
 
     public boolean isSmallDefault() {

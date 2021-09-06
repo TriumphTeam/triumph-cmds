@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 public enum CommandExecutionResult {
 
     SUCCESS(""),
-    WRONG_USAGE("cmd.wrong.usage"),
+    WRONG_USAGE("wrong.usage"),
     NO_EXISTS("cmd.no.exists");
 
     private final String key;

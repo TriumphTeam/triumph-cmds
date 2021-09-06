@@ -90,12 +90,12 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
             final SubCommandHolder<CommandSender> holder = holders.get(subCommandName);
             if (holder == null) {
                 // FIXME: 9/2/2021 Add message registry
-                final SubCommandHolder<CommandSender> newHolder = new SubCommandHolder<>(subCommand);
+                /*final SubCommandHolder<CommandSender> newHolder = new SubCommandHolder<>(subCommand);
                 holders.put(subCommandName, newHolder);
                 for (final String alias : subCommandAlias) {
                     aliases.put(alias, newHolder);
                 }
-                continue;
+                continue;*/
             }
 
             holder.add(subCommand);
