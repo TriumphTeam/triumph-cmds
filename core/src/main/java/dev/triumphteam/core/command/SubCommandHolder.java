@@ -61,12 +61,12 @@ public final class SubCommandHolder<S> {
         CommandExecutionResult lastResult = CommandExecutionResult.WRONG_USAGE;
         for (final SubCommand<S> subCommand : subCommands) {
             final CommandExecutionResult result = subCommand.execute(sender, args);
-            if (result != CommandExecutionResult.SUCCESS) {
-                lastResult = result;
-                continue;
+            if (result == CommandExecutionResult.SUCCESS) {
+                System.out.println("Executed correctly using subcommand `" + subCommand.getMethod().getName() + "`!");
+                break;
             }
-            System.out.println("Executed correctly using subcommand `" + subCommand.getMethod().getName() + "`!");
-            return;
+
+            lastResult = result;
         }
 
         messageRegistry.sendMessage(MessageKey.of(lastResult.key()), sender);

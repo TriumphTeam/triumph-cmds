@@ -40,7 +40,7 @@ public final class AnnotationUtil {
     }
 
     /**
-     * Util for getting the annotation or null so it doesn't throw exception
+     * Util for getting the annotation or null, so it doesn't throw exception
      *
      * @param commandClass The command class to get the annotation from
      * @param annotation   The annotation class
@@ -72,9 +72,5 @@ public final class AnnotationUtil {
         if (!method.isAnnotationPresent(annotation)) return null;
         return method.getAnnotation(annotation);
     }
-
-    public static void println(Object obj) {
-
-    }
-
+    
 }
