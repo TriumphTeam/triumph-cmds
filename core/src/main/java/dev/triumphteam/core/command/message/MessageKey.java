@@ -1,5 +1,6 @@
 package dev.triumphteam.core.command.message;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,6 +17,8 @@ public final class MessageKey {
         this.key = key;
     }
 
+    @NotNull
+    @Contract("_ -> new")
     public static MessageKey of(@NotNull final String key) {
         return new MessageKey(key);
     }
