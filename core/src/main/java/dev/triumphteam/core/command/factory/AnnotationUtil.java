@@ -57,7 +57,7 @@ public final class AnnotationUtil {
     }
 
     /**
-     * Util for getting the annotation or null so it doesn't throw exception
+     * Util for getting the annotation or null, so it doesn't throw exception
      *
      * @param method     The method to get the annotation from
      * @param annotation The annotation class

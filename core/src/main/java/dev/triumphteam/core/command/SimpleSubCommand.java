@@ -144,6 +144,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             final Object result = argument.resolve(sender, arg);
             if (result == null) {
                 // TODO error
+                System.out.println(arg);
                 //System.out.println("hurr durr invalid arg");
                 return CommandExecutionResult.WRONG_USAGE;
             }

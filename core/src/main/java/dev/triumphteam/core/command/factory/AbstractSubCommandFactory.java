@@ -302,6 +302,10 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         for (int i = 0; i < argSize; i++) {
             final Argument<S> argument = arguments.get(i);
 
+            if (argument.isOptional() && i != argSize - 1) {
+                throw new SubCommandRegistrationException("Optional argument is only allowed as the last argument", method);
+            }
+
             if (argument instanceof FlagArgument) {
                 if (flagGroup.isEmpty()) {
                     throw new SubCommandRegistrationException("\"Flags\" argument found but no \"CommandFlags\" annotation present", method);

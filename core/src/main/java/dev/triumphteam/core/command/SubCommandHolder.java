@@ -36,7 +36,7 @@ public final class SubCommandHolder<S> {
 
     private final MessageRegistry<S> messageRegistry;
     private final List<SubCommand<S>> subCommands = new ArrayList<>();
-    private int argumentSize = 0;
+    private int argumentSize;
     private final boolean isDefault;
 
     public SubCommandHolder(@NotNull final MessageRegistry<S> messageRegistry, @NotNull final SubCommand<S> subCommand) {
@@ -63,7 +63,7 @@ public final class SubCommandHolder<S> {
             final CommandExecutionResult result = subCommand.execute(sender, args);
             if (result == CommandExecutionResult.SUCCESS) {
                 System.out.println("Executed correctly using subcommand `" + subCommand.getMethod().getName() + "`!");
-                break;
+                return;
             }
 
             lastResult = result;
