@@ -28,12 +28,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public final class JoinableStringArgument<S> implements LimitlessArgument<S> {
+public final class JoinedStringArgument<S> implements LimitlessArgument<S> {
 
     private final CharSequence delimiter;
     private final boolean optional;
 
-    public JoinableStringArgument(@NotNull final CharSequence delimiter, final boolean optional) {
+    public JoinedStringArgument(@NotNull final CharSequence delimiter, final boolean optional) {
         this.delimiter = delimiter;
         this.optional = optional;
     }

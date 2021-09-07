@@ -36,12 +36,11 @@ import dev.triumphteam.core.command.argument.ArgumentResolver;
 import dev.triumphteam.core.command.argument.BasicArgument;
 import dev.triumphteam.core.command.argument.EnumArgument;
 import dev.triumphteam.core.command.argument.FlagArgument;
-import dev.triumphteam.core.command.argument.JoinableStringArgument;
+import dev.triumphteam.core.command.argument.JoinedStringArgument;
 import dev.triumphteam.core.command.argument.LimitlessArgument;
 import dev.triumphteam.core.command.flag.Flags;
 import dev.triumphteam.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.core.command.flag.internal.FlagGroup;
-import dev.triumphteam.core.command.flag.internal.FlagValidator;
 import dev.triumphteam.core.command.requirement.RequirementRegistry;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException;
@@ -56,6 +55,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static dev.triumphteam.core.command.factory.AnnotationUtil.getAnnotation;
+import static dev.triumphteam.core.command.flag.internal.FlagValidator.validate;
 
 public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
@@ -180,7 +182,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(new JoinableStringArgument<>(joinAnnotation.value(), optional));
+            addArgument(new JoinedStringArgument<>(joinAnnotation.value(), optional));
             return;
         }
 
@@ -207,8 +209,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
      * @throws SubCommandRegistrationException Throws exception if the sub command annotation has an empty command.
      */
     private void extractSubCommandNames() throws SubCommandRegistrationException {
-        final Default defaultAnnotation = AnnotationUtil.getAnnotation(method, Default.class);
-        final dev.triumphteam.core.annotations.SubCommand subCommandAnnotation = AnnotationUtil.getAnnotation(method, dev.triumphteam.core.annotations.SubCommand.class);
+        final Default defaultAnnotation = getAnnotation(method, Default.class);
+        final dev.triumphteam.core.annotations.SubCommand subCommandAnnotation = getAnnotation(method, dev.triumphteam.core.annotations.SubCommand.class);
 
         if (defaultAnnotation == null && subCommandAnnotation == null) {
             return;
@@ -233,7 +235,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     }
 
     private void extractFlags() {
-        final CommandFlags commandFlags = AnnotationUtil.getAnnotation(method, CommandFlags.class);
+        final CommandFlags commandFlags = getAnnotation(method, CommandFlags.class);
         if (commandFlags == null) return;
 
         final Flag[] flags = commandFlags.value();
@@ -247,7 +249,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         for (final Flag flagAnnotation : flags) {
             String flag = flagAnnotation.flag();
             if (flag.isEmpty()) flag = null;
-            FlagValidator.validate(flag, method);
+            validate(flag, method);
 
             String longFlag = flagAnnotation.longFlag();
             if (longFlag.contains(" ")) {
@@ -285,20 +287,28 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         }
     }
 
+    /**
+     * Argument validation makes sure some arguments are placed in the correct order.
+     * For example a limitless argument and flags argument being one after the other, like:
+     * `@Join final String text, final Flags flags`.
+     * TODO add validation for optional arguments.
+     */
     private void validateArguments() {
         final int argSize = arguments.size();
         int limitlessPosition = -1;
         int flagsPosition = -1;
+
+        // Collects validatable argument's position.
         for (int i = 0; i < argSize; i++) {
             final Argument<S> argument = arguments.get(i);
 
             if (argument instanceof FlagArgument) {
                 if (flagGroup.isEmpty()) {
-                    throw new SubCommandRegistrationException("Flag arg but no flag declared, :thonk:", method);
+                    throw new SubCommandRegistrationException("\"Flags\" argument found but no \"CommandFlags\" annotation present", method);
                 }
 
                 if (flagsPosition != -1) {
-                    throw new SubCommandRegistrationException("Already has one cuh", method);
+                    throw new SubCommandRegistrationException("More than one \"Flags\" argument declared", method);
                 }
 
                 flagsPosition = i;
@@ -307,27 +317,29 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
             if (argument instanceof LimitlessArgument) {
                 if (limitlessPosition != -1) {
-                    throw new SubCommandRegistrationException("Already has one cuh", method);
+                    throw new SubCommandRegistrationException("More than one limitless argument declared", method);
                 }
 
                 limitlessPosition = i;
             }
         }
 
+        // If flags argument is present check if it's the last one and if there is a limitless behind of it instead of after.
         if (flagsPosition != -1) {
             if (flagsPosition != argSize - 1) {
-                throw new SubCommandRegistrationException("Flags must be the last argument", method);
+                throw new SubCommandRegistrationException("\"Flags\" argument must always be the last argument", method);
             }
 
             if (limitlessPosition != -1 && limitlessPosition != argSize - 2) {
-                throw new SubCommandRegistrationException("Flags must be after limitless", method);
+                throw new SubCommandRegistrationException("\"Flags\" argument must always be after limitless argument", method);
             }
 
             return;
         }
 
+        // If it's a limitless argument checks if it's the last argument.
         if (limitlessPosition != -1 && limitlessPosition != argSize - 1) {
-            throw new SubCommandRegistrationException("Limitless must be last cuh", method);
+            throw new SubCommandRegistrationException("Limitless argument must be the last if \"Flags\" is not present", method);
         }
     }
 

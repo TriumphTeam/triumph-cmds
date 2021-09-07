@@ -33,7 +33,7 @@ public final class SubCommandRegistrationException extends RuntimeException {
             @NotNull final String message,
             @NotNull final Method method
     ) {
-        super(message + " On Method: `" + method.getName() + "`");
+        super(message + " in Method: \"" + method.getName() + "\"");
     }
 
     public SubCommandRegistrationException(@NotNull final String message) {

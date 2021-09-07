@@ -25,7 +25,7 @@ package dev.triumphteam.core.command;
 
 import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.command.argument.Argument;
-import dev.triumphteam.core.command.argument.JoinableStringArgument;
+import dev.triumphteam.core.command.argument.JoinedStringArgument;
 import dev.triumphteam.core.command.argument.LimitlessArgument;
 import dev.triumphteam.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
@@ -127,7 +127,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             final Argument<S> argument = arguments.get(i);
 
             final Object arg;
-            if (argument instanceof JoinableStringArgument) arg = leftOversOrNull(commandArgs, i);
+            if (argument instanceof JoinedStringArgument) arg = leftOversOrNull(commandArgs, i);
             else arg = valueOrNull(commandArgs, i);
 
             if (arg == null) {
