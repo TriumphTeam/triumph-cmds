@@ -23,5 +23,7 @@
  */
 package dev.triumphteam.core.command.argument;
 
-public interface LimitlessArgument<S> extends Argument<S> {
+import java.util.List;
+
+public interface LimitlessArgument<S> extends Argument<S, List<String>> {
 }

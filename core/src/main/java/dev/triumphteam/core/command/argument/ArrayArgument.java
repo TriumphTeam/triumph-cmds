@@ -21,24 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.core.implementation.factory
+package dev.triumphteam.core.command.argument;
 
-import dev.triumphteam.core.BaseCommand
-import dev.triumphteam.core.command.argument.ArgumentRegistry
-import dev.triumphteam.core.command.factory.AbstractCommandFactory
-import dev.triumphteam.core.command.message.MessageRegistry
-import dev.triumphteam.core.command.requirement.RequirementRegistry
-import dev.triumphteam.core.implementation.TestCommand
-import dev.triumphteam.core.implementation.TestSender
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+import java.util.List;
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+public final class ArrayArgument<S> implements LimitlessArgument<S> {
+
+    private final boolean optional;
+
+    public ArrayArgument(final boolean optional) {
+        this.optional = optional;
     }
+
+    @NotNull
+    @Override
+    public Class<?> getType() {
+        return String.class;
+    }
+
+    @Override
+    public boolean isOptional() {
+        return optional;
+    }
+
+    @Nullable
+    @Override
+    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+        if (value.isEmpty()) return null;
+        return value.toArray(new String[0]);
+    }
+
 }

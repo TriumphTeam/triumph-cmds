@@ -51,11 +51,9 @@ public final class JoinedStringArgument<S> implements LimitlessArgument<S> {
 
     @Nullable
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final Object value) {
-        if (!(value instanceof List)) return null;
-        final List<String> list = (List<String>) value;
-        if (list.isEmpty()) return null;
-        return String.join(delimiter, list);
+    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+        if (value.isEmpty()) return null;
+        return String.join(delimiter, value);
     }
 
 }

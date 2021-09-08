@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public final class EnumArgument<S> implements Argument<S> {
+public final class EnumArgument<S> implements StringArgument<S> {
 
     private final Class<? extends Enum<?>> type;
     private final boolean optional;
@@ -59,9 +59,8 @@ public final class EnumArgument<S> implements Argument<S> {
 
     @Nullable
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final Object value) {
-        if (!(value instanceof String)) return null;
-        final WeakReference<? extends Enum<?>> reference = getEnumConstants(type).get(((String) value).toUpperCase());
+    public Object resolve(@NotNull S sender, @NotNull final String value) {
+        final WeakReference<? extends Enum<?>> reference = getEnumConstants(type).get(value.toUpperCase());
         if (reference == null) return null;
         return reference.get();
     }

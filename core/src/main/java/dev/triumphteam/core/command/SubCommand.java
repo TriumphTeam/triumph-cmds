@@ -42,7 +42,7 @@ public interface SubCommand<S> {
 
     int getPriority();
 
-    List<Argument<S>> getArguments();
+    List<Argument<S, ?>> getArguments();
 
     CommandExecutionResult execute(@NotNull S sender, @NotNull final List<String> args);
 

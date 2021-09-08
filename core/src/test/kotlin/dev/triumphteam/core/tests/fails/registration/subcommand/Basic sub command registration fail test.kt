@@ -1,10 +1,10 @@
 package dev.triumphteam.core.tests.fails.registration.subcommand
 
-import cmds.implementation.TestCommandManager
 import dev.triumphteam.core.cases.EmptyCommandMethod
 import dev.triumphteam.core.cases.EmptySubCommand
 import dev.triumphteam.core.cases.MissingSender
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException
+import dev.triumphteam.core.implementation.TestCommandManager
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance

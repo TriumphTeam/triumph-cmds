@@ -1,3 +1,4 @@
+
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
@@ -9,6 +10,8 @@ dependencies {
     implementation("commons-cli:commons-cli:1.4")
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks {
+    test {
+        useJUnitPlatform()
+    }
 }

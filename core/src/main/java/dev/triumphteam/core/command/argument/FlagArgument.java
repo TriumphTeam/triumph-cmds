@@ -27,6 +27,8 @@ import dev.triumphteam.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public final class FlagArgument<S> implements LimitlessArgument<S> {
 
     @NotNull
@@ -42,7 +44,7 @@ public final class FlagArgument<S> implements LimitlessArgument<S> {
 
     @Nullable
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final Object value) {
+    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
         // FIXME: 9/2/2021
         return null;
     }

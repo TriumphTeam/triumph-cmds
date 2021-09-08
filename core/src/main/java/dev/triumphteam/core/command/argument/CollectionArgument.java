@@ -21,24 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.core.implementation.factory
+package dev.triumphteam.core.command.argument;
 
-import dev.triumphteam.core.BaseCommand
-import dev.triumphteam.core.command.argument.ArgumentRegistry
-import dev.triumphteam.core.command.factory.AbstractCommandFactory
-import dev.triumphteam.core.command.message.MessageRegistry
-import dev.triumphteam.core.command.requirement.RequirementRegistry
-import dev.triumphteam.core.implementation.TestCommand
-import dev.triumphteam.core.implementation.TestSender
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+public final class CollectionArgument<S> implements LimitlessArgument<S> {
+
+    private final Class<?> collectionType;
+    private final boolean optional;
+
+    public CollectionArgument(
+            @NotNull final Class<?> collectionType,
+            final boolean optional
+    ) {
+        this.collectionType = collectionType;
+        this.optional = optional;
     }
+
+    @NotNull
+    @Override
+    public Class<?> getType() {
+        return String.class;
+    }
+
+    @Override
+    public boolean isOptional() {
+        return optional;
+    }
+
+    @Nullable
+    @Override
+    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+        if (value.isEmpty()) return null;
+        if (collectionType == Set.class) return new HashSet<>(value);
+        return value;
+    }
+
 }

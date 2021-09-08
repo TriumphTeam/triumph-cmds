@@ -29,15 +29,15 @@ import dev.triumphteam.core.command.argument.ArgumentRegistry
 import dev.triumphteam.core.command.factory.AbstractSubCommandFactory
 import dev.triumphteam.core.command.requirement.RequirementRegistry
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException
-import java.io.PrintStream
+import dev.triumphteam.core.implementation.TestSender
 import java.lang.reflect.Method
 
 class TestSubCommandFactory(
     baseCommand: BaseCommand,
     method: Method,
-    argumentRegistry: ArgumentRegistry<PrintStream>,
-    requirementRegistry: RequirementRegistry<PrintStream>
-) : AbstractSubCommandFactory<PrintStream, SimpleSubCommand<PrintStream>>(
+    argumentRegistry: ArgumentRegistry<TestSender>,
+    requirementRegistry: RequirementRegistry<TestSender>
+) : AbstractSubCommandFactory<TestSender, SimpleSubCommand<TestSender>>(
     baseCommand,
     method,
     argumentRegistry,
@@ -46,7 +46,7 @@ class TestSubCommandFactory(
 
     private var senderClass: Class<*>? = null
 
-    override fun create(): SimpleSubCommand<PrintStream>? {
+    override fun create(): SimpleSubCommand<TestSender>? {
         val name = name ?: return null
 
         return SimpleSubCommand(
@@ -72,7 +72,7 @@ class TestSubCommandFactory(
         for (i in parameters.indices) {
             val parameter = parameters[i]
             if (i == 0) {
-                if (!PrintStream::class.java.isAssignableFrom(parameter.type)) {
+                if (!TestSender::class.java.isAssignableFrom(parameter.type)) {
                     throw SubCommandRegistrationException(
                         "Invalid sender parameter \"${parameter.type.name}\"",
                         method

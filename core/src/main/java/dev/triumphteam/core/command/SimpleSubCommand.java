@@ -25,8 +25,8 @@ package dev.triumphteam.core.command;
 
 import dev.triumphteam.core.BaseCommand;
 import dev.triumphteam.core.command.argument.Argument;
-import dev.triumphteam.core.command.argument.JoinedStringArgument;
 import dev.triumphteam.core.command.argument.LimitlessArgument;
+import dev.triumphteam.core.command.argument.StringArgument;
 import dev.triumphteam.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.core.command.requirement.RequirementResolver;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +48,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final boolean isDefault;
     private final int priority;
 
-    private final List<Argument<S>> arguments;
+    private final List<Argument<S, ?>> arguments;
     private final FlagGroup<S> flagGroup;
     private final Set<RequirementResolver<S>> requirements;
 
@@ -59,7 +59,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final Method method,
             @NotNull final String name,
             @NotNull final List<String> alias,
-            @NotNull final List<Argument<S>> arguments,
+            @NotNull final List<Argument<S, ?>> arguments,
             @NotNull final FlagGroup<S> flagGroup,
             @NotNull final Set<RequirementResolver<S>> requirements,
             final boolean isDefault,
@@ -75,7 +75,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         this.isDefault = isDefault;
         this.priority = priority;
 
-        this.containsLimitlessArgument = checkArguments();
+        this.containsLimitlessArgument = containsLimitless();
     }
 
     @NotNull
@@ -100,10 +100,11 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     }
 
     @Override
-    public List<Argument<S>> getArguments() {
+    public List<Argument<S, ?>> getArguments() {
         return arguments;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public CommandExecutionResult execute(@NotNull final S sender, @NotNull final List<String> args) {
         // Removes the sub command from the args if it's not default.
@@ -124,11 +125,40 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         invokeArguments.add(sender);
 
         for (int i = 0; i < arguments.size(); i++) {
-            final Argument<S> argument = arguments.get(i);
+            final Argument<S, ?> argument = arguments.get(i);
 
-            final Object arg;
-            if (argument instanceof JoinedStringArgument) arg = leftOversOrNull(commandArgs, i);
-            else arg = valueOrNull(commandArgs, i);
+            if (argument instanceof LimitlessArgument) {
+                final LimitlessArgument<S> limitlessArgument = (LimitlessArgument<S>) argument;
+                final List<String> leftOvers = leftOversOrNull(commandArgs, i);
+
+                if (leftOvers == null) {
+                    if (argument.isOptional()) {
+                        invokeArguments.add(null);
+                        continue;
+                    }
+
+                    return CommandExecutionResult.WRONG_USAGE;
+                }
+
+                final Object result = limitlessArgument.resolve(sender, leftOvers);
+                if (result == null) {
+                    // TODO error
+
+                    //System.out.println("hurr durr invalid arg");
+                    return CommandExecutionResult.WRONG_USAGE;
+                }
+
+                invokeArguments.add(result);
+                continue;
+            }
+
+            // TODO Should never happen, might need to handle it better
+            if (!(argument instanceof StringArgument)) {
+                break;
+            }
+
+            final StringArgument<S> stringArgument = (StringArgument<S>) argument;
+            final String arg = valueOrNull(commandArgs, i);
 
             if (arg == null) {
                 if (argument.isOptional()) {
@@ -141,7 +171,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                 return CommandExecutionResult.WRONG_USAGE;
             }
 
-            final Object result = argument.resolve(sender, arg);
+            final Object result = stringArgument.resolve(sender, arg);
             if (result == null) {
                 // TODO error
                 System.out.println(arg);
@@ -179,8 +209,8 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return list.subList(from, list.size());
     }
 
-    private boolean checkArguments() {
-        for (final Argument<S> argument : arguments) {
+    private boolean containsLimitless() {
+        for (final Argument<S, ?> argument : arguments) {
             if (argument instanceof LimitlessArgument) return true;
         }
 

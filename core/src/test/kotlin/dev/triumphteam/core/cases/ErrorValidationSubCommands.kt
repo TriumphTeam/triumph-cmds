@@ -8,14 +8,14 @@ import dev.triumphteam.core.annotations.Join
 import dev.triumphteam.core.annotations.Optional
 import dev.triumphteam.core.annotations.SubCommand
 import dev.triumphteam.core.command.flag.Flags
-import java.io.PrintStream
+import dev.triumphteam.core.implementation.TestSender
 
 @Command("foo")
 class MoreThanOneFlags : BaseCommand() {
 
     @SubCommand("bar")
     @CommandFlags(Flag(flag = "f"))
-    fun test(sender: PrintStream, flags: Flags, flags2: Flags) {
+    fun test(sender: TestSender, flags: Flags, flags2: Flags) {
     }
 }
 
@@ -23,7 +23,7 @@ class MoreThanOneFlags : BaseCommand() {
 class MoreThanOneLimitlessJoin : BaseCommand() {
 
     @SubCommand("bar")
-    fun test(sender: PrintStream, @Join text: String, @Join text2: String) {
+    fun test(sender: TestSender, @Join text: String, @Join text2: String) {
     }
 }
 
@@ -31,15 +31,15 @@ class MoreThanOneLimitlessJoin : BaseCommand() {
 class MoreThanOneLimitlessArray : BaseCommand() {
 
     @SubCommand("bar")
-    fun test(sender: PrintStream, text: Array<String>, text2: Array<String>) {
+    fun test(sender: TestSender, text: Array<String>, text2: Array<String>) {
     }
 }
 
 @Command("foo")
-class MoreThanOneLimitlessList : BaseCommand() {
+class MoreThanOneLimitlessCollection : BaseCommand() {
 
     @SubCommand("bar")
-    fun test(sender: PrintStream, text: List<String>, text2: List<String>) {
+    fun test(sender: TestSender, text: List<String>, text2: List<String>) {
     }
 }
 
@@ -47,7 +47,7 @@ class MoreThanOneLimitlessList : BaseCommand() {
 class WrongOptionalLocation : BaseCommand() {
 
     @SubCommand("bar")
-    fun test(sender: PrintStream, @Optional text: String?, number: Int) {
+    fun test(sender: TestSender, @Optional text: String?, number: Int) {
     }
 }
 
@@ -55,7 +55,7 @@ class WrongOptionalLocation : BaseCommand() {
 class WrongLocationLimitlessJoin : BaseCommand() {
 
     @SubCommand("bar")
-    fun test(sender: PrintStream, @Join text: String, number: Int) {
+    fun test(sender: TestSender, @Join text: String, number: Int) {
     }
 }
 
@@ -64,15 +64,15 @@ class WrongLocationLimitlessJoin : BaseCommand() {
 class WrongLocationLimitlessArray : BaseCommand() {
 
     @SubCommand("bar")
-    fun test(sender: PrintStream, text: Array<String>, number: Int) {
+    fun test(sender: TestSender, text: Array<String>, number: Int) {
     }
 }
 
 @Command("foo")
-class WrongLocationLimitlessList : BaseCommand() {
+class WrongLocationLimitlessCollection : BaseCommand() {
 
     @SubCommand("bar")
-    fun test(sender: PrintStream, text: List<String>, number: Int) {
+    fun test(sender: TestSender, text: List<String>, number: Int) {
     }
 }
 
@@ -81,7 +81,7 @@ class WrongLocationFlags : BaseCommand() {
 
     @SubCommand("bar")
     @CommandFlags(Flag(flag = "f"))
-    fun test(sender: PrintStream, flags: Flags, number: Int) {
+    fun test(sender: TestSender, flags: Flags, number: Int) {
     }
 }
 
@@ -90,7 +90,7 @@ class WrongLocationFlagsLimitlessJoin : BaseCommand() {
 
     @SubCommand("bar")
     @CommandFlags(Flag(flag = "f"))
-    fun test(sender: PrintStream, flags: Flags, @Join text: String) {
+    fun test(sender: TestSender, flags: Flags, @Join text: String) {
     }
 }
 
@@ -99,7 +99,7 @@ class WrongLocationFlagsLimitlessArray : BaseCommand() {
 
     @SubCommand("bar")
     @CommandFlags(Flag(flag = "f"))
-    fun test(sender: PrintStream, flags: Flags, text: Array<String>) {
+    fun test(sender: TestSender, flags: Flags, text: Array<String>) {
     }
 }
 
@@ -108,6 +108,15 @@ class WrongLocationFlagsLimitlessList : BaseCommand() {
 
     @SubCommand("bar")
     @CommandFlags(Flag(flag = "f"))
-    fun test(sender: PrintStream, flags: Flags, text: List<String>) {
+    fun test(sender: TestSender, flags: Flags, text: List<String>) {
+    }
+}
+
+@Command("foo")
+class UnregisteredType : BaseCommand() {
+
+    @SubCommand("bar")
+    @CommandFlags(Flag(flag = "f"))
+    fun test(sender: TestSender, flags: Flags, text: List<String>) {
     }
 }

@@ -21,21 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package cmds.implementation
+package dev.triumphteam.core.implementation
 
 import dev.triumphteam.core.BaseCommand
 import dev.triumphteam.core.CommandManager
 import dev.triumphteam.core.command.message.MessageKey
-import dev.triumphteam.core.implementation.TestCommand
 import dev.triumphteam.core.implementation.factory.TestCommandFactory
-import java.io.PrintStream
 
-class TestCommandManager : CommandManager<PrintStream>() {
+class TestCommandManager : CommandManager<TestSender>() {
     private val commands = mutableMapOf<String, TestCommand>()
 
     init {
-        registerMessage(MessageKey.WRONG_USAGE) { sender: PrintStream -> sender.println("Wrong usage!") }
-        registerMessage(MessageKey.INVALID_COMMAND) { sender: PrintStream -> sender.println("Command doesn't exist!") }
+        registerMessage(MessageKey.WRONG_USAGE) { }
+        registerMessage(MessageKey.INVALID_COMMAND) { }
     }
 
     override fun registerCommand(command: BaseCommand) {
@@ -51,14 +49,14 @@ class TestCommandManager : CommandManager<PrintStream>() {
 
     override fun unregisterCommand(command: BaseCommand) {}
 
-    fun execute(commandName: String, args: Array<String>) {
+    fun execute(sender: TestSender, commandName: String, args: Array<String>) {
         val command = commands[commandName]
         if (command == null) {
-            messageRegistry.sendMessage(MessageKey.INVALID_COMMAND, System.out)
+            messageRegistry.sendMessage(MessageKey.INVALID_COMMAND, sender)
             return
         }
 
-        command.execute(System.out, args)
+        command.execute(sender, args)
     }
 
 }

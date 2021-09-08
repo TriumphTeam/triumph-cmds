@@ -1,20 +1,24 @@
 package dev.triumphteam.core.tests.fails.registration.subcommand
 
-import cmds.implementation.TestCommandManager
 import dev.triumphteam.core.cases.MoreThanOneFlags
+import dev.triumphteam.core.cases.MoreThanOneLimitlessArray
+import dev.triumphteam.core.cases.MoreThanOneLimitlessCollection
 import dev.triumphteam.core.cases.MoreThanOneLimitlessJoin
 import dev.triumphteam.core.cases.WrongLocationFlags
 import dev.triumphteam.core.cases.WrongLocationFlagsLimitlessJoin
+import dev.triumphteam.core.cases.WrongLocationLimitlessArray
+import dev.triumphteam.core.cases.WrongLocationLimitlessCollection
 import dev.triumphteam.core.cases.WrongLocationLimitlessJoin
 import dev.triumphteam.core.cases.WrongOptionalLocation
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException
+import dev.triumphteam.core.implementation.TestCommandManager
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @Suppress("ClassName")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class `SubCommand registration argument validation fail test`() {
+class `SubCommand registration argument validation fail test` {
 
     private val commandManager = TestCommandManager()
 
@@ -35,6 +39,22 @@ class `SubCommand registration argument validation fail test`() {
     }
 
     @Test
+    fun `More than one limitless collection argument fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(MoreThanOneLimitlessCollection())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("More than one limitless argument declared")
+    }
+
+    @Test
+    fun `More than one limitless array argument fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(MoreThanOneLimitlessArray())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("More than one limitless argument declared")
+    }
+
+    @Test
     fun `Optional wrong location fail`() {
         assertThatThrownBy {
             commandManager.registerCommand(WrongOptionalLocation())
@@ -46,6 +66,22 @@ class `SubCommand registration argument validation fail test`() {
     fun `Limitless join argument wrong location fail`() {
         assertThatThrownBy {
             commandManager.registerCommand(WrongLocationLimitlessJoin())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("Limitless argument must be the last argument if \"Flags\" is not present")
+    }
+
+    @Test
+    fun `Limitless collection argument wrong location fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(WrongLocationLimitlessCollection())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("Limitless argument must be the last argument if \"Flags\" is not present")
+    }
+
+    @Test
+    fun `Limitless array argument wrong location fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(WrongLocationLimitlessArray())
         }.isInstanceOf(SubCommandRegistrationException::class.java)
             .hasMessageContaining("Limitless argument must be the last argument if \"Flags\" is not present")
     }

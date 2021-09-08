@@ -33,19 +33,18 @@ import dev.triumphteam.core.command.message.MessageKey
 import dev.triumphteam.core.command.message.MessageRegistry
 import dev.triumphteam.core.command.requirement.RequirementRegistry
 import dev.triumphteam.core.implementation.factory.TestSubCommandFactory
-import java.io.PrintStream
 import java.lang.reflect.Modifier
 
 class TestCommand(
     private val name: String,
     private val alias: List<String>,
-    private val argumentRegistry: ArgumentRegistry<PrintStream>,
-    private val requirementRegistry: RequirementRegistry<PrintStream>,
-    private val messageRegistry: MessageRegistry<PrintStream>
+    private val argumentRegistry: ArgumentRegistry<TestSender>,
+    private val requirementRegistry: RequirementRegistry<TestSender>,
+    private val messageRegistry: MessageRegistry<TestSender>
 ) : Command {
 
-    private val holders: MutableMap<String, SubCommandHolder<PrintStream>> = HashMap()
-    private val aliases: MutableMap<String, SubCommandHolder<PrintStream>> = HashMap()
+    private val holders: MutableMap<String, SubCommandHolder<TestSender>> = HashMap()
+    private val aliases: MutableMap<String, SubCommandHolder<TestSender>> = HashMap()
 
     override fun addSubCommands(baseCommand: BaseCommand): Boolean {
         var added = false
@@ -54,7 +53,7 @@ class TestCommand(
         for (method in methods) {
             if (!Modifier.isPublic(method.modifiers)) continue
 
-            val subCommand: SimpleSubCommand<PrintStream> =
+            val subCommand: SimpleSubCommand<TestSender> =
                 TestSubCommandFactory(baseCommand, method, argumentRegistry, requirementRegistry).create() ?: continue
 
             added = true
@@ -80,7 +79,7 @@ class TestCommand(
         return added
     }
 
-    fun execute(sender: PrintStream, args: Array<String>) {
+    fun execute(sender: TestSender, args: Array<String>) {
         var subCommand = defaultSubCommand
         var subCommandName = ""
 
@@ -106,10 +105,10 @@ class TestCommand(
         return alias
     }
 
-    private val defaultSubCommand: SubCommandHolder<PrintStream>?
+    private val defaultSubCommand: SubCommandHolder<TestSender>?
         get() = holders[Default.DEFAULT_CMD_NAME]
 
-    private fun getSubCommand(key: String): SubCommandHolder<PrintStream>? {
+    private fun getSubCommand(key: String): SubCommandHolder<TestSender>? {
         val holder = holders[key]
         return holder ?: aliases[key]
     }

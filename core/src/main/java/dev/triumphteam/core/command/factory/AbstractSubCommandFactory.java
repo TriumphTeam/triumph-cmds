@@ -33,11 +33,13 @@ import dev.triumphteam.core.command.SubCommand;
 import dev.triumphteam.core.command.argument.Argument;
 import dev.triumphteam.core.command.argument.ArgumentRegistry;
 import dev.triumphteam.core.command.argument.ArgumentResolver;
+import dev.triumphteam.core.command.argument.ArrayArgument;
 import dev.triumphteam.core.command.argument.BasicArgument;
 import dev.triumphteam.core.command.argument.EnumArgument;
 import dev.triumphteam.core.command.argument.FlagArgument;
 import dev.triumphteam.core.command.argument.JoinedStringArgument;
 import dev.triumphteam.core.command.argument.LimitlessArgument;
+import dev.triumphteam.core.command.argument.CollectionArgument;
 import dev.triumphteam.core.command.flag.Flags;
 import dev.triumphteam.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.core.command.flag.internal.FlagGroup;
@@ -49,8 +51,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,7 +75,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     private int priority = 1;
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
-    private final List<Argument<S>> arguments = new ArrayList<>();
+    private final List<Argument<S, ?>> arguments = new ArrayList<>();
     private final Set<RequirementResolver<S>> requirements = new LinkedHashSet<>();
 
     private final ArgumentRegistry<S> argumentRegistry;
@@ -163,7 +168,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
      *
      * @return The arguments list.
      */
-    protected List<Argument<S>> getArguments() {
+    protected List<Argument<S, ?>> getArguments() {
         return arguments;
     }
 
@@ -175,6 +180,28 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         if (Enum.class.isAssignableFrom(type)) {
             //noinspection unchecked
             addArgument(new EnumArgument<>((Class<? extends Enum<?>>) type, optional));
+            return;
+        }
+
+        if (type == String[].class) {
+            addArgument(new ArrayArgument<>(optional));
+            return;
+        }
+
+        if (Collection.class.isAssignableFrom(type)) {
+            final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+            final Type[] types = parameterizedType.getActualTypeArguments();
+            if (types.length != 1) {
+                // todo error
+                return;
+            }
+
+            if (types[0] != String.class) {
+                System.out.println("not string list");
+                return;
+            }
+
+            addArgument(new CollectionArgument<>(type, optional));
             return;
         }
 
@@ -198,7 +225,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         addArgument(new BasicArgument<>(type, argumentRegistry.getResolver(type), optional));
     }
 
-    private void addArgument(@NotNull final Argument<S> argument) {
+    private void addArgument(@NotNull final Argument<S, ?> argument) {
         arguments.add(argument);
     }
 
@@ -295,7 +322,6 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
      * Argument validation makes sure some arguments are placed in the correct order.
      * For example a limitless argument and flags argument being one after the other, like:
      * `@Join final String text, final Flags flags`.
-     * TODO add validation for optional arguments.
      */
     private void validateArguments() {
         final int argSize = arguments.size();
@@ -304,7 +330,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
         // Collects validatable argument's position.
         for (int i = 0; i < argSize; i++) {
-            final Argument<S> argument = arguments.get(i);
+            final Argument<S, ?> argument = arguments.get(i);
 
             if (argument.isOptional() && i != argSize - 1) {
                 throw new SubCommandRegistrationException("Optional argument is only allowed as the last argument", method);

@@ -1,6 +1,5 @@
 package dev.triumphteam.core.tests.fails.registration.subcommand
 
-import cmds.implementation.TestCommandManager
 import dev.triumphteam.core.annotations.Flag
 import dev.triumphteam.core.cases.CharacterFlag
 import dev.triumphteam.core.cases.EmptyCommandFlags
@@ -9,13 +8,14 @@ import dev.triumphteam.core.cases.FlagWithCharacters
 import dev.triumphteam.core.cases.SpaceLongFlag
 import dev.triumphteam.core.cases.UnregisteredFlagArgument
 import dev.triumphteam.core.exceptions.SubCommandRegistrationException
+import dev.triumphteam.core.implementation.TestCommandManager
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @Suppress("ClassName")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class `Flags sub command registration fail test`() {
+class `Flags sub command registration fail test` {
 
     private val commandManager = TestCommandManager()
 

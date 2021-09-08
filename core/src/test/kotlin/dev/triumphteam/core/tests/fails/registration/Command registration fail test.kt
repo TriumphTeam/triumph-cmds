@@ -23,11 +23,11 @@
  */
 package dev.triumphteam.core.tests.fails.registration
 
-import cmds.implementation.TestCommandManager
 import dev.triumphteam.core.cases.EmptyCommand
 import dev.triumphteam.core.cases.EmptyExtendedCommand
 import dev.triumphteam.core.cases.NoCommand
 import dev.triumphteam.core.exceptions.CommandRegistrationException
+import dev.triumphteam.core.implementation.TestCommandManager
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance

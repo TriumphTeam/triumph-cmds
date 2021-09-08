@@ -26,7 +26,7 @@ package dev.triumphteam.core.command.argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface Argument<S> {
+public interface Argument<S, T> {
 
     @NotNull
     Class<?> getType();
@@ -34,6 +34,6 @@ public interface Argument<S> {
     boolean isOptional();
 
     @Nullable
-    Object resolve(@NotNull S sender, @NotNull final Object value);
+    Object resolve(@NotNull S sender, @NotNull final T value);
 
 }
