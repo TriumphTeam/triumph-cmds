@@ -49,7 +49,7 @@ public final class FlagValidator {
             char character = flag.charAt(0);
 
             if (!isValidOpt(character)) {
-                throw new SubCommandRegistrationException("Illegal flag name (" + character + ").", method);
+                throw new SubCommandRegistrationException("Illegal flag name \"" + character + "\"", method);
             }
 
             return;
@@ -59,7 +59,7 @@ public final class FlagValidator {
         for (char character : flag.toCharArray()) {
             if (!isValidChar(character)) {
                 throw new SubCommandRegistrationException(
-                        "The flag (" + flag + ") contains an illegal character (" + character + ").",
+                        "The flag \"" + flag + "\" contains an illegal character \"" + character + "\"",
                         method
                 );
             }

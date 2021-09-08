@@ -36,7 +36,7 @@ public final class CommandRegistrationException extends RuntimeException {
             @NotNull final String message,
             @NotNull final Class<? extends BaseCommand> commandClass
     ) {
-        super(message + " on Class `" + commandClass.getName() + "`");
+        super(message + " in Class `" + commandClass.getName() + "`");
     }
 
 }

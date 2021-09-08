@@ -80,7 +80,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry) {
+            @NotNull final RequirementRegistry<S> requirementRegistry
+    ) {
         this.baseCommand = baseCommand;
         this.method = method;
 
@@ -167,9 +168,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     }
 
     protected void createArgument(@NotNull final Parameter parameter) {
-        //System.out.println(name);
         final Class<?> type = parameter.getType();
-        //System.out.println(type.getName());
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
         // Handler for using any Enum.
@@ -230,7 +229,10 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         alias.addAll(Arrays.stream(subCommandAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
 
         if (this.name.isEmpty()) {
-            throw new SubCommandRegistrationException("Command name is empty!", method);
+            throw new SubCommandRegistrationException(
+                    "\"@" + dev.triumphteam.core.annotations.SubCommand.class.getSimpleName() + "\" name must not be empty",
+                    method
+            );
         }
     }
 
@@ -241,7 +243,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         final Flag[] flags = commandFlags.value();
         if (flags.length == 0) {
             throw new SubCommandRegistrationException(
-                    "`@" + CommandFlags.class.getSimpleName() + "` mustn't be empty.",
+                    "\"@" + CommandFlags.class.getSimpleName() + "\" must not be empty",
                     method
             );
         }
@@ -254,7 +256,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             String longFlag = flagAnnotation.longFlag();
             if (longFlag.contains(" ")) {
                 throw new SubCommandRegistrationException(
-                        "@" + Flag.class.getSimpleName() + "'s identifier mustn't contain spaces.",
+                        "@" + Flag.class.getSimpleName() + "'s identifier must not contain spaces",
                         method
                 );
             }
@@ -265,7 +267,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
                 argument = null;
             } else if (!argumentRegistry.isRegisteredType(argument)) {
                 throw new SubCommandRegistrationException(
-                        "@" + Flag.class.getSimpleName() + "'s argument contains unregistered type (" + argument.getName() + ").",
+                        "@" + Flag.class.getSimpleName() + "'s argument contains unregistered type (" + argument.getName() + ")",
                         method
                 );
             }

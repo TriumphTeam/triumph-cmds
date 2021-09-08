@@ -72,7 +72,7 @@ public final class ArgumentRegistry<S> {
 
         // Should never throw, but, just in case
         if (resolver == null) {
-            throw new SubCommandRegistrationException("Type `" + clazz.getName() + "` is not registered!");
+            throw new SubCommandRegistrationException("Type \"" + clazz.getName() + "\" is not registered!");
         }
 
         return resolver;

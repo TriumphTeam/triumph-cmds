@@ -21,32 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.core.tests
+package dev.triumphteam.core.tests.fails.registration
 
+import cmds.implementation.TestCommandManager
+import dev.triumphteam.core.cases.EmptyCommand
+import dev.triumphteam.core.cases.EmptyExtendedCommand
+import dev.triumphteam.core.cases.NoCommand
 import dev.triumphteam.core.exceptions.CommandRegistrationException
-import dev.triumphteam.core.implementations.TestCommandManager
-import dev.triumphteam.core.tests.command.EmptyCommand
-import dev.triumphteam.core.tests.command.NoCommand
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 
 @Suppress("ClassName")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class `Command registration fail test` {
 
     private val commandManager = TestCommandManager()
 
     @Test
-    fun `No command registration`() {
+    fun `No command registration fail`() {
         assertThatThrownBy {
             commandManager.registerCommand(NoCommand())
         }.isInstanceOf(CommandRegistrationException::class.java)
+            .hasMessageContaining("\"@Command\" annotation missing")
     }
 
     @Test
-    fun `Empty command registration`() {
+    fun `Empty command registration fail`() {
         assertThatThrownBy {
             commandManager.registerCommand(EmptyCommand())
         }.isInstanceOf(CommandRegistrationException::class.java)
+            .hasMessageContaining("Command name must not be empty")
+    }
+
+    @Test
+    fun `Empty extend command registration fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(EmptyExtendedCommand())
+        }.isInstanceOf(CommandRegistrationException::class.java)
+            .hasMessageContaining("Command name must not be empty")
     }
 
 }

@@ -82,7 +82,7 @@ public abstract class AbstractCommandFactory<C extends Command> {
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
             if (commandName == null) {
-                throw new CommandRegistrationException("Command name or `@" + Command.class.getSimpleName() + "` annotation missing", commandClass);
+                throw new CommandRegistrationException("Command name or \"@" + Command.class.getSimpleName() + "\" annotation missing", commandClass);
             }
 
             this.name = commandName;
@@ -95,7 +95,7 @@ public abstract class AbstractCommandFactory<C extends Command> {
         this.alias.addAll(baseCommand.getAlias());
 
         if (this.name.isEmpty()) {
-            throw new CommandRegistrationException("Command name is empty!", commandClass);
+            throw new CommandRegistrationException("Command name must not be empty", commandClass);
         }
     }
 

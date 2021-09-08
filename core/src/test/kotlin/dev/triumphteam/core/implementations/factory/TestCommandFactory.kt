@@ -23,14 +23,22 @@
  */
 package dev.triumphteam.core.implementations.factory
 
-import dev.triumphteam.core.implementations.TestCommand
 import dev.triumphteam.core.BaseCommand
+import dev.triumphteam.core.command.argument.ArgumentRegistry
 import dev.triumphteam.core.command.factory.AbstractCommandFactory
+import dev.triumphteam.core.command.message.MessageRegistry
+import dev.triumphteam.core.command.requirement.RequirementRegistry
+import dev.triumphteam.core.implementations.TestCommand
+import java.io.PrintStream
 
-class TestCommandFactory(baseCommand: BaseCommand) : AbstractCommandFactory<TestCommand>(baseCommand) {
+class TestCommandFactory(
+    baseCommand: BaseCommand,
+    private val argumentRegistry: ArgumentRegistry<PrintStream>,
+    private val requirementRegistry: RequirementRegistry<PrintStream>,
+    private val messageRegistry: MessageRegistry<PrintStream>
+) : AbstractCommandFactory<TestCommand>(baseCommand) {
 
     override fun create(): TestCommand {
-        return TestCommand(name, alias)
+        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
     }
-
 }

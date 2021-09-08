@@ -23,15 +23,65 @@
  */
 package dev.triumphteam.core.implementations.factory
 
-import dev.triumphteam.core.implementations.TestSubCommand
+import dev.triumphteam.core.BaseCommand
+import dev.triumphteam.core.command.SimpleSubCommand
+import dev.triumphteam.core.command.argument.ArgumentRegistry
 import dev.triumphteam.core.command.factory.AbstractSubCommandFactory
+import dev.triumphteam.core.command.requirement.RequirementRegistry
+import dev.triumphteam.core.exceptions.SubCommandRegistrationException
+import java.io.PrintStream
 import java.lang.reflect.Method
 
-class TestSubCommandFactory(method: Method) : AbstractSubCommandFactory<TestSubCommand>(method) {
+class TestSubCommandFactory(
+    baseCommand: BaseCommand,
+    method: Method,
+    argumentRegistry: ArgumentRegistry<PrintStream>,
+    requirementRegistry: RequirementRegistry<PrintStream>
+) : AbstractSubCommandFactory<PrintStream, SimpleSubCommand<PrintStream>>(
+    baseCommand,
+    method,
+    argumentRegistry,
+    requirementRegistry
+) {
 
-    override fun create(): TestSubCommand? {
-        if (name == null) return null
-        return TestSubCommand(name, alias)
+    private var senderClass: Class<*>? = null
+
+    override fun create(): SimpleSubCommand<PrintStream>? {
+        val name = name ?: return null
+
+        return SimpleSubCommand(
+            baseCommand,
+            method,
+            name,
+            alias,
+            arguments,
+            flagGroup,
+            requirements,
+            isDefault,
+            priority
+        )
     }
 
+    override fun extractArguments(method: Method) {
+        val parameters = method.parameters
+
+        if (parameters.isEmpty()) {
+            throw SubCommandRegistrationException("Sub command method's parameters must not be empty", method)
+        }
+
+        for (i in parameters.indices) {
+            val parameter = parameters[i]
+            if (i == 0) {
+                if (!PrintStream::class.java.isAssignableFrom(parameter.type)) {
+                    throw SubCommandRegistrationException(
+                        "Invalid sender parameter \"${parameter.type.name}\"",
+                        method
+                    )
+                }
+                senderClass = parameter.type
+                continue
+            }
+            createArgument(parameter)
+        }
+    }
 }
