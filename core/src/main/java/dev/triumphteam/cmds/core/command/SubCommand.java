@@ -40,6 +40,8 @@ public interface SubCommand<S> {
     @NotNull
     Method getMethod();
 
+    boolean isDefault();
+
     int getPriority();
 
     List<Argument<S, ?>> getArguments();

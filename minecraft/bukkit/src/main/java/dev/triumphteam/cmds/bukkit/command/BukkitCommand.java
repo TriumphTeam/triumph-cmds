@@ -28,7 +28,7 @@ import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.annotations.Default;
 import dev.triumphteam.cmds.core.command.Command;
 import dev.triumphteam.cmds.core.command.SimpleSubCommand;
-import dev.triumphteam.cmds.core.command.SubCommandHolder;
+import dev.triumphteam.cmds.core.command.SubCommand;
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
 import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
 import org.bukkit.command.CommandSender;
@@ -52,8 +52,8 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     private final String name;
     private final List<String> alias;
 
-    private final Map<String, SubCommandHolder<CommandSender>> holders = new HashMap<>();
-    private final Map<String, SubCommandHolder<CommandSender>> aliases = new HashMap<>();
+    private final Map<String, SubCommand<CommandSender>> holders = new HashMap<>();
+    private final Map<String, SubCommand<CommandSender>> aliases = new HashMap<>();
 
     public BukkitCommand(
             @NotNull final String name,
@@ -83,24 +83,12 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
             if (subCommand == null) continue;
             added = true;
 
-            // TODO add this later and add aliases
+            // TODO add aliases
             final String subCommandName = subCommand.getName();
             final List<String> subCommandAlias = subCommand.getAlias();
 
-            final SubCommandHolder<CommandSender> holder = holders.get(subCommandName);
-            if (holder == null) {
-                // FIXME: 9/2/2021 Add message registry
-                /*final SubCommandHolder<CommandSender> newHolder = new SubCommandHolder<>(subCommand);
-                holders.put(subCommandName, newHolder);
-                for (final String alias : subCommandAlias) {
-                    aliases.put(alias, newHolder);
-                }
-                continue;*/
-            }
-
-            holder.add(subCommand);
-            // TODO handle alias later
-
+            final SubCommand<CommandSender> holder = holders.get(subCommandName);
+            // FIXME: 9/2/2021 Add message registry and fix holder removal
         }
 
         return added;
@@ -115,7 +103,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         // TODO DEBUG
         final double start = System.nanoTime();
         // // //
-        SubCommandHolder<CommandSender> subCommand = getDefaultSubCommand();
+        SubCommand<CommandSender> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.length > 0) subCommandName = args[0].toLowerCase();
@@ -160,14 +148,14 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
      * @return A default SubCommand.
      */
     @Nullable
-    private SubCommandHolder<CommandSender> getDefaultSubCommand() {
+    private SubCommand<CommandSender> getDefaultSubCommand() {
         return holders.get(Default.DEFAULT_CMD_NAME);
     }
 
     @Nullable
-    private SubCommandHolder<CommandSender> getSubCommand(@NotNull final String key) {
-        final SubCommandHolder<CommandSender> holder = holders.get(key);
-        if (holder != null) return holder;
+    private SubCommand<CommandSender> getSubCommand(@NotNull final String key) {
+        final SubCommand<CommandSender> subCommand = holders.get(key);
+        if (subCommand != null) return subCommand;
         return aliases.get(key);
     }
 
