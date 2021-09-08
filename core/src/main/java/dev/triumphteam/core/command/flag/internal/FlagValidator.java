@@ -35,8 +35,12 @@ import java.lang.reflect.Method;
  */
 public final class FlagValidator {
 
+    private FlagValidator() {
+        throw new AssertionError("Util class must not be initialized.");
+    }
+
     /**
-     * Checks whether or not the flag contains illegal characters.
+     * Checks whether the flag contains illegal characters.
      *
      * @param flag   The {@link String} flag.
      * @param method The method from the registration so that better error message can be thrown.
@@ -48,14 +52,14 @@ public final class FlagValidator {
         if (flag.length() == 1) {
             char character = flag.charAt(0);
 
-            if (!isValidOpt(character)) {
+            if (!isValidFlag(character)) {
                 throw new SubCommandRegistrationException("Illegal flag name \"" + character + "\"", method);
             }
 
             return;
         }
 
-        // handle the multi character opt
+        // handle the multi character flag
         for (char character : flag.toCharArray()) {
             if (!isValidChar(character)) {
                 throw new SubCommandRegistrationException(
@@ -70,9 +74,9 @@ public final class FlagValidator {
      * Returns whether the specified character is a valid Option.
      *
      * @param c the option to validate
-     * @return true if <code>c</code> is a letter, '?' or '@', otherwise false.
+     * @return true if <code>c</code> is a letter, <code>?</code> or <code>@</code>, otherwise false.
      */
-    private static boolean isValidOpt(char c) {
+    private static boolean isValidFlag(char c) {
         return isValidChar(c) || c == '?' || c == '@';
     }
 

@@ -230,7 +230,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
         if (this.name.isEmpty()) {
             throw new SubCommandRegistrationException(
-                    "\"@" + dev.triumphteam.core.annotations.SubCommand.class.getSimpleName() + "\" name must not be empty",
+                    "@" + dev.triumphteam.core.annotations.SubCommand.class.getSimpleName() + " name must not be empty",
                     method
             );
         }
@@ -243,7 +243,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         final Flag[] flags = commandFlags.value();
         if (flags.length == 0) {
             throw new SubCommandRegistrationException(
-                    "\"@" + CommandFlags.class.getSimpleName() + "\" must not be empty",
+                    "@" + CommandFlags.class.getSimpleName() + " must not be empty",
                     method
             );
         }
@@ -256,18 +256,20 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             String longFlag = flagAnnotation.longFlag();
             if (longFlag.contains(" ")) {
                 throw new SubCommandRegistrationException(
-                        "@" + Flag.class.getSimpleName() + "'s identifier must not contain spaces",
+                        "@" + Flag.class.getSimpleName() + "'s identifiers must not contain spaces",
                         method
                 );
             }
+
             if (longFlag.isEmpty()) longFlag = null;
 
             Class<?> argument = flagAnnotation.argument();
             if (argument == void.class) {
                 argument = null;
             } else if (!argumentRegistry.isRegisteredType(argument)) {
+                // FIXME: 9/8/2021 Need to add other types of argument too, like ENUM.
                 throw new SubCommandRegistrationException(
-                        "@" + Flag.class.getSimpleName() + "'s argument contains unregistered type (" + argument.getName() + ")",
+                        "@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argument.getName() + "\"",
                         method
                 );
             }
@@ -332,12 +334,12 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
         // If flags argument is present check if it's the last one and if there is a limitless behind of it instead of after.
         if (flagsPosition != -1) {
-            if (flagsPosition != argSize - 1) {
-                throw new SubCommandRegistrationException("\"Flags\" argument must always be the last argument", method);
+            if (limitlessPosition != -1 && limitlessPosition != argSize - 2) {
+                throw new SubCommandRegistrationException("\"Flags\" argument must always be after a limitless argument", method);
             }
 
-            if (limitlessPosition != -1 && limitlessPosition != argSize - 2) {
-                throw new SubCommandRegistrationException("\"Flags\" argument must always be after limitless argument", method);
+            if (flagsPosition != argSize - 1) {
+                throw new SubCommandRegistrationException("\"Flags\" argument must always be the last argument", method);
             }
 
             return;
@@ -345,7 +347,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
         // If it's a limitless argument checks if it's the last argument.
         if (limitlessPosition != -1 && limitlessPosition != argSize - 1) {
-            throw new SubCommandRegistrationException("Limitless argument must be the last if \"Flags\" is not present", method);
+            throw new SubCommandRegistrationException("Limitless argument must be the last argument if \"Flags\" is not present", method);
         }
     }
 

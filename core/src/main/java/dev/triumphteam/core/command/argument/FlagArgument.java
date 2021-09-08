@@ -37,8 +37,7 @@ public final class FlagArgument<S> implements LimitlessArgument<S> {
 
     @Override
     public boolean isOptional() {
-        // FIXME: 9/2/2021 
-        return true;
+        return false;
     }
 
     @Nullable
