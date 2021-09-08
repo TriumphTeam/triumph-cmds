@@ -104,6 +104,11 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return arguments;
     }
 
+    @Override
+    public boolean isDefault() {
+        return isDefault;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public CommandExecutionResult execute(@NotNull final S sender, @NotNull final List<String> args) {

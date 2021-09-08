@@ -27,7 +27,7 @@ import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.annotations.Default
 import dev.triumphteam.cmds.core.command.Command
 import dev.triumphteam.cmds.core.command.SimpleSubCommand
-import dev.triumphteam.cmds.core.command.SubCommandHolder
+import dev.triumphteam.cmds.core.command.SubCommand
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry
 import dev.triumphteam.cmds.core.command.message.MessageKey
 import dev.triumphteam.cmds.core.command.message.MessageRegistry
@@ -43,8 +43,8 @@ class TestCommand(
     private val messageRegistry: MessageRegistry<TestSender>
 ) : Command {
 
-    private val holders: MutableMap<String, SubCommandHolder<TestSender>> = HashMap()
-    private val aliases: MutableMap<String, SubCommandHolder<TestSender>> = HashMap()
+    private val subCommands: MutableMap<String, SubCommand<TestSender>> = HashMap()
+    private val aliases: MutableMap<String, SubCommand<TestSender>> = HashMap()
 
     override fun addSubCommands(baseCommand: BaseCommand): Boolean {
         var added = false
@@ -62,17 +62,7 @@ class TestCommand(
             val subCommandName = subCommand.name
             val subCommandAlias = subCommand.alias
 
-            val holder = holders[subCommandName]
-            if (holder == null) {
-                val newHolder = SubCommandHolder(messageRegistry, subCommand)
-                holders[subCommandName] = newHolder
-                for (alias in subCommandAlias) {
-                    aliases[alias] = newHolder
-                }
-                continue
-            }
-
-            holder.add(subCommand)
+            subCommands[subCommandName] = subCommand
             // TODO handle alias later
         }
 
@@ -88,7 +78,7 @@ class TestCommand(
             subCommand = getSubCommand(subCommandName)
         }
 
-        if (subCommand == null || args.isNotEmpty() && subCommand.isSmallDefault) {
+        if (subCommand == null || args.isNotEmpty() && subCommand.isDefault && subCommand.arguments.isEmpty()) {
             messageRegistry.sendMessage(MessageKey.WRONG_USAGE, sender)
             return
         }
@@ -105,15 +95,15 @@ class TestCommand(
         return alias
     }
 
-    private val defaultSubCommand: SubCommandHolder<TestSender>?
-        get() = holders[Default.DEFAULT_CMD_NAME]
+    private val defaultSubCommand: SubCommand<TestSender>?
+        get() = subCommands[Default.DEFAULT_CMD_NAME]
 
-    private fun getSubCommand(key: String): SubCommandHolder<TestSender>? {
-        val holder = holders[key]
-        return holder ?: aliases[key]
+    private fun getSubCommand(key: String): SubCommand<TestSender>? {
+        val subCommands = subCommands[key]
+        return subCommands ?: aliases[key]
     }
 
     private fun subCommandExists(key: String): Boolean {
-        return holders.containsKey(key) || aliases.containsKey(key)
+        return subCommands.containsKey(key) || aliases.containsKey(key)
     }
 }
