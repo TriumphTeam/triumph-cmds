@@ -26,8 +26,8 @@ package cmds.implementation
 import dev.triumphteam.core.BaseCommand
 import dev.triumphteam.core.CommandManager
 import dev.triumphteam.core.command.message.MessageKey
-import dev.triumphteam.core.implementations.TestCommand
-import dev.triumphteam.core.implementations.factory.TestCommandFactory
+import dev.triumphteam.core.implementation.TestCommand
+import dev.triumphteam.core.implementation.factory.TestCommandFactory
 import java.io.PrintStream
 
 class TestCommandManager : CommandManager<PrintStream>() {

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.core.implementations.factory
+package dev.triumphteam.core.implementation.factory
 
 import dev.triumphteam.core.BaseCommand
 import dev.triumphteam.core.command.SimpleSubCommand

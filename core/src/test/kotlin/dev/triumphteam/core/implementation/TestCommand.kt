@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.core.implementations
+package dev.triumphteam.core.implementation
 
 import dev.triumphteam.core.BaseCommand
 import dev.triumphteam.core.annotations.Default
@@ -32,7 +32,7 @@ import dev.triumphteam.core.command.argument.ArgumentRegistry
 import dev.triumphteam.core.command.message.MessageKey
 import dev.triumphteam.core.command.message.MessageRegistry
 import dev.triumphteam.core.command.requirement.RequirementRegistry
-import dev.triumphteam.core.implementations.factory.TestSubCommandFactory
+import dev.triumphteam.core.implementation.factory.TestSubCommandFactory
 import java.io.PrintStream
 import java.lang.reflect.Modifier
 
