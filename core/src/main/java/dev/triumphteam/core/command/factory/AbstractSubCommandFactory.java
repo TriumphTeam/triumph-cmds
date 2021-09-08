@@ -35,11 +35,11 @@ import dev.triumphteam.core.command.argument.ArgumentRegistry;
 import dev.triumphteam.core.command.argument.ArgumentResolver;
 import dev.triumphteam.core.command.argument.ArrayArgument;
 import dev.triumphteam.core.command.argument.BasicArgument;
+import dev.triumphteam.core.command.argument.CollectionArgument;
 import dev.triumphteam.core.command.argument.EnumArgument;
 import dev.triumphteam.core.command.argument.FlagArgument;
 import dev.triumphteam.core.command.argument.JoinedStringArgument;
 import dev.triumphteam.core.command.argument.LimitlessArgument;
-import dev.triumphteam.core.command.argument.CollectionArgument;
 import dev.triumphteam.core.command.flag.Flags;
 import dev.triumphteam.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.core.command.flag.internal.FlagGroup;
@@ -55,7 +55,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -188,17 +187,16 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             return;
         }
 
-        if (Collection.class.isAssignableFrom(type)) {
+        if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
             final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
             final Type[] types = parameterizedType.getActualTypeArguments();
+
             if (types.length != 1) {
-                // todo error
-                return;
+                throw new SubCommandRegistrationException("Unsupported collection type \"" + type + "\"", method);
             }
 
             if (types[0] != String.class) {
-                System.out.println("not string list");
-                return;
+                throw new SubCommandRegistrationException("Only String collections are allowed", method);
             }
 
             addArgument(new CollectionArgument<>(type, optional));
@@ -219,7 +217,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         }
 
         if (!argumentRegistry.isRegisteredType(type)) {
-            throw new SubCommandRegistrationException("No argument of type (" + type.getName() + ") registered.", method);
+            throw new SubCommandRegistrationException("No argument of type \"" + type.getName() + "\" registered", method);
         }
 
         addArgument(new BasicArgument<>(type, argumentRegistry.getResolver(type), optional));

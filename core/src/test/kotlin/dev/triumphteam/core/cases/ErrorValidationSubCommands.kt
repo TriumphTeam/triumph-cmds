@@ -59,7 +59,6 @@ class WrongLocationLimitlessJoin : BaseCommand() {
     }
 }
 
-// TODO
 @Command("foo")
 class WrongLocationLimitlessArray : BaseCommand() {
 
@@ -104,7 +103,7 @@ class WrongLocationFlagsLimitlessArray : BaseCommand() {
 }
 
 @Command("foo")
-class WrongLocationFlagsLimitlessList : BaseCommand() {
+class WrongLocationFlagsLimitlessCollection : BaseCommand() {
 
     @SubCommand("bar")
     @CommandFlags(Flag(flag = "f"))
@@ -113,10 +112,18 @@ class WrongLocationFlagsLimitlessList : BaseCommand() {
 }
 
 @Command("foo")
+class UnsupportedCollectionType : BaseCommand() {
+
+    @SubCommand("bar")
+    fun test(sender: TestSender, number: Int, text: List<Int>) {
+    }
+}
+
+@Command("foo")
 class UnregisteredType : BaseCommand() {
 
     @SubCommand("bar")
     @CommandFlags(Flag(flag = "f"))
-    fun test(sender: TestSender, flags: Flags, text: List<String>) {
+    fun test(sender: TestSender, flags: Flags, text: Flag) {
     }
 }

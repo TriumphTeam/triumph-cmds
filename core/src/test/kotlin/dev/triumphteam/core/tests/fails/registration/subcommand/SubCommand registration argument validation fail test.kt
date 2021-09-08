@@ -1,10 +1,15 @@
 package dev.triumphteam.core.tests.fails.registration.subcommand
 
+import dev.triumphteam.core.annotations.Flag
 import dev.triumphteam.core.cases.MoreThanOneFlags
 import dev.triumphteam.core.cases.MoreThanOneLimitlessArray
 import dev.triumphteam.core.cases.MoreThanOneLimitlessCollection
 import dev.triumphteam.core.cases.MoreThanOneLimitlessJoin
+import dev.triumphteam.core.cases.UnregisteredType
+import dev.triumphteam.core.cases.UnsupportedCollectionType
 import dev.triumphteam.core.cases.WrongLocationFlags
+import dev.triumphteam.core.cases.WrongLocationFlagsLimitlessArray
+import dev.triumphteam.core.cases.WrongLocationFlagsLimitlessCollection
 import dev.triumphteam.core.cases.WrongLocationFlagsLimitlessJoin
 import dev.triumphteam.core.cases.WrongLocationLimitlessArray
 import dev.triumphteam.core.cases.WrongLocationLimitlessCollection
@@ -95,11 +100,43 @@ class `SubCommand registration argument validation fail test` {
     }
 
     @Test
-    fun `Flags and limitless arguments wrong location fail`() {
+    fun `Flags and limitless join arguments wrong location fail`() {
         assertThatThrownBy {
             commandManager.registerCommand(WrongLocationFlagsLimitlessJoin())
         }.isInstanceOf(SubCommandRegistrationException::class.java)
             .hasMessageContaining("\"Flags\" argument must always be after a limitless argument")
+    }
+
+    @Test
+    fun `Flags and limitless collection arguments wrong location fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(WrongLocationFlagsLimitlessCollection())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("\"Flags\" argument must always be after a limitless argument")
+    }
+
+    @Test
+    fun `Flags and limitless array arguments wrong location fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(WrongLocationFlagsLimitlessArray())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("\"Flags\" argument must always be after a limitless argument")
+    }
+
+    @Test
+    fun `Unsupported collection argument type fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(UnsupportedCollectionType())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("Only String collections are allowed")
+    }
+
+    @Test
+    fun `Unsupported argument fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(UnregisteredType())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("No argument of type \"" + Flag::class.java.name + "\" registered")
     }
 
 }
