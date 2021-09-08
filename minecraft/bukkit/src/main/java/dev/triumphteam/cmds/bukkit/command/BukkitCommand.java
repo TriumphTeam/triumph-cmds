@@ -24,13 +24,13 @@
 package dev.triumphteam.cmds.bukkit.command;
 
 import dev.triumphteam.cmds.bukkit.factory.BukkitSubCommandFactory;
-import dev.triumphteam.core.BaseCommand;
-import dev.triumphteam.core.annotations.Default;
-import dev.triumphteam.core.command.Command;
-import dev.triumphteam.core.command.SimpleSubCommand;
-import dev.triumphteam.core.command.SubCommandHolder;
-import dev.triumphteam.core.command.argument.ArgumentRegistry;
-import dev.triumphteam.core.command.requirement.RequirementRegistry;
+import dev.triumphteam.cmds.core.BaseCommand;
+import dev.triumphteam.cmds.core.annotations.Default;
+import dev.triumphteam.cmds.core.command.Command;
+import dev.triumphteam.cmds.core.command.SimpleSubCommand;
+import dev.triumphteam.cmds.core.command.SubCommandHolder;
+import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
