@@ -28,7 +28,9 @@ import dev.triumphteam.cmds.core.command.argument.Argument;
 import dev.triumphteam.cmds.core.command.argument.LimitlessArgument;
 import dev.triumphteam.cmds.core.command.argument.StringArgument;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
+import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
+import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +56,8 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final FlagGroup<S> flagGroup;
     private final Set<RequirementResolver<S>> requirements;
 
+    private final MessageRegistry<S> messageRegistry;
+
     private final boolean containsLimitlessArgument;
 
     public SimpleSubCommand(
@@ -64,6 +68,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final List<Argument<S, ?>> arguments,
             @NotNull final FlagGroup<S> flagGroup,
             @NotNull final Set<RequirementResolver<S>> requirements,
+            @NotNull final MessageRegistry<S> messageRegistry,
             final boolean isDefault,
             final int priority
     ) {
@@ -74,6 +79,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         this.arguments = arguments;
         this.flagGroup = flagGroup;
         this.requirements = requirements;
+        this.messageRegistry = messageRegistry;
         this.isDefault = isDefault;
         this.priority = priority;
 
@@ -111,16 +117,10 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return isDefault;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public ExecutionResult execute(@NotNull final S sender, @NotNull final List<String> args) {
+    public void execute(@NotNull final S sender, @NotNull final List<String> args) {
         // Removes the sub command from the args if it's not default.
-        final List<String> commandArgs;
-        if (!isDefault) {
-            commandArgs = args.subList(1, args.size());
-        } else {
-            commandArgs = args;
-        }
+        final List<String> commandArgs = getCommandArgs(args);
 
         // FIXME: 9/9/2021 Figure why i needed this
         /*if (isDefault && arguments.isEmpty() && !commandArgs.isEmpty()) {
@@ -128,9 +128,30 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             return CommandExecutionResult.WRONG_USAGE;
         }*/
 
+        // Creates the invoking arguments list
         final List<Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
+        if (!validateAndAddArguments(sender, invokeArguments, commandArgs)) {
+            return;
+        }
+
+        if (!containsLimitlessArgument && commandArgs.size() >= invokeArguments.size()) return;
+
+        try {
+            method.invoke(baseCommand, invokeArguments.toArray());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean validateAndAddArguments(
+            @NotNull final S sender,
+            @NotNull final List<Object> invokeArguments,
+            @NotNull final List<String> commandArgs
+    ) {
+        // Validating and gathering arguments
         for (int i = 0; i < arguments.size(); i++) {
             final Argument<S, ?> argument = arguments.get(i);
 
@@ -144,21 +165,22 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                         continue;
                     }
 
-                    return ExecutionResult.NOT_ENOUGH_ARGUMENTS;
+                    // TODO send NOT_ENOUGH_ARGUMENTS
+                    return false;
                 }
 
                 final Object result = limitlessArgument.resolve(sender, leftOvers);
                 if (result == null) {
-                    return ExecutionResult.INVALID_ARGUMENT;
+                    // TODO send INVALID_ARGS
+                    return false;
                 }
 
                 invokeArguments.add(result);
                 continue;
             }
 
-            // TODO Should never happen, might need to handle it better
             if (!(argument instanceof StringArgument)) {
-                break;
+                throw new CommandExecutionException("Found unsupported argument.");
             }
 
             final StringArgument<S> stringArgument = (StringArgument<S>) argument;
@@ -170,28 +192,29 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                     continue;
                 }
 
-                return ExecutionResult.NOT_ENOUGH_ARGUMENTS;
+                // TODO send NOT_ENOUGH_ARGUMENTS
+                return false;
             }
 
             final Object result = stringArgument.resolve(sender, arg);
             if (result == null) {
-                return ExecutionResult.INVALID_ARGUMENT;
+                // TODO send INVALID_ARGS
+                return false;
             }
 
             invokeArguments.add(result);
         }
 
-        if (!containsLimitlessArgument && commandArgs.size() >= invokeArguments.size()) {
-            return ExecutionResult.TOO_MANY_ARGUMENTS;
+        return true;
+    }
+
+    @NotNull
+    private List<String> getCommandArgs(@NotNull final List<String> args) {
+        if (!isDefault) {
+            return args.subList(1, args.size());
         }
 
-        try {
-            method.invoke(baseCommand, invokeArguments.toArray());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        return ExecutionResult.SUCCESS;
+        return args;
     }
 
     @Nullable
@@ -202,7 +225,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
     @NotNull
     private List<String> leftOvers(@NotNull final List<String> list, final int from) {
-        if (from >= list.size()) return Collections.emptyList();
+        if (from > list.size()) return Collections.emptyList();
         return list.subList(from, list.size());
     }
 

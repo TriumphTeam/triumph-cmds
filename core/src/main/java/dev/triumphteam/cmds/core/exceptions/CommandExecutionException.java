@@ -21,31 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command;
+package dev.triumphteam.cmds.core.exceptions;
 
-import dev.triumphteam.cmds.core.command.argument.Argument;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
-import java.util.List;
+public final class CommandExecutionException extends RuntimeException {
 
-public interface SubCommand<S> {
-
-    @NotNull
-    String getName();
-
-    @NotNull
-    List<String> getAlias();
-
-    @NotNull
-    Method getMethod();
-
-    boolean isDefault();
-
-    int getPriority();
-
-    List<Argument<S, ?>> getArguments();
-
-    void execute(@NotNull S sender, @NotNull final List<String> args);
+    public CommandExecutionException(@NotNull final String message) {
+        super(message);
+    }
 
 }
