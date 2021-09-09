@@ -151,7 +151,6 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final List<Object> invokeArguments,
             @NotNull final List<String> commandArgs
     ) {
-        // Validating and gathering arguments
         for (int i = 0; i < arguments.size(); i++) {
             final Argument<S, ?> argument = arguments.get(i);
 

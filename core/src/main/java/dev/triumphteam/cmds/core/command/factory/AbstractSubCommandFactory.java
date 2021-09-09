@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmds.core.command.factory;
 
+import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.annotations.CommandFlags;
 import dev.triumphteam.cmds.core.annotations.Default;
 import dev.triumphteam.cmds.core.annotations.Flag;
@@ -31,20 +32,20 @@ import dev.triumphteam.cmds.core.annotations.Optional;
 import dev.triumphteam.cmds.core.annotations.SubCommand;
 import dev.triumphteam.cmds.core.command.argument.Argument;
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
 import dev.triumphteam.cmds.core.command.argument.ArrayArgument;
 import dev.triumphteam.cmds.core.command.argument.BasicArgument;
 import dev.triumphteam.cmds.core.command.argument.CollectionArgument;
+import dev.triumphteam.cmds.core.command.argument.EnumArgument;
 import dev.triumphteam.cmds.core.command.argument.FlagArgument;
 import dev.triumphteam.cmds.core.command.argument.JoinedStringArgument;
 import dev.triumphteam.cmds.core.command.argument.LimitlessArgument;
-import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
-import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
-import dev.triumphteam.cmds.core.BaseCommand;
-import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
-import dev.triumphteam.cmds.core.command.argument.EnumArgument;
 import dev.triumphteam.cmds.core.command.flag.Flags;
 import dev.triumphteam.cmds.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
+import dev.triumphteam.cmds.core.command.message.MessageRegistry;
+import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
+import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
 import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +61,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static dev.triumphteam.cmds.core.command.factory.AnnotationUtil.getAnnotation;
 import static dev.triumphteam.cmds.core.command.flag.internal.FlagValidator.validate;
 
 public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cmds.core.command.SubCommand<S>> {
@@ -79,18 +79,21 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
+    private final MessageRegistry<S> messageRegistry;
 
     protected AbstractSubCommandFactory(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry
+            @NotNull final RequirementRegistry<S> requirementRegistry,
+            @NotNull final MessageRegistry<S> messageRegistry
     ) {
         this.baseCommand = baseCommand;
         this.method = method;
 
         this.argumentRegistry = argumentRegistry;
         this.requirementRegistry = requirementRegistry;
+        this.messageRegistry = messageRegistry;
 
         extractSubCommandNames();
         if (name == null) return;
@@ -160,6 +163,10 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
     protected FlagGroup<S> getFlagGroup() {
         return flagGroup;
+    }
+
+    protected MessageRegistry<S> getMessageRegistry() {
+        return messageRegistry;
     }
 
     /**

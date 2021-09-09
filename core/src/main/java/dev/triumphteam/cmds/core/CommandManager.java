@@ -25,6 +25,7 @@ package dev.triumphteam.cmds.core;
 
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
 import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
+import dev.triumphteam.cmds.core.command.message.context.MessageContext;
 import dev.triumphteam.cmds.core.command.message.MessageKey;
 import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.message.MessageResolver;
@@ -80,7 +81,7 @@ public abstract class CommandManager<S> {
         argumentRegistry.register(clazz, resolver);
     }
 
-    public final void registerMessage(@NotNull final MessageKey key, @NotNull final MessageResolver<S> resolver) {
+    public final <C extends MessageContext> void registerMessage(@NotNull final MessageKey<C> key, @NotNull final MessageResolver<S, C> resolver) {
         messageRegistry.register(key, resolver);
     }
 

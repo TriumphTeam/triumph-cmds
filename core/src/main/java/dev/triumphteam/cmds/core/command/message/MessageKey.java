@@ -23,45 +23,106 @@
  */
 package dev.triumphteam.cmds.core.command.message;
 
+import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmds.core.command.message.context.MessageContext;
+import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
-public final class MessageKey {
+/**
+ * {@link MessageKey} is used for easier registering of messages with different {@link MessageContext}.
+ *
+ * @param <C> A {@link MessageContext} type, this allows for better customization of the messages.
+ */
+public final class MessageKey<C extends MessageContext> {
 
-    public static final MessageKey WRONG_USAGE = of("wrong.usage");
-    public static final MessageKey INVALID_COMMAND = of("invalid.command");
+    // Holds all registered keys, default and custom ones
+    private static final Set<MessageKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();
+
+    // Default keys
+
+    public static final MessageKey<MessageContext> WRONG_USAGE = of("wrong.usage", MessageContext.class);
+    public static final MessageKey<DefaultMessageContext> TOO_MANY_ARGUMENTS = of("too.many.arguments", DefaultMessageContext.class);
+    public static final MessageKey<DefaultMessageContext> NOT_ENOUGH_ARGUMENTS = of("not.enough.arguments", DefaultMessageContext.class);
+    public static final MessageKey<InvalidArgumentContext> INVALID_ARGUMENT = of("invalid.argument", InvalidArgumentContext.class);
+    public static final MessageKey<MessageContext> UNKNOWN_COMMAND = of("unknown.command", MessageContext.class);
 
     private final String key;
+    private final Class<C> type;
 
-    private MessageKey(@NotNull final String key) {
+    private MessageKey(@NotNull final String key, @NotNull final Class<C> type) {
         this.key = key;
+        this.type = type;
+
+        REGISTERED_KEYS.add(this);
     }
 
+    /**
+     * Factory method for creating a {@link MessageKey}.
+     *
+     * @param key  The value of the key, normally separated by <code>.</code>.
+     * @param type The {@link MessageContext} type.
+     * @param <C>  Generic {@link MessageContext} type.
+     * @return A new {@link MessageKey} for a specific {@link MessageContext}.
+     */
     @NotNull
-    @Contract("_ -> new")
-    public static MessageKey of(@NotNull final String key) {
-        return new MessageKey(key);
+    @Contract("_, _ -> new")
+    public static <C extends MessageContext> MessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
+        return new MessageKey<>(key, type);
     }
 
+    /**
+     * Getter for the key value.
+     *
+     * @return The key value.
+     */
     @NotNull
     public String getValue() {
         return key;
     }
 
+    /**
+     * Getter for the {@link MessageContext} type, in case it's needed.
+     *
+     * @return The {@link MessageContext} type.
+     */
+    @NotNull
+    public Class<C> getType() {
+        return type;
+    }
+
+    /**
+     * Gets an immutable {@link Set} with all the registered keys.
+     *
+     * @return The keys {@link Set}.
+     */
+    @NotNull
+    public static Set<MessageKey<? extends MessageContext>> getRegisteredKeys() {
+        return Collections.unmodifiableSet(REGISTERED_KEYS);
+    }
+
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final MessageKey that = (MessageKey) o;
-        return Objects.equals(key, that.key);
+        final MessageKey<?> that = (MessageKey<?>) o;
+        return key.equals(that.key) && type.equals(that.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key);
+        return Objects.hash(key, type);
     }
 
+    @Override
+    public String toString() {
+        return "MessageKey{" +
+                "key='" + key + '\'' +
+                '}';
+    }
 }

@@ -33,7 +33,7 @@ class TestCommandManager : CommandManager<TestSender>() {
 
     init {
         registerMessage(MessageKey.WRONG_USAGE) { }
-        registerMessage(MessageKey.INVALID_COMMAND) { }
+        registerMessage(MessageKey.UNKNOWN_COMMAND) { }
     }
 
     override fun registerCommand(command: BaseCommand) {
@@ -52,7 +52,7 @@ class TestCommandManager : CommandManager<TestSender>() {
     fun execute(sender: TestSender, commandName: String, args: Array<String>) {
         val command = commands[commandName]
         if (command == null) {
-            messageRegistry.sendMessage(MessageKey.INVALID_COMMAND, sender)
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender)
             return
         }
 
