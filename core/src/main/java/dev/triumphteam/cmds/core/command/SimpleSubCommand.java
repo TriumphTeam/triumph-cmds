@@ -23,18 +23,20 @@
  */
 package dev.triumphteam.cmds.core.command;
 
+import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.command.argument.Argument;
 import dev.triumphteam.cmds.core.command.argument.LimitlessArgument;
 import dev.triumphteam.cmds.core.command.argument.StringArgument;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
-import dev.triumphteam.cmds.core.BaseCommand;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -111,7 +113,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public CommandExecutionResult execute(@NotNull final S sender, @NotNull final List<String> args) {
+    public ExecutionResult execute(@NotNull final S sender, @NotNull final List<String> args) {
         // Removes the sub command from the args if it's not default.
         final List<String> commandArgs;
         if (!isDefault) {
@@ -120,11 +122,11 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             commandArgs = args;
         }
 
-        if (isDefault && arguments.isEmpty() && !commandArgs.isEmpty()) {
-            // TODO error
-            //System.out.println("hurr durr wrong usage");
+        // FIXME: 9/9/2021 Figure why i needed this
+        /*if (isDefault && arguments.isEmpty() && !commandArgs.isEmpty()) {
+            System.out.println("too many args?");
             return CommandExecutionResult.WRONG_USAGE;
-        }
+        }*/
 
         final List<Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
@@ -134,23 +136,20 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
             if (argument instanceof LimitlessArgument) {
                 final LimitlessArgument<S> limitlessArgument = (LimitlessArgument<S>) argument;
-                final List<String> leftOvers = leftOversOrNull(commandArgs, i);
+                final List<String> leftOvers = leftOvers(commandArgs, i);
 
-                if (leftOvers == null) {
+                if (leftOvers.isEmpty()) {
                     if (argument.isOptional()) {
                         invokeArguments.add(null);
                         continue;
                     }
 
-                    return CommandExecutionResult.WRONG_USAGE;
+                    return ExecutionResult.NOT_ENOUGH_ARGUMENTS;
                 }
 
                 final Object result = limitlessArgument.resolve(sender, leftOvers);
                 if (result == null) {
-                    // TODO error
-
-                    //System.out.println("hurr durr invalid arg");
-                    return CommandExecutionResult.WRONG_USAGE;
+                    return ExecutionResult.INVALID_ARGUMENT;
                 }
 
                 invokeArguments.add(result);
@@ -171,26 +170,19 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                     continue;
                 }
 
-                // TODO error
-                //System.out.println("hurr durr not enoug args");
-                return CommandExecutionResult.WRONG_USAGE;
+                return ExecutionResult.NOT_ENOUGH_ARGUMENTS;
             }
 
             final Object result = stringArgument.resolve(sender, arg);
             if (result == null) {
-                // TODO error
-                System.out.println(arg);
-                //System.out.println("hurr durr invalid arg");
-                return CommandExecutionResult.WRONG_USAGE;
+                return ExecutionResult.INVALID_ARGUMENT;
             }
 
             invokeArguments.add(result);
         }
 
         if (!containsLimitlessArgument && commandArgs.size() >= invokeArguments.size()) {
-            // TODO error
-            //System.out.println("hurr durr too many args");
-            return CommandExecutionResult.WRONG_USAGE;
+            return ExecutionResult.TOO_MANY_ARGUMENTS;
         }
 
         try {
@@ -199,7 +191,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             e.printStackTrace();
         }
 
-        return CommandExecutionResult.SUCCESS;
+        return ExecutionResult.SUCCESS;
     }
 
     @Nullable
@@ -208,9 +200,9 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return list.get(index);
     }
 
-    @Nullable
-    private List<String> leftOversOrNull(@NotNull final List<String> list, final int from) {
-        if (from >= list.size()) return null;
+    @NotNull
+    private List<String> leftOvers(@NotNull final List<String> list, final int from) {
+        if (from >= list.size()) return Collections.emptyList();
         return list.subList(from, list.size());
     }
 
@@ -222,13 +214,21 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return false;
     }
 
+    @NotNull
+    @Contract(pure = true)
     @Override
     public String toString() {
         return "SimpleSubCommand{" +
                 "baseCommand=" + baseCommand +
                 ", method=" + method +
                 ", name='" + name + '\'' +
+                ", alias=" + alias +
+                ", isDefault=" + isDefault +
+                ", priority=" + priority +
                 ", arguments=" + arguments +
+                ", flagGroup=" + flagGroup +
+                ", requirements=" + requirements +
+                ", containsLimitlessArgument=" + containsLimitlessArgument +
                 '}';
     }
 }

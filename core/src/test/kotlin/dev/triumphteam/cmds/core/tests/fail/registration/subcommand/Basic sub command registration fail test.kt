@@ -1,4 +1,4 @@
-package dev.triumphteam.cmds.core.tests.fails.registration.subcommand
+package dev.triumphteam.cmds.core.tests.fail.registration.subcommand
 
 import dev.triumphteam.cmds.core.cases.EmptyCommandMethod
 import dev.triumphteam.cmds.core.cases.EmptySubCommand

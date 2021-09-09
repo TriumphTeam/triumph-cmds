@@ -46,6 +46,6 @@ public interface SubCommand<S> {
 
     List<Argument<S, ?>> getArguments();
 
-    CommandExecutionResult execute(@NotNull S sender, @NotNull final List<String> args);
+    ExecutionResult execute(@NotNull S sender, @NotNull final List<String> args);
 
 }

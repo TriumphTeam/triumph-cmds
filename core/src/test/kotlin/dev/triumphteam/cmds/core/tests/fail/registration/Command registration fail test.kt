@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.tests.fails.registration
+package dev.triumphteam.cmds.core.tests.fail.registration
 
 import dev.triumphteam.cmds.core.cases.EmptyCommand
 import dev.triumphteam.cmds.core.cases.EmptyExtendedCommand

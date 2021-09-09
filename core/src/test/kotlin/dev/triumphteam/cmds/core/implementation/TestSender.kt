@@ -1,9 +1,9 @@
 package dev.triumphteam.cmds.core.implementation
 
-import dev.triumphteam.cmds.core.command.CommandExecutionResult
+import dev.triumphteam.cmds.core.command.ExecutionResult
 
 class TestSender {
 
-    var commandResult: CommandExecutionResult? = null
+    var commandResult: ExecutionResult? = null
 
 }

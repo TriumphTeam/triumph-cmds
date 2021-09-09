@@ -25,15 +25,18 @@ package dev.triumphteam.cmds.core.command;
 
 import org.jetbrains.annotations.NotNull;
 
-public enum CommandExecutionResult {
+public enum ExecutionResult {
 
     SUCCESS(""),
+    TOO_MANY_ARGUMENTS(""),
+    NOT_ENOUGH_ARGUMENTS(""),
+    INVALID_ARGUMENT(""),
     WRONG_USAGE("wrong.usage"),
     NO_EXISTS("cmd.no.exists");
 
     private final String key;
 
-    CommandExecutionResult(@NotNull final String key) {
+    ExecutionResult(@NotNull final String key) {
         this.key = key;
     }
 
