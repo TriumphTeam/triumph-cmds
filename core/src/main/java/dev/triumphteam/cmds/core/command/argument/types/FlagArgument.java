@@ -25,7 +25,6 @@ package dev.triumphteam.cmds.core.command.argument.types;
 
 import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -38,7 +37,7 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
         super(name, Flags.class, isOptional);
     }
 
-    @Nullable
+    @NotNull
     @Override
     public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
         // FIXME: 9/2/2021

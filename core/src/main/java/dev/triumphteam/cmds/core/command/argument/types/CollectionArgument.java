@@ -24,7 +24,6 @@
 package dev.triumphteam.cmds.core.command.argument.types;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,10 +42,9 @@ public final class CollectionArgument<S> extends LimitlessArgument<S> {
         this.collectionType = collectionType;
     }
 
-    @Nullable
+    @NotNull
     @Override
     public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
-        if (value.isEmpty()) return null;
         if (collectionType == Set.class) return new HashSet<>(value);
         return value;
     }

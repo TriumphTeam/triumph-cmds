@@ -33,4 +33,8 @@ public abstract class LimitlessArgument<S> extends Argument<S, List<String>> {
         super(name, type, isOptional);
     }
 
+    @NotNull
+    @Override
+    public abstract Object resolve(@NotNull S sender, @NotNull final List<String> value);
+
 }

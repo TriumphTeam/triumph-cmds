@@ -24,7 +24,6 @@
 package dev.triumphteam.cmds.core.command.argument.types;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -34,10 +33,9 @@ public final class ArrayArgument<S> extends LimitlessArgument<S> {
         super(name, String.class, optional);
     }
 
-    @Nullable
+    @NotNull
     @Override
     public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
-        if (value.isEmpty()) return null;
         return value.toArray(new String[0]);
     }
 

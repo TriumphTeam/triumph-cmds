@@ -24,7 +24,6 @@
 package dev.triumphteam.cmds.core.command.argument.types;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -41,10 +40,9 @@ public final class JoinedStringArgument<S> extends LimitlessArgument<S> {
         this.delimiter = delimiter;
     }
 
-    @Nullable
+    @NotNull
     @Override
     public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
-        if (value.isEmpty()) return null;
         return String.join(delimiter, value);
     }
 

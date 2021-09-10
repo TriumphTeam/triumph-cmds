@@ -125,12 +125,6 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         // Removes the sub command from the args if it's not default.
         final List<String> commandArgs = getCommandArgs(args);
 
-        // FIXME: 9/9/2021 Figure why i needed this
-        /*if (isDefault && arguments.isEmpty() && !commandArgs.isEmpty()) {
-            System.out.println("too many args?");
-            return CommandExecutionResult.WRONG_USAGE;
-        }*/
-
         // Creates the invoking arguments list
         final List<Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
@@ -174,13 +168,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                     return false;
                 }
 
-                final Object result = limitlessArgument.resolve(sender, leftOvers);
-                if (result == null) {
-                    // FIXME: 9/10/2021 This one requires thought, needs to be invalid string but it's list
-                    return false;
-                }
-
-                invokeArguments.add(result);
+                invokeArguments.add(limitlessArgument.resolve(sender, leftOvers));
                 continue;
             }
 
