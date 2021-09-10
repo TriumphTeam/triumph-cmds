@@ -23,9 +23,9 @@
  */
 package dev.triumphteam.cmds.core.tests.fail.registration
 
-import dev.triumphteam.cmds.core.cases.EmptyCommand
-import dev.triumphteam.cmds.core.cases.EmptyExtendedCommand
-import dev.triumphteam.cmds.core.cases.NoCommand
+import dev.triumphteam.cmds.core.cases.registration.EmptyCommand
+import dev.triumphteam.cmds.core.cases.registration.EmptyExtendedCommand
+import dev.triumphteam.cmds.core.cases.registration.NoCommand
 import dev.triumphteam.cmds.core.exceptions.CommandRegistrationException
 import dev.triumphteam.cmds.core.implementation.TestCommandManager
 import org.assertj.core.api.Assertions.assertThatThrownBy

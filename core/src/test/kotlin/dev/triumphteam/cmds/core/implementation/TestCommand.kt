@@ -31,6 +31,7 @@ import dev.triumphteam.cmds.core.command.SubCommand
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry
 import dev.triumphteam.cmds.core.command.message.MessageKey
 import dev.triumphteam.cmds.core.command.message.MessageRegistry
+import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext
 import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry
 import dev.triumphteam.cmds.core.implementation.factory.TestSubCommandFactory
 import java.lang.reflect.Modifier
@@ -54,7 +55,13 @@ class TestCommand(
             if (!Modifier.isPublic(method.modifiers)) continue
 
             val subCommand: SimpleSubCommand<TestSender> =
-                TestSubCommandFactory(baseCommand, method, argumentRegistry, requirementRegistry).create() ?: continue
+                TestSubCommandFactory(
+                    baseCommand,
+                    method,
+                    argumentRegistry,
+                    requirementRegistry,
+                    messageRegistry
+                ).create() ?: continue
 
             added = true
 
@@ -69,21 +76,22 @@ class TestCommand(
         return added
     }
 
-    fun execute(sender: TestSender, args: Array<String>) {
+    fun execute(sender: TestSender, args: List<String>) {
         var subCommand = defaultSubCommand
-        var subCommandName = ""
 
+        var subCommandName = ""
         if (args.isNotEmpty()) subCommandName = args[0].lowercase()
+
         if (subCommand == null || subCommandExists(subCommandName)) {
             subCommand = getSubCommand(subCommandName)
         }
 
-        if (subCommand == null || args.isNotEmpty() && subCommand.isDefault && subCommand.arguments.isEmpty()) {
-            messageRegistry.sendMessage(MessageKey.WRONG_USAGE, sender)
+        if (subCommand == null) {
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, DefaultMessageContext(args.toList()));
             return
         }
 
-        subCommand.execute(sender, listOf(*args))
+        subCommand.execute(sender, args)
         return
     }
 

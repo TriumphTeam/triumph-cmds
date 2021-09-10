@@ -1,12 +1,12 @@
 package dev.triumphteam.cmds.core.tests.fail.registration.subcommand
 
 import dev.triumphteam.cmds.core.annotations.Flag
-import dev.triumphteam.cmds.core.cases.CharacterFlag
-import dev.triumphteam.cmds.core.cases.EmptyCommandFlags
-import dev.triumphteam.cmds.core.cases.FlagArgumentButNoAnnotation
-import dev.triumphteam.cmds.core.cases.FlagWithCharacters
-import dev.triumphteam.cmds.core.cases.SpaceLongFlag
-import dev.triumphteam.cmds.core.cases.UnregisteredFlagArgument
+import dev.triumphteam.cmds.core.cases.registration.CharacterFlag
+import dev.triumphteam.cmds.core.cases.registration.EmptyCommandFlags
+import dev.triumphteam.cmds.core.cases.registration.FlagArgumentButNoAnnotation
+import dev.triumphteam.cmds.core.cases.registration.FlagWithCharacters
+import dev.triumphteam.cmds.core.cases.registration.SpaceLongFlag
+import dev.triumphteam.cmds.core.cases.registration.UnregisteredFlagArgument
 import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException
 import dev.triumphteam.cmds.core.implementation.TestCommandManager
 import org.assertj.core.api.Assertions.assertThatThrownBy

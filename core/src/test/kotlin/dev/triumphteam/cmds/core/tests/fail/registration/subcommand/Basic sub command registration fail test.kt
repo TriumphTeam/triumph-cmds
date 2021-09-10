@@ -1,8 +1,8 @@
 package dev.triumphteam.cmds.core.tests.fail.registration.subcommand
 
-import dev.triumphteam.cmds.core.cases.EmptyCommandMethod
-import dev.triumphteam.cmds.core.cases.EmptySubCommand
-import dev.triumphteam.cmds.core.cases.MissingSender
+import dev.triumphteam.cmds.core.cases.registration.EmptyCommandMethod
+import dev.triumphteam.cmds.core.cases.registration.EmptySubCommand
+import dev.triumphteam.cmds.core.cases.registration.MissingSender
 import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException
 import dev.triumphteam.cmds.core.implementation.TestCommandManager
 import org.assertj.core.api.Assertions.assertThatThrownBy

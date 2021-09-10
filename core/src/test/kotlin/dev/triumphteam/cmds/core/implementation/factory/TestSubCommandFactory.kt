@@ -27,6 +27,7 @@ import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.command.SimpleSubCommand
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry
 import dev.triumphteam.cmds.core.command.factory.AbstractSubCommandFactory
+import dev.triumphteam.cmds.core.command.message.MessageRegistry
 import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry
 import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException
 import dev.triumphteam.cmds.core.implementation.TestSender
@@ -36,12 +37,14 @@ class TestSubCommandFactory(
     baseCommand: BaseCommand,
     method: Method,
     argumentRegistry: ArgumentRegistry<TestSender>,
-    requirementRegistry: RequirementRegistry<TestSender>
+    requirementRegistry: RequirementRegistry<TestSender>,
+    messageRegistry: MessageRegistry<TestSender>
 ) : AbstractSubCommandFactory<TestSender, SimpleSubCommand<TestSender>>(
     baseCommand,
     method,
     argumentRegistry,
-    requirementRegistry
+    requirementRegistry,
+    messageRegistry
 ) {
 
     private var senderClass: Class<*>? = null
@@ -57,6 +60,7 @@ class TestSubCommandFactory(
             arguments,
             flagGroup,
             requirements,
+            messageRegistry,
             isDefault,
             priority
         )

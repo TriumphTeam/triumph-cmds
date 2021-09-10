@@ -21,28 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command;
+package dev.triumphteam.cmds.core.implementation
 
-import org.jetbrains.annotations.NotNull;
+enum class ExecutionResult {
 
-public enum ExecutionResult {
-
-    SUCCESS(""),
-    TOO_MANY_ARGUMENTS(""),
-    NOT_ENOUGH_ARGUMENTS(""),
-    INVALID_ARGUMENT(""),
-    WRONG_USAGE("wrong.usage"),
-    NO_EXISTS("cmd.no.exists");
-
-    private final String key;
-
-    ExecutionResult(@NotNull final String key) {
-        this.key = key;
-    }
-
-    @NotNull
-    public String key() {
-        return key;
-    }
+    SUCCESS,
+    TOO_MANY_ARGUMENTS,
+    NOT_ENOUGH_ARGUMENTS,
+    INVALID_ARGUMENT,
+    UNKNOWN_COMMAND
 
 }

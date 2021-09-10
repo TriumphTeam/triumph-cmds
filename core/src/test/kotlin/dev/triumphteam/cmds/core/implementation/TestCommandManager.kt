@@ -26,14 +26,25 @@ package dev.triumphteam.cmds.core.implementation
 import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.CommandManager
 import dev.triumphteam.cmds.core.command.message.MessageKey
+import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext
 import dev.triumphteam.cmds.core.implementation.factory.TestCommandFactory
 
 class TestCommandManager : CommandManager<TestSender>() {
     private val commands = mutableMapOf<String, TestCommand>()
 
     init {
-        registerMessage(MessageKey.WRONG_USAGE) { }
-        registerMessage(MessageKey.UNKNOWN_COMMAND) { }
+        registerMessage(MessageKey.UNKNOWN_COMMAND) { sender, _ ->
+            sender.result = ExecutionResult.UNKNOWN_COMMAND
+        }
+        registerMessage(MessageKey.INVALID_ARGUMENT) { sender, _ ->
+            sender.result = ExecutionResult.INVALID_ARGUMENT
+        }
+        registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS) { sender, _ ->
+            sender.result = ExecutionResult.NOT_ENOUGH_ARGUMENTS
+        }
+        registerMessage(MessageKey.TOO_MANY_ARGUMENTS) { sender, _ ->
+            sender.result = ExecutionResult.TOO_MANY_ARGUMENTS
+        }
     }
 
     override fun registerCommand(command: BaseCommand) {
@@ -49,10 +60,10 @@ class TestCommandManager : CommandManager<TestSender>() {
 
     override fun unregisterCommand(command: BaseCommand) {}
 
-    fun execute(sender: TestSender, commandName: String, args: Array<String>) {
+    fun execute(sender: TestSender, commandName: String, args: List<String>) {
         val command = commands[commandName]
         if (command == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender)
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, DefaultMessageContext(args.toList()))
             return
         }
 
@@ -60,3 +71,5 @@ class TestCommandManager : CommandManager<TestSender>() {
     }
 
 }
+
+fun String.toArgs() = split(" ")

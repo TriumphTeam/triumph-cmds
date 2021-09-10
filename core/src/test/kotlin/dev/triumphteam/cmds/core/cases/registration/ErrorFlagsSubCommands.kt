@@ -1,4 +1,4 @@
-package dev.triumphteam.cmds.core.cases
+package dev.triumphteam.cmds.core.cases.registration
 
 import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.annotations.Command

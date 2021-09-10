@@ -28,7 +28,10 @@ import dev.triumphteam.cmds.core.command.argument.types.Argument;
 import dev.triumphteam.cmds.core.command.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
+import dev.triumphteam.cmds.core.command.message.MessageKey;
 import dev.triumphteam.cmds.core.command.message.MessageRegistry;
+import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
+import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
 import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.Contract;
@@ -136,7 +139,10 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             return;
         }
 
-        if (!containsLimitlessArgument && commandArgs.size() >= invokeArguments.size()) return;
+        if (!containsLimitlessArgument && commandArgs.size() >= invokeArguments.size()) {
+            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext(commandArgs));
+            return;
+        }
 
         try {
             method.invoke(baseCommand, invokeArguments.toArray());
@@ -164,13 +170,13 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                         continue;
                     }
 
-                    // TODO send NOT_ENOUGH_ARGUMENTS
+                    messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext(commandArgs));
                     return false;
                 }
 
                 final Object result = limitlessArgument.resolve(sender, leftOvers);
                 if (result == null) {
-                    // TODO send INVALID_ARGS
+                    // FIXME: 9/10/2021 This one requires thought, needs to be invalid string but it's list
                     return false;
                 }
 
@@ -191,13 +197,17 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                     continue;
                 }
 
-                // TODO send NOT_ENOUGH_ARGUMENTS
+                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext(commandArgs));
                 return false;
             }
 
             final Object result = stringArgument.resolve(sender, arg);
             if (result == null) {
-                // TODO send INVALID_ARGS
+                messageRegistry.sendMessage(
+                        MessageKey.INVALID_ARGUMENT,
+                        sender,
+                        new InvalidArgumentContext(commandArgs, arg, argument.getName(), argument.getType())
+                );
                 return false;
             }
 
