@@ -24,9 +24,9 @@
 package dev.triumphteam.cmds.core.command;
 
 import dev.triumphteam.cmds.core.BaseCommand;
-import dev.triumphteam.cmds.core.command.argument.Argument;
-import dev.triumphteam.cmds.core.command.argument.LimitlessArgument;
-import dev.triumphteam.cmds.core.command.argument.StringArgument;
+import dev.triumphteam.cmds.core.command.argument.types.Argument;
+import dev.triumphteam.cmds.core.command.argument.types.LimitlessArgument;
+import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;

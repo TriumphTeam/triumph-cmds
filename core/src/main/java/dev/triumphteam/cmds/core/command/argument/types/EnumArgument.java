@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.argument;
+package dev.triumphteam.cmds.core.command.argument.types;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,46 +31,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public final class EnumArgument<S> implements StringArgument<S> {
+public final class EnumArgument<S> extends StringArgument<S> {
 
-    private final Class<? extends Enum<?>> type;
-    private final boolean optional;
+    private static final Map<Class<? extends Enum<?>>, Map<String, WeakReference<? extends Enum<?>>>> ENUM_CONSTANT_CACHE = new WeakHashMap<>();
 
-    private static final Map<Class<? extends Enum<?>>, Map<String, WeakReference<? extends Enum<?>>>> enumConstantCache = new WeakHashMap<>();
+    private final Class<? extends Enum<?>> enumType;
 
-    public EnumArgument(@NotNull final Class<? extends Enum<?>> type, final boolean optional) {
-        this.type = type;
-        this.optional = optional;
+    public EnumArgument(
+            @NotNull final String name,
+            @NotNull final Class<? extends Enum<?>> type,
+            final boolean optional
+    ) {
+        super(name, type, optional);
+        this.enumType = type;
 
         // Populates on creation to reduce runtime of first run for certain enums, like Bukkit's Material
         populateCache(type);
     }
 
-    @NotNull
-    @Override
-    public Class<?> getType() {
-        return type;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return optional;
-    }
-
     @Nullable
     @Override
     public Object resolve(@NotNull S sender, @NotNull final String value) {
-        final WeakReference<? extends Enum<?>> reference = getEnumConstants(type).get(value.toUpperCase());
+        final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
         if (reference == null) return null;
         return reference.get();
-    }
-
-    @Override
-    public String toString() {
-        return "EnumArgument{" +
-                "type=" + type +
-                ", optional=" + optional +
-                '}';
     }
 
     /**
@@ -82,8 +66,8 @@ public final class EnumArgument<S> implements StringArgument<S> {
      */
     @NotNull
     private static Map<String, WeakReference<? extends Enum<?>>> getEnumConstants(@NotNull final Class<? extends Enum<?>> enumClass) {
-        synchronized (enumConstantCache) {
-            Map<String, WeakReference<? extends Enum<?>>> constants = enumConstantCache.get(enumClass);
+        synchronized (ENUM_CONSTANT_CACHE) {
+            Map<String, WeakReference<? extends Enum<?>>> constants = ENUM_CONSTANT_CACHE.get(enumClass);
             if (constants == null) constants = populateCache(enumClass);
             return constants;
         }
@@ -101,7 +85,7 @@ public final class EnumArgument<S> implements StringArgument<S> {
         for (Enum<?> enumInstance : enumClass.getEnumConstants()) {
             result.put(enumInstance.name(), new WeakReference<Enum<?>>(enumInstance));
         }
-        enumConstantCache.put(enumClass, result);
+        ENUM_CONSTANT_CACHE.put(enumClass, result);
         return result;
     }
 

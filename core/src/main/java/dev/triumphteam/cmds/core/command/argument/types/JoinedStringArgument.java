@@ -21,19 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.argument;
+package dev.triumphteam.cmds.core.command.argument.types;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface Argument<S, T> {
+import java.util.List;
 
-    @NotNull
-    Class<?> getType();
+public final class JoinedStringArgument<S> extends LimitlessArgument<S> {
 
-    boolean isOptional();
+    private final CharSequence delimiter;
+
+    public JoinedStringArgument(
+            @NotNull final String name,
+            @NotNull final CharSequence delimiter,
+            final boolean optional
+    ) {
+        super(name, String.class, optional);
+        this.delimiter = delimiter;
+    }
 
     @Nullable
-    Object resolve(@NotNull S sender, @NotNull final T value);
+    @Override
+    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+        if (value.isEmpty()) return null;
+        return String.join(delimiter, value);
+    }
 
 }

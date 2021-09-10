@@ -21,45 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.argument;
+package dev.triumphteam.cmds.core.command.argument.types;
 
+import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public final class CollectionArgument<S> implements LimitlessArgument<S> {
+public final class FlagArgument<S> extends LimitlessArgument<S> {
 
-    private final Class<?> collectionType;
-    private final boolean optional;
-
-    public CollectionArgument(
-            @NotNull final Class<?> collectionType,
-            final boolean optional
+    public FlagArgument(
+            @NotNull final String name,
+            final boolean isOptional
     ) {
-        this.collectionType = collectionType;
-        this.optional = optional;
-    }
-
-    @NotNull
-    @Override
-    public Class<?> getType() {
-        return String.class;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return optional;
+        super(name, Flags.class, isOptional);
     }
 
     @Nullable
     @Override
     public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
-        if (value.isEmpty()) return null;
-        if (collectionType == Set.class) return new HashSet<>(value);
-        return value;
+        // FIXME: 9/2/2021
+        return null;
     }
 
 }

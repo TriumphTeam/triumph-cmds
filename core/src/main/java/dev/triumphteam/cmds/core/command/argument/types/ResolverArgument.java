@@ -21,39 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.argument;
+package dev.triumphteam.cmds.core.command.argument.types;
 
+import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+public final class ResolverArgument<S> extends StringArgument<S> {
 
-public final class JoinedStringArgument<S> implements LimitlessArgument<S> {
+    private final ArgumentResolver<S> resolver;
 
-    private final CharSequence delimiter;
-    private final boolean optional;
-
-    public JoinedStringArgument(@NotNull final CharSequence delimiter, final boolean optional) {
-        this.delimiter = delimiter;
-        this.optional = optional;
-    }
-
-    @NotNull
-    @Override
-    public Class<?> getType() {
-        return String.class;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return optional;
+    public ResolverArgument(
+            @NotNull final String name,
+            @NotNull final Class<?> type,
+            @NotNull final ArgumentResolver<S> resolver,
+            final boolean optional
+    ) {
+        super(name, type, optional);
+        this.resolver = resolver;
     }
 
     @Nullable
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
-        if (value.isEmpty()) return null;
-        return String.join(delimiter, value);
+    public Object resolve(@NotNull S sender, @NotNull final String value) {
+        return resolver.resolve(sender, value);
     }
 
 }

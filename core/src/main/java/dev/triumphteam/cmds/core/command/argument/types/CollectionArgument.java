@@ -21,50 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.argument;
+package dev.triumphteam.cmds.core.command.argument.types;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class BasicArgument<S> implements StringArgument<S> {
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    private final Class<?> type;
-    private final ArgumentResolver<S> resolver;
-    private final boolean optional;
+public final class CollectionArgument<S> extends LimitlessArgument<S> {
 
-    public BasicArgument(
-            @NotNull final Class<?> type,
-            @NotNull final ArgumentResolver<S> resolver,
+    private final Class<?> collectionType;
+
+    public CollectionArgument(
+            @NotNull final String name,
+            @NotNull final Class<?> collectionType,
             final boolean optional
     ) {
-        this.type = type;
-        this.resolver = resolver;
-        this.optional = optional;
-    }
-
-    @NotNull
-    @Override
-    public Class<?> getType() {
-        return type;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return optional;
+        super(name, String.class, optional);
+        this.collectionType = collectionType;
     }
 
     @Nullable
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final String value) {
-        return resolver.resolve(sender, value);
+    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+        if (value.isEmpty()) return null;
+        if (collectionType == Set.class) return new HashSet<>(value);
+        return value;
     }
 
-    @Override
-    public String toString() {
-        return "BasicArgument{" +
-                "type=" + type +
-                ", resolver=" + resolver +
-                ", optional=" + optional +
-                '}';
-    }
 }

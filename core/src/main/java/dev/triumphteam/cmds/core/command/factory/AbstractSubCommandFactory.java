@@ -30,16 +30,16 @@ import dev.triumphteam.cmds.core.annotations.Flag;
 import dev.triumphteam.cmds.core.annotations.Join;
 import dev.triumphteam.cmds.core.annotations.Optional;
 import dev.triumphteam.cmds.core.annotations.SubCommand;
-import dev.triumphteam.cmds.core.command.argument.Argument;
+import dev.triumphteam.cmds.core.command.argument.types.Argument;
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
 import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
-import dev.triumphteam.cmds.core.command.argument.ArrayArgument;
-import dev.triumphteam.cmds.core.command.argument.BasicArgument;
-import dev.triumphteam.cmds.core.command.argument.CollectionArgument;
-import dev.triumphteam.cmds.core.command.argument.EnumArgument;
-import dev.triumphteam.cmds.core.command.argument.FlagArgument;
-import dev.triumphteam.cmds.core.command.argument.JoinedStringArgument;
-import dev.triumphteam.cmds.core.command.argument.LimitlessArgument;
+import dev.triumphteam.cmds.core.command.argument.types.ArrayArgument;
+import dev.triumphteam.cmds.core.command.argument.types.ResolverArgument;
+import dev.triumphteam.cmds.core.command.argument.types.CollectionArgument;
+import dev.triumphteam.cmds.core.command.argument.types.EnumArgument;
+import dev.triumphteam.cmds.core.command.argument.types.FlagArgument;
+import dev.triumphteam.cmds.core.command.argument.types.JoinedStringArgument;
+import dev.triumphteam.cmds.core.command.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.command.flag.Flags;
 import dev.triumphteam.cmds.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
@@ -180,17 +180,18 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
     protected void createArgument(@NotNull final Parameter parameter) {
         final Class<?> type = parameter.getType();
+        final String parameterName = parameter.getName();
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
         // Handler for using any Enum.
         if (Enum.class.isAssignableFrom(type)) {
             //noinspection unchecked
-            addArgument(new EnumArgument<>((Class<? extends Enum<?>>) type, optional));
+            addArgument(new EnumArgument<>(parameterName, (Class<? extends Enum<?>>) type, optional));
             return;
         }
 
         if (type == String[].class) {
-            addArgument(new ArrayArgument<>(optional));
+            addArgument(new ArrayArgument<>(parameterName, optional));
             return;
         }
 
@@ -206,20 +207,20 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
                 throw new SubCommandRegistrationException("Only String collections are allowed", method);
             }
 
-            addArgument(new CollectionArgument<>(type, optional));
+            addArgument(new CollectionArgument<>(parameterName, type, optional));
             return;
         }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(new JoinedStringArgument<>(joinAnnotation.value(), optional));
+            addArgument(new JoinedStringArgument<>(parameterName, joinAnnotation.value(), optional));
             return;
         }
 
         // Handler for flags.
         if (type == Flags.class) {
-            addArgument(new FlagArgument<>());
+            addArgument(new FlagArgument<>(parameterName, optional));
             return;
         }
 
@@ -227,7 +228,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
             throw new SubCommandRegistrationException("No argument of type \"" + type.getName() + "\" registered", method);
         }
 
-        addArgument(new BasicArgument<>(type, argumentRegistry.getResolver(type), optional));
+        addArgument(new ResolverArgument<>(parameterName, type, argumentRegistry.getResolver(type), optional));
     }
 
     private void addArgument(@NotNull final Argument<S, ?> argument) {

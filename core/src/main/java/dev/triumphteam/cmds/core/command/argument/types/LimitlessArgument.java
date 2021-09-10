@@ -21,37 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.argument;
+package dev.triumphteam.cmds.core.command.argument.types;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public final class ArrayArgument<S> implements LimitlessArgument<S> {
+public abstract class LimitlessArgument<S> extends Argument<S, List<String>> {
 
-    private final boolean optional;
-
-    public ArrayArgument(final boolean optional) {
-        this.optional = optional;
-    }
-
-    @NotNull
-    @Override
-    public Class<?> getType() {
-        return String.class;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return optional;
-    }
-
-    @Nullable
-    @Override
-    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
-        if (value.isEmpty()) return null;
-        return value.toArray(new String[0]);
+    public LimitlessArgument(final @NotNull String name, final @NotNull Class<?> type, final boolean isOptional) {
+        super(name, type, isOptional);
     }
 
 }

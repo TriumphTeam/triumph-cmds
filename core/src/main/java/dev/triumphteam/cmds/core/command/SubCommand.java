@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmds.core.command;
 
-import dev.triumphteam.cmds.core.command.argument.Argument;
+import dev.triumphteam.cmds.core.command.argument.types.Argument;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;

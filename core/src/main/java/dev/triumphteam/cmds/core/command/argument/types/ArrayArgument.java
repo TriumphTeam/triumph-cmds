@@ -21,32 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.argument;
+package dev.triumphteam.cmds.core.command.argument.types;
 
-import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public final class FlagArgument<S> implements LimitlessArgument<S> {
+public final class ArrayArgument<S> extends LimitlessArgument<S> {
 
-    @NotNull
-    @Override
-    public Class<?> getType() {
-        return Flags.class;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return false;
+    public ArrayArgument(@NotNull final String name, final boolean optional) {
+        super(name, String.class, optional);
     }
 
     @Nullable
     @Override
     public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
-        // FIXME: 9/2/2021
-        return null;
+        if (value.isEmpty()) return null;
+        return value.toArray(new String[0]);
     }
 
 }
