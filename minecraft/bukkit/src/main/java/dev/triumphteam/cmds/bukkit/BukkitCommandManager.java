@@ -60,7 +60,7 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
 
     @Override
     public void registerCommand(@NotNull final BaseCommand command) {
-        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry()).create();
+        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry()).create();
 
         // TODO multiple classes
         if (!bukkitCommand.addSubCommands(command)) {
@@ -85,7 +85,7 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
     // TODO remove the need to create a new command
     @Override
     public void unregisterCommand(@NotNull final BaseCommand command) {
-        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry()).create();
+        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry()).create();
         bukkitCommands.remove(bukkitCommand.getName());
         bukkitCommand.unregister(commandMap);
         commands.remove(bukkitCommand.getName());

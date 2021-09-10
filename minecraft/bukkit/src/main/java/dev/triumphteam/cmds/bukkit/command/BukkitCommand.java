@@ -30,6 +30,7 @@ import dev.triumphteam.cmds.core.command.Command;
 import dev.triumphteam.cmds.core.command.SimpleSubCommand;
 import dev.triumphteam.cmds.core.command.SubCommand;
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +49,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
 
     private final ArgumentRegistry<CommandSender> argumentRegistry;
     private final RequirementRegistry<CommandSender> requirementRegistry;
+    private final MessageRegistry<CommandSender> messageRegistry;
 
     private final String name;
     private final List<String> alias;
@@ -59,13 +61,15 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
             @NotNull final String name,
             @NotNull final List<String> alias,
             @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry
+            @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
+            @NotNull final MessageRegistry<CommandSender> messageRegistry
     ) {
         super(name);
         setAliases(alias);
 
         this.argumentRegistry = argumentRegistry;
         this.requirementRegistry = requirementRegistry;
+        this.messageRegistry = messageRegistry;
 
         this.name = name;
         this.alias = alias;
@@ -79,7 +83,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         for (final Method method : methods) {
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
-            final SimpleSubCommand<CommandSender> subCommand = new BukkitSubCommandFactory(baseCommand, method, argumentRegistry, requirementRegistry).create();
+            final SimpleSubCommand<CommandSender> subCommand = new BukkitSubCommandFactory(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create();
             if (subCommand == null) continue;
             added = true;
 

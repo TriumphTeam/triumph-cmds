@@ -25,8 +25,9 @@ package dev.triumphteam.cmds.bukkit.factory;
 
 import dev.triumphteam.cmds.bukkit.command.BukkitCommand;
 import dev.triumphteam.cmds.core.BaseCommand;
-import dev.triumphteam.cmds.core.command.factory.AbstractCommandFactory;
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.cmds.core.command.factory.AbstractCommandFactory;
+import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -36,15 +37,18 @@ public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCom
     // TODO probably move this lol
     private final ArgumentRegistry<CommandSender> argumentRegistry;
     private final RequirementRegistry<CommandSender> requirementRegistry;
+    private final MessageRegistry<CommandSender> messageRegistry;
 
     public BukkitCommandFactory(
             @NotNull final BaseCommand baseCommand,
             @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry
+            @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
+            @NotNull final MessageRegistry<CommandSender> messageRegistry
     ) {
         super(baseCommand);
         this.argumentRegistry = argumentRegistry;
         this.requirementRegistry = requirementRegistry;
+        this.messageRegistry = messageRegistry;
     }
 
     /**
@@ -55,7 +59,7 @@ public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCom
     @NotNull
     @Override
     public BukkitCommand create() {
-        return new BukkitCommand(getName(), getAlias(), argumentRegistry, requirementRegistry);
+        return new BukkitCommand(getName(), getAlias(), argumentRegistry, requirementRegistry, messageRegistry);
     }
 
 }

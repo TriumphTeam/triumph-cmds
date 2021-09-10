@@ -25,10 +25,11 @@ package dev.triumphteam.cmds.bukkit.factory;
 
 import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.command.SimpleSubCommand;
-import dev.triumphteam.cmds.core.command.factory.AbstractSubCommandFactory;
-import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.cmds.core.command.factory.AbstractSubCommandFactory;
+import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
+import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,9 +45,10 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry
+            @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
+            @NotNull final MessageRegistry<CommandSender> messageRegistry
     ) {
-        super(baseCommand, method, argumentRegistry, requirementRegistry);
+        super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry);
     }
 
     @Nullable
@@ -62,6 +64,7 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
                 getArguments(),
                 getFlagGroup(),
                 getRequirements(),
+                getMessageRegistry(),
                 isDefault(),
                 getPriority()
         );
