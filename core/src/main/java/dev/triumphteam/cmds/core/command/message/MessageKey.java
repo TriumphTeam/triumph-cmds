@@ -26,6 +26,7 @@ package dev.triumphteam.cmds.core.command.message;
 import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.MessageContext;
 import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
+import dev.triumphteam.cmds.core.command.message.context.MissingFlagContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,7 +51,7 @@ public final class MessageKey<C extends MessageContext> {
     public static final MessageKey<DefaultMessageContext> TOO_MANY_ARGUMENTS = of("too.many.arguments", DefaultMessageContext.class);
     public static final MessageKey<DefaultMessageContext> NOT_ENOUGH_ARGUMENTS = of("not.enough.arguments", DefaultMessageContext.class);
     public static final MessageKey<InvalidArgumentContext> INVALID_ARGUMENT = of("invalid.argument", InvalidArgumentContext.class);
-    public static final MessageKey<DefaultMessageContext> MISSING_FLAG = of("missing.flag", DefaultMessageContext.class);
+    public static final MessageKey<MissingFlagContext> MISSING_REQUIRED_FLAG = of("missing.required.flag", MissingFlagContext.class);
 
     private final String key;
     private final Class<C> type;

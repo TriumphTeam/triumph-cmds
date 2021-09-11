@@ -37,14 +37,16 @@ public final class FlagParser<S> {
     private final FlagGroup<S> flagGroup;
     private final S sender;
     private final FlagScanner flagScanner;
-    private final List<CommandFlag<S>> requiredFlags;
+    private final List<String> missingRequiredFlags;
+    private final List<String> requiredFlags;
     private ParseState parseState = ParseState.SUCCESS;
 
     public FlagParser(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
         this.flagGroup = flagGroup;
         this.sender = sender;
         this.flagScanner = new FlagScanner(args);
-        requiredFlags = new ArrayList<>(flagGroup.getRequiredFlags());
+        this.missingRequiredFlags = new ArrayList<>(flagGroup.getRequiredFlags());
+        this.requiredFlags = flagGroup.getRequiredFlags();
     }
 
     @NotNull
@@ -73,11 +75,11 @@ public final class FlagParser<S> {
             leftOver.add(token);
         }
 
-        if (parseState == ParseState.SUCCESS && !requiredFlags.isEmpty()) {
+        if (parseState == ParseState.SUCCESS && !missingRequiredFlags.isEmpty()) {
             parseState = ParseState.MISSING_REQUIRED_FLAG;
         }
 
-        return new ParseResult<>(leftOver, result, parseState, requiredFlags);
+        return new ParseResult<>(leftOver, result, parseState, missingRequiredFlags, requiredFlags);
     }
 
     private void handleFlag(@NotNull final String token, final boolean longFlag) {
@@ -148,16 +150,16 @@ public final class FlagParser<S> {
     }
 
     private void addFlag(@NotNull final CommandFlag<S> flag) {
-        requiredFlags.remove(flag.getKey());
+        missingRequiredFlags.remove(flag.getKey());
         result.addFlag(flag);
     }
 
     private void addFlag(@NotNull final CommandFlag<S> flag, @Nullable final Object argument) {
-        requiredFlags.remove(flag.getKey());
+        missingRequiredFlags.remove(flag.getKey());
         result.addFlag(flag, argument);
     }
 
-    enum ParseState {
+    public enum ParseState {
         SUCCESS,
         MISSING_REQUIRED_ARGUMENT,
         MISSING_REQUIRED_FLAG,

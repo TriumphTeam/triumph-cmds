@@ -23,11 +23,27 @@
  */
 package dev.triumphteam.cmds.core.command.message.context;
 
+import dev.triumphteam.cmds.core.command.flag.internal.ParseResult;
+
+import java.util.List;
+
 /**
- * The default most keys will use, only contains the most basic data.
+ * Context for when user types an invalid argument based on its type.
  */
-public final class DefaultMessageContext implements MessageContext {
+public final class MissingFlagContext implements MessageContext {
 
+    private final ParseResult<?> result;
 
+    public MissingFlagContext(final ParseResult<?> result) {
+        this.result = result;
+    }
+
+    public List<String> getMissingFlags() {
+        return result.getMissingRequiredFlags();
+    }
+
+    public List<String> getRequiredFlags() {
+        return result.getRequiredFlags();
+    }
 
 }

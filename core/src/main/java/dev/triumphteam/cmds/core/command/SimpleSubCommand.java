@@ -29,11 +29,13 @@ import dev.triumphteam.cmds.core.command.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.command.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
 import dev.triumphteam.cmds.core.command.flag.Flags;
+import dev.triumphteam.cmds.core.command.flag.internal.FlagParser;
 import dev.triumphteam.cmds.core.command.flag.internal.ParseResult;
 import dev.triumphteam.cmds.core.command.message.MessageKey;
 import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
 import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmds.core.command.message.context.MissingFlagContext;
 import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
 import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.Contract;
@@ -134,7 +136,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         }
 
         if ((!containsLimitless && !containsFlags) && commandArgs.size() >= invokeArguments.size()) {
-            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext(commandArgs));
+            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext());
             return;
         }
 
@@ -174,7 +176,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                     continue;
                 }
 
-                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext(commandArgs));
+                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext());
                 return false;
             }
 
@@ -183,7 +185,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
-                        new InvalidArgumentContext(commandArgs, arg, argument.getName(), argument.getType())
+                        new InvalidArgumentContext(arg, argument.getName(), argument.getType())
                 );
                 return false;
             }
@@ -218,7 +220,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             return true;
         }
 
-        final ParseResult result;
+        final ParseResult<S> result;
         if (containsLimitless) {
             //noinspection unchecked
             final LimitlessArgument<S> tempArg = (LimitlessArgument<S>) arguments.get(index + 1);
@@ -227,9 +229,8 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             result = getFlagResult(argument, sender, args);
         }
 
-        final Flags flags = result.getFlags();
-        if (flags == null) {
-            messageRegistry.sendMessage(MessageKey.MISSING_FLAG, sender, new DefaultMessageContext(args));
+        if (result.getState() == FlagParser.ParseState.MISSING_REQUIRED_FLAG) {
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(result));
             return false;
         }
 
@@ -237,11 +238,12 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             invokeArguments.add(argument.resolve(sender, result.getLeftOvers()));
         }
 
+        final Flags flags = result.getFlags();
         invokeArguments.add(flags);
         return true;
     }
 
-    private ParseResult getFlagResult(
+    private ParseResult<S> getFlagResult(
             @NotNull final LimitlessArgument<S> argument,
             @NotNull final S sender,
             @NotNull final List<String> args

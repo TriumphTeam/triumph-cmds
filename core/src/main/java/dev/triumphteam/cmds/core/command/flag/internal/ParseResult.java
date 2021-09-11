@@ -27,25 +27,27 @@ import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Objects;
 
 public final class ParseResult<S> {
 
     private final List<String> leftOvers;
     private final Flags flags;
     private final FlagParser.ParseState state;
-    private final List<CommandFlag<S>> missingRequiredFlags;
+    private final List<String> missingRequiredFlags;
+    private final List<String> requiredFlags;
 
     public ParseResult(
             @NotNull final List<String> leftOvers,
             @NotNull final Flags flags,
             @NotNull final FlagParser.ParseState state,
-            @NotNull final List<CommandFlag<S>> missingRequiredFlags
+            @NotNull final List<String> missingRequiredFlags,
+            @NotNull final List<String> requiredFlags
     ) {
         this.leftOvers = leftOvers;
         this.flags = flags;
         this.state = state;
         this.missingRequiredFlags = missingRequiredFlags;
+        this.requiredFlags = requiredFlags;
     }
 
     @NotNull
@@ -58,25 +60,21 @@ public final class ParseResult<S> {
         return flags;
     }
 
-    @Override
-    public String toString() {
-        return "ParseResult{" +
-                "leftOvers=" + leftOvers +
-                ", flags=" + flags +
-                '}';
+    @NotNull
+    public FlagParser.ParseState getState() {
+        return state;
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final ParseResult that = (ParseResult) o;
-        return Objects.equals(leftOvers, that.leftOvers) && Objects.equals(flags, that.flags);
+    @NotNull
+    public List<String> getMissingRequiredFlags() {
+        return missingRequiredFlags;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(leftOvers, flags);
+    @NotNull
+    public List<String> getRequiredFlags() {
+        return requiredFlags;
     }
+
+    // TODO: 9/11/2021 HASH, TOSTRING, ETC
 
 }

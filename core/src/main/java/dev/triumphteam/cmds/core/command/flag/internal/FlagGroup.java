@@ -26,16 +26,16 @@ package dev.triumphteam.cmds.core.command.flag.internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public final class FlagGroup<S> {
 
-    private final Map<String, CommandFlag<S>> flags = new LinkedHashMap<>();
-    private final Map<String, CommandFlag<S>> longFlags = new LinkedHashMap<>();
-    private final Set<CommandFlag<S>> requiredFlags = new HashSet<>();
+    private final Map<String, CommandFlag<S>> flags = new HashMap<>();
+    private final Map<String, CommandFlag<S>> longFlags = new HashMap<>();
+    private final List<String> requiredFlags = new ArrayList<>();
 
     public void addFlag(@NotNull final CommandFlag<S> commandFlag) {
         final String key = commandFlag.getKey();
@@ -46,7 +46,7 @@ public final class FlagGroup<S> {
         }
 
         if (commandFlag.isRequired()) {
-            requiredFlags.add(commandFlag);
+            requiredFlags.add(commandFlag.getKey());
         }
 
         flags.put(key, commandFlag);
@@ -57,7 +57,7 @@ public final class FlagGroup<S> {
     }
 
     @NotNull
-    public Set<CommandFlag<S>> getRequiredFlags() {
+    public List<String> getRequiredFlags() {
         return requiredFlags;
     }
 

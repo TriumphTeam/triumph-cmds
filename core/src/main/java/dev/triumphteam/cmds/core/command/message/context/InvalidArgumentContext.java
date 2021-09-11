@@ -25,40 +25,23 @@ package dev.triumphteam.cmds.core.command.message.context;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Objects;
-
 /**
  * Context for when user types an invalid argument based on its type.
  */
 public final class InvalidArgumentContext implements MessageContext {
 
-    private final List<String> inputArguments;
     private final String argument;
     private final String name;
     private final Class<?> type;
 
     public InvalidArgumentContext(
-            @NotNull final List<String> inputArguments,
             @NotNull final String argument,
             @NotNull final String name,
             @NotNull final Class<?> type
     ) {
-        this.inputArguments = inputArguments;
         this.argument = argument;
         this.name = name;
         this.type = type;
-    }
-
-    /**
-     * Gets all the raw input arguments the user typed.
-     *
-     * @return A {@link List} with all introduced arguments.
-     */
-    @NotNull
-    @Override
-    public List<String> getInputArguments() {
-        return inputArguments;
     }
 
     /**
@@ -93,26 +76,5 @@ public final class InvalidArgumentContext implements MessageContext {
         return type;
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final InvalidArgumentContext that = (InvalidArgumentContext) o;
-        return inputArguments.equals(that.inputArguments) && argument.equals(that.argument) && name.equals(that.name) && type.equals(that.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(inputArguments, argument, name, type);
-    }
-
-    @Override
-    public String toString() {
-        return "InvalidArgumentContext{" +
-                "inputArguments=" + inputArguments +
-                ", argument='" + argument + '\'' +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                '}';
-    }
+    // TODO equals, hash, tostring
 }
