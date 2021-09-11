@@ -23,7 +23,8 @@
  */
 package dev.triumphteam.cmds.core.command.message.context;
 
-import dev.triumphteam.cmds.core.command.flag.internal.ParseResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredFlagsResult;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -32,9 +33,9 @@ import java.util.List;
  */
 public final class MissingFlagContext implements MessageContext {
 
-    private final ParseResult<?> result;
+    private final RequiredFlagsResult<?> result;
 
-    public MissingFlagContext(final ParseResult<?> result) {
+    public MissingFlagContext(@NotNull final RequiredFlagsResult<?> result) {
         this.result = result;
     }
 

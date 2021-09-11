@@ -24,6 +24,7 @@
 package dev.triumphteam.cmds.core.command.flag.internal;
 
 import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
+import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +36,7 @@ public final class CommandFlag<S> {
     private String description;
 
     private final StringArgument<S> argument;
+    private final Class<?> argumentType;
     private final boolean optionalArg;
     private final boolean required;
 
@@ -50,6 +52,9 @@ public final class CommandFlag<S> {
         this.optionalArg = optionalArg;
         this.required = required;
         this.argument = argument;
+
+        if (argument != null) argumentType = argument.getType();
+        else argumentType = null;
     }
 
     @Nullable
@@ -60,6 +65,11 @@ public final class CommandFlag<S> {
     @Nullable
     public String getLongFlag() {
         return longFlag;
+    }
+
+    @Nullable
+    public Class<?> getArgumentType() {
+        return argumentType;
     }
 
     public boolean isRequired() {
@@ -74,7 +84,7 @@ public final class CommandFlag<S> {
     public String getKey() {
         // Will never happen.
         if (flag == null && longFlag == null) {
-            throw new IllegalArgumentException("Both options can't be null.");
+            throw new CommandExecutionException("Both options can't be null.");
         }
 
         return (flag == null) ? longFlag : flag;

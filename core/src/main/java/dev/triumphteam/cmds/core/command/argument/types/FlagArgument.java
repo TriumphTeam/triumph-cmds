@@ -26,7 +26,7 @@ package dev.triumphteam.cmds.core.command.argument.types;
 import dev.triumphteam.cmds.core.command.flag.Flags;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagParser;
-import dev.triumphteam.cmds.core.command.flag.internal.ParseResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.ParseResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

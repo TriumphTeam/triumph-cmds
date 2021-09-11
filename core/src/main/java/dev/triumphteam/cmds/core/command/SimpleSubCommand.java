@@ -28,13 +28,17 @@ import dev.triumphteam.cmds.core.command.argument.types.Argument;
 import dev.triumphteam.cmds.core.command.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.command.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
-import dev.triumphteam.cmds.core.command.flag.Flags;
-import dev.triumphteam.cmds.core.command.flag.internal.FlagParser;
-import dev.triumphteam.cmds.core.command.flag.internal.ParseResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.InvalidFlagArgumentResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.ParseResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredArgResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredFlagsResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.SuccessResult;
 import dev.triumphteam.cmds.core.command.message.MessageKey;
 import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
 import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmds.core.command.message.context.InvalidFlagArgumentContext;
+import dev.triumphteam.cmds.core.command.message.context.MissingFlagArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.MissingFlagContext;
 import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
 import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
@@ -229,17 +233,32 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             result = getFlagResult(argument, sender, args);
         }
 
-        if (result.getState() == FlagParser.ParseState.MISSING_REQUIRED_FLAG) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(result));
+        if (result instanceof RequiredFlagsResult) {
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext((RequiredFlagsResult<?>) result));
             return false;
         }
 
-        if (containsLimitless) {
-            invokeArguments.add(argument.resolve(sender, result.getLeftOvers()));
+        if (result instanceof RequiredArgResult) {
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, sender, new MissingFlagArgumentContext((RequiredArgResult<?>) result));
+            return false;
         }
 
-        final Flags flags = result.getFlags();
-        invokeArguments.add(flags);
+        if (result instanceof InvalidFlagArgumentResult) {
+            messageRegistry.sendMessage(MessageKey.INVALID_FLAG_ARGUMENT, sender, new InvalidFlagArgumentContext((InvalidFlagArgumentResult<?>) result));
+            return false;
+        }
+
+        // Should never happen
+        if (!(result instanceof SuccessResult)) {
+            throw new CommandExecutionException("Error occurred while parsing command flags.");
+        }
+
+        final SuccessResult<S> successResult = (SuccessResult<S>) result;
+        if (containsLimitless) {
+            invokeArguments.add(argument.resolve(sender, successResult.getLeftOvers()));
+        }
+
+        invokeArguments.add(successResult.getFlags());
         return true;
     }
 

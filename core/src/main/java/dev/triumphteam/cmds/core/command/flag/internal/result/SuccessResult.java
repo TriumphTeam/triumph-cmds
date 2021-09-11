@@ -21,33 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.flag.internal;
+package dev.triumphteam.cmds.core.command.flag.internal.result;
 
 import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public final class ParseResult<S> {
+public final class SuccessResult<S> implements ParseResult<S> {
 
     private final List<String> leftOvers;
     private final Flags flags;
-    private final FlagParser.ParseState state;
-    private final List<String> missingRequiredFlags;
-    private final List<String> requiredFlags;
 
-    public ParseResult(
+    public SuccessResult(
             @NotNull final List<String> leftOvers,
-            @NotNull final Flags flags,
-            @NotNull final FlagParser.ParseState state,
-            @NotNull final List<String> missingRequiredFlags,
-            @NotNull final List<String> requiredFlags
+            @NotNull final Flags flags
     ) {
         this.leftOvers = leftOvers;
         this.flags = flags;
-        this.state = state;
-        this.missingRequiredFlags = missingRequiredFlags;
-        this.requiredFlags = requiredFlags;
     }
 
     @NotNull
@@ -58,21 +49,6 @@ public final class ParseResult<S> {
     @NotNull
     public Flags getFlags() {
         return flags;
-    }
-
-    @NotNull
-    public FlagParser.ParseState getState() {
-        return state;
-    }
-
-    @NotNull
-    public List<String> getMissingRequiredFlags() {
-        return missingRequiredFlags;
-    }
-
-    @NotNull
-    public List<String> getRequiredFlags() {
-        return requiredFlags;
     }
 
     // TODO: 9/11/2021 HASH, TOSTRING, ETC
