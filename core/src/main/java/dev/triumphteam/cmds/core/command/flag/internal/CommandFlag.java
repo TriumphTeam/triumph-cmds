@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmds.core.command.flag.internal;
 
-import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
+import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,26 +34,22 @@ public final class CommandFlag<S> {
 
     private String description;
 
-    private final Class<?> argument;
+    private final StringArgument<S> argument;
     private final boolean optionalArg;
     private final boolean required;
-
-    private final ArgumentResolver<S> argumentResolver;
 
     public CommandFlag(
             @Nullable final String flag,
             @Nullable final String longFlag,
-            @Nullable final Class<?> argument,
+            @Nullable final StringArgument<S> argument,
             final boolean optionalArg,
-            final boolean required,
-            @Nullable final ArgumentResolver<S> argumentResolver
+            final boolean required
     ) {
         this.flag = flag;
         this.longFlag = longFlag;
-        this.argument = argument;
         this.optionalArg = optionalArg;
         this.required = required;
-        this.argumentResolver = argumentResolver;
+        this.argument = argument;
     }
 
     @Nullable
@@ -94,7 +90,8 @@ public final class CommandFlag<S> {
 
     @Nullable
     public Object resolveArgument(@NotNull S sender, @NotNull final String token) {
-        return argumentResolver.resolve(sender, token);
+        if (argument == null) return null;
+        return argument.resolve(sender, token);
     }
 
 }

@@ -40,6 +40,7 @@ import dev.triumphteam.cmds.core.command.argument.types.EnumArgument;
 import dev.triumphteam.cmds.core.command.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.command.argument.types.JoinedStringArgument;
 import dev.triumphteam.cmds.core.command.argument.types.LimitlessArgument;
+import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
 import dev.triumphteam.cmds.core.command.flag.Flags;
 import dev.triumphteam.cmds.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
@@ -224,11 +225,12 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
             return;
         }
 
-        if (!argumentRegistry.isRegisteredType(type)) {
+        final ArgumentResolver<S> resolver = argumentRegistry.getResolver(type);
+        if (resolver == null) {
             throw new SubCommandRegistrationException("No argument of type \"" + type.getName() + "\" registered", method);
         }
 
-        addArgument(new ResolverArgument<>(parameterName, type, argumentRegistry.getResolver(type), optional));
+        addArgument(new ResolverArgument<>(parameterName, type, resolver, optional));
     }
 
     private void addArgument(@NotNull final Argument<S, ?> argument) {
@@ -296,28 +298,31 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
             if (longFlag.isEmpty()) longFlag = null;
 
-            Class<?> argument = flagAnnotation.argument();
-            if (argument == void.class) {
-                argument = null;
-            } else if (!argumentRegistry.isRegisteredType(argument)) {
-                // FIXME: 9/8/2021 Need to add other types of argument too, like ENUM.
-                throw new SubCommandRegistrationException(
-                        "@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argument.getName() + "\"",
-                        method
-                );
-            }
+            final Class<?> argumentType = flagAnnotation.argument();
+            StringArgument<S> argument = null;
+            if (argumentType != void.class) {
+                if (Enum.class.isAssignableFrom(argumentType)) {
+                    //noinspection unchecked
+                    argument = new EnumArgument<>(argumentType.getName(), (Class<? extends Enum<?>>) argumentType, false);
+                } else {
+                    final ArgumentResolver<S> resolver = argumentRegistry.getResolver(argumentType);
+                    if (resolver == null) {
+                        throw new SubCommandRegistrationException(
+                                "@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argumentType.getName() + "\"",
+                                method
+                        );
+                    }
 
-            final ArgumentResolver<S> resolver;
-            if (argument == null) resolver = null;
-            else resolver = argumentRegistry.getResolver(argument);
+                    argument = new ResolverArgument<>(argumentType.getName(), argumentType, resolver, false);
+                }
+            }
 
             final CommandFlag<S> commandFlag = new CommandFlag<>(
                     flag,
                     longFlag,
                     argument,
                     flagAnnotation.optionalArg(),
-                    flagAnnotation.required(),
-                    resolver
+                    flagAnnotation.required()
             );
 
             flagGroup.addFlag(commandFlag);
