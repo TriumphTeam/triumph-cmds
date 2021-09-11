@@ -58,7 +58,6 @@ class TestSubCommandFactory(
             name,
             alias,
             arguments,
-            flagGroup,
             requirements,
             messageRegistry,
             isDefault,

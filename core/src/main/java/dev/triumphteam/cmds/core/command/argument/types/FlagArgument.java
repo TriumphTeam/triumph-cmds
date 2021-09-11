@@ -24,24 +24,30 @@
 package dev.triumphteam.cmds.core.command.argument.types;
 
 import dev.triumphteam.cmds.core.command.flag.Flags;
+import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
+import dev.triumphteam.cmds.core.command.flag.internal.FlagParser;
+import dev.triumphteam.cmds.core.command.flag.internal.ParseResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public final class FlagArgument<S> extends LimitlessArgument<S> {
 
+    private final FlagGroup<S> flagGroup;
+
     public FlagArgument(
+            @NotNull final FlagGroup<S> flagGroup,
             @NotNull final String name,
             final boolean isOptional
     ) {
         super(name, Flags.class, isOptional);
+        this.flagGroup = flagGroup;
     }
 
     @NotNull
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
-        // FIXME: 9/2/2021
-        return null;
+    public ParseResult resolve(@NotNull S sender, @NotNull final List<String> value) {
+        return FlagParser.parse(flagGroup, sender, value);
     }
 
 }

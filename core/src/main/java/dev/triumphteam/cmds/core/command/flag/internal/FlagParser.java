@@ -35,13 +35,13 @@ public final class FlagParser<S> {
 
     private final FlagGroup<S> flagGroup;
     private final S sender;
-    private final Scanner scanner;
+    private final FlagScanner flagScanner;
     private boolean fail = false;
 
     public FlagParser(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
         this.flagGroup = flagGroup;
         this.sender = sender;
-        this.scanner = new Scanner(args);
+        this.flagScanner = new FlagScanner(args);
     }
 
     @NotNull
@@ -51,11 +51,11 @@ public final class FlagParser<S> {
 
     @NotNull
     public ParseResult parseAndBuild() {
-        while (scanner.hasNext()) {
+        while (flagScanner.hasNext()) {
             if (fail) break;
 
-            scanner.next();
-            final String token = scanner.peek();
+            flagScanner.next();
+            final String token = flagScanner.peek();
 
             if (token.startsWith("--") && !"--".equals(token)) {
                 handleFlag(token, true);
@@ -91,7 +91,7 @@ public final class FlagParser<S> {
             return;
         }
 
-        if (flag.requiresArg() && !scanner.hasNext()) {
+        if (flag.requiresArg() && !flagScanner.hasNext()) {
             fail = true;
             return;
         }
@@ -101,8 +101,8 @@ public final class FlagParser<S> {
             return;
         }
 
-        scanner.next();
-        final String argToken = scanner.peek();
+        flagScanner.next();
+        final String argToken = flagScanner.peek();
         final Object argument = flag.resolveArgument(sender, argToken);
 
         if (argument == null) {
@@ -111,7 +111,7 @@ public final class FlagParser<S> {
                 return;
             }
 
-            scanner.previous();
+            flagScanner.previous();
         }
 
         result.addFlag(flag, argument);

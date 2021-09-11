@@ -220,7 +220,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
         // Handler for flags.
         if (type == Flags.class) {
-            addArgument(new FlagArgument<>(parameterName, optional));
+            addArgument(new FlagArgument<>(flagGroup, parameterName, optional));
             return;
         }
 

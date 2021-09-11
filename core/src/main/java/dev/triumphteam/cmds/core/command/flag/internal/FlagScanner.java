@@ -27,14 +27,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public final class Scanner {
+public final class FlagScanner {
 
     private final List<String> tokens;
     private int index = -1;
 
     private String current = null;
 
-    public Scanner(@NotNull final List<String> tokens) {
+    public FlagScanner(@NotNull final List<String> tokens) {
         this.tokens = tokens;
     }
 
