@@ -24,6 +24,7 @@
 package dev.triumphteam.cmds.core.command.flag.internal;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,23 +37,25 @@ public final class FlagParser<S> {
     private final FlagGroup<S> flagGroup;
     private final S sender;
     private final FlagScanner flagScanner;
-    private boolean fail = false;
+    private final List<CommandFlag<S>> requiredFlags;
+    private ParseState parseState = ParseState.SUCCESS;
 
     public FlagParser(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
         this.flagGroup = flagGroup;
         this.sender = sender;
         this.flagScanner = new FlagScanner(args);
+        requiredFlags = new ArrayList<>(flagGroup.getRequiredFlags());
     }
 
     @NotNull
-    public static <S> ParseResult parse(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
+    public static <S> ParseResult<S> parse(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
         return new FlagParser<S>(flagGroup, sender, args).parseAndBuild();
     }
 
     @NotNull
-    public ParseResult parseAndBuild() {
+    public ParseResult<S> parseAndBuild() {
         while (flagScanner.hasNext()) {
-            if (fail) break;
+            if (parseState != ParseState.SUCCESS) break;
 
             flagScanner.next();
             final String token = flagScanner.peek();
@@ -70,8 +73,11 @@ public final class FlagParser<S> {
             leftOver.add(token);
         }
 
-        if (fail) return new ParseResult(leftOver, null);
-        return new ParseResult(leftOver, result);
+        if (parseState == ParseState.SUCCESS && !requiredFlags.isEmpty()) {
+            parseState = ParseState.MISSING_REQUIRED_FLAG;
+        }
+
+        return new ParseResult<>(leftOver, result, parseState, requiredFlags);
     }
 
     private void handleFlag(@NotNull final String token, final boolean longFlag) {
@@ -92,12 +98,12 @@ public final class FlagParser<S> {
         }
 
         if (flag.requiresArg() && !flagScanner.hasNext()) {
-            fail = true;
+            parseState = ParseState.MISSING_REQUIRED_ARGUMENT;
             return;
         }
 
         if (!flag.hasArgument()) {
-            result.addFlag(flag);
+            addFlag(flag);
             return;
         }
 
@@ -107,14 +113,14 @@ public final class FlagParser<S> {
 
         if (argument == null) {
             if (flag.requiresArg()) {
-                fail = true;
+                parseState = ParseState.MISSING_REQUIRED_ARGUMENT;
                 return;
             }
 
             flagScanner.previous();
         }
 
-        result.addFlag(flag, argument);
+        addFlag(flag, argument);
     }
 
     private void handleFlagWithEquals(@NotNull final String token, final int equalsIndex, final boolean longFlag) {
@@ -127,18 +133,35 @@ public final class FlagParser<S> {
         }
 
         if (flag.requiresArg() && argToken.isEmpty()) {
-            fail = true;
+            parseState = ParseState.MISSING_REQUIRED_ARGUMENT;
             return;
         }
 
         final Object argument = flag.resolveArgument(sender, argToken);
 
         if (argument == null && flag.requiresArg()) {
-            fail = true;
+            parseState = ParseState.INVALID_ARGUMENT;
             return;
         }
 
+        addFlag(flag, argument);
+    }
+
+    private void addFlag(@NotNull final CommandFlag<S> flag) {
+        requiredFlags.remove(flag.getKey());
+        result.addFlag(flag);
+    }
+
+    private void addFlag(@NotNull final CommandFlag<S> flag, @Nullable final Object argument) {
+        requiredFlags.remove(flag.getKey());
         result.addFlag(flag, argument);
+    }
+
+    enum ParseState {
+        SUCCESS,
+        MISSING_REQUIRED_ARGUMENT,
+        MISSING_REQUIRED_FLAG,
+        INVALID_ARGUMENT
     }
 
 }

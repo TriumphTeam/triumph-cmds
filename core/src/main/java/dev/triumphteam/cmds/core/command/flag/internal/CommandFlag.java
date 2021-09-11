@@ -75,7 +75,7 @@ public final class CommandFlag<S> {
     }
 
     @NotNull
-    String getKey() {
+    public String getKey() {
         // Will never happen.
         if (flag == null && longFlag == null) {
             throw new IllegalArgumentException("Both options can't be null.");

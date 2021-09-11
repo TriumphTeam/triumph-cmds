@@ -35,8 +35,7 @@ public final class FlagGroup<S> {
 
     private final Map<String, CommandFlag<S>> flags = new LinkedHashMap<>();
     private final Map<String, CommandFlag<S>> longFlags = new LinkedHashMap<>();
-    private final Set<String> requiredFlags = new HashSet<>();
-    private boolean containsRequired = false;
+    private final Set<CommandFlag<S>> requiredFlags = new HashSet<>();
 
     public void addFlag(@NotNull final CommandFlag<S> commandFlag) {
         final String key = commandFlag.getKey();
@@ -47,8 +46,7 @@ public final class FlagGroup<S> {
         }
 
         if (commandFlag.isRequired()) {
-            if (!containsRequired) containsRequired = true;
-            requiredFlags.add(key);
+            requiredFlags.add(commandFlag);
         }
 
         flags.put(key, commandFlag);
@@ -59,12 +57,8 @@ public final class FlagGroup<S> {
     }
 
     @NotNull
-    public Set<String> getRequiredFlags() {
+    public Set<CommandFlag<S>> getRequiredFlags() {
         return requiredFlags;
-    }
-
-    public boolean containsRequired() {
-        return containsRequired;
     }
 
     @Nullable

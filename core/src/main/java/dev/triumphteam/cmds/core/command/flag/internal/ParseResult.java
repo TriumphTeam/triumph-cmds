@@ -25,19 +25,27 @@ package dev.triumphteam.cmds.core.command.flag.internal;
 
 import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 
-public final class ParseResult {
+public final class ParseResult<S> {
 
     private final List<String> leftOvers;
     private final Flags flags;
+    private final FlagParser.ParseState state;
+    private final List<CommandFlag<S>> missingRequiredFlags;
 
-    public ParseResult(@NotNull final List<String> leftOvers, @Nullable final Flags flags) {
+    public ParseResult(
+            @NotNull final List<String> leftOvers,
+            @NotNull final Flags flags,
+            @NotNull final FlagParser.ParseState state,
+            @NotNull final List<CommandFlag<S>> missingRequiredFlags
+    ) {
         this.leftOvers = leftOvers;
         this.flags = flags;
+        this.state = state;
+        this.missingRequiredFlags = missingRequiredFlags;
     }
 
     @NotNull
@@ -45,7 +53,7 @@ public final class ParseResult {
         return leftOvers;
     }
 
-    @Nullable
+    @NotNull
     public Flags getFlags() {
         return flags;
     }
