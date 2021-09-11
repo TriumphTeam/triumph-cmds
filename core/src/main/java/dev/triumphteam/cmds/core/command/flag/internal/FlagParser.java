@@ -70,7 +70,7 @@ public final class FlagParser<S> {
             leftOver.add(token);
         }
 
-        //if (fail) return null;
+        if (fail) return new ParseResult(leftOver, null);
         return new ParseResult(leftOver, result);
     }
 

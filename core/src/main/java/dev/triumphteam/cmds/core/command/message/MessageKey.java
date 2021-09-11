@@ -46,11 +46,11 @@ public final class MessageKey<C extends MessageContext> {
 
     // Default keys
 
-    public static final MessageKey<MessageContext> WRONG_USAGE = of("wrong.usage", MessageContext.class);
+    public static final MessageKey<MessageContext> UNKNOWN_COMMAND = of("unknown.command", MessageContext.class);
     public static final MessageKey<DefaultMessageContext> TOO_MANY_ARGUMENTS = of("too.many.arguments", DefaultMessageContext.class);
     public static final MessageKey<DefaultMessageContext> NOT_ENOUGH_ARGUMENTS = of("not.enough.arguments", DefaultMessageContext.class);
     public static final MessageKey<InvalidArgumentContext> INVALID_ARGUMENT = of("invalid.argument", InvalidArgumentContext.class);
-    public static final MessageKey<MessageContext> UNKNOWN_COMMAND = of("unknown.command", MessageContext.class);
+    public static final MessageKey<DefaultMessageContext> MISSING_FLAG = of("missing.flag", DefaultMessageContext.class);
 
     private final String key;
     private final Class<C> type;

@@ -229,7 +229,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
         final Flags flags = result.getFlags();
         if (flags == null) {
-            // TODO THINGS
+            messageRegistry.sendMessage(MessageKey.MISSING_FLAG, sender, new DefaultMessageContext(args));
             return false;
         }
 
