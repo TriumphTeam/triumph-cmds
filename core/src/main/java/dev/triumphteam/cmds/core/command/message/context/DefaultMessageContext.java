@@ -23,51 +23,11 @@
  */
 package dev.triumphteam.cmds.core.command.message.context;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Objects;
-
 /**
  * The default most keys will use, only contains the most basic data.
  */
 public final class DefaultMessageContext implements MessageContext {
 
-    private final List<String> inputArguments;
 
-    public DefaultMessageContext(@NotNull final List<String> inputArguments) {
-        this.inputArguments = inputArguments;
-    }
-
-    /**
-     * Gets all the raw input arguments the user typed.
-     *
-     * @return A {@link List} with all introduced arguments.
-     */
-    @NotNull
-    @Override
-    public List<String> getInputArguments() {
-        return inputArguments;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final DefaultMessageContext that = (DefaultMessageContext) o;
-        return inputArguments.equals(that.inputArguments);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(inputArguments);
-    }
-
-    @Override
-    public String toString() {
-        return "SimpleMessageContext{" +
-                "inputArguments=" + inputArguments +
-                '}';
-    }
 
 }

@@ -21,44 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.flag.internal;
+package dev.triumphteam.cmds.core.command.flag.internal.result;
 
+import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public final class Scanner {
+public final class SuccessResult<S> implements ParseResult<S> {
 
-    private final List<String> tokens;
-    private int index = -1;
+    private final List<String> leftOvers;
+    private final Flags flags;
 
-    private String current = null;
-
-    public Scanner(@NotNull final List<String> tokens) {
-        this.tokens = tokens;
+    public SuccessResult(
+            @NotNull final List<String> leftOvers,
+            @NotNull final Flags flags
+    ) {
+        this.leftOvers = leftOvers;
+        this.flags = flags;
     }
 
     @NotNull
-    public String peek() {
-        return current;
+    public List<String> getLeftOvers() {
+        return leftOvers;
     }
 
-    public boolean hasNext() {
-        return index < tokens.size() - 1;
+    @NotNull
+    public Flags getFlags() {
+        return flags;
     }
 
-    public void next() {
-        if (index < tokens.size()) index++;
-        setNode(tokens.get(index));
-    }
-
-    public void previous() {
-        if (index > 0) index--;
-        setNode(tokens.get(index));
-    }
-
-    private void setNode(@NotNull final String token) {
-        this.current = token;
-    }
+    // TODO: 9/11/2021 HASH, TOSTRING, ETC
 
 }

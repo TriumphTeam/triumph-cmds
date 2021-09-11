@@ -23,7 +23,8 @@
  */
 package dev.triumphteam.cmds.core.command.flag.internal;
 
-import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
+import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
+import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,26 +35,26 @@ public final class CommandFlag<S> {
 
     private String description;
 
-    private final Class<?> argument;
+    private final StringArgument<S> argument;
+    private final Class<?> argumentType;
     private final boolean optionalArg;
     private final boolean required;
-
-    private final ArgumentResolver<S> argumentResolver;
 
     public CommandFlag(
             @Nullable final String flag,
             @Nullable final String longFlag,
-            @Nullable final Class<?> argument,
+            @Nullable final StringArgument<S> argument,
             final boolean optionalArg,
-            final boolean required,
-            @Nullable final ArgumentResolver<S> argumentResolver
+            final boolean required
     ) {
         this.flag = flag;
         this.longFlag = longFlag;
-        this.argument = argument;
         this.optionalArg = optionalArg;
         this.required = required;
-        this.argumentResolver = argumentResolver;
+        this.argument = argument;
+
+        if (argument != null) argumentType = argument.getType();
+        else argumentType = null;
     }
 
     @Nullable
@@ -66,6 +67,11 @@ public final class CommandFlag<S> {
         return longFlag;
     }
 
+    @Nullable
+    public Class<?> getArgumentType() {
+        return argumentType;
+    }
+
     public boolean isRequired() {
         return required;
     }
@@ -75,10 +81,10 @@ public final class CommandFlag<S> {
     }
 
     @NotNull
-    String getKey() {
+    public String getKey() {
         // Will never happen.
         if (flag == null && longFlag == null) {
-            throw new IllegalArgumentException("Both options can't be null.");
+            throw new CommandExecutionException("Both options can't be null.");
         }
 
         return (flag == null) ? longFlag : flag;
@@ -94,7 +100,8 @@ public final class CommandFlag<S> {
 
     @Nullable
     public Object resolveArgument(@NotNull S sender, @NotNull final String token) {
-        return argumentResolver.resolve(sender, token);
+        if (argument == null) return null;
+        return argument.resolve(sender, token);
     }
 
 }

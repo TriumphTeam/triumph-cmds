@@ -23,52 +23,66 @@
  */
 package dev.triumphteam.cmds.core.command.flag.internal;
 
-import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
-public final class ParseResult {
+/**
+ * Simple util scanner for easier looping through the tokens.
+ */
+public final class FlagScanner {
 
-    private final List<String> leftOvers;
-    private final Flags flags;
+    private final List<String> tokens;
+    private int pointer = -1;
 
-    public ParseResult(@NotNull final List<String> leftOvers, @Nullable final Flags flags) {
-        this.leftOvers = leftOvers;
-        this.flags = flags;
+    private String current = null;
+
+    public FlagScanner(@NotNull final List<String> tokens) {
+        this.tokens = tokens;
     }
 
+    /**
+     * Allows peeking into the current token without moving the pointer.
+     *
+     * @return The current token.
+     */
     @NotNull
-    public List<String> getLeftOvers() {
-        return leftOvers;
+    public String peek() {
+        return current;
     }
 
-    @Nullable
-    public Flags getFlags() {
-        return flags;
+    /**
+     * Checks if there are more tokens in the list.
+     *
+     * @return Whether the pointer has reached the list end.
+     */
+    public boolean hasNext() {
+        return pointer < tokens.size() - 1;
     }
 
-    @Override
-    public String toString() {
-        return "ParseResult{" +
-                "leftOvers=" + leftOvers +
-                ", flags=" + flags +
-                '}';
+    /**
+     * Points the pointer to the next token.
+     */
+    public void next() {
+        if (pointer < tokens.size()) pointer++;
+        setToken(tokens.get(pointer));
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final ParseResult that = (ParseResult) o;
-        return Objects.equals(leftOvers, that.leftOvers) && Objects.equals(flags, that.flags);
+    /**
+     * Points the pointer to the previous token.
+     */
+    public void previous() {
+        if (pointer > 0) pointer--;
+        setToken(tokens.get(pointer));
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(leftOvers, flags);
+    /**
+     * Sets the current token.
+     *
+     * @param token The new token to set.
+     */
+    private void setToken(@NotNull final String token) {
+        this.current = token;
     }
 
 }

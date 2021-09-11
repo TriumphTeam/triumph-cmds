@@ -26,17 +26,27 @@ package dev.triumphteam.cmds.core.command.flag.internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+/**
+ * Basically a holder that contains all the needed flags for the command.
+ *
+ * @param <S> The sender type.
+ */
 public final class FlagGroup<S> {
 
-    private final Map<String, CommandFlag<S>> flags = new LinkedHashMap<>();
-    private final Map<String, CommandFlag<S>> longFlags = new LinkedHashMap<>();
-    private final Set<String> requiredFlags = new HashSet<>();
+    private final Map<String, CommandFlag<S>> flags = new HashMap<>();
+    private final Map<String, CommandFlag<S>> longFlags = new HashMap<>();
+    private final List<String> requiredFlags = new ArrayList<>();
 
+    /**
+     * Adds a new flag to the group.
+     *
+     * @param commandFlag The {@link CommandFlag} that should be added to the lis.
+     */
     public void addFlag(@NotNull final CommandFlag<S> commandFlag) {
         final String key = commandFlag.getKey();
 
@@ -46,32 +56,38 @@ public final class FlagGroup<S> {
         }
 
         if (commandFlag.isRequired()) {
-            requiredFlags.add(key);
+            requiredFlags.add(commandFlag.getKey());
         }
 
         flags.put(key, commandFlag);
     }
 
+    /**
+     * Checks if the flags are empty.
+     *
+     * @return Whether the flag lists are empty.
+     */
     public boolean isEmpty() {
         return flags.isEmpty() && longFlags.isEmpty();
     }
 
+    /**
+     * Gets a list with all the required flags.
+     *
+     * @return A list of requried flags.
+     */
     @NotNull
-    public Set<String> getRequiredFlags() {
+    public List<String> getRequiredFlags() {
         return requiredFlags;
     }
 
-    @NotNull
-    public CommandFlag<S> getFlag(@NotNull final String token) {
-        final String stripped = stripLeadingHyphens(token);
-
-        if (flags.containsKey(stripped)) {
-            return flags.get(stripped);
-        }
-
-        return longFlags.get(stripped);
-    }
-
+    /**
+     * Gets the flag that matches the current token.
+     *
+     * @param token    The current token, a flag name or not.
+     * @param longFlag Whether it's a long flag or a normal one.
+     * @return The flag if found or null if not a valid flag.
+     */
     @Nullable
     public CommandFlag<S> getMatchingFlag(@NotNull final String token, final boolean longFlag) {
         final String stripped = stripLeadingHyphens(token);
@@ -83,10 +99,17 @@ public final class FlagGroup<S> {
         return flags.get(stripped);
     }
 
-    private String stripLeadingHyphens(@NotNull final String str) {
-        if (str.startsWith("--")) return str.substring(2);
-        if (str.startsWith("-")) return str.substring(1);
-        return str;
+    /**
+     * Strips the hyphens from the token.
+     *
+     * @param token The flag token.
+     * @return The flag token without hyphens.
+     */
+    @NotNull
+    private String stripLeadingHyphens(@NotNull final String token) {
+        if (token.startsWith("--")) return token.substring(2);
+        if (token.startsWith("-")) return token.substring(1);
+        return token;
     }
 
 }

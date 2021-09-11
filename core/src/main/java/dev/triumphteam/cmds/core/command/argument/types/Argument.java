@@ -59,4 +59,12 @@ public abstract class Argument<S, T> {
     @Nullable
     public abstract Object resolve(@NotNull S sender, @NotNull final T value);
 
+    @Override
+    public String toString() {
+        return "Argument{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                ", isOptional=" + isOptional +
+                '}';
+    }
 }

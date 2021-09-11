@@ -62,7 +62,6 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
                 name,
                 getAlias(),
                 getArguments(),
-                getFlagGroup(),
                 getRequirements(),
                 getMessageRegistry(),
                 isDefault(),

@@ -23,11 +23,24 @@
  */
 package dev.triumphteam.cmds.core.command.flag.internal;
 
+import dev.triumphteam.cmds.core.command.flag.internal.result.InvalidFlagArgumentResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.ParseResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredArgResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredFlagsResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.SuccessResult;
+import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Basic flag parser.
+ * This class could definitely be improved, will be revised before release.
+ *
+ * @param <S> The sender type.
+ */
 public final class FlagParser<S> {
 
     private final List<String> leftOver = new ArrayList<>();
@@ -35,27 +48,53 @@ public final class FlagParser<S> {
 
     private final FlagGroup<S> flagGroup;
     private final S sender;
-    private final Scanner scanner;
-    private boolean fail = false;
+    private final FlagScanner flagScanner;
+
+    private final List<String> missingRequiredFlags;
+    private final List<String> requiredFlags;
+
+    // These nullable values won't always be needed, could be reworked.
+    private String errorFlag = null;
+    private String errorArgumentToken = null;
+    @Nullable
+    private Class<?> errorArgumentType = null;
+
+    private ParseState parseState = ParseState.SUCCESS;
 
     public FlagParser(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
         this.flagGroup = flagGroup;
         this.sender = sender;
-        this.scanner = new Scanner(args);
+        this.flagScanner = new FlagScanner(args);
+        this.missingRequiredFlags = new ArrayList<>(flagGroup.getRequiredFlags());
+        this.requiredFlags = flagGroup.getRequiredFlags();
     }
 
+    /**
+     * Creates a new FlagParser and parses the current flags with the given arguments.
+     *
+     * @param flagGroup A {@link FlagGroup} with all the flag data.
+     * @param sender    The {@link S} sender.
+     * @param args      The arguments the sender typed normally extracted to remove unneeded arguments.
+     * @param <S>       The sender type.
+     * @return A new {@link ParseResult} based on what happens in the code.
+     */
     @NotNull
-    public static <S> ParseResult parse(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
+    public static <S> ParseResult<S> parse(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
         return new FlagParser<S>(flagGroup, sender, args).parseAndBuild();
     }
 
+    /**
+     * Parses and builds a new {@link ParseResult}.
+     *
+     * @return An implementation of {@link ParseResult}.
+     */
     @NotNull
-    public ParseResult parseAndBuild() {
-        while (scanner.hasNext()) {
-            if (fail) break;
+    public ParseResult<S> parseAndBuild() {
+        while (flagScanner.hasNext()) {
+            if (parseState != ParseState.SUCCESS) break;
 
-            scanner.next();
-            final String token = scanner.peek();
+            flagScanner.next();
+            final String token = flagScanner.peek();
 
             if (token.startsWith("--") && !"--".equals(token)) {
                 handleFlag(token, true);
@@ -70,8 +109,27 @@ public final class FlagParser<S> {
             leftOver.add(token);
         }
 
-        //if (fail) return null;
-        return new ParseResult(leftOver, result);
+        if (parseState == ParseState.MISSING_REQUIRED_ARGUMENT) {
+            // Should never happen
+            if (errorFlag == null || errorArgumentType == null) {
+                throw new CommandExecutionException("Error occurred when parsing flags.");
+            }
+            return new RequiredArgResult<>(errorFlag, errorArgumentType);
+        }
+
+        if (parseState == ParseState.INVALID_ARGUMENT) {
+            // Should never happen
+            if (errorFlag == null || errorArgumentToken == null || errorArgumentType == null) {
+                throw new CommandExecutionException("Error occurred when parsing flags.");
+            }
+            return new InvalidFlagArgumentResult<>(errorArgumentToken, errorFlag, errorArgumentType);
+        }
+
+        if (parseState == ParseState.SUCCESS && !missingRequiredFlags.isEmpty()) {
+            return new RequiredFlagsResult<>(missingRequiredFlags, requiredFlags);
+        }
+
+        return new SuccessResult<>(leftOver, result);
     }
 
     private void handleFlag(@NotNull final String token, final boolean longFlag) {
@@ -91,30 +149,37 @@ public final class FlagParser<S> {
             return;
         }
 
-        if (flag.requiresArg() && !scanner.hasNext()) {
-            fail = true;
+        if (flag.requiresArg() && !flagScanner.hasNext()) {
+            // IMPROVE DRY
+            errorFlag = flag.getKey();
+            errorArgumentType = flag.getArgumentType();
+            parseState = ParseState.MISSING_REQUIRED_ARGUMENT;
             return;
         }
 
         if (!flag.hasArgument()) {
-            result.addFlag(flag);
+            addFlag(flag);
             return;
         }
 
-        scanner.next();
-        final String argToken = scanner.peek();
+        flagScanner.next();
+        final String argToken = flagScanner.peek();
         final Object argument = flag.resolveArgument(sender, argToken);
 
+        // IMPROVE DRY
         if (argument == null) {
             if (flag.requiresArg()) {
-                fail = true;
+                errorFlag = flag.getKey();
+                errorArgumentToken = argToken;
+                errorArgumentType = flag.getArgumentType();
+                parseState = ParseState.INVALID_ARGUMENT;
                 return;
             }
 
-            scanner.previous();
+            flagScanner.previous();
         }
 
-        result.addFlag(flag, argument);
+        addFlag(flag, argument);
     }
 
     private void handleFlagWithEquals(@NotNull final String token, final int equalsIndex, final boolean longFlag) {
@@ -126,19 +191,44 @@ public final class FlagParser<S> {
             return;
         }
 
+        // IMPROVE DRY
         if (flag.requiresArg() && argToken.isEmpty()) {
-            fail = true;
+            errorFlag = flag.getKey();
+            errorArgumentType = flag.getArgumentType();
+            parseState = ParseState.MISSING_REQUIRED_ARGUMENT;
             return;
         }
 
+        // IMPROVE DRY
         final Object argument = flag.resolveArgument(sender, argToken);
-
         if (argument == null && flag.requiresArg()) {
-            fail = true;
+            errorFlag = flag.getKey();
+            errorArgumentToken = argToken;
+            errorArgumentType = flag.getArgumentType();
+            parseState = ParseState.INVALID_ARGUMENT;
             return;
         }
 
+        addFlag(flag, argument);
+    }
+
+    private void addFlag(@NotNull final CommandFlag<S> flag) {
+        missingRequiredFlags.remove(flag.getKey());
+        result.addFlag(flag);
+    }
+
+    private void addFlag(@NotNull final CommandFlag<S> flag, @Nullable final Object argument) {
+        missingRequiredFlags.remove(flag.getKey());
         result.addFlag(flag, argument);
+    }
+
+    /**
+     * Used only inside to check the current state of the parsing, and whether it should break the loop.
+     */
+    private enum ParseState {
+        SUCCESS,
+        MISSING_REQUIRED_ARGUMENT,
+        INVALID_ARGUMENT
     }
 
 }

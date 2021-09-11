@@ -21,36 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.flag.internal;
+package dev.triumphteam.cmds.core.command.flag.internal.result;
 
-import dev.triumphteam.cmds.core.command.flag.Flags;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-// TODO: 9/11/2021 FINISH THIS
-final class FlagsResult implements Flags {
+public final class RequiredFlagsResult<S> implements ParseResult<S> {
 
-    private final Map<String, Object> flags = new HashMap<>();
+    private final List<String> missingRequiredFlags;
+    private final List<String> requiredFlags;
 
-    void addFlag(@NotNull final CommandFlag<?> flag) {
-        addFlag(flag, null);
+    public RequiredFlagsResult(
+            @NotNull final List<String> missingRequiredFlags,
+            @NotNull final List<String> requiredFlags
+    ) {
+        this.missingRequiredFlags = missingRequiredFlags;
+        this.requiredFlags = requiredFlags;
     }
 
-    void addFlag(@NotNull final CommandFlag<?> flag, @Nullable final Object value) {
-        final String shortFlag = flag.getFlag();
-        final String longFlag = flag.getLongFlag();
-        if (shortFlag != null) flags.put(shortFlag, value);
-        if (longFlag != null) flags.put(longFlag, value);
+    @NotNull
+    public List<String> getMissingRequiredFlags() {
+        return missingRequiredFlags;
     }
 
-    @Override
-    public String toString() {
-        return "FlagsResult{" +
-                "flags=" + flags +
-                '}';
+    @NotNull
+    public List<String> getRequiredFlags() {
+        return requiredFlags;
     }
+
+    // TODO: 9/11/2021 HASH, TOSTRING, ETC
 
 }

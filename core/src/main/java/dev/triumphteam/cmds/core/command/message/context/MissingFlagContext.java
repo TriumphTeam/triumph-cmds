@@ -21,36 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.command.flag.internal;
+package dev.triumphteam.cmds.core.command.message.context;
 
-import dev.triumphteam.cmds.core.command.flag.Flags;
+import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredFlagsResult;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-// TODO: 9/11/2021 FINISH THIS
-final class FlagsResult implements Flags {
+/**
+ * Context for when user types an invalid argument based on its type.
+ */
+public final class MissingFlagContext implements MessageContext {
 
-    private final Map<String, Object> flags = new HashMap<>();
+    private final RequiredFlagsResult<?> result;
 
-    void addFlag(@NotNull final CommandFlag<?> flag) {
-        addFlag(flag, null);
+    public MissingFlagContext(@NotNull final RequiredFlagsResult<?> result) {
+        this.result = result;
     }
 
-    void addFlag(@NotNull final CommandFlag<?> flag, @Nullable final Object value) {
-        final String shortFlag = flag.getFlag();
-        final String longFlag = flag.getLongFlag();
-        if (shortFlag != null) flags.put(shortFlag, value);
-        if (longFlag != null) flags.put(longFlag, value);
+    public List<String> getMissingFlags() {
+        return result.getMissingRequiredFlags();
     }
 
-    @Override
-    public String toString() {
-        return "FlagsResult{" +
-                "flags=" + flags +
-                '}';
+    public List<String> getRequiredFlags() {
+        return result.getRequiredFlags();
     }
 
 }

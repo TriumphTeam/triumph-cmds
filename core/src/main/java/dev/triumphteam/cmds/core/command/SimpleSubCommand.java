@@ -25,13 +25,21 @@ package dev.triumphteam.cmds.core.command;
 
 import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.command.argument.types.Argument;
+import dev.triumphteam.cmds.core.command.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.command.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
-import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
+import dev.triumphteam.cmds.core.command.flag.internal.result.InvalidFlagArgumentResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.ParseResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredArgResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredFlagsResult;
+import dev.triumphteam.cmds.core.command.flag.internal.result.SuccessResult;
 import dev.triumphteam.cmds.core.command.message.MessageKey;
 import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
 import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmds.core.command.message.context.InvalidFlagArgumentContext;
+import dev.triumphteam.cmds.core.command.message.context.MissingFlagArgumentContext;
+import dev.triumphteam.cmds.core.command.message.context.MissingFlagContext;
 import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
 import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.Contract;
@@ -56,12 +64,12 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final int priority;
 
     private final List<Argument<S, ?>> arguments;
-    private final FlagGroup<S> flagGroup;
     private final Set<RequirementResolver<S>> requirements;
 
     private final MessageRegistry<S> messageRegistry;
 
-    private final boolean containsLimitlessArgument;
+    private boolean containsLimitless = false;
+    private boolean containsFlags = false;
 
     public SimpleSubCommand(
             @NotNull final BaseCommand baseCommand,
@@ -69,7 +77,6 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final String name,
             @NotNull final List<String> alias,
             @NotNull final List<Argument<S, ?>> arguments,
-            @NotNull final FlagGroup<S> flagGroup,
             @NotNull final Set<RequirementResolver<S>> requirements,
             @NotNull final MessageRegistry<S> messageRegistry,
             final boolean isDefault,
@@ -80,13 +87,12 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         this.name = name;
         this.alias = alias;
         this.arguments = arguments;
-        this.flagGroup = flagGroup;
         this.requirements = requirements;
         this.messageRegistry = messageRegistry;
         this.isDefault = isDefault;
         this.priority = priority;
 
-        this.containsLimitlessArgument = containsLimitless();
+        checkArguments();
     }
 
     @NotNull
@@ -129,12 +135,12 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         final List<Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
-        if (!validateAndAddArguments(sender, invokeArguments, commandArgs)) {
+        if (!validateAndCollectArguments(sender, invokeArguments, commandArgs)) {
             return;
         }
 
-        if (!containsLimitlessArgument && commandArgs.size() >= invokeArguments.size()) {
-            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext(commandArgs));
+        if ((!containsLimitless && !containsFlags) && commandArgs.size() >= invokeArguments.size()) {
+            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext());
             return;
         }
 
@@ -146,7 +152,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean validateAndAddArguments(
+    private boolean validateAndCollectArguments(
             @NotNull final S sender,
             @NotNull final List<Object> invokeArguments,
             @NotNull final List<String> commandArgs
@@ -158,18 +164,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                 final LimitlessArgument<S> limitlessArgument = (LimitlessArgument<S>) argument;
                 final List<String> leftOvers = leftOvers(commandArgs, i);
 
-                if (leftOvers.isEmpty()) {
-                    if (argument.isOptional()) {
-                        invokeArguments.add(null);
-                        continue;
-                    }
-
-                    messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext(commandArgs));
-                    return false;
-                }
-
-                invokeArguments.add(limitlessArgument.resolve(sender, leftOvers));
-                continue;
+                return handleLimitless(limitlessArgument, sender, invokeArguments, leftOvers, i);
             }
 
             if (!(argument instanceof StringArgument)) {
@@ -185,7 +180,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                     continue;
                 }
 
-                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext(commandArgs));
+                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext());
                 return false;
             }
 
@@ -194,7 +189,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
-                        new InvalidArgumentContext(commandArgs, arg, argument.getName(), argument.getType())
+                        new InvalidArgumentContext(arg, argument.getName(), argument.getType())
                 );
                 return false;
             }
@@ -203,6 +198,80 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         }
 
         return true;
+    }
+
+    /**
+     * Handles all types of {@link LimitlessArgument}s.
+     *
+     * TODO: 10/9/2021 Not very happy with the current implementation of handling List + Flags arguments
+     *  but it work for now, definitely need to change this before full release.
+     *
+     * @param argument        The current limitless argument.
+     * @param sender          The sender for resolution.
+     * @param invokeArguments The list with invoke arguments to add new values to.
+     * @param args            The current arguments to parse.
+     * @return Whether the parsing was successful or not.
+     */
+    private boolean handleLimitless(
+            @NotNull final LimitlessArgument<S> argument,
+            @NotNull final S sender,
+            @NotNull final List<Object> invokeArguments,
+            @NotNull final List<String> args,
+            final int index
+    ) {
+        if (!containsFlags) {
+            invokeArguments.add(argument.resolve(sender, args));
+            return true;
+        }
+
+        final ParseResult<S> result;
+        if (containsLimitless) {
+            //noinspection unchecked
+            final LimitlessArgument<S> tempArg = (LimitlessArgument<S>) arguments.get(index + 1);
+            result = getFlagResult(tempArg, sender, args);
+        } else {
+            result = getFlagResult(argument, sender, args);
+        }
+
+        if (result instanceof RequiredFlagsResult) {
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext((RequiredFlagsResult<?>) result));
+            return false;
+        }
+
+        if (result instanceof RequiredArgResult) {
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, sender, new MissingFlagArgumentContext((RequiredArgResult<?>) result));
+            return false;
+        }
+
+        if (result instanceof InvalidFlagArgumentResult) {
+            messageRegistry.sendMessage(MessageKey.INVALID_FLAG_ARGUMENT, sender, new InvalidFlagArgumentContext((InvalidFlagArgumentResult<?>) result));
+            return false;
+        }
+
+        // Should never happen
+        if (!(result instanceof SuccessResult)) {
+            throw new CommandExecutionException("Error occurred while parsing command flags.");
+        }
+
+        final SuccessResult<S> successResult = (SuccessResult<S>) result;
+        if (containsLimitless) {
+            invokeArguments.add(argument.resolve(sender, successResult.getLeftOvers()));
+        }
+
+        invokeArguments.add(successResult.getFlags());
+        return true;
+    }
+
+    private ParseResult<S> getFlagResult(
+            @NotNull final LimitlessArgument<S> argument,
+            @NotNull final S sender,
+            @NotNull final List<String> args
+    ) {
+        if (!(argument instanceof FlagArgument)) {
+            throw new CommandExecutionException("An error occurred while handling command flags.");
+        }
+        final FlagArgument<S> flagArgument = (FlagArgument<S>) argument;
+        return flagArgument.resolve(sender, args);
     }
 
     @NotNull
@@ -226,17 +295,22 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return list.subList(from, list.size());
     }
 
-    private boolean containsLimitless() {
+    private void checkArguments() {
         for (final Argument<S, ?> argument : arguments) {
-            if (argument instanceof LimitlessArgument) return true;
-        }
+            if (argument instanceof FlagArgument) {
+                containsFlags = true;
+                continue;
+            }
 
-        return false;
+            if (argument instanceof LimitlessArgument) {
+                containsLimitless = true;
+            }
+        }
     }
 
     @NotNull
-    @Contract(pure = true)
     @Override
+    @Contract(pure = true)
     public String toString() {
         return "SimpleSubCommand{" +
                 "baseCommand=" + baseCommand +
@@ -246,9 +320,9 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                 ", isDefault=" + isDefault +
                 ", priority=" + priority +
                 ", arguments=" + arguments +
-                ", flagGroup=" + flagGroup +
                 ", requirements=" + requirements +
-                ", containsLimitlessArgument=" + containsLimitlessArgument +
+                ", messageRegistry=" + messageRegistry +
+                ", containsLimitlessArgument=" + containsLimitless +
                 '}';
     }
 }

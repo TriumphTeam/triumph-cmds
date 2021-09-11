@@ -27,8 +27,8 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
-import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,21 +61,9 @@ public final class ArgumentRegistry<S> {
         arguments.put(clazz, argument);
     }
 
-    // FIXME: 9/2/2021 invert it
-    public boolean isRegisteredType(@NotNull final Class<?> clazz) {
-        return arguments.get(clazz) != null;
-    }
-
-    @NotNull
+    @Nullable
     public ArgumentResolver<S> getResolver(@NotNull final Class<?> clazz) {
-        final ArgumentResolver<S> resolver = arguments.get(clazz);
-
-        // Should never throw, but, just in case
-        if (resolver == null) {
-            throw new SubCommandRegistrationException("Type \"" + clazz.getName() + "\" is not registered!");
-        }
-
-        return resolver;
+        return arguments.get(clazz);
     }
 
 }
