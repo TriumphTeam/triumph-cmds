@@ -23,18 +23,18 @@
  */
 package dev.triumphteam.cmds.core.command.message;
 
+import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
 import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.InvalidFlagArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.MessageContext;
-import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
 import dev.triumphteam.cmds.core.command.message.context.MissingFlagArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.MissingFlagContext;
+import dev.triumphteam.cmds.core.key.RegistryKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -42,7 +42,7 @@ import java.util.Set;
  *
  * @param <C> A {@link MessageContext} type, this allows for better customization of the messages.
  */
-public final class MessageKey<C extends MessageContext> {
+public final class MessageKey<C extends MessageContext> extends RegistryKey {
 
     // Holds all registered keys, default and custom ones
     private static final Set<MessageKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();
@@ -58,11 +58,10 @@ public final class MessageKey<C extends MessageContext> {
     public static final MessageKey<MissingFlagArgumentContext> MISSING_REQUIRED_FLAG_ARGUMENT = of("missing.required.flag.argument", MissingFlagArgumentContext.class);
     public static final MessageKey<InvalidFlagArgumentContext> INVALID_FLAG_ARGUMENT = of("invalid.flag.argument", InvalidFlagArgumentContext.class);
 
-    private final String key;
     private final Class<C> type;
 
     private MessageKey(@NotNull final String key, @NotNull final Class<C> type) {
-        this.key = key;
+        super(key);
         this.type = type;
 
         REGISTERED_KEYS.add(this);
@@ -80,16 +79,6 @@ public final class MessageKey<C extends MessageContext> {
     @Contract("_, _ -> new")
     public static <C extends MessageContext> MessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
         return new MessageKey<>(key, type);
-    }
-
-    /**
-     * Getter for the key value.
-     *
-     * @return The key value.
-     */
-    @NotNull
-    public String getValue() {
-        return key;
     }
 
     /**
@@ -116,19 +105,22 @@ public final class MessageKey<C extends MessageContext> {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         final MessageKey<?> that = (MessageKey<?>) o;
-        return key.equals(that.key) && type.equals(that.type);
+        return type.equals(that.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, type);
+        int result = super.hashCode();
+        result = 31 * result + type.hashCode();
+        return result;
     }
 
     @Override
     public String toString() {
         return "MessageKey{" +
-                "key='" + key + '\'' +
-                '}';
+                "type=" + type +
+                "} " + super.toString();
     }
 }
