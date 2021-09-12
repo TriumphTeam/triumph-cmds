@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmds.core.command.flag.internal;
 
+import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +46,11 @@ public final class FlagValidator {
      * @param flag   The {@link String} flag.
      * @param method The method from the registration so that better error message can be thrown.
      */
-    public static void validate(@Nullable final String flag, @NotNull final Method method) {
+    public static void validate(
+            @Nullable final String flag,
+            @NotNull final Method method,
+            @NotNull final BaseCommand baseCommand
+    ) {
         if (flag == null) return;
 
         // handle the single character flag
@@ -53,7 +58,7 @@ public final class FlagValidator {
             char character = flag.charAt(0);
 
             if (!isValidFlag(character)) {
-                throw new SubCommandRegistrationException("Illegal flag name \"" + character + "\"", method);
+                throw new SubCommandRegistrationException("Illegal flag name \"" + character + "\"", method, baseCommand);
             }
 
             return;
@@ -64,7 +69,8 @@ public final class FlagValidator {
             if (!isValidChar(character)) {
                 throw new SubCommandRegistrationException(
                         "The flag \"" + flag + "\" contains an illegal character \"" + character + "\"",
-                        method
+                        method,
+                        baseCommand
                 );
             }
         }

@@ -29,7 +29,6 @@ import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry
 import dev.triumphteam.cmds.core.command.factory.AbstractSubCommandFactory
 import dev.triumphteam.cmds.core.command.message.MessageRegistry
 import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException
 import dev.triumphteam.cmds.core.implementation.TestSender
 import java.lang.reflect.Method
 
@@ -69,17 +68,14 @@ class TestSubCommandFactory(
         val parameters = method.parameters
 
         if (parameters.isEmpty()) {
-            throw SubCommandRegistrationException("Sub command method's parameters must not be empty", method)
+            throw createException("Sub command method's parameters must not be empty")
         }
 
         for (i in parameters.indices) {
             val parameter = parameters[i]
             if (i == 0) {
                 if (!TestSender::class.java.isAssignableFrom(parameter.type)) {
-                    throw SubCommandRegistrationException(
-                        "Invalid sender parameter \"${parameter.type.name}\"",
-                        method
-                    )
+                    throw createException("Invalid sender parameter \"${parameter.type.name}\"")
                 }
                 senderClass = parameter.type
                 continue

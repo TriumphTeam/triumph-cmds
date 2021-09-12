@@ -170,6 +170,10 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         return messageRegistry;
     }
 
+    protected SubCommandRegistrationException createException(@NotNull final String message) {
+        return new SubCommandRegistrationException(message, method, baseCommand);
+    }
+
     /**
      * Gets the necessary arguments for the command.
      *
@@ -201,11 +205,11 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
             final Type[] types = parameterizedType.getActualTypeArguments();
 
             if (types.length != 1) {
-                throw new SubCommandRegistrationException("Unsupported collection type \"" + type + "\"", method);
+                throw createException("Unsupported collection type \"" + type + "\"");
             }
 
             if (types[0] != String.class) {
-                throw new SubCommandRegistrationException("Only String collections are allowed", method);
+                throw createException("Only String collections are allowed");
             }
 
             addArgument(new CollectionArgument<>(parameterName, type, optional));
@@ -227,7 +231,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
         final ArgumentResolver<S> resolver = argumentRegistry.getResolver(type);
         if (resolver == null) {
-            throw new SubCommandRegistrationException("No argument of type \"" + type.getName() + "\" registered", method);
+            throw createException("No argument of type \"" + type.getName() + "\" registered");
         }
 
         addArgument(new ResolverArgument<>(parameterName, type, resolver, optional));
@@ -264,10 +268,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         alias.addAll(Arrays.stream(subCommandAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
 
         if (this.name.isEmpty()) {
-            throw new SubCommandRegistrationException(
-                    "@" + SubCommand.class.getSimpleName() + " name must not be empty",
-                    method
-            );
+            throw createException("@" + SubCommand.class.getSimpleName() + " name must not be empty");
         }
     }
 
@@ -277,23 +278,17 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
         final Flag[] flags = commandFlags.value();
         if (flags.length == 0) {
-            throw new SubCommandRegistrationException(
-                    "@" + CommandFlags.class.getSimpleName() + " must not be empty",
-                    method
-            );
+            throw createException("@" + CommandFlags.class.getSimpleName() + " must not be empty");
         }
 
         for (final Flag flagAnnotation : flags) {
             String flag = flagAnnotation.flag();
             if (flag.isEmpty()) flag = null;
-            validate(flag, method);
+            validate(flag, method, baseCommand);
 
             String longFlag = flagAnnotation.longFlag();
             if (longFlag.contains(" ")) {
-                throw new SubCommandRegistrationException(
-                        "@" + Flag.class.getSimpleName() + "'s identifiers must not contain spaces",
-                        method
-                );
+                throw createException("@" + Flag.class.getSimpleName() + "'s identifiers must not contain spaces");
             }
 
             if (longFlag.isEmpty()) longFlag = null;
@@ -307,10 +302,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
                 } else {
                     final ArgumentResolver<S> resolver = argumentRegistry.getResolver(argumentType);
                     if (resolver == null) {
-                        throw new SubCommandRegistrationException(
-                                "@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argumentType.getName() + "\"",
-                                method
-                        );
+                        throw createException("@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argumentType.getName() + "\"");
                     }
 
                     argument = new ResolverArgument<>(argumentType.getName(), argumentType, resolver, false);
@@ -344,16 +336,16 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
             final Argument<S, ?> argument = arguments.get(i);
 
             if (argument.isOptional() && i != argSize - 1) {
-                throw new SubCommandRegistrationException("Optional argument is only allowed as the last argument", method);
+                throw createException("Optional argument is only allowed as the last argument");
             }
 
             if (argument instanceof FlagArgument) {
                 if (flagGroup.isEmpty()) {
-                    throw new SubCommandRegistrationException("\"Flags\" argument found but no \"CommandFlags\" annotation present", method);
+                    throw createException("\"Flags\" argument found but no \"CommandFlags\" annotation present");
                 }
 
                 if (flagsPosition != -1) {
-                    throw new SubCommandRegistrationException("More than one \"Flags\" argument declared", method);
+                    throw createException("More than one \"Flags\" argument declared");
                 }
 
                 flagsPosition = i;
@@ -362,7 +354,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
             if (argument instanceof LimitlessArgument) {
                 if (limitlessPosition != -1) {
-                    throw new SubCommandRegistrationException("More than one limitless argument declared", method);
+                    throw createException("More than one limitless argument declared");
                 }
 
                 limitlessPosition = i;
@@ -372,11 +364,11 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         // If flags argument is present check if it's the last one and if there is a limitless behind of it instead of after.
         if (flagsPosition != -1) {
             if (limitlessPosition != -1 && limitlessPosition != argSize - 2) {
-                throw new SubCommandRegistrationException("\"Flags\" argument must always be after a limitless argument", method);
+                throw createException("\"Flags\" argument must always be after a limitless argument");
             }
 
             if (flagsPosition != argSize - 1) {
-                throw new SubCommandRegistrationException("\"Flags\" argument must always be the last argument", method);
+                throw createException("\"Flags\" argument must always be the last argument");
             }
 
             return;
@@ -384,7 +376,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
         // If it's a limitless argument checks if it's the last argument.
         if (limitlessPosition != -1 && limitlessPosition != argSize - 1) {
-            throw new SubCommandRegistrationException("Limitless argument must be the last argument if \"Flags\" is not present", method);
+            throw createException("Limitless argument must be the last argument if \"Flags\" is not present");
         }
     }
 

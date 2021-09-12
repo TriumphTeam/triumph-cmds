@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmds.core.exceptions;
 
+import dev.triumphteam.cmds.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -31,9 +32,10 @@ public final class SubCommandRegistrationException extends RuntimeException {
 
     public SubCommandRegistrationException(
             @NotNull final String message,
-            @NotNull final Method method
+            @NotNull final Method method,
+            @NotNull final BaseCommand baseCommand
     ) {
-        super(message + " in Method: \"" + method.getName() + "\"");
+        super(message + ". In Method \"" + method.getName() + "\" in Class \"" + baseCommand.getClass().getName() + "\"");
     }
 
     public SubCommandRegistrationException(@NotNull final String message) {
