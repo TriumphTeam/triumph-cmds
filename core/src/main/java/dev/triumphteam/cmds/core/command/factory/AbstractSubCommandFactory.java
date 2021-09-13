@@ -111,7 +111,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return A {@link dev.triumphteam.cmds.core.command.SubCommand} implementation.
      */
     @Nullable
-    public abstract SC create();
+    public abstract SC create(@NotNull final String parentName);
 
     protected abstract void extractArguments(@NotNull final Method method);
 
@@ -160,10 +160,6 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
     protected Set<RequirementResolver<S>> getRequirements() {
         return requirements;
-    }
-
-    protected FlagGroup<S> getFlagGroup() {
-        return flagGroup;
     }
 
     protected MessageRegistry<S> getMessageRegistry() {

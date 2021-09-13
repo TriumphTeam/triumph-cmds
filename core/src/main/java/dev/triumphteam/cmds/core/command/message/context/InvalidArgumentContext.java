@@ -28,17 +28,20 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Context for when user types an invalid argument based on its type.
  */
-public final class InvalidArgumentContext implements MessageContext {
+public final class InvalidArgumentContext extends AbstractMessageContext {
 
     private final String argument;
     private final String name;
     private final Class<?> type;
 
     public InvalidArgumentContext(
+            @NotNull final String command,
+            @NotNull final String subCommand,
             @NotNull final String argument,
             @NotNull final String name,
             @NotNull final Class<?> type
     ) {
+        super(command, subCommand);
         this.argument = argument;
         this.name = name;
         this.type = type;

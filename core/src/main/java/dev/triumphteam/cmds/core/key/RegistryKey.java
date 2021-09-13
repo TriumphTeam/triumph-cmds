@@ -2,6 +2,8 @@ package dev.triumphteam.cmds.core.key;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public abstract class RegistryKey {
 
     private final String key;
@@ -25,7 +27,7 @@ public abstract class RegistryKey {
 
     @Override
     public int hashCode() {
-        return key.hashCode();
+        return Objects.hash(key);
     }
 
     @Override

@@ -1,8 +1,16 @@
 package dev.triumphteam.cmds.core.command.message.context;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Contains specific data for error handling.
  */
 public interface MessageContext {
-    // TODO: 9/11/2021 Add command and subcommand
+
+    @NotNull
+    String getCommand();
+
+    @NotNull
+    String getSubCommand();
+
 }

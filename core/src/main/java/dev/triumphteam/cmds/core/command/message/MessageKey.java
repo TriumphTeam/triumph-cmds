@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -112,9 +113,7 @@ public final class MessageKey<C extends MessageContext> extends RegistryKey {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + type.hashCode();
-        return result;
+        return Objects.hash(super.hashCode(), type);
     }
 
     @Override

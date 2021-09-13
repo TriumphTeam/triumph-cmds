@@ -25,15 +25,21 @@ package dev.triumphteam.cmds.core.command.message.context;
 
 import dev.triumphteam.cmds.core.command.flag.internal.result.InvalidFlagArgumentResult;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Context for when user types an invalid argument based on its type.
  */
-public final class InvalidFlagArgumentContext implements MessageContext {
+public final class InvalidFlagArgumentContext extends AbstractMessageContext {
 
     private final InvalidFlagArgumentResult<?> result;
 
-    public InvalidFlagArgumentContext(@NotNull final InvalidFlagArgumentResult<?> result) {
+    public InvalidFlagArgumentContext(
+            @NotNull final String command,
+            @Nullable final String subCommand,
+            @NotNull final InvalidFlagArgumentResult<?> result
+    ) {
+        super(command, subCommand);
         this.result = result;
     }
 

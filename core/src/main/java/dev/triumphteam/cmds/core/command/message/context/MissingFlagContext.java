@@ -31,11 +31,16 @@ import java.util.List;
 /**
  * Context for when user types an invalid argument based on its type.
  */
-public final class MissingFlagContext implements MessageContext {
+public final class MissingFlagContext extends AbstractMessageContext {
 
     private final RequiredFlagsResult<?> result;
 
-    public MissingFlagContext(@NotNull final RequiredFlagsResult<?> result) {
+    public MissingFlagContext(
+            @NotNull final String command,
+            @NotNull final String subCommand,
+            @NotNull final RequiredFlagsResult<?> result
+    ) {
+        super(command, subCommand);
         this.result = result;
     }
 

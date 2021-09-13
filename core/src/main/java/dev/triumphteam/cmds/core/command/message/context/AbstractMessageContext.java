@@ -23,33 +23,45 @@
  */
 package dev.triumphteam.cmds.core.command.message.context;
 
-import dev.triumphteam.cmds.core.command.flag.internal.result.RequiredArgResult;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
- * Context for when user types an invalid argument based on its type.
+ * The default most keys will use, only contains the most basic data.
  */
-public final class MissingFlagArgumentContext extends AbstractMessageContext {
+public abstract class AbstractMessageContext implements MessageContext {
 
-    private final RequiredArgResult<?> result;
+    private final String command;
+    private final String subCommand;
 
-    public MissingFlagArgumentContext(
-            @NotNull final String command,
-            @NotNull final String subCommand,
-            @NotNull final RequiredArgResult<?> result
-    ) {
-        super(command, subCommand);
-        this.result = result;
+    public AbstractMessageContext(@NotNull final String command, @NotNull final String subCommand) {
+        this.command = command;
+        this.subCommand = subCommand;
     }
 
     @NotNull
-    public String getFlag() {
-        return result.getFlag();
+    @Override
+    public String getCommand() {
+        return command;
     }
 
     @NotNull
-    public Class<?> getArgumentType() {
-        return result.getArgumentType();
+    @Override
+    public String getSubCommand() {
+        return subCommand;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final AbstractMessageContext that = (AbstractMessageContext) o;
+        return command.equals(that.command) && Objects.equals(subCommand, that.subCommand);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(command, subCommand);
+    }
 }

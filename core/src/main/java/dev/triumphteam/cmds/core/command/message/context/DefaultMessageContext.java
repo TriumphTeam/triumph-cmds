@@ -23,11 +23,14 @@
  */
 package dev.triumphteam.cmds.core.command.message.context;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * The default most keys will use, only contains the most basic data.
  */
-public final class DefaultMessageContext implements MessageContext {
+public final class DefaultMessageContext extends AbstractMessageContext {
 
-
-
+    public DefaultMessageContext(@NotNull final String command, @NotNull final String subCommand) {
+        super(command, subCommand);
+    }
 }

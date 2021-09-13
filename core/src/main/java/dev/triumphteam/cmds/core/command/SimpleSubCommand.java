@@ -58,6 +58,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final BaseCommand baseCommand;
     private final Method method;
 
+    private final String parentName;
     private final String name;
     private final List<String> alias;
     private final boolean isDefault;
@@ -75,6 +76,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
             @NotNull final String name,
+            @NotNull final String parentName,
             @NotNull final List<String> alias,
             @NotNull final List<Argument<S, ?>> arguments,
             @NotNull final Set<RequirementResolver<S>> requirements,
@@ -85,6 +87,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         this.baseCommand = baseCommand;
         this.method = method;
         this.name = name;
+        this.parentName = parentName;
         this.alias = alias;
         this.arguments = arguments;
         this.requirements = requirements;
@@ -140,7 +143,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         }
 
         if ((!containsLimitless && !containsFlags) && commandArgs.size() >= invokeArguments.size()) {
-            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext());
+            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext(parentName, name));
             return;
         }
 
@@ -180,7 +183,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                     continue;
                 }
 
-                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext());
+                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext(parentName, name));
                 return false;
             }
 
@@ -189,7 +192,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
-                        new InvalidArgumentContext(arg, argument.getName(), argument.getType())
+                        new InvalidArgumentContext(parentName, name, arg, argument.getName(), argument.getType())
                 );
                 return false;
             }
@@ -234,17 +237,17 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         }
 
         if (result instanceof RequiredFlagsResult) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext((RequiredFlagsResult<?>) result));
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(parentName, name, (RequiredFlagsResult<?>) result));
             return false;
         }
 
         if (result instanceof RequiredArgResult) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, sender, new MissingFlagArgumentContext((RequiredArgResult<?>) result));
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, sender, new MissingFlagArgumentContext(parentName, name, (RequiredArgResult<?>) result));
             return false;
         }
 
         if (result instanceof InvalidFlagArgumentResult) {
-            messageRegistry.sendMessage(MessageKey.INVALID_FLAG_ARGUMENT, sender, new InvalidFlagArgumentContext((InvalidFlagArgumentResult<?>) result));
+            messageRegistry.sendMessage(MessageKey.INVALID_FLAG_ARGUMENT, sender, new InvalidFlagArgumentContext(parentName, name, (InvalidFlagArgumentResult<?>) result));
             return false;
         }
 
