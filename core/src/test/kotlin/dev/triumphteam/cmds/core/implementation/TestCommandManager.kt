@@ -45,6 +45,16 @@ class TestCommandManager : CommandManager<TestSender>() {
         registerMessage(MessageKey.TOO_MANY_ARGUMENTS) { sender, _ ->
             sender.result = ExecutionResult.TOO_MANY_ARGUMENTS
         }
+
+        registerMessage(MessageKey.MISSING_REQUIRED_FLAG) { sender, _ ->
+            sender.result = ExecutionResult.MISSING_REQUIRED_FLAG
+        }
+        registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT) { sender, _ ->
+            sender.result = ExecutionResult.MISSING_REQUIRED_FLAG_ARGUMENT
+        }
+        registerMessage(MessageKey.INVALID_FLAG_ARGUMENT) { sender, _ ->
+            sender.result = ExecutionResult.INVALID_FLAG_ARGUMENT
+        }
     }
 
     override fun registerCommand(command: BaseCommand) {

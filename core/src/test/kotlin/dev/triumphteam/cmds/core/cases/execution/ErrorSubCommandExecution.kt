@@ -21,18 +21,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.implementation
+package dev.triumphteam.cmds.core.cases.execution
 
-enum class ExecutionResult {
+import dev.triumphteam.cmds.core.BaseCommand
+import dev.triumphteam.cmds.core.annotations.Command
+import dev.triumphteam.cmds.core.annotations.CommandFlags
+import dev.triumphteam.cmds.core.annotations.Flag
+import dev.triumphteam.cmds.core.annotations.SubCommand
+import dev.triumphteam.cmds.core.command.flag.Flags
+import dev.triumphteam.cmds.core.implementation.TestSender
 
-    SUCCESS,
-    TOO_MANY_ARGUMENTS,
-    NOT_ENOUGH_ARGUMENTS,
-    INVALID_ARGUMENT,
-    UNKNOWN_COMMAND,
+const val SUB_COMMAND_NAME = "bar"
 
-    MISSING_REQUIRED_FLAG,
-    MISSING_REQUIRED_FLAG_ARGUMENT,
-    INVALID_FLAG_ARGUMENT
+@Command(COMMAND_NAME)
+class SubCommandNoArgs : BaseCommand() {
 
+    @SubCommand(SUB_COMMAND_NAME)
+    fun test(sender: TestSender) {
+    }
+}
+
+@Command(COMMAND_NAME)
+class SubCommandTwoArgs : BaseCommand() {
+
+    @SubCommand(SUB_COMMAND_NAME)
+    fun test(sender: TestSender, number: Int, text: String) {
+    }
+}
+
+@Command(COMMAND_NAME)
+class SubCommandFlagsWithArguments : BaseCommand() {
+
+    @SubCommand(SUB_COMMAND_NAME)
+    @CommandFlags(
+        Flag(flag = "a"),
+        Flag(flag = "n", argument = Int::class, required = true),
+    )
+    fun test(sender: TestSender, flags: Flags) {
+    }
 }

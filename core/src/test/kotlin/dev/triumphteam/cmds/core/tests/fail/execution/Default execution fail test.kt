@@ -24,6 +24,7 @@
 package dev.triumphteam.cmds.core.tests.fail.execution
 
 import dev.triumphteam.cmds.core.cases.execution.COMMAND_NAME
+import dev.triumphteam.cmds.core.cases.execution.DefaultFlagsWithArguments
 import dev.triumphteam.cmds.core.cases.execution.DefaultSubCommandNoArgs
 import dev.triumphteam.cmds.core.cases.execution.DefaultSubCommandTwoArgs
 import dev.triumphteam.cmds.core.implementation.ExecutionResult
@@ -36,18 +37,9 @@ import org.junit.jupiter.api.TestInstance
 
 @Suppress("ClassName")
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-class `Basic execution fail test` {
+class `Default execution fail test` {
 
     private val commandManager = TestCommandManager()
-
-    @Test
-    fun `Unknown command fail`() {
-        commandManager.registerCommand(DefaultSubCommandNoArgs())
-        val sender = TestSender()
-        commandManager.execute(sender, "wrong", "".toArgs())
-
-        Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.UNKNOWN_COMMAND)
-    }
 
     @Test
     fun `Default too many args fail`() {
@@ -83,6 +75,33 @@ class `Basic execution fail test` {
         commandManager.execute(sender, COMMAND_NAME, "text text".toArgs())
 
         Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.INVALID_ARGUMENT)
+    }
+
+    @Test
+    fun `Default missing flag fail`() {
+        commandManager.registerCommand(DefaultFlagsWithArguments())
+        val sender = TestSender()
+        commandManager.execute(sender, COMMAND_NAME, "text".toArgs())
+
+        Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.MISSING_REQUIRED_FLAG)
+    }
+
+    @Test
+    fun `Default missing flag argument fail`() {
+        commandManager.registerCommand(DefaultFlagsWithArguments())
+        val sender = TestSender()
+        commandManager.execute(sender, COMMAND_NAME, "text -n".toArgs())
+
+        Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.MISSING_REQUIRED_FLAG_ARGUMENT)
+    }
+
+    @Test
+    fun `Default invalid flag argument fail`() {
+        commandManager.registerCommand(DefaultFlagsWithArguments())
+        val sender = TestSender()
+        commandManager.execute(sender, COMMAND_NAME, "text -n not-number".toArgs())
+
+        Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.INVALID_FLAG_ARGUMENT)
     }
 
 }

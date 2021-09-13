@@ -25,7 +25,10 @@ package dev.triumphteam.cmds.core.cases.execution
 
 import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.annotations.Command
+import dev.triumphteam.cmds.core.annotations.CommandFlags
 import dev.triumphteam.cmds.core.annotations.Default
+import dev.triumphteam.cmds.core.annotations.Flag
+import dev.triumphteam.cmds.core.command.flag.Flags
 import dev.triumphteam.cmds.core.implementation.TestSender
 
 const val COMMAND_NAME = "foo"
@@ -43,5 +46,17 @@ class DefaultSubCommandTwoArgs : BaseCommand() {
 
     @Default
     fun test(sender: TestSender, number: Int, text: String) {
+    }
+}
+
+@Command(COMMAND_NAME)
+class DefaultFlagsWithArguments : BaseCommand() {
+
+    @Default
+    @CommandFlags(
+        Flag(flag = "a"),
+        Flag(flag = "n", argument = Int::class, required = true),
+    )
+    fun test(sender: TestSender, flags: Flags) {
     }
 }
