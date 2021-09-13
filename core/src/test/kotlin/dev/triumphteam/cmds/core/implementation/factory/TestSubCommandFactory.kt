@@ -48,13 +48,14 @@ class TestSubCommandFactory(
 
     private var senderClass: Class<*>? = null
 
-    override fun create(): SimpleSubCommand<TestSender>? {
+    override fun create(parentName: String): SimpleSubCommand<TestSender>? {
         val name = name ?: return null
 
         return SimpleSubCommand(
             baseCommand,
             method,
             name,
+            parentName,
             alias,
             arguments,
             requirements,

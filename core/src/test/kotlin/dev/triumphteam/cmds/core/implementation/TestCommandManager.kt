@@ -63,7 +63,7 @@ class TestCommandManager : CommandManager<TestSender>() {
     fun execute(sender: TestSender, commandName: String, args: List<String>) {
         val command = commands[commandName]
         if (command == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, DefaultMessageContext())
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, DefaultMessageContext(commandName, ""))
             return
         }
 

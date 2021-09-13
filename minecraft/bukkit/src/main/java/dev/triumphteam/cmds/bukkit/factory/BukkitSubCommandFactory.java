@@ -52,13 +52,14 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
 
     @Nullable
     @Override
-    public SimpleSubCommand<CommandSender> create() {
+    public SimpleSubCommand<CommandSender> create(@NotNull final String parentName) {
         final String name = getName();
         if (name == null) return null;
         return new SimpleSubCommand<>(
                 getBaseCommand(),
                 getMethod(),
                 name,
+                parentName,
                 getAlias(),
                 getArguments(),
                 getRequirements(),

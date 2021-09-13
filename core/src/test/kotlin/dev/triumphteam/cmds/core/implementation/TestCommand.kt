@@ -61,7 +61,7 @@ class TestCommand(
                     argumentRegistry,
                     requirementRegistry,
                     messageRegistry
-                ).create() ?: continue
+                ).create(name) ?: continue
 
             added = true
 
@@ -87,7 +87,7 @@ class TestCommand(
         }
 
         if (subCommand == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, DefaultMessageContext());
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, DefaultMessageContext(name, ""));
             return
         }
 
