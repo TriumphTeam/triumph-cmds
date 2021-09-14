@@ -30,122 +30,124 @@ import dev.triumphteam.cmds.core.annotations.Flag
 import dev.triumphteam.cmds.core.annotations.Join
 import dev.triumphteam.cmds.core.annotations.Optional
 import dev.triumphteam.cmds.core.annotations.SubCommand
+import dev.triumphteam.cmds.core.cases.execution.COMMAND_NAME
+import dev.triumphteam.cmds.core.cases.execution.SUB_COMMAND_NAME
 import dev.triumphteam.cmds.core.command.flag.Flags
 import dev.triumphteam.cmds.core.implementation.TestSender
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class MoreThanOneFlags : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     @CommandFlags(Flag(flag = "f"))
     fun test(sender: TestSender, flags: Flags, flags2: Flags) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class MoreThanOneLimitlessJoin : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     fun test(sender: TestSender, @Join text: String, @Join text2: String) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class MoreThanOneLimitlessArray : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     fun test(sender: TestSender, text: Array<String>, text2: Array<String>) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class MoreThanOneLimitlessCollection : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     fun test(sender: TestSender, text: List<String>, text2: List<String>) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class WrongOptionalLocation : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     fun test(sender: TestSender, @Optional text: String?, number: Int) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class WrongLocationLimitlessJoin : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     fun test(sender: TestSender, @Join text: String, number: Int) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class WrongLocationLimitlessArray : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     fun test(sender: TestSender, text: Array<String>, number: Int) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class WrongLocationLimitlessCollection : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     fun test(sender: TestSender, text: List<String>, number: Int) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class WrongLocationFlags : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     @CommandFlags(Flag(flag = "f"))
     fun test(sender: TestSender, flags: Flags, number: Int) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class WrongLocationFlagsLimitlessJoin : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     @CommandFlags(Flag(flag = "f"))
     fun test(sender: TestSender, flags: Flags, @Join text: String) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class WrongLocationFlagsLimitlessArray : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     @CommandFlags(Flag(flag = "f"))
     fun test(sender: TestSender, flags: Flags, text: Array<String>) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class WrongLocationFlagsLimitlessCollection : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     @CommandFlags(Flag(flag = "f"))
     fun test(sender: TestSender, flags: Flags, text: List<String>) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class UnsupportedCollectionType : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     fun test(sender: TestSender, number: Int, text: List<Int>) {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class UnregisteredType : BaseCommand() {
 
-    @SubCommand("bar")
+    @SubCommand(SUB_COMMAND_NAME)
     @CommandFlags(Flag(flag = "f"))
     fun test(sender: TestSender, flags: Flags, text: Flag) {
     }

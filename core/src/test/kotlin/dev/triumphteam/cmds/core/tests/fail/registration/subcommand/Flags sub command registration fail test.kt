@@ -28,6 +28,7 @@ import dev.triumphteam.cmds.core.cases.registration.CharacterFlag
 import dev.triumphteam.cmds.core.cases.registration.EmptyCommandFlags
 import dev.triumphteam.cmds.core.cases.registration.FlagArgumentButNoAnnotation
 import dev.triumphteam.cmds.core.cases.registration.FlagWithCharacters
+import dev.triumphteam.cmds.core.cases.registration.InvalidRequirementKey
 import dev.triumphteam.cmds.core.cases.registration.SpaceLongFlag
 import dev.triumphteam.cmds.core.cases.registration.UnregisteredFlagArgument
 import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException
@@ -88,6 +89,14 @@ class `Flags sub command registration fail test` {
             commandManager.registerCommand(FlagArgumentButNoAnnotation())
         }.isInstanceOf(SubCommandRegistrationException::class.java)
             .hasMessageContaining("\"Flags\" argument found but no \"CommandFlags\" annotation present")
+    }
+
+    @Test
+    fun `Invalid requirement key fail`() {
+        assertThatThrownBy {
+            commandManager.registerCommand(InvalidRequirementKey())
+        }.isInstanceOf(SubCommandRegistrationException::class.java)
+            .hasMessageContaining("Could not find Requirement")
     }
 
 }

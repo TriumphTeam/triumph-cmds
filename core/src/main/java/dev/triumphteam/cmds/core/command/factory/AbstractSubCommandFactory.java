@@ -345,7 +345,6 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
             requirements.add(new Requirement<>(resolver, messageKey));
         }
-        System.out.println(requirements);
     }
 
     /**

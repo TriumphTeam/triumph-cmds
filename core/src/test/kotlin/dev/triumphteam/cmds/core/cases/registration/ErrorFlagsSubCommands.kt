@@ -27,9 +27,10 @@ import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.annotations.Command
 import dev.triumphteam.cmds.core.annotations.Default
 import dev.triumphteam.cmds.core.annotations.SubCommand
+import dev.triumphteam.cmds.core.cases.execution.COMMAND_NAME
 import dev.triumphteam.cmds.core.implementation.TestSender
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class EmptyCommandMethod : BaseCommand() {
 
     @Default
@@ -37,7 +38,7 @@ class EmptyCommandMethod : BaseCommand() {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class MissingSender : BaseCommand() {
 
     @Default
@@ -45,7 +46,7 @@ class MissingSender : BaseCommand() {
     }
 }
 
-@Command("foo")
+@Command(COMMAND_NAME)
 class EmptySubCommand : BaseCommand() {
 
     @SubCommand("")
