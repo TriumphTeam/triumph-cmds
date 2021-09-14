@@ -33,10 +33,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Requirement {
+public @interface Requirements {
 
-    String value();
-
-    String messageKey() default "";
+    Requirement[] value();
 
 }
