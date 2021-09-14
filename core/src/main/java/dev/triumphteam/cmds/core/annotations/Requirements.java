@@ -21,35 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.cases.registration
+package dev.triumphteam.cmds.core.annotations;
 
-import dev.triumphteam.cmds.core.BaseCommand
-import dev.triumphteam.cmds.core.annotations.Command
-import dev.triumphteam.cmds.core.annotations.Default
-import dev.triumphteam.cmds.core.annotations.SubCommand
-import dev.triumphteam.cmds.core.cases.execution.COMMAND_NAME
-import dev.triumphteam.cmds.core.implementation.TestSender
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Command(COMMAND_NAME)
-class EmptyCommandMethod : BaseCommand() {
+/**
+ * Annotation to handle all the command requirements
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Requirements {
 
-    @Default
-    fun test() {
-    }
-}
+    Requirement[] value();
 
-@Command(COMMAND_NAME)
-class MissingSender : BaseCommand() {
-
-    @Default
-    fun test(arg: String) {
-    }
-}
-
-@Command(COMMAND_NAME)
-class EmptySubCommand : BaseCommand() {
-
-    @SubCommand("")
-    fun test(sender: TestSender) {
-    }
 }

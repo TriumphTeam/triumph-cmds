@@ -29,22 +29,27 @@ import dev.triumphteam.cmds.core.annotations.Default;
 import dev.triumphteam.cmds.core.annotations.Flag;
 import dev.triumphteam.cmds.core.annotations.Join;
 import dev.triumphteam.cmds.core.annotations.Optional;
+import dev.triumphteam.cmds.core.annotations.Requirements;
 import dev.triumphteam.cmds.core.annotations.SubCommand;
-import dev.triumphteam.cmds.core.command.argument.types.Argument;
 import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
 import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
+import dev.triumphteam.cmds.core.command.argument.types.Argument;
 import dev.triumphteam.cmds.core.command.argument.types.ArrayArgument;
-import dev.triumphteam.cmds.core.command.argument.types.ResolverArgument;
 import dev.triumphteam.cmds.core.command.argument.types.CollectionArgument;
 import dev.triumphteam.cmds.core.command.argument.types.EnumArgument;
 import dev.triumphteam.cmds.core.command.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.command.argument.types.JoinedStringArgument;
 import dev.triumphteam.cmds.core.command.argument.types.LimitlessArgument;
+import dev.triumphteam.cmds.core.command.argument.types.ResolverArgument;
 import dev.triumphteam.cmds.core.command.argument.types.StringArgument;
 import dev.triumphteam.cmds.core.command.flag.Flags;
 import dev.triumphteam.cmds.core.command.flag.internal.CommandFlag;
 import dev.triumphteam.cmds.core.command.flag.internal.FlagGroup;
+import dev.triumphteam.cmds.core.command.message.MessageKey;
 import dev.triumphteam.cmds.core.command.message.MessageRegistry;
+import dev.triumphteam.cmds.core.command.message.context.MessageContext;
+import dev.triumphteam.cmds.core.command.requirement.Requirement;
+import dev.triumphteam.cmds.core.command.requirement.RequirementKey;
 import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
 import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
 import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
@@ -57,11 +62,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static dev.triumphteam.cmds.core.command.factory.AnnotationUtil.getAnnotation;
 import static dev.triumphteam.cmds.core.command.flag.internal.FlagValidator.validate;
 
 public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cmds.core.command.SubCommand<S>> {
@@ -76,7 +82,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S, ?>> arguments = new ArrayList<>();
-    private final Set<RequirementResolver<S>> requirements = new LinkedHashSet<>();
+    private final Set<Requirement<S>> requirements = new HashSet<>();
 
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
@@ -100,6 +106,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         if (name == null) return;
 
         extractFlags();
+        extractRequirements();
         extractArguments(method);
         validateArguments();
     }
@@ -158,7 +165,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         return method;
     }
 
-    protected Set<RequirementResolver<S>> getRequirements() {
+    protected Set<Requirement<S>> getRequirements() {
         return requirements;
     }
 
@@ -243,8 +250,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @throws SubCommandRegistrationException Throws exception if the sub command annotation has an empty command.
      */
     private void extractSubCommandNames() throws SubCommandRegistrationException {
-        final Default defaultAnnotation = AnnotationUtil.getAnnotation(method, Default.class);
-        final SubCommand subCommandAnnotation = AnnotationUtil.getAnnotation(method, SubCommand.class);
+        final Default defaultAnnotation = getAnnotation(method, Default.class);
+        final SubCommand subCommandAnnotation = getAnnotation(method, SubCommand.class);
 
         if (defaultAnnotation == null && subCommandAnnotation == null) {
             return;
@@ -269,7 +276,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
     }
 
     private void extractFlags() {
-        final CommandFlags commandFlags = AnnotationUtil.getAnnotation(method, CommandFlags.class);
+        final CommandFlags commandFlags = getAnnotation(method, CommandFlags.class);
         if (commandFlags == null) return;
 
         final Flag[] flags = commandFlags.value();
@@ -317,10 +324,34 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         }
     }
 
+    public void extractRequirements() {
+        final Requirements requirementsAnnotation = getAnnotation(method, Requirements.class);
+        if (requirementsAnnotation == null) {
+            return;
+        }
+
+        for (final dev.triumphteam.cmds.core.annotations.Requirement requirementAnnotation : requirementsAnnotation.value()) {
+            final RequirementKey requirementKey = RequirementKey.of(requirementAnnotation.value());
+            final String messageKeyValue = requirementAnnotation.messageKey();
+
+            final MessageKey<MessageContext> messageKey;
+            if (messageKeyValue.isEmpty()) messageKey = null;
+            else messageKey = MessageKey.of(messageKeyValue, MessageContext.class);
+
+            final RequirementResolver<S> resolver = requirementRegistry.getRequirement(requirementKey);
+            if (resolver == null) {
+                throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
+            }
+
+            requirements.add(new Requirement<>(resolver, messageKey));
+        }
+    }
+
     /**
      * Argument validation makes sure some arguments are placed in the correct order.
      * For example a limitless argument and flags argument being one after the other, like:
      * `@Join final String text, final Flags flags`.
+     * TODO: This can be improved.
      */
     private void validateArguments() {
         final int argSize = arguments.size();

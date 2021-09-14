@@ -23,25 +23,26 @@
  */
 package dev.triumphteam.cmds.core.command.requirement;
 
-import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public final class RequirementRegistry<S> {
 
-    private final Map<String, RequirementResolver<S>> requirements = new HashMap<>();
+    private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
 
-    public RequirementRegistry() {
-        requirements.put("test", sender -> true);
+    public void register(
+            @NotNull final RequirementKey key,
+            @NotNull final RequirementResolver<S> resolver
+    ) {
+        requirements.put(key, resolver);
     }
 
-    @NotNull
-    public RequirementResolver<S> getRequirement(@NotNull final String key) {
-        final RequirementResolver<S> requirementResolver = requirements.get(key);
-        if (requirementResolver == null) throw new SubCommandRegistrationException("TODO");
-        return requirementResolver;
+    @Nullable
+    public RequirementResolver<S> getRequirement(@NotNull final RequirementKey key) {
+        return requirements.get(key);
     }
 
 }

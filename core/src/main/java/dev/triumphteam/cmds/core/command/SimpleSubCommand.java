@@ -38,9 +38,10 @@ import dev.triumphteam.cmds.core.command.message.MessageRegistry;
 import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext;
 import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.InvalidFlagArgumentContext;
+import dev.triumphteam.cmds.core.command.message.context.MessageContext;
 import dev.triumphteam.cmds.core.command.message.context.MissingFlagArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.MissingFlagContext;
-import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
+import dev.triumphteam.cmds.core.command.requirement.Requirement;
 import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +66,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final int priority;
 
     private final List<Argument<S, ?>> arguments;
-    private final Set<RequirementResolver<S>> requirements;
+    private final Set<Requirement<S>> requirements;
 
     private final MessageRegistry<S> messageRegistry;
 
@@ -79,7 +80,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final String parentName,
             @NotNull final List<String> alias,
             @NotNull final List<Argument<S, ?>> arguments,
-            @NotNull final Set<RequirementResolver<S>> requirements,
+            @NotNull final Set<Requirement<S>> requirements,
             @NotNull final MessageRegistry<S> messageRegistry,
             final boolean isDefault,
             final int priority
@@ -131,6 +132,8 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
     @Override
     public void execute(@NotNull final S sender, @NotNull final List<String> args) {
+        if (!meetRequirements(sender)) return;
+
         // Removes the sub command from the args if it's not default.
         final List<String> commandArgs = getCommandArgs(args);
 
@@ -198,6 +201,21 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             }
 
             invokeArguments.add(result);
+        }
+
+        return true;
+    }
+
+    private boolean meetRequirements(@NotNull final S sender) {
+        for (final Requirement<S> requirement : requirements) {
+            if (!requirement.test(sender)) {
+                final MessageKey<MessageContext> messageKey = requirement.getMessageKey();
+                if (messageKey != null) {
+                    messageRegistry.sendMessage(messageKey, sender, new DefaultMessageContext(parentName, name));
+                }
+
+                return false;
+            }
         }
 
         return true;

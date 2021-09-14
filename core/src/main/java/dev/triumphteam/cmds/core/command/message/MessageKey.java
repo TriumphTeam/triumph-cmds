@@ -120,6 +120,6 @@ public final class MessageKey<C extends MessageContext> extends RegistryKey {
     public String toString() {
         return "MessageKey{" +
                 "type=" + type +
-                "} " + super.toString();
+                ", super=" + super.toString() + "}";
     }
 }
