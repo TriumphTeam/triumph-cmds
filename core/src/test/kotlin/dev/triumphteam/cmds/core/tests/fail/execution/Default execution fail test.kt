@@ -24,6 +24,7 @@
 package dev.triumphteam.cmds.core.tests.fail.execution
 
 import dev.triumphteam.cmds.core.cases.execution.COMMAND_NAME
+import dev.triumphteam.cmds.core.cases.execution.DefaultDoesNotMeetRequirement
 import dev.triumphteam.cmds.core.cases.execution.DefaultFlagsWithArguments
 import dev.triumphteam.cmds.core.cases.execution.DefaultSubCommandNoArgs
 import dev.triumphteam.cmds.core.cases.execution.DefaultSubCommandTwoArgs
@@ -102,6 +103,15 @@ class `Default execution fail test` {
         commandManager.execute(sender, COMMAND_NAME, "text -n not-number".toArgs())
 
         Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.INVALID_FLAG_ARGUMENT)
+    }
+
+    @Test
+    fun `Default does not meet requirements fail`() {
+        commandManager.registerCommand(DefaultDoesNotMeetRequirement())
+        val sender = TestSender()
+        commandManager.execute(sender, COMMAND_NAME, "text".toArgs())
+
+        Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.DOES_NOT_MEET_REQUIREMENTS)
     }
 
 }

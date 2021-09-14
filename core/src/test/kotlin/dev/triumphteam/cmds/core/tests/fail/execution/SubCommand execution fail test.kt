@@ -25,6 +25,7 @@ package dev.triumphteam.cmds.core.tests.fail.execution
 
 import dev.triumphteam.cmds.core.cases.execution.COMMAND_NAME
 import dev.triumphteam.cmds.core.cases.execution.SUB_COMMAND_NAME
+import dev.triumphteam.cmds.core.cases.execution.SubCommandDoesNotMeetRequirement
 import dev.triumphteam.cmds.core.cases.execution.SubCommandFlagsWithArguments
 import dev.triumphteam.cmds.core.cases.execution.SubCommandNoArgs
 import dev.triumphteam.cmds.core.cases.execution.SubCommandTwoArgs
@@ -103,6 +104,15 @@ class `SubCommand execution fail test` {
         commandManager.execute(sender, COMMAND_NAME, "$SUB_COMMAND_NAME text -n not-number".toArgs())
 
         Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.INVALID_FLAG_ARGUMENT)
+    }
+
+    @Test
+    fun `Sub command does not meet requirements fail`() {
+        commandManager.registerCommand(SubCommandDoesNotMeetRequirement())
+        val sender = TestSender()
+        commandManager.execute(sender, COMMAND_NAME, "$SUB_COMMAND_NAME text".toArgs())
+
+        Assertions.assertThat(sender.result).isEqualTo(ExecutionResult.DOES_NOT_MEET_REQUIREMENTS)
     }
 
 }

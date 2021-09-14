@@ -28,6 +28,8 @@ import dev.triumphteam.cmds.core.annotations.Command
 import dev.triumphteam.cmds.core.annotations.CommandFlags
 import dev.triumphteam.cmds.core.annotations.Default
 import dev.triumphteam.cmds.core.annotations.Flag
+import dev.triumphteam.cmds.core.annotations.Requirement
+import dev.triumphteam.cmds.core.annotations.Requirements
 import dev.triumphteam.cmds.core.command.flag.Flags
 import dev.triumphteam.cmds.core.implementation.TestSender
 
@@ -58,5 +60,14 @@ class DefaultFlagsWithArguments : BaseCommand() {
         Flag(flag = "n", argument = Int::class, required = true),
     )
     fun test(sender: TestSender, flags: Flags) {
+    }
+}
+
+@Command(COMMAND_NAME)
+class DefaultDoesNotMeetRequirement : BaseCommand() {
+
+    @Default
+    @Requirements(Requirement("test.requirement", messageKey = "message.key"))
+    fun test(sender: TestSender, text: String) {
     }
 }

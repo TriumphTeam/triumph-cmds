@@ -27,6 +27,8 @@ import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.CommandManager
 import dev.triumphteam.cmds.core.command.message.MessageKey
 import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext
+import dev.triumphteam.cmds.core.command.message.context.MessageContext
+import dev.triumphteam.cmds.core.command.requirement.RequirementKey
 import dev.triumphteam.cmds.core.implementation.factory.TestCommandFactory
 
 class TestCommandManager : CommandManager<TestSender>() {
@@ -55,6 +57,11 @@ class TestCommandManager : CommandManager<TestSender>() {
         registerMessage(MessageKey.INVALID_FLAG_ARGUMENT) { sender, _ ->
             sender.result = ExecutionResult.INVALID_FLAG_ARGUMENT
         }
+
+        registerMessage(MessageKey.of("message.key", MessageContext::class.java)) { sender, _ ->
+            sender.result = ExecutionResult.DOES_NOT_MEET_REQUIREMENTS
+        }
+        registerRequirement(RequirementKey.of("test.requirement")) { false }
     }
 
     override fun registerCommand(command: BaseCommand) {
