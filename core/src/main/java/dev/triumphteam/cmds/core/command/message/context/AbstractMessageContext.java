@@ -64,4 +64,12 @@ public abstract class AbstractMessageContext implements MessageContext {
     public int hashCode() {
         return Objects.hash(command, subCommand);
     }
+
+    @Override
+    public String toString() {
+        return "AbstractMessageContext{" +
+                "command='" + command + '\'' +
+                ", subCommand='" + subCommand + '\'' +
+                '}';
+    }
 }

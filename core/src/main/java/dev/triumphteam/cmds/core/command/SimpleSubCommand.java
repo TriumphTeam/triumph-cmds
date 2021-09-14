@@ -40,7 +40,7 @@ import dev.triumphteam.cmds.core.command.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.InvalidFlagArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.MissingFlagArgumentContext;
 import dev.triumphteam.cmds.core.command.message.context.MissingFlagContext;
-import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
+import dev.triumphteam.cmds.core.command.requirement.Requirement;
 import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +65,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final int priority;
 
     private final List<Argument<S, ?>> arguments;
-    private final Set<RequirementResolver<S>> requirements;
+    private final Set<Requirement<S>> requirements;
 
     private final MessageRegistry<S> messageRegistry;
 
@@ -79,7 +79,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final String parentName,
             @NotNull final List<String> alias,
             @NotNull final List<Argument<S, ?>> arguments,
-            @NotNull final Set<RequirementResolver<S>> requirements,
+            @NotNull final Set<Requirement<S>> requirements,
             @NotNull final MessageRegistry<S> messageRegistry,
             final boolean isDefault,
             final int priority
