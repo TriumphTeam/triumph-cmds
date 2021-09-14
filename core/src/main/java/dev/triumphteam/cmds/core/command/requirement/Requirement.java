@@ -23,6 +23,10 @@ public final class Requirement<S> {
         return messageKey;
     }
 
+    public boolean test(@NotNull final S sender) {
+        return resolver.resolve(sender);
+    }
+
     @Override
     public String toString() {
         return "Requirement{" +
