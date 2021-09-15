@@ -23,8 +23,15 @@
  */
 package dev.triumphteam.cmds.core.flag;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public interface Flags {
 
+    boolean hasFlag(@NotNull final String flag);
 
+    @NotNull <T> T getFlag(@NotNull final String flag, @NotNull final Class<T> type);
+
+    @Nullable <T> T getFlagOrNull(@NotNull final String flag, @NotNull final Class<T> type);
 
 }

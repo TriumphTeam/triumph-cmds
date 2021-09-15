@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmds.core.flag.internal;
 
+import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmds.core.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,10 +31,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO: 9/11/2021 FINISH THIS
 final class FlagsResult implements Flags {
 
-    private final Map<String, Object> flags = new HashMap<>();
+    private final Map<String, FlagValue> flags = new HashMap<>();
 
     void addFlag(@NotNull final CommandFlag<?> flag) {
         addFlag(flag, null);
@@ -42,15 +42,37 @@ final class FlagsResult implements Flags {
     void addFlag(@NotNull final CommandFlag<?> flag, @Nullable final Object value) {
         final String shortFlag = flag.getFlag();
         final String longFlag = flag.getLongFlag();
-        if (shortFlag != null) flags.put(shortFlag, value);
-        if (longFlag != null) flags.put(longFlag, value);
+        if (shortFlag != null) flags.put(shortFlag, new FlagValue(value, flag.getArgumentType()));
+        if (longFlag != null) flags.put(longFlag, new FlagValue(value, flag.getArgumentType()));
     }
 
     @Override
-    public String toString() {
-        return "FlagsResult{" +
-                "flags=" + flags +
-                '}';
+    public boolean hasFlag(final @NotNull String flag) {
+        return flags.containsKey(flag);
+    }
+
+    @NotNull
+    @Override
+    public <T> T getFlag(final @NotNull String flag, final @NotNull Class<T> type) {
+        final T value = getFlagOrNull(flag, type);
+        if (value == null) throw new CommandExecutionException("Error!");
+        return value;
+    }
+
+    @Nullable
+    @Override
+    public <T> T getFlagOrNull(final @NotNull String flag, final @NotNull Class<T> type) {
+        final FlagValue flagValue = flags.get(flag);
+        if (flagValue == null) return null;
+
+        final Object value = flagValue.getValue();
+        if (value == null) return null;
+
+        final Class<?> valueType = flagValue.getType();
+        if (valueType == null) return null;
+        if (valueType != type) return null;
+
+        return (T) value;
     }
 
 }

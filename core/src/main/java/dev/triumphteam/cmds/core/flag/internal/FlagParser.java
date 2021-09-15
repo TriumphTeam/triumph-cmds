@@ -162,6 +162,11 @@ public final class FlagParser<S> {
             return;
         }
 
+        if (!flagScanner.hasNext()) {
+            addFlag(flag);
+            return;
+        }
+
         flagScanner.next();
         final String argToken = flagScanner.peek();
         final Object argument = flag.resolveArgument(sender, argToken);
