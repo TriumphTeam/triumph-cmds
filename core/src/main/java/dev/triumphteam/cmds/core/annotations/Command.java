@@ -31,16 +31,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Main command annotation, first element of the array will be the command name
- * Any subsequential values will be set as aliases
+ * Command annotation, marks the class as a command class.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Command {
 
+    /**
+     * Main command's name.
+     * Must be empty and have spaces.
+     *
+     * @return The command.
+     */
     @NotNull
     String value();
 
+    /**
+     * List with all command aliases.
+     * Can be empty but can't have spaces.
+     *
+     * @return The alias array.
+     */
     @NotNull
     String[] alias() default {};
 

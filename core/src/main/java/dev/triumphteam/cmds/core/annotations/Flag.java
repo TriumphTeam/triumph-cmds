@@ -30,21 +30,54 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Flag annotation. Contains all the "data" for the flag.
+ * To be used inside the {@link CommandFlags} annotation.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface Flag {
 
+    /**
+     * Small flag identifier. Isn't required, as long as either flag or long flag has values.
+     * Flags must not have spaces.
+     *
+     * @return The flag's main identifier.
+     */
     @NotNull
     String flag() default "";
 
+    /**
+     * Long flag identifier. Isn't required either, as long as either flag or long flag has values.
+     * Flags must not have spaces.
+     *
+     * @return The flag's long identifier.
+     */
     @NotNull
     String longFlag() default "";
 
+    /**
+     * Define if the flag should have an argument, and it's type.
+     * By default, it uses void, which means no argument is needed.
+     *
+     * @return The argument type.
+     */
     @NotNull
     Class<?> argument() default void.class;
 
+    /**
+     * Whether the argument is optional or not.
+     * Will be set to false if no argument is set.
+     *
+     * @return Whether the argument is optional.
+     */
     boolean optionalArg() default false;
 
+    /**
+     * Makes the flag be required, so users must use this flag.
+     *
+     * @return Whether the flag is required.
+     */
     boolean required() default false;
 
 }

@@ -29,12 +29,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to handle all the command requirements
+ * Annotation to hold all the command requirements.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Requirements {
 
+    /**
+     * A list with all the {@link Requirement} annotations.
+     *
+     * @return An array of {@link Requirement}s.
+     */
     Requirement[] value();
 
 }

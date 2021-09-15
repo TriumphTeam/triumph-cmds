@@ -31,15 +31,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to handle all the command requirements
+ * Requirement annotation. Holds all the requirement's data.
+ * To be used inside {@link Requirements}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface Requirement {
 
+    /**
+     * The requirement key.
+     * Required to be registered before used.
+     *
+     * @return The requirement key.
+     */
     @NotNull
     String value();
 
+    /**
+     * The message key will be used to send a custom message if the specified requirement is denied.
+     *
+     * @return The message key or empty if not needed.
+     */
     @NotNull
     String messageKey() default "";
 

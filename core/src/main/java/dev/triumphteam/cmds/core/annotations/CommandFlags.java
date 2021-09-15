@@ -30,10 +30,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotation for declaring all the {@link Flag}s needed for the command.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface CommandFlags {
 
+    /**
+     * List with all the flags that'll be needed by the command.
+     *
+     * @return Array of flags.
+     */
     @NotNull
     Flag[] value();
 

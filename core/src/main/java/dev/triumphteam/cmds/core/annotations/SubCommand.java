@@ -31,19 +31,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Sets the method to be a subcommand
- * Like the {@link Command} annotation, first element will be the subcommand while subsequent elements will be aliases
+ * Sets the method to be a sub command.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SubCommand {
 
+    /**
+     * Main sub command name.
+     * Must not contain spaces.
+     *
+     * @return The sub command name.
+     */
     @NotNull
     String value();
 
+    /**
+     * List with all the valid aliases for the command.
+     *
+     * @return An array with command aliases.
+     */
     @NotNull
     String[] alias() default {};
-
-    int priority() default 1;
 
 }

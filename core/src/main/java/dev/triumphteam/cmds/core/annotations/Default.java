@@ -37,11 +37,15 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Default {
 
+    // Default sub commands use this name.
     String DEFAULT_CMD_NAME = "TH_DEFAULT";
 
+    /**
+     * Gets the list of alias for the default sub command.
+     *
+     * @return An array with command aliases.
+     */
     @NotNull
     String[] alias() default {};
-
-    int priority() default 1;
 
 }
