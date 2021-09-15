@@ -24,6 +24,9 @@
 package dev.triumphteam.cmds.core.message.context;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 /**
  * Context for when user types an invalid argument based on its type.
@@ -53,7 +56,7 @@ public final class InvalidArgumentContext extends AbstractMessageContext {
      * @return The invalid argument.
      */
     @NotNull
-    public String getArgument() {
+    public String getTypedArgument() {
         return argument;
     }
 
@@ -75,9 +78,30 @@ public final class InvalidArgumentContext extends AbstractMessageContext {
      * @return The argument type the user should have used.
      */
     @NotNull
-    public Class<?> getType() {
+    public Class<?> getArgumentType() {
         return type;
     }
 
-    // TODO equals, hash, tostring
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        final InvalidArgumentContext that = (InvalidArgumentContext) o;
+        return argument.equals(that.argument) && name.equals(that.name) && type.equals(that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), argument, name, type);
+    }
+
+    @Override
+    public String toString() {
+        return "InvalidArgumentContext{" +
+                "argument='" + argument + '\'' +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                ", super=" + super.toString() + "}";
+    }
 }

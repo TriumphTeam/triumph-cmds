@@ -33,4 +33,10 @@ public final class DefaultMessageContext extends AbstractMessageContext {
     public DefaultMessageContext(@NotNull final String command, @NotNull final String subCommand) {
         super(command, subCommand);
     }
+
+    @Override
+    public String toString() {
+        return "DefaultMessageContext{super=" + super.toString() + "}";
+    }
+
 }

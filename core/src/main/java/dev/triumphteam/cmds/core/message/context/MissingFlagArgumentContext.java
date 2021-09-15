@@ -27,7 +27,7 @@ import dev.triumphteam.cmds.core.flag.internal.result.RequiredArgResult;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Context for when user types an invalid argument based on its type.
+ * Context for when user types a flag without argument and the argument is required.
  */
 public final class MissingFlagArgumentContext extends AbstractMessageContext {
 
@@ -42,11 +42,21 @@ public final class MissingFlagArgumentContext extends AbstractMessageContext {
         this.result = result;
     }
 
+    /**
+     * Gets that flag in which a required argument is missing.
+     *
+     * @return The flag name.
+     */
     @NotNull
     public String getFlag() {
         return result.getFlag();
     }
 
+    /**
+     * Gets the argument type of the missing argument.
+     *
+     * @return The argument type.
+     */
     @NotNull
     public Class<?> getArgumentType() {
         return result.getArgumentType();

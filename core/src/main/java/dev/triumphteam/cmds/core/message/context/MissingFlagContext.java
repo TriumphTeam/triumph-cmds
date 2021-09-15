@@ -25,11 +25,14 @@ package dev.triumphteam.cmds.core.message.context;
 
 import dev.triumphteam.cmds.core.flag.internal.result.RequiredFlagsResult;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Context for when user types an invalid argument based on its type.
+ * Context for when user doesn't add required flags.
  */
 public final class MissingFlagContext extends AbstractMessageContext {
 
@@ -44,12 +47,42 @@ public final class MissingFlagContext extends AbstractMessageContext {
         this.result = result;
     }
 
+    /**
+     * The list of missing flags.
+     *
+     * @return An unmodifiable list with the missing flags.
+     */
     public List<String> getMissingFlags() {
-        return result.getMissingRequiredFlags();
+        return Collections.unmodifiableList(result.getMissingRequiredFlags());
     }
 
+    /**
+     * The list of required flags.
+     *
+     * @return An unmodifiable list with the required flags.
+     */
     public List<String> getRequiredFlags() {
-        return result.getRequiredFlags();
+        return Collections.unmodifiableList(result.getRequiredFlags());
     }
 
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        final MissingFlagContext that = (MissingFlagContext) o;
+        return result.equals(that.result);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), result);
+    }
+
+    @Override
+    public String toString() {
+        return "MissingFlagContext{" +
+                "result=" + result +
+                ", super=" + super.toString() + "}";
+    }
 }

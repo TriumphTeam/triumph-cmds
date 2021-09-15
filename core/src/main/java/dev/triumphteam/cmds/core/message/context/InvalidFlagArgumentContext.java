@@ -27,8 +27,10 @@ import dev.triumphteam.cmds.core.flag.internal.result.InvalidFlagArgumentResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 /**
- * Context for when user types an invalid argument based on its type.
+ * Context for when user types an invalid flag argument based on its type.
  */
 public final class InvalidFlagArgumentContext extends AbstractMessageContext {
 
@@ -36,26 +38,61 @@ public final class InvalidFlagArgumentContext extends AbstractMessageContext {
 
     public InvalidFlagArgumentContext(
             @NotNull final String command,
-            @Nullable final String subCommand,
+            @NotNull final String subCommand,
             @NotNull final InvalidFlagArgumentResult<?> result
     ) {
         super(command, subCommand);
         this.result = result;
     }
 
+    /**
+     * Gets the flag with the invalid argument.
+     *
+     * @return The flag name.
+     */
     @NotNull
     public String getFlag() {
         return result.getFlag();
     }
 
+    /**
+     * The type the flag argument should have been.
+     *
+     * @return The argument type.
+     */
     @NotNull
     public Class<?> getArgumentType() {
         return result.getArgumentType();
     }
 
+    /**
+     * The argument that was typed by the user.
+     *
+     * @return The typed argument.
+     */
     @NotNull
     public String getTypedArgument() {
         return result.getTypedArgument();
     }
 
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        final InvalidFlagArgumentContext that = (InvalidFlagArgumentContext) o;
+        return result.equals(that.result);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), result);
+    }
+
+    @Override
+    public String toString() {
+        return "InvalidFlagArgumentContext{" +
+                "result=" + result +
+                ", super=" + super.toString() + "}";
+    }
 }

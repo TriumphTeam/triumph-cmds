@@ -40,12 +40,22 @@ public abstract class AbstractMessageContext implements MessageContext {
         this.subCommand = subCommand;
     }
 
+    /**
+     * Gets the command in which the error occurred.
+     *
+     * @return The command name.
+     */
     @NotNull
     @Override
     public String getCommand() {
         return command;
     }
 
+    /**
+     * Gets the sub command in which the error occurred.
+     *
+     * @return The sub command name.
+     */
     @NotNull
     @Override
     public String getSubCommand() {
