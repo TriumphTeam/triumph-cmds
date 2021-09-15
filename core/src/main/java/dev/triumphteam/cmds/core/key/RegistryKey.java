@@ -27,6 +27,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+/**
+ * Registry key, for more organized way of registering and getting things from the registries.
+ */
 public abstract class RegistryKey {
 
     private final String key;
@@ -35,6 +38,11 @@ public abstract class RegistryKey {
         this.key = key;
     }
 
+    /**
+     * Gets the key value.
+     *
+     * @return The key value.
+     */
     @NotNull
     public String getKey() {
         return key;

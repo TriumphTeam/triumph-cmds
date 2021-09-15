@@ -132,6 +132,12 @@ public final class FlagParser<S> {
         return new SuccessResult<>(leftOver, result);
     }
 
+    /**
+     * Handles the flag parsing.
+     *
+     * @param token    The current token of the flag.
+     * @param longFlag Whether it's a long flag.
+     */
     private void handleFlag(@NotNull final String token, final boolean longFlag) {
         int equalsIndex = token.indexOf('=');
         if (equalsIndex == -1) {
@@ -142,8 +148,14 @@ public final class FlagParser<S> {
         handleFlagWithEquals(token, equalsIndex, longFlag);
     }
 
+    /**
+     * Handles parsing of the flag without the equals, for example: <code>-f value</code>
+     *
+     * @param token    The flag token.
+     * @param longFlag Whether it's a long flag.
+     */
     private void handleFlagWithoutEquals(@NotNull final String token, final boolean longFlag) {
-        final CommandFlag<S> flag = flagGroup.getMatchingFlag(token, longFlag);
+        final FlagOptions<S> flag = flagGroup.getMatchingFlag(token, longFlag);
         if (flag == null) {
             leftOver.add(token);
             return;
@@ -187,10 +199,17 @@ public final class FlagParser<S> {
         addFlag(flag, argument);
     }
 
+    /**
+     * Handles parsing of the flag without the equals, for example: <code>-f=value</code>
+     *
+     * @param token       The flag token.
+     * @param equalsIndex The index in which the <code>=</code> is.
+     * @param longFlag    Whether it's a long flag.
+     */
     private void handleFlagWithEquals(@NotNull final String token, final int equalsIndex, final boolean longFlag) {
         final String argToken = token.substring(equalsIndex + 1);
         final String flagToken = token.substring(0, equalsIndex);
-        final CommandFlag<S> flag = flagGroup.getMatchingFlag(flagToken, longFlag);
+        final FlagOptions<S> flag = flagGroup.getMatchingFlag(flagToken, longFlag);
         if (flag == null) {
             leftOver.add(token);
             return;
@@ -217,12 +236,23 @@ public final class FlagParser<S> {
         addFlag(flag, argument);
     }
 
-    private void addFlag(@NotNull final CommandFlag<S> flag) {
+    /**
+     * Adds a flag without an argument to the list and removes it from the required flags *if it's required*.
+     *
+     * @param flag The parsed flag.
+     */
+    private void addFlag(@NotNull final FlagOptions<S> flag) {
         missingRequiredFlags.remove(flag.getKey());
         result.addFlag(flag);
     }
 
-    private void addFlag(@NotNull final CommandFlag<S> flag, @Nullable final Object argument) {
+    /**
+     * Adds a flag with an argument to the list and removes it from the required flags *if it's required*.
+     *
+     * @param flag     The parsed flag.
+     * @param argument The flag's argument value.
+     */
+    private void addFlag(@NotNull final FlagOptions<S> flag, @Nullable final Object argument) {
         missingRequiredFlags.remove(flag.getKey());
         result.addFlag(flag, argument);
     }

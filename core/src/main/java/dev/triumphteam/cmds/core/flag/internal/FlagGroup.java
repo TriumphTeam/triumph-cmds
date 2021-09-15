@@ -38,28 +38,28 @@ import java.util.Map;
  */
 public final class FlagGroup<S> {
 
-    private final Map<String, CommandFlag<S>> flags = new HashMap<>();
-    private final Map<String, CommandFlag<S>> longFlags = new HashMap<>();
+    private final Map<String, FlagOptions<S>> flags = new HashMap<>();
+    private final Map<String, FlagOptions<S>> longFlags = new HashMap<>();
     private final List<String> requiredFlags = new ArrayList<>();
 
     /**
      * Adds a new flag to the group.
      *
-     * @param commandFlag The {@link CommandFlag} that should be added to the lis.
+     * @param flagOptions The {@link FlagOptions} that should be added to the lis.
      */
-    public void addFlag(@NotNull final CommandFlag<S> commandFlag) {
-        final String key = commandFlag.getKey();
+    public void addFlag(@NotNull final FlagOptions<S> flagOptions) {
+        final String key = flagOptions.getKey();
 
-        final String longFlag = commandFlag.getLongFlag();
+        final String longFlag = flagOptions.getLongFlag();
         if (longFlag != null) {
-            longFlags.put(longFlag, commandFlag);
+            longFlags.put(longFlag, flagOptions);
         }
 
-        if (commandFlag.isRequired()) {
-            requiredFlags.add(commandFlag.getKey());
+        if (flagOptions.isRequired()) {
+            requiredFlags.add(flagOptions.getKey());
         }
 
-        flags.put(key, commandFlag);
+        flags.put(key, flagOptions);
     }
 
     /**
@@ -89,7 +89,7 @@ public final class FlagGroup<S> {
      * @return The flag if found or null if not a valid flag.
      */
     @Nullable
-    public CommandFlag<S> getMatchingFlag(@NotNull final String token, final boolean longFlag) {
+    public FlagOptions<S> getMatchingFlag(@NotNull final String token, final boolean longFlag) {
         final String stripped = stripLeadingHyphens(token);
 
         if (longFlag) {

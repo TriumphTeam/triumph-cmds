@@ -27,14 +27,53 @@ import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Contains all the command flags that was typed by the user in an easy-to-access way.
+ */
 public interface Flags {
 
+    /**
+     * Checks if the flag key is present or not.
+     * Useful for simple flags like <code>-l</code>.
+     * Where you just want to check if the flag was added or not.
+     * For flag with values recommended {@link Flags#getValueOrNull(String, Class)}.
+     *
+     * @param flag The flag to check.
+     * @return Whether the flag is present in the command or not.
+     */
     boolean hasFlag(@NotNull final String flag);
 
-    @NotNull <T> T getFlag(@NotNull final String flag, @NotNull final Class<T> type) throws CommandExecutionException;
+    /**
+     * Gets the flag value in a not nullable way.
+     * However, it'll throw exception if the flag isn't present.
+     * Recommended use for required flags with required argument.
+     *
+     * @param flag The flag to get the value from.
+     * @param type The {@link Class} of the value to get.
+     * @param <T>  The value type, based on the class from before.
+     * @return The flag's value.
+     * @throws CommandExecutionException Thrown in case the flag doesn't exist.
+     */
+    @NotNull <T> T getValue(@NotNull final String flag, @NotNull final Class<T> type) throws CommandExecutionException;
 
-    @Nullable <T> T getFlagOrNull(@NotNull final String flag, @NotNull final Class<T> type);
+    /**
+     * Gets the flag value in a nullable way.
+     *
+     * @param flag The flag to get the value from.
+     * @param type The {@link Class} of the value to get.
+     * @param <T>  The value type, based on the class from before.
+     * @return The flag's value or null.
+     */
+    @Nullable <T> T getValueOrNull(@NotNull final String flag, @NotNull final Class<T> type);
 
-    @NotNull <T> T getFlagOrDefault(@NotNull final String flag, @NotNull final Class<T> type, @NotNull final T def);
+    /**
+     * Gets the flag value in a not nullable way since a default value will be given.
+     *
+     * @param flag The flag to get the value from.
+     * @param type The {@link Class} of the value to get.
+     * @param <T>  The value type, based on the class from before.
+     * @return The flag's value.
+     */
+    @NotNull <T> T getValueOrDefault(@NotNull final String flag, @NotNull final Class<T> type, @NotNull final T def);
 
 }

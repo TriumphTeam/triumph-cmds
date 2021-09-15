@@ -24,7 +24,15 @@
 package dev.triumphteam.cmds.core.flag.internal.result;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
+/**
+ * Returned when the flag has required argument, and it's missing.
+ *
+ * @param <S> The sender type.
+ */
 public final class RequiredArgResult<S> implements ParseResult<S> {
 
     private final String flag;
@@ -38,16 +46,44 @@ public final class RequiredArgResult<S> implements ParseResult<S> {
         this.argumentType = argumentType;
     }
 
+    /**
+     * Gets the flag where the issue occurred.
+     *
+     * @return The flag.
+     */
     @NotNull
     public String getFlag() {
         return flag;
     }
 
+    /**
+     * Gets the type the argument should be.
+     *
+     * @return The argument type.
+     */
     @NotNull
     public Class<?> getArgumentType() {
         return argumentType;
     }
 
-    // TODO: 9/11/2021 HASH, TOSTRING, ETC
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final RequiredArgResult<?> that = (RequiredArgResult<?>) o;
+        return flag.equals(that.flag) && argumentType.equals(that.argumentType);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(flag, argumentType);
+    }
+
+    @Override
+    public String toString() {
+        return "RequiredArgResult{" +
+                "flag='" + flag + '\'' +
+                ", argumentType=" + argumentType +
+                '}';
+    }
 }

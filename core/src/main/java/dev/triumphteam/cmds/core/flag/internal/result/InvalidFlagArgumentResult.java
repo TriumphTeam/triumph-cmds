@@ -24,7 +24,15 @@
 package dev.triumphteam.cmds.core.flag.internal.result;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
+/**
+ * Returned when the flag contains an invalid argument.
+ *
+ * @param <S> The sender type.
+ */
 public final class InvalidFlagArgumentResult<S> implements ParseResult<S> {
 
     private final String typedArgument;
@@ -41,21 +49,55 @@ public final class InvalidFlagArgumentResult<S> implements ParseResult<S> {
         this.argumentType = argumentType;
     }
 
+    /**
+     * Gets the argument the user typed.
+     *
+     * @return The typed argument.
+     */
     @NotNull
     public String getTypedArgument() {
         return typedArgument;
     }
 
+    /**
+     * Gets the flag that had the issue.
+     *
+     * @return The flag.
+     */
     @NotNull
     public String getFlag() {
         return flag;
     }
 
+    /**
+     * Gets the type the argument should have been.
+     *
+     * @return The argument type.
+     */
     @NotNull
     public Class<?> getArgumentType() {
         return argumentType;
     }
 
-    // TODO: 9/11/2021 HASH, TOSTRING, ETC
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final InvalidFlagArgumentResult<?> that = (InvalidFlagArgumentResult<?>) o;
+        return typedArgument.equals(that.typedArgument) && flag.equals(that.flag) && argumentType.equals(that.argumentType);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(typedArgument, flag, argumentType);
+    }
+
+    @Override
+    public String toString() {
+        return "InvalidFlagArgumentResult{" +
+                "typedArgument='" + typedArgument + '\'' +
+                ", flag='" + flag + '\'' +
+                ", argumentType=" + argumentType +
+                '}';
+    }
 }

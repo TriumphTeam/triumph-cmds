@@ -43,7 +43,7 @@ import dev.triumphteam.cmds.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.argument.types.ResolverArgument;
 import dev.triumphteam.cmds.core.argument.types.StringArgument;
 import dev.triumphteam.cmds.core.flag.Flags;
-import dev.triumphteam.cmds.core.flag.internal.CommandFlag;
+import dev.triumphteam.cmds.core.flag.internal.FlagOptions;
 import dev.triumphteam.cmds.core.flag.internal.FlagGroup;
 import dev.triumphteam.cmds.core.message.MessageKey;
 import dev.triumphteam.cmds.core.message.MessageRegistry;
@@ -366,7 +366,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
             }
 
             flagGroup.addFlag(
-                    new CommandFlag<>(
+                    new FlagOptions<>(
                             flag,
                             longFlag,
                             argument,

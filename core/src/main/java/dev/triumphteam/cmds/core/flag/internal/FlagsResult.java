@@ -30,38 +30,77 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-final class FlagsResult implements Flags {
+/**
+ * Implementation of the {@link Flags} which will be passed to the command method.
+ */
+class FlagsResult implements Flags {
 
     private final Map<String, FlagValue> flags = new HashMap<>();
 
-    void addFlag(@NotNull final CommandFlag<?> flag) {
+    /**
+     * Adds a flag to the list.
+     * With just flag parameter.
+     *
+     * @param flag The flag to add.
+     */
+    void addFlag(@NotNull final FlagOptions<?> flag) {
         addFlag(flag, null);
     }
 
-    void addFlag(@NotNull final CommandFlag<?> flag, @Nullable final Object value) {
+    /**
+     * Adds a flag to the list.
+     *
+     * @param flag  The flag to add.
+     * @param value Its nullable value.
+     */
+    void addFlag(@NotNull final FlagOptions<?> flag, @Nullable final Object value) {
         final String shortFlag = flag.getFlag();
         final String longFlag = flag.getLongFlag();
         if (shortFlag != null) flags.put(shortFlag, new FlagValue(value, flag.getArgumentType()));
         if (longFlag != null) flags.put(longFlag, new FlagValue(value, flag.getArgumentType()));
     }
 
+    /**
+     * For checking if the flag is present or not.
+     *
+     * @param flag The flag to check.
+     * @return Whether the flag is present or not.
+     */
     @Override
     public boolean hasFlag(final @NotNull String flag) {
         return flags.containsKey(flag);
     }
 
+    /**
+     * Gets a flag value.
+     *
+     * @param flag The flag to get.
+     * @param type The {@link Class} type the value should be.
+     * @param <T>  The generic type the value should be.
+     * @return The value of the flag, not null.
+     * @throws CommandExecutionException If the value is not present or null, it'll throw.
+     */
     @NotNull
     @Override
-    public <T> T getFlag(final @NotNull String flag, final @NotNull Class<T> type) throws CommandExecutionException {
-        final T value = getFlagOrNull(flag, type);
+    public <T> T getValue(final @NotNull String flag, final @NotNull Class<T> type) throws CommandExecutionException {
+        final T value = getValueOrNull(flag, type);
         if (value == null) throw new CommandExecutionException("Could not find flag \"" + flag + "\".");
         return value;
     }
 
+    /**
+     * Nullable getter for the flag value.
+     *
+     * @param flag The flag to get.
+     * @param type The {@link Class} type the value should be.
+     * @param <T>  The generic type the value should be.
+     * @return The value of the flag or null.
+     */
     @Nullable
     @Override
-    public <T> T getFlagOrNull(final @NotNull String flag, final @NotNull Class<T> type) {
+    public <T> T getValueOrNull(final @NotNull String flag, final @NotNull Class<T> type) {
         final FlagValue flagValue = flags.get(flag);
         if (flagValue == null) return null;
 
@@ -72,14 +111,43 @@ final class FlagsResult implements Flags {
         if (valueType == null) return null;
         if (valueType != type) return null;
 
+        //noinspection unchecked
         return (T) value;
     }
 
+    /**
+     * Not nullable getter for the flag value, with a default in case the value doesn't exist.
+     *
+     * @param flag The flag to get.
+     * @param type The {@link Class} type the value should be.
+     * @param <T>  The generic type the value should be.
+     * @return The value of the flag or default.
+     */
     @NotNull
     @Override
-    public <T> T getFlagOrDefault(final @NotNull String flag, final @NotNull Class<T> type, @NotNull final T def) {
-        final T value = getFlagOrNull(flag, type);
+    public <T> T getValueOrDefault(final @NotNull String flag, final @NotNull Class<T> type, @NotNull final T def) {
+        final T value = getValueOrNull(flag, type);
         if (value == null) return def;
         return value;
+    }
+
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final FlagsResult that = (FlagsResult) o;
+        return flags.equals(that.flags);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(flags);
+    }
+
+    @Override
+    public String toString() {
+        return "FlagsResult{" +
+                "flags=" + flags +
+                '}';
     }
 }

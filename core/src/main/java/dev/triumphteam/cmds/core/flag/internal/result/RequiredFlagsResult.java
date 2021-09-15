@@ -24,9 +24,16 @@
 package dev.triumphteam.cmds.core.flag.internal.result;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * Returned when the parer requires a flag and the flag isn't present.
+ *
+ * @param <S> The sender type.
+ */
 public final class RequiredFlagsResult<S> implements ParseResult<S> {
 
     private final List<String> missingRequiredFlags;
@@ -40,16 +47,44 @@ public final class RequiredFlagsResult<S> implements ParseResult<S> {
         this.requiredFlags = requiredFlags;
     }
 
+    /**
+     * Gets a list with the missing flags.
+     *
+     * @return The missing flags.
+     */
     @NotNull
     public List<String> getMissingRequiredFlags() {
         return missingRequiredFlags;
     }
 
+    /**
+     * Gets a list with all required flags.
+     *
+     * @return The required flags.
+     */
     @NotNull
     public List<String> getRequiredFlags() {
         return requiredFlags;
     }
 
-    // TODO: 9/11/2021 HASH, TOSTRING, ETC
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final RequiredFlagsResult<?> that = (RequiredFlagsResult<?>) o;
+        return missingRequiredFlags.equals(that.missingRequiredFlags) && requiredFlags.equals(that.requiredFlags);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(missingRequiredFlags, requiredFlags);
+    }
+
+    @Override
+    public String toString() {
+        return "RequiredFlagsResult{" +
+                "missingRequiredFlags=" + missingRequiredFlags +
+                ", requiredFlags=" + requiredFlags +
+                '}';
+    }
 }
