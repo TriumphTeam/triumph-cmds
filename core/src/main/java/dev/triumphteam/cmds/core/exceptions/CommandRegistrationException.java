@@ -26,6 +26,9 @@ package dev.triumphteam.cmds.core.exceptions;
 import dev.triumphteam.cmds.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Throws when command registration fails.
+ */
 public final class CommandRegistrationException extends RuntimeException {
 
     public CommandRegistrationException(@NotNull final String message) {

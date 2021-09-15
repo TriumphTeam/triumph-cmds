@@ -53,7 +53,7 @@ final class FlagsResult implements Flags {
 
     @NotNull
     @Override
-    public <T> T getFlag(final @NotNull String flag, final @NotNull Class<T> type) {
+    public <T> T getFlag(final @NotNull String flag, final @NotNull Class<T> type) throws CommandExecutionException {
         final T value = getFlagOrNull(flag, type);
         if (value == null) throw new CommandExecutionException("Could not find flag \"" + flag + "\".");
         return value;

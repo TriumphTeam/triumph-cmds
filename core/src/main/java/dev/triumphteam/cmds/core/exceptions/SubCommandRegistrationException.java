@@ -28,6 +28,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
+/**
+ * Throws when sub command registration fails.
+ */
 public final class SubCommandRegistrationException extends RuntimeException {
 
     public SubCommandRegistrationException(
@@ -36,10 +39,6 @@ public final class SubCommandRegistrationException extends RuntimeException {
             @NotNull final Class<? extends BaseCommand> commandClass
     ) {
         super(message + ". In Method \"" + method.getName() + "\" in Class \"" + commandClass.getName() + "\"");
-    }
-
-    public SubCommandRegistrationException(@NotNull final String message) {
-        super(message);
     }
 
 }

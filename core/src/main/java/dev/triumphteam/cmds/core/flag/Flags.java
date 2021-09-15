@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmds.core.flag;
 
+import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +31,7 @@ public interface Flags {
 
     boolean hasFlag(@NotNull final String flag);
 
-    @NotNull <T> T getFlag(@NotNull final String flag, @NotNull final Class<T> type);
+    @NotNull <T> T getFlag(@NotNull final String flag, @NotNull final Class<T> type) throws CommandExecutionException;
 
     @Nullable <T> T getFlagOrNull(@NotNull final String flag, @NotNull final Class<T> type);
 

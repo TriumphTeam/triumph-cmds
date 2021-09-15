@@ -25,6 +25,9 @@ package dev.triumphteam.cmds.core.exceptions;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Throws when the command execution fails.
+ */
 public final class CommandExecutionException extends RuntimeException {
 
     public CommandExecutionException(@NotNull final String message) {
