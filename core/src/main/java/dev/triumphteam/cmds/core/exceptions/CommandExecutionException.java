@@ -31,4 +31,12 @@ public final class CommandExecutionException extends RuntimeException {
         super(message);
     }
 
+    public CommandExecutionException(
+            @NotNull final String message,
+            @NotNull final String parent,
+            @NotNull final String command
+    ) {
+        super(message + ". On \"" + parent + "\" command on \"" + command + "\" sub command.");
+    }
+
 }

@@ -33,9 +33,9 @@ public final class SubCommandRegistrationException extends RuntimeException {
     public SubCommandRegistrationException(
             @NotNull final String message,
             @NotNull final Method method,
-            @NotNull final BaseCommand baseCommand
+            @NotNull final Class<? extends BaseCommand> commandClass
     ) {
-        super(message + ". In Method \"" + method.getName() + "\" in Class \"" + baseCommand.getClass().getName() + "\"");
+        super(message + ". In Method \"" + method.getName() + "\" in Class \"" + commandClass.getName() + "\"");
     }
 
     public SubCommandRegistrationException(@NotNull final String message) {

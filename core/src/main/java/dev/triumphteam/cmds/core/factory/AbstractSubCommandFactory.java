@@ -78,7 +78,6 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
     private String name = null;
     private final List<String> alias = new ArrayList<>();
     private boolean isDefault = false;
-    private int priority = 1;
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S, ?>> arguments = new ArrayList<>();
@@ -152,10 +151,6 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         return isDefault;
     }
 
-    protected int getPriority() {
-        return priority;
-    }
-
     // TODO comments
     protected BaseCommand getBaseCommand() {
         return baseCommand;
@@ -174,7 +169,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
     }
 
     protected SubCommandRegistrationException createException(@NotNull final String message) {
-        return new SubCommandRegistrationException(message, method, baseCommand);
+        return new SubCommandRegistrationException(message, method, baseCommand.getClass());
     }
 
     /**
@@ -261,13 +256,10 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
             name = Default.DEFAULT_CMD_NAME;
             alias.addAll(Arrays.stream(defaultAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
             isDefault = true;
-            priority = defaultAnnotation.priority();
-
             return;
         }
 
         name = subCommandAnnotation.value().toLowerCase();
-        priority = subCommandAnnotation.priority();
         alias.addAll(Arrays.stream(subCommandAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
 
         if (this.name.isEmpty()) {

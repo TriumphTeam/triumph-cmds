@@ -27,6 +27,7 @@ import dev.triumphteam.cmds.core.argument.types.Argument;
 import dev.triumphteam.cmds.core.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.argument.types.StringArgument;
+import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmds.core.flag.internal.result.InvalidFlagArgumentResult;
 import dev.triumphteam.cmds.core.flag.internal.result.ParseResult;
 import dev.triumphteam.cmds.core.flag.internal.result.RequiredArgResult;
@@ -41,8 +42,6 @@ import dev.triumphteam.cmds.core.message.context.MessageContext;
 import dev.triumphteam.cmds.core.message.context.MissingFlagArgumentContext;
 import dev.triumphteam.cmds.core.message.context.MissingFlagContext;
 import dev.triumphteam.cmds.core.requirement.Requirement;
-import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +61,6 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final String name;
     private final List<String> alias;
     private final boolean isDefault;
-    private final int priority;
 
     private final List<Argument<S, ?>> arguments;
     private final Set<Requirement<S>> requirements;
@@ -81,8 +79,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final List<Argument<S, ?>> arguments,
             @NotNull final Set<Requirement<S>> requirements,
             @NotNull final MessageRegistry<S> messageRegistry,
-            final boolean isDefault,
-            final int priority
+            final boolean isDefault
     ) {
         this.baseCommand = baseCommand;
         this.method = method;
@@ -93,7 +90,6 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         this.requirements = requirements;
         this.messageRegistry = messageRegistry;
         this.isDefault = isDefault;
-        this.priority = priority;
 
         checkArguments();
     }
@@ -112,11 +108,6 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     @Override
     public Method getMethod() {
         return method;
-    }
-
-    @Override
-    public int getPriority() {
-        return priority;
     }
 
     @Override
@@ -173,7 +164,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             }
 
             if (!(argument instanceof StringArgument)) {
-                throw new CommandExecutionException("Found unsupported argument.");
+                throw new CommandExecutionException("Found unsupported argument", parentName, name);
             }
 
             final StringArgument<S> stringArgument = (StringArgument<S>) argument;
@@ -270,7 +261,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
         // Should never happen
         if (!(result instanceof SuccessResult)) {
-            throw new CommandExecutionException("Error occurred while parsing command flags.");
+            throw new CommandExecutionException("Error occurred while parsing command flags", parentName, name);
         }
 
         final SuccessResult<S> successResult = (SuccessResult<S>) result;
@@ -288,7 +279,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final List<String> args
     ) {
         if (!(argument instanceof FlagArgument)) {
-            throw new CommandExecutionException("An error occurred while handling command flags.");
+            throw new CommandExecutionException("An error occurred while handling command flags", parentName, name);
         }
         final FlagArgument<S> flagArgument = (FlagArgument<S>) argument;
         return flagArgument.resolve(sender, args);
@@ -330,7 +321,6 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
     @NotNull
     @Override
-    @Contract(pure = true)
     public String toString() {
         return "SimpleSubCommand{" +
                 "baseCommand=" + baseCommand +
@@ -338,7 +328,6 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                 ", name='" + name + '\'' +
                 ", alias=" + alias +
                 ", isDefault=" + isDefault +
-                ", priority=" + priority +
                 ", arguments=" + arguments +
                 ", requirements=" + requirements +
                 ", messageRegistry=" + messageRegistry +

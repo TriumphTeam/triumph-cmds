@@ -42,8 +42,6 @@ public interface SubCommand<S> {
 
     boolean isDefault();
 
-    int getPriority();
-
     List<Argument<S, ?>> getArguments();
 
     void execute(@NotNull S sender, @NotNull final List<String> args);

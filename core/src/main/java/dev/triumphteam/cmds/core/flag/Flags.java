@@ -34,4 +34,6 @@ public interface Flags {
 
     @Nullable <T> T getFlagOrNull(@NotNull final String flag, @NotNull final Class<T> type);
 
+    @NotNull <T> T getFlagOrDefault(@NotNull final String flag, @NotNull final Class<T> type, @NotNull final T def);
+
 }

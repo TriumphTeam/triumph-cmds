@@ -55,7 +55,7 @@ final class FlagsResult implements Flags {
     @Override
     public <T> T getFlag(final @NotNull String flag, final @NotNull Class<T> type) {
         final T value = getFlagOrNull(flag, type);
-        if (value == null) throw new CommandExecutionException("Error!");
+        if (value == null) throw new CommandExecutionException("Could not find flag \"" + flag + "\".");
         return value;
     }
 
@@ -75,4 +75,11 @@ final class FlagsResult implements Flags {
         return (T) value;
     }
 
+    @NotNull
+    @Override
+    public <T> T getFlagOrDefault(final @NotNull String flag, final @NotNull Class<T> type, @NotNull final T def) {
+        final T value = getFlagOrNull(flag, type);
+        if (value == null) return def;
+        return value;
+    }
 }

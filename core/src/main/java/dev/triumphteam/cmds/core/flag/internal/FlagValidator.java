@@ -58,7 +58,7 @@ public final class FlagValidator {
             char character = flag.charAt(0);
 
             if (!isValidFlag(character)) {
-                throw new SubCommandRegistrationException("Illegal flag name \"" + character + "\"", method, baseCommand);
+                throw new SubCommandRegistrationException("Illegal flag name \"" + character + "\"", method, baseCommand.getClass());
             }
 
             return;
@@ -70,7 +70,7 @@ public final class FlagValidator {
                 throw new SubCommandRegistrationException(
                         "The flag \"" + flag + "\" contains an illegal character \"" + character + "\"",
                         method,
-                        baseCommand
+                        baseCommand.getClass()
                 );
             }
         }
