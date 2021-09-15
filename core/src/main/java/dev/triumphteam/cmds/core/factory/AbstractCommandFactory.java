@@ -26,12 +26,21 @@ package dev.triumphteam.cmds.core.factory;
 import dev.triumphteam.cmds.core.annotations.Command;
 import dev.triumphteam.cmds.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmds.core.BaseCommand;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Abstracts most of the "extracting" from command annotations, allows for extending.
+ * <br/>
+ * I know this could be done better, but couldn't think of a better way.
+ * If you do please PR or let me know on my discord!
+ *
+ * @param <C> The command type.
+ */
 public abstract class AbstractCommandFactory<C extends dev.triumphteam.cmds.core.Command> {
 
     private String name;
@@ -47,6 +56,7 @@ public abstract class AbstractCommandFactory<C extends dev.triumphteam.cmds.core
      * @return A {@link dev.triumphteam.cmds.core.Command} implementation.
      */
     @NotNull
+    @Contract(" -> new")
     public abstract C create();
 
     /**
@@ -75,7 +85,7 @@ public abstract class AbstractCommandFactory<C extends dev.triumphteam.cmds.core
      * @param baseCommand The {@link BaseCommand} instance.
      * @throws CommandRegistrationException In case something goes wrong should throw exception.
      */
-    private void extractCommandNames(final BaseCommand baseCommand) throws CommandRegistrationException {
+    private void extractCommandNames(@NotNull final BaseCommand baseCommand) throws CommandRegistrationException {
         final Class<? extends BaseCommand> commandClass = baseCommand.getClass();
         final Command commandAnnotation = AnnotationUtil.getAnnotation(commandClass, Command.class);
 

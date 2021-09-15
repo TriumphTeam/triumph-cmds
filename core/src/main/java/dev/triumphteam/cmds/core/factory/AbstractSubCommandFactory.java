@@ -53,6 +53,7 @@ import dev.triumphteam.cmds.core.requirement.RequirementKey;
 import dev.triumphteam.cmds.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmds.core.requirement.RequirementResolver;
 import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,6 +71,15 @@ import java.util.stream.Collectors;
 import static dev.triumphteam.cmds.core.factory.AnnotationUtil.getAnnotation;
 import static dev.triumphteam.cmds.core.flag.internal.FlagValidator.validate;
 
+/**
+ * Abstracts most of the "extracting" from sub command annotations, allows for extending.
+ * <br/>
+ * I know this could be done better, but couldn't think of a better way.
+ * If you do please PR or let me know on my discord!
+ *
+ * @param <S>  The sender type.
+ * @param <SC> The sub command type.
+ */
 public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cmds.core.SubCommand<S>> {
 
     private final BaseCommand baseCommand;
@@ -119,6 +129,11 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
     @Nullable
     public abstract SC create(@NotNull final String parentName);
 
+    /**
+     * Allows for customizing the argument parsing, for example <code>@Value</code> and <code>@Completion</code> annotations.
+     *
+     * @param method The method to search from.
+     */
     protected abstract void extractArguments(@NotNull final Method method);
 
     /**
@@ -151,23 +166,54 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         return isDefault;
     }
 
-    // TODO comments
+    /**
+     * Gets the {@link BaseCommand} instance, so it can be used later to invoke.
+     *
+     * @return The base command instance.
+     */
+    @NotNull
     protected BaseCommand getBaseCommand() {
         return baseCommand;
     }
 
+    /**
+     * Gets the method.
+     *
+     * @return The method.
+     */
+    @NotNull
     protected Method getMethod() {
         return method;
     }
 
+    /**
+     * Gets a set with the requirements.
+     *
+     * @return The requirements.
+     */
+    @NotNull
     protected Set<Requirement<S>> getRequirements() {
         return requirements;
     }
 
+    /**
+     * Gets the message registry.
+     *
+     * @return The message registry.
+     */
+    @NotNull
     protected MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
     }
 
+    /**
+     * Simple utility method for creating a new exception using the method and base command class.
+     *
+     * @param message The main message to pass to the exception.
+     * @return A new {@link SubCommandRegistrationException}.
+     */
+    @NotNull
+    @Contract("_ -> new")
     protected SubCommandRegistrationException createException(@NotNull final String message) {
         return new SubCommandRegistrationException(message, method, baseCommand.getClass());
     }
@@ -177,10 +223,16 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      *
      * @return The arguments list.
      */
+    @NotNull
     protected List<Argument<S, ?>> getArguments() {
         return arguments;
     }
 
+    /**
+     * Creates and adds the argument to the arguments list.
+     *
+     * @param parameter The current parameter to get data from.
+     */
     protected void createArgument(@NotNull final Parameter parameter) {
         final Class<?> type = parameter.getType();
         final String parameterName = parameter.getName();
@@ -198,6 +250,8 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
             return;
         }
 
+        // Handles collection argument.
+        // TODO: Add more collection types.
         if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
             final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
             final Type[] types = parameterizedType.getActualTypeArguments();
@@ -227,6 +281,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
             return;
         }
 
+        // All other types default to the resolver.
         final ArgumentResolver<S> resolver = argumentRegistry.getResolver(type);
         if (resolver == null) {
             throw createException("No argument of type \"" + type.getName() + "\" registered");
@@ -235,16 +290,19 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         addArgument(new ResolverArgument<>(parameterName, type, resolver, optional));
     }
 
+    /**
+     * Utility to add the argument to the list.
+     *
+     * @param argument The created argument.
+     */
     private void addArgument(@NotNull final Argument<S, ?> argument) {
         arguments.add(argument);
     }
 
     /**
      * Extracts the data from the method to retrieve the sub command name or the default name.
-     *
-     * @throws SubCommandRegistrationException Throws exception if the sub command annotation has an empty command.
      */
-    private void extractSubCommandNames() throws SubCommandRegistrationException {
+    private void extractSubCommandNames() {
         final Default defaultAnnotation = getAnnotation(method, Default.class);
         final SubCommand subCommandAnnotation = getAnnotation(method, SubCommand.class);
 
@@ -267,6 +325,9 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         }
     }
 
+    /**
+     * Extract all the flag data for the subcommand from the method.
+     */
     private void extractFlags() {
         final CommandFlags commandFlags = getAnnotation(method, CommandFlags.class);
         if (commandFlags == null) return;
@@ -304,18 +365,21 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
                 }
             }
 
-            final CommandFlag<S> commandFlag = new CommandFlag<>(
-                    flag,
-                    longFlag,
-                    argument,
-                    flagAnnotation.optionalArg(),
-                    flagAnnotation.required()
+            flagGroup.addFlag(
+                    new CommandFlag<>(
+                            flag,
+                            longFlag,
+                            argument,
+                            flagAnnotation.optionalArg(),
+                            flagAnnotation.required()
+                    )
             );
-
-            flagGroup.addFlag(commandFlag);
         }
     }
 
+    /**
+     * Extract all the requirement data for the sub command from the method.
+     */
     public void extractRequirements() {
         final Requirements requirementsAnnotation = getAnnotation(method, Requirements.class);
         if (requirementsAnnotation == null) {
