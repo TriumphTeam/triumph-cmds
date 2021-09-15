@@ -27,14 +27,21 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * A limitless argument is an argument type that won't check for argument size.
+ * For example: Lists, Arrays, etc.
+ *
+ * @param <S> The sender type.
+ */
 public abstract class LimitlessArgument<S> extends Argument<S, List<String>> {
 
     public LimitlessArgument(final @NotNull String name, final @NotNull Class<?> type, final boolean isOptional) {
         super(name, type, isOptional);
     }
 
-    @NotNull
     @Override
-    public abstract Object resolve(@NotNull S sender, @NotNull final List<String> value);
+    public String toString() {
+        return "LimitlessArgument{super=" + super.toString() + "}";
+    }
 
 }

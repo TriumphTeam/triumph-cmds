@@ -27,6 +27,16 @@ import dev.triumphteam.cmds.core.argument.ArgumentResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
+/**
+ * Normal {@link StringArgument}.
+ * Basically the main implementation.
+ * Uses an {@link ArgumentResolver} from the {@link dev.triumphteam.cmds.core.argument.ArgumentRegistry}.
+ * Allows you to register many other simple argument types.
+ *
+ * @param <S> The sender type.
+ */
 public final class ResolverArgument<S> extends StringArgument<S> {
 
     private final ArgumentResolver<S> resolver;
@@ -41,10 +51,38 @@ public final class ResolverArgument<S> extends StringArgument<S> {
         this.resolver = resolver;
     }
 
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The {@link String} argument value.
+     * @return An Object value of the correct type, based on the result from the {@link ArgumentResolver}.
+     */
     @Nullable
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final String value) {
+    public Object resolve(@NotNull final S sender, @NotNull final String value) {
         return resolver.resolve(sender, value);
     }
 
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        final ResolverArgument<?> that = (ResolverArgument<?>) o;
+        return resolver.equals(that.resolver);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), resolver);
+    }
+
+    @Override
+    public String toString() {
+        return "ResolverArgument{" +
+                "resolver=" + resolver +
+                ", super=" + super.toString() + "}";
+    }
+    
 }

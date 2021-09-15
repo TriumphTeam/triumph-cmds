@@ -29,8 +29,15 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
+/**
+ * An argument type for {@link Enum}s.
+ * This is needed instead of the normal {@link ResolverArgument} because of different types of enums, which requires the class.
+ *
+ * @param <S> The sender type.
+ */
 public final class EnumArgument<S> extends StringArgument<S> {
 
     private static final Map<Class<? extends Enum<?>>, Map<String, WeakReference<? extends Enum<?>>>> ENUM_CONSTANT_CACHE = new WeakHashMap<>();
@@ -49,9 +56,16 @@ public final class EnumArgument<S> extends StringArgument<S> {
         populateCache(type);
     }
 
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The {@link String} argument value.
+     * @return An {@link Enum} value of the correct type.
+     */
     @Nullable
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final String value) {
+    public Object resolve(@NotNull final S sender, @NotNull final String value) {
         final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
         if (reference == null) return null;
         return reference.get();
@@ -89,4 +103,24 @@ public final class EnumArgument<S> extends StringArgument<S> {
         return result;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        final EnumArgument<?> that = (EnumArgument<?>) o;
+        return enumType.equals(that.enumType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), enumType);
+    }
+
+    @Override
+    public String toString() {
+        return "EnumArgument{" +
+                "enumType=" + enumType +
+                ", super=" + super.toString() + "}";
+    }
 }

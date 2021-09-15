@@ -33,6 +33,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The argument registry holds simple types of all common argument types.
+ * Also allows for registration of custom ones.
+ * Each platform will introduce their own new ones by default.
+ *
+ * @param <S> The sender type.
+ */
 public final class ArgumentRegistry<S> {
 
     private final Map<Class<?>, ArgumentResolver<S>> arguments = new HashMap<>();
@@ -57,10 +64,22 @@ public final class ArgumentRegistry<S> {
         register(String.class, (sender, arg) -> arg);
     }
 
+    /**
+     * Registers a new argument type.
+     *
+     * @param clazz    The {@link Class} type the argument should be.
+     * @param argument The {@link ArgumentResolver} with the resolution of the argument.
+     */
     public void register(@NotNull final Class<?> clazz, final ArgumentResolver<S> argument) {
         arguments.put(clazz, argument);
     }
 
+    /**
+     * Gets an argument resolver from the Map.
+     *
+     * @param clazz The {@link Class} type the argument.
+     * @return An {@link ArgumentResolver} or null if it doesn't exist.
+     */
     @Nullable
     public ArgumentResolver<S> getResolver(@NotNull final Class<?> clazz) {
         return arguments.get(clazz);

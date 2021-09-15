@@ -24,9 +24,17 @@
 package dev.triumphteam.cmds.core.argument.types;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * Joined string argument, a {@link LimitlessArgument}.
+ * Returns a single {@link String} that was joined from a {@link List} of arguments.
+ *
+ * @param <S> The sender type.
+ */
 public final class JoinedStringArgument<S> extends LimitlessArgument<S> {
 
     private final CharSequence delimiter;
@@ -40,10 +48,38 @@ public final class JoinedStringArgument<S> extends LimitlessArgument<S> {
         this.delimiter = delimiter;
     }
 
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The arguments {@link List}.
+     * @return A single {@link String} with the joined {@link List}.
+     */
     @NotNull
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
         return String.join(delimiter, value);
+    }
+
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        final JoinedStringArgument<?> that = (JoinedStringArgument<?>) o;
+        return delimiter.equals(that.delimiter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), delimiter);
+    }
+
+    @Override
+    public String toString() {
+        return "JoinedStringArgument{" +
+                "delimiter=" + delimiter +
+                ", super=" + super.toString() + "}";
     }
 
 }

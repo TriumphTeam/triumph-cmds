@@ -25,10 +25,21 @@ package dev.triumphteam.cmds.core.argument.types;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Differently from the {@link LimitlessArgument}, this argument will always be just one string as the arg value.
+ * And will return one single value as the resolved value.
+ *
+ * @param <S> The sender type.
+ */
 public abstract class StringArgument<S> extends Argument<S, String> {
 
-    public StringArgument(final @NotNull String name, final @NotNull Class<?> type, final boolean isOptional) {
-        super(name, type, isOptional);
+    public StringArgument(@NotNull final String name, @NotNull final Class<?> type, final boolean optional) {
+        super(name, type, optional);
     }
-    
+
+    @Override
+    public String toString() {
+        return "StringArgument{super=" + super.toString() + "}";
+    }
+
 }

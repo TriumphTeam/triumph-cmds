@@ -26,10 +26,22 @@ package dev.triumphteam.cmds.core.argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Resolver for custom argument types.
+ *
+ * @param <S> The sender type.
+ */
 @FunctionalInterface
 public interface ArgumentResolver<S> {
 
+    /**
+     * Resolves the current argument based on the given arg.
+     *
+     * @param sender The sender which can be used for checks.
+     * @param arg    The typed argument.
+     * @return An Object with the resolved value or null.
+     */
     @Nullable
-    Object resolve(@NotNull S sender, @NotNull final String arg);
+    Object resolve(@NotNull final S sender, @NotNull final String arg);
 
 }

@@ -27,16 +27,32 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Array argument, a {@link LimitlessArgument} but returns an array instead.
+ *
+ * @param <S> The sender type.
+ */
 public final class ArrayArgument<S> extends LimitlessArgument<S> {
 
     public ArrayArgument(@NotNull final String name, final boolean optional) {
         super(name, String.class, optional);
     }
 
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The arguments {@link List}.
+     * @return A String array as the resolved value.
+     */
     @NotNull
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
         return value.toArray(new String[0]);
     }
 
+    @Override
+    public String toString() {
+        return "ArrayArgument{super=" + super.toString() + "}";
+    }
 }

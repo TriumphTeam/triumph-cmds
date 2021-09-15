@@ -28,9 +28,17 @@ import dev.triumphteam.cmds.core.flag.internal.FlagGroup;
 import dev.triumphteam.cmds.core.flag.internal.FlagParser;
 import dev.triumphteam.cmds.core.flag.internal.result.ParseResult;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * Flag argument, a {@link LimitlessArgument} but returns a {@link ParseResult} instead.
+ * Which contains a {@link Flags} object and the left over to be passed to another {@link LimitlessArgument}.
+ *
+ * @param <S> The sender type.
+ */
 public final class FlagArgument<S> extends LimitlessArgument<S> {
 
     private final FlagGroup<S> flagGroup;
@@ -44,10 +52,38 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
         this.flagGroup = flagGroup;
     }
 
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The arguments {@link List}.
+     * @return A {@link ParseResult} which contains the flags and left overs.
+     */
     @NotNull
     @Override
-    public ParseResult<S> resolve(@NotNull S sender, @NotNull final List<String> value) {
+    public ParseResult<S> resolve(@NotNull final S sender, @NotNull final List<String> value) {
         return FlagParser.parse(flagGroup, sender, value);
+    }
+
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        final FlagArgument<?> that = (FlagArgument<?>) o;
+        return flagGroup.equals(that.flagGroup);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), flagGroup);
+    }
+
+    @Override
+    public String toString() {
+        return "FlagArgument{" +
+                "flagGroup=" + flagGroup +
+                ", super=" + super.toString() + "}";
     }
 
 }

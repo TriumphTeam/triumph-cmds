@@ -24,11 +24,19 @@
 package dev.triumphteam.cmds.core.argument.types;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Collection argument, a {@link LimitlessArgument} but returns a {@link List} instead.
+ * Currently, only supports {@link List} and {@link Set}.
+ *
+ * @param <S> The sender type.
+ */
 public final class CollectionArgument<S> extends LimitlessArgument<S> {
 
     private final Class<?> collectionType;
@@ -42,11 +50,38 @@ public final class CollectionArgument<S> extends LimitlessArgument<S> {
         this.collectionType = collectionType;
     }
 
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The arguments {@link List}.
+     * @return A {@link java.util.Collection} type as the resolved value.
+     */
     @NotNull
     @Override
-    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
         if (collectionType == Set.class) return new HashSet<>(value);
         return value;
     }
 
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        final CollectionArgument<?> that = (CollectionArgument<?>) o;
+        return collectionType.equals(that.collectionType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), collectionType);
+    }
+
+    @Override
+    public String toString() {
+        return "CollectionArgument{" +
+                "collectionType=" + collectionType +
+                ", super=" + super.toString() + "}";
+    }
 }
