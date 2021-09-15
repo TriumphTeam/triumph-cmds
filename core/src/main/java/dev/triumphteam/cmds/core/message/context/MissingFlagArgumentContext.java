@@ -21,24 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.implementation.factory
+package dev.triumphteam.cmds.core.message.context;
 
-import dev.triumphteam.cmds.core.BaseCommand
-import dev.triumphteam.cmds.core.argument.ArgumentRegistry
-import dev.triumphteam.cmds.core.factory.AbstractCommandFactory
-import dev.triumphteam.cmds.core.message.MessageRegistry
-import dev.triumphteam.cmds.core.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.implementation.TestCommand
-import dev.triumphteam.cmds.core.implementation.TestSender
+import dev.triumphteam.cmds.core.flag.internal.result.RequiredArgResult;
+import org.jetbrains.annotations.NotNull;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+/**
+ * Context for when user types an invalid argument based on its type.
+ */
+public final class MissingFlagArgumentContext extends AbstractMessageContext {
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+    private final RequiredArgResult<?> result;
+
+    public MissingFlagArgumentContext(
+            @NotNull final String command,
+            @NotNull final String subCommand,
+            @NotNull final RequiredArgResult<?> result
+    ) {
+        super(command, subCommand);
+        this.result = result;
     }
+
+    @NotNull
+    public String getFlag() {
+        return result.getFlag();
+    }
+
+    @NotNull
+    public Class<?> getArgumentType() {
+        return result.getArgumentType();
+    }
+
 }

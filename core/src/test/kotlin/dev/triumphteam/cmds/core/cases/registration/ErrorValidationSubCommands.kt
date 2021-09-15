@@ -32,7 +32,7 @@ import dev.triumphteam.cmds.core.annotations.Optional
 import dev.triumphteam.cmds.core.annotations.SubCommand
 import dev.triumphteam.cmds.core.cases.execution.COMMAND_NAME
 import dev.triumphteam.cmds.core.cases.execution.SUB_COMMAND_NAME
-import dev.triumphteam.cmds.core.command.flag.Flags
+import dev.triumphteam.cmds.core.flag.Flags
 import dev.triumphteam.cmds.core.implementation.TestSender
 
 @Command(COMMAND_NAME)

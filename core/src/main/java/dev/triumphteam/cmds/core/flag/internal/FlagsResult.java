@@ -21,24 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.implementation.factory
+package dev.triumphteam.cmds.core.flag.internal;
 
-import dev.triumphteam.cmds.core.BaseCommand
-import dev.triumphteam.cmds.core.argument.ArgumentRegistry
-import dev.triumphteam.cmds.core.factory.AbstractCommandFactory
-import dev.triumphteam.cmds.core.message.MessageRegistry
-import dev.triumphteam.cmds.core.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.implementation.TestCommand
-import dev.triumphteam.cmds.core.implementation.TestSender
+import dev.triumphteam.cmds.core.flag.Flags;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+import java.util.HashMap;
+import java.util.Map;
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+// TODO: 9/11/2021 FINISH THIS
+final class FlagsResult implements Flags {
+
+    private final Map<String, Object> flags = new HashMap<>();
+
+    void addFlag(@NotNull final CommandFlag<?> flag) {
+        addFlag(flag, null);
     }
+
+    void addFlag(@NotNull final CommandFlag<?> flag, @Nullable final Object value) {
+        final String shortFlag = flag.getFlag();
+        final String longFlag = flag.getLongFlag();
+        if (shortFlag != null) flags.put(shortFlag, value);
+        if (longFlag != null) flags.put(longFlag, value);
+    }
+
+    @Override
+    public String toString() {
+        return "FlagsResult{" +
+                "flags=" + flags +
+                '}';
+    }
+
 }

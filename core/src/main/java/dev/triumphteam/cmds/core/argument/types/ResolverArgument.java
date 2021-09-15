@@ -21,24 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.implementation.factory
+package dev.triumphteam.cmds.core.argument.types;
 
-import dev.triumphteam.cmds.core.BaseCommand
-import dev.triumphteam.cmds.core.argument.ArgumentRegistry
-import dev.triumphteam.cmds.core.factory.AbstractCommandFactory
-import dev.triumphteam.cmds.core.message.MessageRegistry
-import dev.triumphteam.cmds.core.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.implementation.TestCommand
-import dev.triumphteam.cmds.core.implementation.TestSender
+import dev.triumphteam.cmds.core.argument.ArgumentResolver;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+public final class ResolverArgument<S> extends StringArgument<S> {
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+    private final ArgumentResolver<S> resolver;
+
+    public ResolverArgument(
+            @NotNull final String name,
+            @NotNull final Class<?> type,
+            @NotNull final ArgumentResolver<S> resolver,
+            final boolean optional
+    ) {
+        super(name, type, optional);
+        this.resolver = resolver;
     }
+
+    @Nullable
+    @Override
+    public Object resolve(@NotNull S sender, @NotNull final String value) {
+        return resolver.resolve(sender, value);
+    }
+
 }

@@ -25,10 +25,10 @@ package dev.triumphteam.cmds.core.implementation
 
 import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.CommandManager
-import dev.triumphteam.cmds.core.command.message.MessageKey
-import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext
-import dev.triumphteam.cmds.core.command.message.context.MessageContext
-import dev.triumphteam.cmds.core.command.requirement.RequirementKey
+import dev.triumphteam.cmds.core.message.MessageKey
+import dev.triumphteam.cmds.core.message.context.DefaultMessageContext
+import dev.triumphteam.cmds.core.message.context.MessageContext
+import dev.triumphteam.cmds.core.requirement.RequirementKey
 import dev.triumphteam.cmds.core.implementation.factory.TestCommandFactory
 
 class TestCommandManager : CommandManager<TestSender>() {

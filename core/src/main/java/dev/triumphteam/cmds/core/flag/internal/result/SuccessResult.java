@@ -21,24 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.implementation.factory
+package dev.triumphteam.cmds.core.flag.internal.result;
 
-import dev.triumphteam.cmds.core.BaseCommand
-import dev.triumphteam.cmds.core.argument.ArgumentRegistry
-import dev.triumphteam.cmds.core.factory.AbstractCommandFactory
-import dev.triumphteam.cmds.core.message.MessageRegistry
-import dev.triumphteam.cmds.core.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.implementation.TestCommand
-import dev.triumphteam.cmds.core.implementation.TestSender
+import dev.triumphteam.cmds.core.flag.Flags;
+import org.jetbrains.annotations.NotNull;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+import java.util.List;
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+public final class SuccessResult<S> implements ParseResult<S> {
+
+    private final List<String> leftOvers;
+    private final Flags flags;
+
+    public SuccessResult(
+            @NotNull final List<String> leftOvers,
+            @NotNull final Flags flags
+    ) {
+        this.leftOvers = leftOvers;
+        this.flags = flags;
     }
+
+    @NotNull
+    public List<String> getLeftOvers() {
+        return leftOvers;
+    }
+
+    @NotNull
+    public Flags getFlags() {
+        return flags;
+    }
+
+    // TODO: 9/11/2021 HASH, TOSTRING, ETC
+
 }

@@ -21,24 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.implementation.factory
+package dev.triumphteam.cmds.core.requirement;
 
-import dev.triumphteam.cmds.core.BaseCommand
-import dev.triumphteam.cmds.core.argument.ArgumentRegistry
-import dev.triumphteam.cmds.core.factory.AbstractCommandFactory
-import dev.triumphteam.cmds.core.message.MessageRegistry
-import dev.triumphteam.cmds.core.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.implementation.TestCommand
-import dev.triumphteam.cmds.core.implementation.TestSender
+import dev.triumphteam.cmds.core.message.MessageKey;
+import dev.triumphteam.cmds.core.message.context.MessageContext;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+public final class Requirement<S> {
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+    private final RequirementResolver<S> resolver;
+    private final MessageKey<MessageContext> messageKey;
+
+    public Requirement(
+            @NotNull final RequirementResolver<S> resolver,
+            @Nullable final MessageKey<MessageContext> messageKey
+    ) {
+        this.resolver = resolver;
+        this.messageKey = messageKey;
+    }
+
+    @Nullable
+    public MessageKey<MessageContext> getMessageKey() {
+        return messageKey;
+    }
+
+    public boolean test(@NotNull final S sender) {
+        return resolver.resolve(sender);
+    }
+
+    @Override
+    public String toString() {
+        return "Requirement{" +
+                "resolver=" + resolver +
+                ", messageKey=" + messageKey +
+                '}';
     }
 }

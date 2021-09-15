@@ -21,24 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.implementation.factory
+package dev.triumphteam.cmds.core.argument.types;
 
-import dev.triumphteam.cmds.core.BaseCommand
-import dev.triumphteam.cmds.core.argument.ArgumentRegistry
-import dev.triumphteam.cmds.core.factory.AbstractCommandFactory
-import dev.triumphteam.cmds.core.message.MessageRegistry
-import dev.triumphteam.cmds.core.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.implementation.TestCommand
-import dev.triumphteam.cmds.core.implementation.TestSender
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+public abstract class Argument<S, T> {
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+    private final String name;
+    private final Class<?> type;
+    private final boolean isOptional;
+
+    public Argument(
+            @NotNull final String name,
+            @NotNull final Class<?> type,
+            final boolean isOptional
+    ) {
+        this.name = name;
+        this.type = type;
+        this.isOptional = isOptional;
+    }
+
+    @NotNull
+    public String getName() {
+        return name;
+    }
+
+    @NotNull
+    public Class<?> getType() {
+        return type;
+    }
+
+    public boolean isOptional() {
+        return isOptional;
+    }
+
+    @Nullable
+    public abstract Object resolve(@NotNull S sender, @NotNull final T value);
+
+    @Override
+    public String toString() {
+        return "Argument{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                ", isOptional=" + isOptional +
+                '}';
     }
 }

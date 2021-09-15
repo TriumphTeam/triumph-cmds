@@ -21,24 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.implementation.factory
+package dev.triumphteam.cmds.core.argument.types;
 
-import dev.triumphteam.cmds.core.BaseCommand
-import dev.triumphteam.cmds.core.argument.ArgumentRegistry
-import dev.triumphteam.cmds.core.factory.AbstractCommandFactory
-import dev.triumphteam.cmds.core.message.MessageRegistry
-import dev.triumphteam.cmds.core.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.implementation.TestCommand
-import dev.triumphteam.cmds.core.implementation.TestSender
+import org.jetbrains.annotations.NotNull;
 
-class TestCommandFactory(
-    baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandFactory<TestCommand>(baseCommand) {
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
+public final class CollectionArgument<S> extends LimitlessArgument<S> {
+
+    private final Class<?> collectionType;
+
+    public CollectionArgument(
+            @NotNull final String name,
+            @NotNull final Class<?> collectionType,
+            final boolean optional
+    ) {
+        super(name, String.class, optional);
+        this.collectionType = collectionType;
     }
+
+    @NotNull
+    @Override
+    public Object resolve(@NotNull S sender, @NotNull final List<String> value) {
+        if (collectionType == Set.class) return new HashSet<>(value);
+        return value;
+    }
+
 }

@@ -30,7 +30,7 @@ import dev.triumphteam.cmds.core.annotations.Flag
 import dev.triumphteam.cmds.core.annotations.Requirement
 import dev.triumphteam.cmds.core.annotations.Requirements
 import dev.triumphteam.cmds.core.annotations.SubCommand
-import dev.triumphteam.cmds.core.command.flag.Flags
+import dev.triumphteam.cmds.core.flag.Flags
 import dev.triumphteam.cmds.core.implementation.TestSender
 
 const val SUB_COMMAND_NAME = "bar"

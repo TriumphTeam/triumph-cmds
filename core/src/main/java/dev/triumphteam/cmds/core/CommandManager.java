@@ -23,15 +23,15 @@
  */
 package dev.triumphteam.cmds.core;
 
-import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry;
-import dev.triumphteam.cmds.core.command.argument.ArgumentResolver;
-import dev.triumphteam.cmds.core.command.message.context.MessageContext;
-import dev.triumphteam.cmds.core.command.message.MessageKey;
-import dev.triumphteam.cmds.core.command.message.MessageRegistry;
-import dev.triumphteam.cmds.core.command.message.MessageResolver;
-import dev.triumphteam.cmds.core.command.requirement.RequirementKey;
-import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry;
-import dev.triumphteam.cmds.core.command.requirement.RequirementResolver;
+import dev.triumphteam.cmds.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmds.core.argument.ArgumentResolver;
+import dev.triumphteam.cmds.core.message.context.MessageContext;
+import dev.triumphteam.cmds.core.message.MessageKey;
+import dev.triumphteam.cmds.core.message.MessageRegistry;
+import dev.triumphteam.cmds.core.message.MessageResolver;
+import dev.triumphteam.cmds.core.requirement.RequirementKey;
+import dev.triumphteam.cmds.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmds.core.requirement.RequirementResolver;
 import org.jetbrains.annotations.NotNull;
 
 /**

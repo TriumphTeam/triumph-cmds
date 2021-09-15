@@ -25,14 +25,14 @@ package dev.triumphteam.cmds.core.implementation
 
 import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.annotations.Default
-import dev.triumphteam.cmds.core.command.Command
-import dev.triumphteam.cmds.core.command.SimpleSubCommand
-import dev.triumphteam.cmds.core.command.SubCommand
-import dev.triumphteam.cmds.core.command.argument.ArgumentRegistry
-import dev.triumphteam.cmds.core.command.message.MessageKey
-import dev.triumphteam.cmds.core.command.message.MessageRegistry
-import dev.triumphteam.cmds.core.command.message.context.DefaultMessageContext
-import dev.triumphteam.cmds.core.command.requirement.RequirementRegistry
+import dev.triumphteam.cmds.core.Command
+import dev.triumphteam.cmds.core.SimpleSubCommand
+import dev.triumphteam.cmds.core.SubCommand
+import dev.triumphteam.cmds.core.argument.ArgumentRegistry
+import dev.triumphteam.cmds.core.message.MessageKey
+import dev.triumphteam.cmds.core.message.MessageRegistry
+import dev.triumphteam.cmds.core.message.context.DefaultMessageContext
+import dev.triumphteam.cmds.core.requirement.RequirementRegistry
 import dev.triumphteam.cmds.core.implementation.factory.TestSubCommandFactory
 import java.lang.reflect.Modifier
 
