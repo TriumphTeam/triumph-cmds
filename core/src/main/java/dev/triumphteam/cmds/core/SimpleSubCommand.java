@@ -53,6 +53,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * SubCommand implementation.
+ * Might be better to rename this to something different.
+ *
+ * @param <S> The sender type.
+ */
 public final class SimpleSubCommand<S> implements SubCommand<S> {
 
     private final BaseCommand baseCommand;
@@ -378,7 +384,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             }
         }
     }
-    
+
     @NotNull
     @Override
     public String toString() {
