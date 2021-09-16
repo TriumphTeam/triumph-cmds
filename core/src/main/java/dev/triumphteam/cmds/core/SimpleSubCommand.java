@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmds.core;
 
+import dev.triumphteam.cmds.core.annotations.Default;
 import dev.triumphteam.cmds.core.argument.types.Argument;
 import dev.triumphteam.cmds.core.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.argument.types.LimitlessArgument;
@@ -94,32 +95,44 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         checkArguments();
     }
 
+    /**
+     * Gets the sub command name.
+     * If the sub command is default the name will be {@link Default#DEFAULT_CMD_NAME}.
+     *
+     * @return The sub command name.
+     */
     @NotNull
     public String getName() {
         return name;
     }
 
+    /**
+     * Gets a list with the command aliases.
+     *
+     * @return The command alias.
+     */
     @NotNull
     public List<String> getAlias() {
         return alias;
     }
 
-    @NotNull
-    @Override
-    public Method getMethod() {
-        return method;
-    }
-
-    @Override
-    public List<Argument<S, ?>> getArguments() {
-        return arguments;
-    }
-
+    /**
+     * Checks if the sub command is default.
+     * Can also just check if the name is {@link Default#DEFAULT_CMD_NAME}.
+     *
+     * @return Whether the sub command is default.
+     */
     @Override
     public boolean isDefault() {
         return isDefault;
     }
 
+    /**
+     * Executes the sub command.
+     *
+     * @param sender The sender.
+     * @param args   The arguments to pass to the executor.
+     */
     @Override
     public void execute(@NotNull final S sender, @NotNull final List<String> args) {
         if (!meetRequirements(sender)) return;
@@ -147,6 +160,14 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         }
     }
 
+    /**
+     * Used for checking if the arguments are valid and adding them to the invoke arguments.
+     *
+     * @param sender          The sender of the command.
+     * @param invokeArguments A list with the arguments that'll be used on the invoke of the command method.
+     * @param commandArgs     The command arguments type.
+     * @return False if any argument fails to pass.
+     */
     @SuppressWarnings("unchecked")
     private boolean validateAndCollectArguments(
             @NotNull final S sender,
@@ -196,6 +217,12 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return true;
     }
 
+    /**
+     * Checks if the requirements to run the command are met.
+     *
+     * @param sender The sender of the command.
+     * @return Whether all requirements are met.
+     */
     private boolean meetRequirements(@NotNull final S sender) {
         for (final Requirement<S> requirement : requirements) {
             if (!requirement.isMet(sender)) {
@@ -273,6 +300,14 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return true;
     }
 
+    /**
+     * Simply gets the parsed flags from the argument
+     *
+     * @param argument The argument to check if it's a flag argument which should always be.
+     * @param sender   The sender of the command.
+     * @param args     The remaining arguments typed.
+     * @return The {@link ParseResult} of the flags.
+     */
     private ParseResult<S> getFlagResult(
             @NotNull final LimitlessArgument<S> argument,
             @NotNull final S sender,
@@ -285,6 +320,14 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return flagArgument.resolve(sender, args);
     }
 
+    /**
+     * Gets the command args.
+     * Removes the sub command arg if current is default.
+     * TODO check for alias to default.
+     *
+     * @param args The typed arguments.
+     * @return A list with only command arguments.
+     */
     @NotNull
     private List<String> getCommandArgs(@NotNull final List<String> args) {
         if (!isDefault) {
@@ -294,18 +337,35 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         return args;
     }
 
+    /**
+     * Gets an argument value or null.
+     *
+     * @param list  The list to check from.
+     * @param index The current index of the argument.
+     * @return The argument name or null.
+     */
     @Nullable
     private String valueOrNull(@NotNull final List<String> list, final int index) {
         if (index >= list.size()) return null;
         return list.get(index);
     }
 
+    /**
+     * Gets the left over of the arguments.
+     *
+     * @param list The list with all the arguments.
+     * @param from The index from which should start removing.
+     * @return A list with the leftover arguments.
+     */
     @NotNull
     private List<String> leftOvers(@NotNull final List<String> list, final int from) {
         if (from > list.size()) return Collections.emptyList();
         return list.subList(from, list.size());
     }
 
+    /**
+     * Checks and records if the arguments contain Flags or/and LimitlessArguments.
+     */
     private void checkArguments() {
         for (final Argument<S, ?> argument : arguments) {
             if (argument instanceof FlagArgument) {
@@ -318,7 +378,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             }
         }
     }
-
+    
     @NotNull
     @Override
     public String toString() {

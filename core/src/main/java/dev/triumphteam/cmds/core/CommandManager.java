@@ -35,7 +35,9 @@ import dev.triumphteam.cmds.core.requirement.RequirementResolver;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Base command manager for all platforms
+ * Base command manager for all platforms.
+ *
+ * @param <S> The sender type.
  */
 public abstract class CommandManager<S> {
 
@@ -44,16 +46,16 @@ public abstract class CommandManager<S> {
     private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
 
     /**
-     * Main registering method to be implemented in other platform command managers
+     * Main registering method to be implemented in other platform command managers.
      *
-     * @param command The {@link BaseCommand} to be registered
+     * @param command The {@link BaseCommand} to be registered.
      */
     public abstract void registerCommand(@NotNull final BaseCommand command);
 
     /**
-     * Method to register commands with vararg
+     * Method to register commands with vararg.
      *
-     * @param commands A list of commands to be registered
+     * @param commands A list of commands to be registered.
      */
     public final void registerCommand(@NotNull final BaseCommand... commands) {
         for (final BaseCommand command : commands) {
@@ -62,16 +64,16 @@ public abstract class CommandManager<S> {
     }
 
     /**
-     * Main method for unregistering commands to be implemented in other platform command managers
+     * Main method for unregistering commands to be implemented in other platform command managers.
      *
-     * @param command The {@link BaseCommand} to be unregistered
+     * @param command The {@link BaseCommand} to be unregistered.
      */
     public abstract void unregisterCommand(@NotNull final BaseCommand command);
 
     /**
-     * Method to unregister commands with vararg
+     * Method to unregister commands with vararg.
      *
-     * @param commands A list of commands to be unregistered
+     * @param commands A list of commands to be unregistered.
      */
     public final void unregisterCommands(@NotNull final BaseCommand... commands) {
         for (final BaseCommand command : commands) {
@@ -79,10 +81,22 @@ public abstract class CommandManager<S> {
         }
     }
 
+    /**
+     * Registers a custom argument.
+     *
+     * @param clazz    The class of the argument to be registered.
+     * @param resolver The {@link ArgumentResolver} with the argument resolution.
+     */
     public final void registerArgument(@NotNull final Class<?> clazz, @NotNull final ArgumentResolver<S> resolver) {
         argumentRegistry.register(clazz, resolver);
     }
 
+    /**
+     * Registers a custom message.
+     *
+     * @param key      The {@link MessageKey} of the message to be registered.
+     * @param resolver The {@link ArgumentResolver} with the message sending resolution.
+     */
     public final <C extends MessageContext> void registerMessage(
             @NotNull final MessageKey<C> key,
             @NotNull final MessageResolver<S, C> resolver
@@ -90,6 +104,12 @@ public abstract class CommandManager<S> {
         messageRegistry.register(key, resolver);
     }
 
+    /**
+     * Registers a requirement.
+     *
+     * @param key      The {@link RequirementKey} of the requirement to be registered.
+     * @param resolver The {@link ArgumentResolver} with the requirement resolution.
+     */
     public final void registerRequirement(
             @NotNull final RequirementKey key,
             @NotNull final RequirementResolver<S> resolver
@@ -97,14 +117,29 @@ public abstract class CommandManager<S> {
         requirementRegistry.register(key, resolver);
     }
 
+    /**
+     * Gets the {@link ArgumentRegistry}.
+     *
+     * @return The {@link ArgumentRegistry}.
+     */
     protected ArgumentRegistry<S> getArgumentRegistry() {
         return argumentRegistry;
     }
 
+    /**
+     * Gets the {@link RequirementRegistry}.
+     *
+     * @return The {@link RequirementRegistry}.
+     */
     protected RequirementRegistry<S> getRequirementRegistry() {
         return requirementRegistry;
     }
 
+    /**
+     * Gets the {@link MessageRegistry}.
+     *
+     * @return The {@link MessageRegistry}.
+     */
     protected MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
     }

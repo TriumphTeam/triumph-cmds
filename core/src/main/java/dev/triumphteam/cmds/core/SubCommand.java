@@ -23,27 +23,49 @@
  */
 package dev.triumphteam.cmds.core;
 
-import dev.triumphteam.cmds.core.argument.types.Argument;
+import dev.triumphteam.cmds.core.annotations.Default;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
+/**
+ * Sub command holds its data and its execution.
+ *
+ * @param <S> The sender type.
+ */
 public interface SubCommand<S> {
 
+    /**
+     * Gets the sub command name.
+     * If the sub command is default the name will be {@link Default#DEFAULT_CMD_NAME}.
+     *
+     * @return The sub command name.
+     */
     @NotNull
     String getName();
 
+    /**
+     * Gets a list with the command aliases.
+     *
+     * @return The command alias.
+     */
     @NotNull
     List<String> getAlias();
 
-    @NotNull
-    Method getMethod();
-
+    /**
+     * Checks if the sub command is default.
+     * Can also just check if the name is {@link Default#DEFAULT_CMD_NAME}.
+     *
+     * @return Whether the sub command is default.
+     */
     boolean isDefault();
 
-    List<Argument<S, ?>> getArguments();
-
+    /**
+     * Executes the sub command.
+     *
+     * @param sender The sender.
+     * @param args   The arguments to pass to the executor.
+     */
     void execute(@NotNull S sender, @NotNull final List<String> args);
 
 }

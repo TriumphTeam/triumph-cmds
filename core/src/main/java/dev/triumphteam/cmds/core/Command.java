@@ -23,19 +23,37 @@
  */
 package dev.triumphteam.cmds.core;
 
-import dev.triumphteam.cmds.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Command interface which all platforms will implement.
+ */
 public interface Command {
 
+    /**
+     * Gets the command name.
+     *
+     * @return The command name.
+     */
     @NotNull
     String getName();
 
+    /**
+     * Gets a list with all the command aliases.
+     *
+     * @return The command alias.
+     */
     @NotNull
     List<String> getAlias();
 
+    /**
+     * Adds a new sub command to the command.
+     *
+     * @param baseCommand The {@link BaseCommand} to get the sub commands from.
+     * @return Whether any sub command was added.
+     */
     boolean addSubCommands(@NotNull final BaseCommand baseCommand);
 
 }

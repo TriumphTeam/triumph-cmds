@@ -30,12 +30,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class in which all commands need to extend.
+ */
 public abstract class BaseCommand {
 
-    @Nullable
     private final String command;
-
-    @NotNull
     private final List<String> alias = new ArrayList<>();
 
     /**
@@ -47,6 +47,7 @@ public abstract class BaseCommand {
 
     /**
      * Constructor for alias only
+     *
      * @param alias The alias {@link List}
      */
     public BaseCommand(@Nullable final List<String> alias) {
@@ -55,6 +56,7 @@ public abstract class BaseCommand {
 
     /**
      * Constructor for command name only
+     *
      * @param command The command name
      */
     public BaseCommand(@Nullable final String command) {
@@ -76,6 +78,7 @@ public abstract class BaseCommand {
 
     /**
      * Gets the command name
+     *
      * @return The {@link #command}
      */
     @Nullable
@@ -85,6 +88,7 @@ public abstract class BaseCommand {
 
     /**
      * Gets the list with the aliases for the command
+     *
      * @return The {@link #alias}
      */
     @NotNull

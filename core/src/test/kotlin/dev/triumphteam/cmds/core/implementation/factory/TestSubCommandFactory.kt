@@ -27,9 +27,9 @@ import dev.triumphteam.cmds.core.BaseCommand
 import dev.triumphteam.cmds.core.SimpleSubCommand
 import dev.triumphteam.cmds.core.argument.ArgumentRegistry
 import dev.triumphteam.cmds.core.factory.AbstractSubCommandFactory
+import dev.triumphteam.cmds.core.implementation.TestSender
 import dev.triumphteam.cmds.core.message.MessageRegistry
 import dev.triumphteam.cmds.core.requirement.RequirementRegistry
-import dev.triumphteam.cmds.core.implementation.TestSender
 import java.lang.reflect.Method
 
 class TestSubCommandFactory(
@@ -60,8 +60,7 @@ class TestSubCommandFactory(
             arguments,
             requirements,
             messageRegistry,
-            isDefault,
-            priority
+            isDefault
         )
     }
 
