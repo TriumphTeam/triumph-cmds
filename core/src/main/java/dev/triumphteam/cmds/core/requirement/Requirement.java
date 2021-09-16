@@ -28,6 +28,13 @@ import dev.triumphteam.cmds.core.message.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
+/**
+ * Contains the data for the requirement.
+ *
+ * @param <S> The sender type.
+ */
 public final class Requirement<S> {
 
     private final RequirementResolver<S> resolver;
@@ -41,13 +48,37 @@ public final class Requirement<S> {
         this.messageKey = messageKey;
     }
 
+    /**
+     * The message key which will be used to send the defined message to the sender.
+     *
+     * @return The message key or null if no message should be sent.
+     */
     @Nullable
     public MessageKey<MessageContext> getMessageKey() {
         return messageKey;
     }
 
-    public boolean test(@NotNull final S sender) {
+    /**
+     * Checks if the requirement is met or not.
+     *
+     * @param sender The sender which will be needed to check if the requirement is met or not.
+     * @return Whether the requirement is met.
+     */
+    public boolean isMet(@NotNull final S sender) {
         return resolver.resolve(sender);
+    }
+
+    @Override
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final Requirement<?> that = (Requirement<?>) o;
+        return resolver.equals(that.resolver) && Objects.equals(messageKey, that.messageKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resolver, messageKey);
     }
 
     @Override

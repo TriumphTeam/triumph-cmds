@@ -25,9 +25,20 @@ package dev.triumphteam.cmds.core.requirement;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Functional interface to allow simple requirement registering without the use of any hard coded data.
+ *
+ * @param <S> The command sender type.
+ */
 @FunctionalInterface
 public interface RequirementResolver<S> {
 
+    /**
+     * Resolves the requirement.
+     *
+     * @param sender The sender to check the requirement.
+     * @return Whether the requirement is met or not.
+     */
     boolean resolve(@NotNull final S sender);
 
 }

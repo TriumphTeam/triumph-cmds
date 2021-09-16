@@ -31,6 +31,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Key used to identify the {@link RequirementResolver} in the {@link RequirementRegistry}.
+ */
 public final class RequirementKey extends RegistryKey {
 
     // Holds all registered keys, default and custom ones

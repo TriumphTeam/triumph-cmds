@@ -198,7 +198,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
     private boolean meetRequirements(@NotNull final S sender) {
         for (final Requirement<S> requirement : requirements) {
-            if (!requirement.test(sender)) {
+            if (!requirement.isMet(sender)) {
                 final MessageKey<MessageContext> messageKey = requirement.getMessageKey();
                 if (messageKey != null) {
                     messageRegistry.sendMessage(messageKey, sender, new DefaultMessageContext(parentName, name));

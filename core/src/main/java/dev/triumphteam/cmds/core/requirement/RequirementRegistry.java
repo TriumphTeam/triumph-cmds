@@ -29,6 +29,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Registry used for registering new requirements for all commands to use.
+ *
+ * @param <S> The sender type.
+ */
 public final class RequirementRegistry<S> {
 
     private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
@@ -40,6 +45,12 @@ public final class RequirementRegistry<S> {
         requirements.put(key, resolver);
     }
 
+    /**
+     * Gets the {@link RequirementResolver} for the specific Key.
+     *
+     * @param key The specific key.
+     * @return A saved {@link RequirementResolver}.
+     */
     @Nullable
     public RequirementResolver<S> getRequirement(@NotNull final RequirementKey key) {
         return requirements.get(key);
