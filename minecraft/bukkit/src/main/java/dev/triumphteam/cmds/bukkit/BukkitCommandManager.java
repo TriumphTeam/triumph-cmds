@@ -26,8 +26,8 @@ package dev.triumphteam.cmds.bukkit;
 import dev.triumphteam.cmds.bukkit.command.BukkitCommand;
 import dev.triumphteam.cmds.bukkit.factory.BukkitCommandFactory;
 import dev.triumphteam.cmds.core.BaseCommand;
-import dev.triumphteam.cmds.core.CommandManager;
 import dev.triumphteam.cmds.core.Command;
+import dev.triumphteam.cmds.core.CommandManager;
 import dev.triumphteam.cmds.core.exceptions.CommandRegistrationException;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -105,8 +105,7 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
 
             return (CommandMap) getCommandMap.invoke(server);
         } catch (final Exception ignored) {
-            // TODO make this message better
-            throw new CommandRegistrationException("Could not get Command Map, Commands won't be registered!");
+            throw new CommandRegistrationException("Unable to invoke Command Map. TriumphCMDs will be unable to register Commands!");
         }
     }
 
@@ -118,7 +117,7 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
             //noinspection unchecked
             return (Map<String, org.bukkit.command.Command>) bukkitCommands.get(commandMap);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new CommandRegistrationException("Could not get Command Map, Commands won't be registered!");
+            throw new CommandRegistrationException("Unable to invoke Command Map. TriumphCMDs will be unable to register Commands!");
         }
     }
 
