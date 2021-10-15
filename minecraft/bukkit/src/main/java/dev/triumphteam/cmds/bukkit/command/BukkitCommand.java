@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,10 +25,10 @@ package dev.triumphteam.cmds.bukkit.command;
 
 import dev.triumphteam.cmds.bukkit.factory.BukkitSubCommandFactory;
 import dev.triumphteam.cmds.core.BaseCommand;
-import dev.triumphteam.cmds.core.annotations.Default;
 import dev.triumphteam.cmds.core.Command;
 import dev.triumphteam.cmds.core.SimpleSubCommand;
 import dev.triumphteam.cmds.core.SubCommand;
+import dev.triumphteam.cmds.core.annotations.Default;
 import dev.triumphteam.cmds.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmds.core.message.MessageRegistry;
 import dev.triumphteam.cmds.core.requirement.RequirementRegistry;
@@ -134,12 +134,23 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     }
 
     // TODO comments in this class
+
+    /**
+     * Used to get Command {@link #name} of this particular Command.
+     *
+     * @return The command name.
+     */
     @NotNull
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * Used to get the {@link #alias} for this particular Command
+     *
+     * @return The command name.
+     */
     @NotNull
     @Override
     public List<String> getAlias() {
@@ -156,6 +167,12 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         return holders.get(Default.DEFAULT_CMD_NAME);
     }
 
+    /**
+     * Used in order to search for the given {@link SubCommand<CommandSender>} in the {@link #aliases}
+     *
+     * @param key the String to look for the {@link SubCommand<CommandSender>}
+     * @return the {@link SubCommand<CommandSender>} for the particular key or NULL
+     */
     @Nullable
     private SubCommand<CommandSender> getSubCommand(@NotNull final String key) {
         final SubCommand<CommandSender> subCommand = holders.get(key);

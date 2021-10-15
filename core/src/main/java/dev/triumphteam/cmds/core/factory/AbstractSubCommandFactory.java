@@ -29,6 +29,7 @@ import dev.triumphteam.cmds.core.annotations.Default;
 import dev.triumphteam.cmds.core.annotations.Flag;
 import dev.triumphteam.cmds.core.annotations.Join;
 import dev.triumphteam.cmds.core.annotations.Optional;
+import dev.triumphteam.cmds.core.annotations.Optional;
 import dev.triumphteam.cmds.core.annotations.Requirements;
 import dev.triumphteam.cmds.core.annotations.SubCommand;
 import dev.triumphteam.cmds.core.argument.ArgumentRegistry;
@@ -42,9 +43,10 @@ import dev.triumphteam.cmds.core.argument.types.JoinedStringArgument;
 import dev.triumphteam.cmds.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.argument.types.ResolverArgument;
 import dev.triumphteam.cmds.core.argument.types.StringArgument;
+import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmds.core.flag.Flags;
-import dev.triumphteam.cmds.core.flag.internal.FlagOptions;
 import dev.triumphteam.cmds.core.flag.internal.FlagGroup;
+import dev.triumphteam.cmds.core.flag.internal.FlagOptions;
 import dev.triumphteam.cmds.core.message.MessageKey;
 import dev.triumphteam.cmds.core.message.MessageRegistry;
 import dev.triumphteam.cmds.core.message.context.MessageContext;
@@ -52,7 +54,6 @@ import dev.triumphteam.cmds.core.requirement.Requirement;
 import dev.triumphteam.cmds.core.requirement.RequirementKey;
 import dev.triumphteam.cmds.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmds.core.requirement.RequirementResolver;
-import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -463,4 +464,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         }
     }
 
+    public RequirementRegistry<S> getRequirementRegistry() {
+        return requirementRegistry;
+    }
 }
