@@ -94,13 +94,15 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
         }
     }
 
-    private void checkPermission(Method method) {
-        if (!method.isAnnotationPresent(Permission.class)) return;
+    private void checkPermission(@NotNull final Method method) {
+        final Permission permission = AnnotationUtil.getAnnotation(method, Permission.class);
+        if (permission == null) return;
+        
+        final String annotatedPermission = permission.value();
 
-        String annotatedPermission = AnnotationUtil.getAnnotation(method, Permission.class).value();
-
-        if (annotatedPermission.isEmpty())
+        if (annotatedPermission.isEmpty()) {
             throw new SubCommandRegistrationException("Permission cannot be empty", method, getBaseCommand().getClass());
+        }
 
         getRequirementRegistry().register(RequirementKey.of(annotatedPermission), sender -> sender.hasPermission(annotatedPermission));
     }
