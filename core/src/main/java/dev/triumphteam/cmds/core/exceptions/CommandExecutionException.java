@@ -42,4 +42,9 @@ public final class CommandExecutionException extends RuntimeException {
         super(message + ". On \"" + parent + "\" command on \"" + command + "\" sub command.");
     }
 
+    @Override
+    public synchronized CommandExecutionException initCause(final Throwable cause) {
+        super.initCause(cause);
+        return this;
+    }
 }
