@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,9 +25,13 @@ package dev.triumphteam.cmds.bukkit.factory;
 
 import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.SimpleSubCommand;
+import dev.triumphteam.cmds.core.annotations.Permission;
 import dev.triumphteam.cmds.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmds.core.factory.AbstractSubCommandFactory;
+import dev.triumphteam.cmds.core.factory.AnnotationUtil;
 import dev.triumphteam.cmds.core.message.MessageRegistry;
+import dev.triumphteam.cmds.core.requirement.RequirementKey;
 import dev.triumphteam.cmds.core.requirement.RequirementRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -55,6 +59,7 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
     public SimpleSubCommand<CommandSender> create(@NotNull final String parentName) {
         final String name = getName();
         if (name == null) return null;
+        checkPermission(getMethod());
         return new SimpleSubCommand<>(
                 getBaseCommand(),
                 getMethod(),
@@ -87,6 +92,17 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
 
             createArgument(parameter);
         }
+    }
+
+    private void checkPermission(Method method) {
+        if (!method.isAnnotationPresent(Permission.class)) return;
+
+        String annotatedPermission = AnnotationUtil.getAnnotation(method, Permission.class).value();
+
+        if (annotatedPermission.isEmpty())
+            throw new SubCommandRegistrationException("Permission cannot be empty", method, getBaseCommand().getClass());
+
+        getRequirementRegistry().register(RequirementKey.of(annotatedPermission), sender -> sender.hasPermission(annotatedPermission));
     }
 
 }

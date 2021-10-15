@@ -24,27 +24,15 @@
 package dev.triumphteam.cmds.core.factory;
 
 import dev.triumphteam.cmds.core.BaseCommand;
-import dev.triumphteam.cmds.core.annotations.CommandFlags;
-import dev.triumphteam.cmds.core.annotations.Default;
-import dev.triumphteam.cmds.core.annotations.Flag;
-import dev.triumphteam.cmds.core.annotations.Join;
 import dev.triumphteam.cmds.core.annotations.Optional;
-import dev.triumphteam.cmds.core.annotations.Requirements;
-import dev.triumphteam.cmds.core.annotations.SubCommand;
+import dev.triumphteam.cmds.core.annotations.*;
 import dev.triumphteam.cmds.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmds.core.argument.ArgumentResolver;
-import dev.triumphteam.cmds.core.argument.types.Argument;
-import dev.triumphteam.cmds.core.argument.types.ArrayArgument;
-import dev.triumphteam.cmds.core.argument.types.CollectionArgument;
-import dev.triumphteam.cmds.core.argument.types.EnumArgument;
-import dev.triumphteam.cmds.core.argument.types.FlagArgument;
-import dev.triumphteam.cmds.core.argument.types.JoinedStringArgument;
-import dev.triumphteam.cmds.core.argument.types.LimitlessArgument;
-import dev.triumphteam.cmds.core.argument.types.ResolverArgument;
-import dev.triumphteam.cmds.core.argument.types.StringArgument;
+import dev.triumphteam.cmds.core.argument.types.*;
+import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmds.core.flag.Flags;
-import dev.triumphteam.cmds.core.flag.internal.FlagOptions;
 import dev.triumphteam.cmds.core.flag.internal.FlagGroup;
+import dev.triumphteam.cmds.core.flag.internal.FlagOptions;
 import dev.triumphteam.cmds.core.message.MessageKey;
 import dev.triumphteam.cmds.core.message.MessageRegistry;
 import dev.triumphteam.cmds.core.message.context.MessageContext;
@@ -52,7 +40,6 @@ import dev.triumphteam.cmds.core.requirement.Requirement;
 import dev.triumphteam.cmds.core.requirement.RequirementKey;
 import dev.triumphteam.cmds.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmds.core.requirement.RequirementResolver;
-import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,11 +48,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static dev.triumphteam.cmds.core.factory.AnnotationUtil.getAnnotation;
@@ -463,4 +446,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         }
     }
 
+    public RequirementRegistry<S> getRequirementRegistry() {
+        return requirementRegistry;
+    }
 }
