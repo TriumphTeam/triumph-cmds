@@ -23,34 +23,23 @@
  */
 package dev.triumphteam.cmds.bukkit.message;
 
-import dev.triumphteam.cmds.core.key.RegistryKey;
+import dev.triumphteam.cmds.core.message.ContextualKey;
 import dev.triumphteam.cmds.core.message.context.MessageContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * {@link BukkitMessageKey} is used for easier registering of messages with different {@link MessageContext}.
  *
  * @param <C> A {@link MessageContext} type, this allows for better customization of the messages.
  */
-public final class BukkitMessageKey<C extends MessageContext> extends RegistryKey {
+public final class BukkitMessageKey<C extends MessageContext> extends ContextualKey<C> {
 
     // Default keys
     public static final BukkitMessageKey<MessageContext> NO_PERMISSION = of("no.Permission", MessageContext.class);
-    // Holds all registered keys, default and custom ones
-    private static final Set<BukkitMessageKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();
-    private final Class<C> type;
 
     private BukkitMessageKey(@NotNull final String key, @NotNull final Class<C> type) {
-        super(key);
-        this.type = type;
-
-        REGISTERED_KEYS.add(this);
+        super(key, type);
     }
 
     /**
@@ -63,48 +52,12 @@ public final class BukkitMessageKey<C extends MessageContext> extends RegistryKe
      */
     @NotNull
     @Contract("_, _ -> new")
-    public static <C extends MessageContext> BukkitMessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
+    private static <C extends MessageContext> BukkitMessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
         return new BukkitMessageKey<>(key, type);
-    }
-
-    /**
-     * Gets an immutable {@link Set} with all the registered keys.
-     *
-     * @return The keys {@link Set}.
-     */
-    @NotNull
-    public static Set<BukkitMessageKey<? extends MessageContext>> getRegisteredKeys() {
-        return Collections.unmodifiableSet(REGISTERED_KEYS);
-    }
-
-    /**
-     * Getter for the {@link MessageContext} type, in case it's needed.
-     *
-     * @return The {@link MessageContext} type.
-     */
-    @NotNull
-    public Class<C> getType() {
-        return type;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final BukkitMessageKey<?> that = (BukkitMessageKey<?>) o;
-        return type.equals(that.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), type);
     }
 
     @Override
     public String toString() {
-        return "MessageKey{" +
-                "type=" + type +
-                ", super=" + super.toString() + "}";
+        return "BukkitMessageKey{super=" + super.toString() + "}";
     }
 }
