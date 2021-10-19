@@ -29,6 +29,7 @@ import dev.triumphteam.cmds.core.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.argument.types.StringArgument;
 import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
+import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmds.core.flag.internal.result.InvalidFlagArgumentResult;
 import dev.triumphteam.cmds.core.flag.internal.result.ParseResult;
 import dev.triumphteam.cmds.core.flag.internal.result.RequiredArgResult;
@@ -46,6 +47,8 @@ import dev.triumphteam.cmds.core.requirement.Requirement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -63,6 +66,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
 
     private final BaseCommand baseCommand;
     private final Method method;
+    private final MethodHandle methodHandle;
 
     private final String parentName;
     private final String name;
@@ -97,6 +101,13 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         this.requirements = requirements;
         this.messageRegistry = messageRegistry;
         this.isDefault = isDefault;
+
+        try {
+            methodHandle = MethodHandles.lookup().unreflect(method).bindTo(baseCommand);
+        } catch (IllegalAccessException e) {
+            // TODO message
+            throw new SubCommandRegistrationException("TODO", method, baseCommand.getClass());
+        }
 
         checkArguments();
     }
@@ -160,8 +171,8 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         }
 
         try {
-            method.invoke(baseCommand, invokeArguments.toArray());
-        } catch (IllegalAccessException | InvocationTargetException e) {
+            methodHandle.invokeWithArguments(invokeArguments);
+        } catch (Throwable e) {
             throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
                     .initCause(e instanceof InvocationTargetException ? e.getCause() : e);
         }
