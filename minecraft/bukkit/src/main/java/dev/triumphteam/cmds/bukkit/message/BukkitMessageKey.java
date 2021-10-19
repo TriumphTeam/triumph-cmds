@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.core.message;
+package dev.triumphteam.cmds.bukkit.message;
 
 import dev.triumphteam.cmds.core.key.RegistryKey;
 import dev.triumphteam.cmds.core.message.context.MessageContext;

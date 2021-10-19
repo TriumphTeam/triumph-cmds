@@ -29,27 +29,17 @@ import dev.triumphteam.cmds.core.message.context.InvalidFlagArgumentContext;
 import dev.triumphteam.cmds.core.message.context.MessageContext;
 import dev.triumphteam.cmds.core.message.context.MissingFlagArgumentContext;
 import dev.triumphteam.cmds.core.message.context.MissingFlagContext;
-import dev.triumphteam.cmds.core.key.RegistryKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * {@link MessageKey} is used for easier registering of messages with different {@link MessageContext}.
  *
  * @param <C> A {@link MessageContext} type, this allows for better customization of the messages.
  */
-public final class MessageKey<C extends MessageContext> extends RegistryKey {
-
-    // Holds all registered keys, default and custom ones
-    private static final Set<MessageKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();
+public class MessageKey<C extends MessageContext> extends ContextualKey<C> {
 
     // Default keys
-
     public static final MessageKey<MessageContext> UNKNOWN_COMMAND = of("unknown.command", MessageContext.class);
     public static final MessageKey<DefaultMessageContext> TOO_MANY_ARGUMENTS = of("too.many.arguments", DefaultMessageContext.class);
     public static final MessageKey<DefaultMessageContext> NOT_ENOUGH_ARGUMENTS = of("not.enough.arguments", DefaultMessageContext.class);
@@ -59,13 +49,8 @@ public final class MessageKey<C extends MessageContext> extends RegistryKey {
     public static final MessageKey<MissingFlagArgumentContext> MISSING_REQUIRED_FLAG_ARGUMENT = of("missing.required.flag.argument", MissingFlagArgumentContext.class);
     public static final MessageKey<InvalidFlagArgumentContext> INVALID_FLAG_ARGUMENT = of("invalid.flag.argument", InvalidFlagArgumentContext.class);
 
-    private final Class<C> type;
-
-    private MessageKey(@NotNull final String key, @NotNull final Class<C> type) {
-        super(key);
-        this.type = type;
-
-        REGISTERED_KEYS.add(this);
+    protected MessageKey(@NotNull final String key, @NotNull final Class<C> type) {
+        super(key, type);
     }
 
     /**
@@ -82,44 +67,5 @@ public final class MessageKey<C extends MessageContext> extends RegistryKey {
         return new MessageKey<>(key, type);
     }
 
-    /**
-     * Getter for the {@link MessageContext} type, in case it's needed.
-     *
-     * @return The {@link MessageContext} type.
-     */
-    @NotNull
-    public Class<C> getType() {
-        return type;
-    }
 
-    /**
-     * Gets an immutable {@link Set} with all the registered keys.
-     *
-     * @return The keys {@link Set}.
-     */
-    @NotNull
-    public static Set<MessageKey<? extends MessageContext>> getRegisteredKeys() {
-        return Collections.unmodifiableSet(REGISTERED_KEYS);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final MessageKey<?> that = (MessageKey<?>) o;
-        return type.equals(that.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), type);
-    }
-
-    @Override
-    public String toString() {
-        return "MessageKey{" +
-                "type=" + type +
-                ", super=" + super.toString() + "}";
-    }
 }
