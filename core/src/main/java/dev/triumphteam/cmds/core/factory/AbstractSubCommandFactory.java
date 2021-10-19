@@ -29,7 +29,6 @@ import dev.triumphteam.cmds.core.annotations.Default;
 import dev.triumphteam.cmds.core.annotations.Flag;
 import dev.triumphteam.cmds.core.annotations.Join;
 import dev.triumphteam.cmds.core.annotations.Optional;
-import dev.triumphteam.cmds.core.annotations.Optional;
 import dev.triumphteam.cmds.core.annotations.Requirements;
 import dev.triumphteam.cmds.core.annotations.SubCommand;
 import dev.triumphteam.cmds.core.argument.ArgumentRegistry;

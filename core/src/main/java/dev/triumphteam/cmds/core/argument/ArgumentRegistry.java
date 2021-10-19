@@ -46,6 +46,9 @@ public final class ArgumentRegistry<S> {
 
     @SuppressWarnings("UnstableApiUsage")
     public ArgumentRegistry() {
+        register(short.class, (sender, arg) -> Ints.tryParse(arg));
+        register(Short.class, (sender, arg) -> Ints.tryParse(arg));
+
         register(int.class, (sender, arg) -> Ints.tryParse(arg));
         register(Integer.class, (sender, arg) -> Ints.tryParse(arg));
 
