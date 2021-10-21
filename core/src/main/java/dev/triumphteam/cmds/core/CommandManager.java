@@ -25,10 +25,10 @@ package dev.triumphteam.cmds.core;
 
 import dev.triumphteam.cmds.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmds.core.argument.ArgumentResolver;
-import dev.triumphteam.cmds.core.message.context.MessageContext;
-import dev.triumphteam.cmds.core.message.MessageKey;
+import dev.triumphteam.cmds.core.message.ContextualKey;
 import dev.triumphteam.cmds.core.message.MessageRegistry;
 import dev.triumphteam.cmds.core.message.MessageResolver;
+import dev.triumphteam.cmds.core.message.context.MessageContext;
 import dev.triumphteam.cmds.core.requirement.RequirementKey;
 import dev.triumphteam.cmds.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmds.core.requirement.RequirementResolver;
@@ -94,11 +94,11 @@ public abstract class CommandManager<S> {
     /**
      * Registers a custom message.
      *
-     * @param key      The {@link MessageKey} of the message to be registered.
+     * @param key      The {@link ContextualKey} of the message to be registered.
      * @param resolver The {@link ArgumentResolver} with the message sending resolution.
      */
     public final <C extends MessageContext> void registerMessage(
-            @NotNull final MessageKey<C> key,
+            @NotNull final ContextualKey<C> key,
             @NotNull final MessageResolver<S, C> resolver
     ) {
         messageRegistry.register(key, resolver);

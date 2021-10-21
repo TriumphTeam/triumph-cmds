@@ -54,7 +54,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     private final String name;
     private final List<String> alias;
 
-    private final Map<String, SubCommand<CommandSender>> holders = new HashMap<>();
+    private final Map<String, SubCommand<CommandSender>> commands = new HashMap<>();
     private final Map<String, SubCommand<CommandSender>> aliases = new HashMap<>();
 
     public BukkitCommand(
@@ -91,8 +91,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
             final String subCommandName = subCommand.getName();
             final List<String> subCommandAlias = subCommand.getAlias();
 
-            final SubCommand<CommandSender> holder = holders.get(subCommandName);
-            // FIXME: 9/2/2021 Add message registry and fix holder removal
+            commands.put(subCommandName, subCommand);
         }
 
         return added;
@@ -164,7 +163,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
      */
     @Nullable
     private SubCommand<CommandSender> getDefaultSubCommand() {
-        return holders.get(Default.DEFAULT_CMD_NAME);
+        return commands.get(Default.DEFAULT_CMD_NAME);
     }
 
     /**
@@ -175,13 +174,13 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
      */
     @Nullable
     private SubCommand<CommandSender> getSubCommand(@NotNull final String key) {
-        final SubCommand<CommandSender> subCommand = holders.get(key);
+        final SubCommand<CommandSender> subCommand = commands.get(key);
         if (subCommand != null) return subCommand;
         return aliases.get(key);
     }
 
     private boolean subCommandExists(@NotNull final String key) {
-        return holders.containsKey(key) || aliases.containsKey(key);
+        return commands.containsKey(key) || aliases.containsKey(key);
     }
 
 }

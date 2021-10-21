@@ -23,8 +23,10 @@
  */
 package dev.triumphteam.cmds.core.requirement;
 
-import dev.triumphteam.cmds.core.message.MessageKey;
+import dev.triumphteam.cmds.core.message.ContextualKey;
+import dev.triumphteam.cmds.core.message.MessageRegistry;
 import dev.triumphteam.cmds.core.message.context.MessageContext;
+import dev.triumphteam.cmds.core.message.context.MessageContextFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,17 +37,20 @@ import java.util.Objects;
  *
  * @param <S> The sender type.
  */
-public final class Requirement<S> {
+public final class Requirement<S, C extends MessageContext> {
 
     private final RequirementResolver<S> resolver;
-    private final MessageKey<MessageContext> messageKey;
+    private final ContextualKey<C> messageKey;
+    private final MessageContextFactory<C> contextFactory;
 
     public Requirement(
             @NotNull final RequirementResolver<S> resolver,
-            @Nullable final MessageKey<MessageContext> messageKey
+            @Nullable final ContextualKey<C> messageKey,
+            @NotNull final MessageContextFactory<C> contextFactory
     ) {
         this.resolver = resolver;
         this.messageKey = messageKey;
+        this.contextFactory = contextFactory;
     }
 
     /**
@@ -54,8 +59,18 @@ public final class Requirement<S> {
      * @return The message key or null if no message should be sent.
      */
     @Nullable
-    public MessageKey<MessageContext> getMessageKey() {
+    public ContextualKey<C> getMessageKey() {
         return messageKey;
+    }
+
+    public void sendMessage(
+            @NotNull final MessageRegistry<S> registry,
+            @NotNull final S sender,
+            @NotNull final String command,
+            @NotNull final String subCommand
+    ) {
+        if (messageKey == null) return;
+        registry.sendMessage(messageKey, sender, contextFactory.create(command, subCommand));
     }
 
     /**
@@ -72,7 +87,7 @@ public final class Requirement<S> {
     public boolean equals(@Nullable final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final Requirement<?> that = (Requirement<?>) o;
+        final Requirement<?, ?> that = (Requirement<?, ?>) o;
         return resolver.equals(that.resolver) && Objects.equals(messageKey, that.messageKey);
     }
 

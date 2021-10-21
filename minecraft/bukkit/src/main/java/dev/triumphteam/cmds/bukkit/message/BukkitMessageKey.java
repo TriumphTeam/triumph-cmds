@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 public final class BukkitMessageKey<C extends MessageContext> extends ContextualKey<C> {
 
     // Default keys
-    public static final BukkitMessageKey<MessageContext> NO_PERMISSION = of("no.Permission", MessageContext.class);
+    public static final BukkitMessageKey<NoPermissionMessageContext> NO_PERMISSION = of("no.Permission", NoPermissionMessageContext.class);
 
     private BukkitMessageKey(@NotNull final String key, @NotNull final Class<C> type) {
         super(key, type);

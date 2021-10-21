@@ -25,6 +25,7 @@ package dev.triumphteam.cmds.bukkit;
 
 import dev.triumphteam.cmds.bukkit.command.BukkitCommand;
 import dev.triumphteam.cmds.bukkit.factory.BukkitCommandFactory;
+import dev.triumphteam.cmds.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.Command;
 import dev.triumphteam.cmds.core.CommandManager;
@@ -55,7 +56,12 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
         this.plugin = plugin;
         this.commandMap = commandMap();
         this.bukkitCommands = bukkitCommands(commandMap);
+
+        // TODO move this initiations to a separate method and fix message
         //registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(String.valueOf(arg)));
+        registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> {
+            sender.sendMessage("Temporary no permission message");
+        });
     }
 
     @Override

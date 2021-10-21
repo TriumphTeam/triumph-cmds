@@ -38,14 +38,14 @@ import java.util.Set;
 public abstract class ContextualKey<C extends MessageContext> extends RegistryKey {
 
     // Holds all registered keys, default and custom ones
-    private static final Set<MessageKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();
+    private static final Set<ContextualKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();
 
     private final Class<C> type;
 
     protected ContextualKey(@NotNull final String key, @NotNull final Class<C> type) {
         super(key);
         this.type = type;
-        REGISTERED_KEYS.add((MessageKey<? extends MessageContext>) this);
+        REGISTERED_KEYS.add(this);
     }
 
     /**
@@ -63,7 +63,7 @@ public abstract class ContextualKey<C extends MessageContext> extends RegistryKe
      * @return The keys {@link Set}.
      */
     @NotNull
-    public static Set<MessageKey<? extends MessageContext>> getRegisteredKeys() {
+    public static Set<ContextualKey<? extends MessageContext>> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 

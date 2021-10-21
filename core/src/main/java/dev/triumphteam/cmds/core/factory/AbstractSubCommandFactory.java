@@ -48,6 +48,7 @@ import dev.triumphteam.cmds.core.flag.internal.FlagGroup;
 import dev.triumphteam.cmds.core.flag.internal.FlagOptions;
 import dev.triumphteam.cmds.core.message.MessageKey;
 import dev.triumphteam.cmds.core.message.MessageRegistry;
+import dev.triumphteam.cmds.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmds.core.message.context.MessageContext;
 import dev.triumphteam.cmds.core.requirement.Requirement;
 import dev.triumphteam.cmds.core.requirement.RequirementKey;
@@ -91,7 +92,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S, ?>> arguments = new ArrayList<>();
-    private final Set<Requirement<S>> requirements = new HashSet<>();
+    private final Set<Requirement<S, ?>> requirements = new HashSet<>();
 
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
@@ -192,7 +193,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return The requirements.
      */
     @NotNull
-    protected Set<Requirement<S>> getRequirements() {
+    protected Set<Requirement<S, ?>> getRequirements() {
         return requirements;
     }
 
@@ -288,6 +289,10 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         }
 
         addArgument(new ResolverArgument<>(parameterName, type, resolver, optional));
+    }
+
+    protected void addRequirement(@NotNull final Requirement<S, ?> requirement) {
+        requirements.add(requirement);
     }
 
     /**
@@ -399,7 +404,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
                 throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
             }
 
-            requirements.add(new Requirement<>(resolver, messageKey));
+            requirements.add(new Requirement<>(resolver, messageKey, DefaultMessageContext::new));
         }
     }
 
@@ -463,7 +468,4 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
         }
     }
 
-    public RequirementRegistry<S> getRequirementRegistry() {
-        return requirementRegistry;
-    }
 }

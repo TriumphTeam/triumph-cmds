@@ -23,6 +23,8 @@
  */
 package dev.triumphteam.cmds.bukkit.factory;
 
+import dev.triumphteam.cmds.bukkit.message.BukkitMessageKey;
+import dev.triumphteam.cmds.bukkit.message.NoPermissionMessageContext;
 import dev.triumphteam.cmds.core.BaseCommand;
 import dev.triumphteam.cmds.core.SimpleSubCommand;
 import dev.triumphteam.cmds.core.annotations.Permission;
@@ -31,7 +33,7 @@ import dev.triumphteam.cmds.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmds.core.factory.AbstractSubCommandFactory;
 import dev.triumphteam.cmds.core.factory.AnnotationUtil;
 import dev.triumphteam.cmds.core.message.MessageRegistry;
-import dev.triumphteam.cmds.core.requirement.RequirementKey;
+import dev.triumphteam.cmds.core.requirement.Requirement;
 import dev.triumphteam.cmds.core.requirement.RequirementRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -60,6 +62,7 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
         final String name = getName();
         if (name == null) return null;
         checkPermission(getMethod());
+
         return new SimpleSubCommand<>(
                 getBaseCommand(),
                 getMethod(),
@@ -97,14 +100,20 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
     private void checkPermission(@NotNull final Method method) {
         final Permission permission = AnnotationUtil.getAnnotation(method, Permission.class);
         if (permission == null) return;
-        
+
         final String annotatedPermission = permission.value();
 
         if (annotatedPermission.isEmpty()) {
             throw new SubCommandRegistrationException("Permission cannot be empty", method, getBaseCommand().getClass());
         }
 
-        getRequirementRegistry().register(RequirementKey.of(annotatedPermission), sender -> sender.hasPermission(annotatedPermission));
+        addRequirement(
+                new Requirement<CommandSender, NoPermissionMessageContext>(
+                        sender -> sender.hasPermission(annotatedPermission),
+                        BukkitMessageKey.NO_PERMISSION,
+                        (command, subCommand) -> new NoPermissionMessageContext(command, subCommand, annotatedPermission)
+                )
+        );
     }
 
 }

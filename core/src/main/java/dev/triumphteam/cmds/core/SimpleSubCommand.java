@@ -39,7 +39,6 @@ import dev.triumphteam.cmds.core.message.MessageRegistry;
 import dev.triumphteam.cmds.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmds.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmds.core.message.context.InvalidFlagArgumentContext;
-import dev.triumphteam.cmds.core.message.context.MessageContext;
 import dev.triumphteam.cmds.core.message.context.MissingFlagArgumentContext;
 import dev.triumphteam.cmds.core.message.context.MissingFlagContext;
 import dev.triumphteam.cmds.core.requirement.Requirement;
@@ -70,7 +69,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final boolean isDefault;
 
     private final List<Argument<S, ?>> arguments;
-    private final Set<Requirement<S>> requirements;
+    private final Set<Requirement<S, ?>> requirements;
 
     private final MessageRegistry<S> messageRegistry;
 
@@ -84,7 +83,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             @NotNull final String parentName,
             @NotNull final List<String> alias,
             @NotNull final List<Argument<S, ?>> arguments,
-            @NotNull final Set<Requirement<S>> requirements,
+            @NotNull final Set<Requirement<S, ?>> requirements,
             @NotNull final MessageRegistry<S> messageRegistry,
             final boolean isDefault
     ) {
@@ -231,13 +230,9 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
      * @return Whether all requirements are met.
      */
     private boolean meetRequirements(@NotNull final S sender) {
-        for (final Requirement<S> requirement : requirements) {
+        for (final Requirement<S, ?> requirement : requirements) {
             if (!requirement.isMet(sender)) {
-                final MessageKey<MessageContext> messageKey = requirement.getMessageKey();
-                if (messageKey != null) {
-                    messageRegistry.sendMessage(messageKey, sender, new DefaultMessageContext(parentName, name));
-                }
-
+                requirement.sendMessage(messageRegistry, sender, parentName, name);
                 return false;
             }
         }
