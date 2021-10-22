@@ -49,19 +49,8 @@ class TestSubCommandFactory(
     private var senderClass: Class<*>? = null
 
     override fun create(parentName: String): SimpleSubCommand<TestSender>? {
-        val name = name ?: return null
-
-        return SimpleSubCommand(
-            baseCommand,
-            method,
-            name,
-            parentName,
-            alias,
-            arguments,
-            requirements,
-            messageRegistry,
-            isDefault
-        )
+        if (name == null) return null
+        return SimpleSubCommand(this, parentName)
     }
 
     override fun extractArguments(method: Method) {

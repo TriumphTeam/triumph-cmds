@@ -29,6 +29,7 @@ import dev.triumphteam.cmds.core.argument.types.FlagArgument;
 import dev.triumphteam.cmds.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmds.core.argument.types.StringArgument;
 import dev.triumphteam.cmds.core.exceptions.CommandExecutionException;
+import dev.triumphteam.cmds.core.factory.AbstractSubCommandFactory;
 import dev.triumphteam.cmds.core.flag.internal.result.InvalidFlagArgumentResult;
 import dev.triumphteam.cmds.core.flag.internal.result.ParseResult;
 import dev.triumphteam.cmds.core.flag.internal.result.RequiredArgResult;
@@ -77,25 +78,19 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private boolean containsFlags = false;
 
     public SimpleSubCommand(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final Method method,
-            @NotNull final String name,
-            @NotNull final String parentName,
-            @NotNull final List<String> alias,
-            @NotNull final List<Argument<S, ?>> arguments,
-            @NotNull final Set<Requirement<S, ?>> requirements,
-            @NotNull final MessageRegistry<S> messageRegistry,
-            final boolean isDefault
+            @NotNull final AbstractSubCommandFactory<S, SimpleSubCommand<S>> factory,
+            @NotNull final String parentName
     ) {
-        this.baseCommand = baseCommand;
-        this.method = method;
-        this.name = name;
+        this.baseCommand = factory.getBaseCommand();
+        this.method = factory.getMethod();
+        this.name = factory.getName();
+        this.alias = factory.getAlias();
+        this.arguments = factory.getArguments();
+        this.requirements = factory.getRequirements();
+        this.messageRegistry = factory.getMessageRegistry();
+        this.isDefault = factory.isDefault();
+
         this.parentName = parentName;
-        this.alias = alias;
-        this.arguments = arguments;
-        this.requirements = requirements;
-        this.messageRegistry = messageRegistry;
-        this.isDefault = isDefault;
 
         checkArguments();
     }

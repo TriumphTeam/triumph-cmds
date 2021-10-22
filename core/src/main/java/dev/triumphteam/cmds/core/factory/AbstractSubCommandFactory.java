@@ -144,7 +144,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return The sub command name.
      */
     @Nullable
-    protected String getName() {
+    public String getName() {
         return name;
     }
 
@@ -154,7 +154,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return The sub command alias.
      */
     @NotNull
-    protected List<String> getAlias() {
+    public List<String> getAlias() {
         return alias;
     }
 
@@ -163,7 +163,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      *
      * @return Whether the command is default.
      */
-    protected boolean isDefault() {
+    public boolean isDefault() {
         return isDefault;
     }
 
@@ -173,7 +173,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return The base command instance.
      */
     @NotNull
-    protected BaseCommand getBaseCommand() {
+    public BaseCommand getBaseCommand() {
         return baseCommand;
     }
 
@@ -183,7 +183,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return The method.
      */
     @NotNull
-    protected Method getMethod() {
+    public Method getMethod() {
         return method;
     }
 
@@ -193,7 +193,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return The requirements.
      */
     @NotNull
-    protected Set<Requirement<S, ?>> getRequirements() {
+    public Set<Requirement<S, ?>> getRequirements() {
         return requirements;
     }
 
@@ -203,7 +203,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return The message registry.
      */
     @NotNull
-    protected MessageRegistry<S> getMessageRegistry() {
+    public MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
     }
 
@@ -225,7 +225,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends dev.triumphteam.cm
      * @return The arguments list.
      */
     @NotNull
-    protected List<Argument<S, ?>> getArguments() {
+    public List<Argument<S, ?>> getArguments() {
         return arguments;
     }
 
