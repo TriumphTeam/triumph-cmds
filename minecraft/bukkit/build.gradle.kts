@@ -6,6 +6,6 @@ repositories {
 }
 
 dependencies {
-    api(project(":triumph-cmds-core"))
+    api(project(":triumph-cmd-core"))
     compileOnly(spigot("1.17"))
 }
