@@ -3,10 +3,10 @@ rootProject.name = "triumph-cmd"
 listOf("core").forEach(::includeProject)
 
 listOf(
-    "minecraft-bukkit",
-    "discord-jda",
+    "minecraft/bukkit",
+    "discord/jda-prefixed",
 ).forEach {
-    val (folder, name) = it.split('-')
+    val (folder, name) = it.split('/')
     includeProject(name, folder)
 }
 
