@@ -26,8 +26,10 @@ package dev.triumphteam.cmd.prefixed.factory;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.factory.AbstractCommandFactory;
+import dev.triumphteam.cmd.core.factory.AnnotationUtil;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.prefixed.annotation.Prefix;
 import dev.triumphteam.cmd.prefixed.command.PrefixedCommand;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedCommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +55,12 @@ public final class PrefixedCommandFactory extends AbstractCommandFactory<Prefixe
     }
 
     private String extractPrefix() {
-
+        final Prefix prefixAnnotation = AnnotationUtil.getAnnotation(getBaseCommand().getClass(), Prefix.class);
+        return prefixAnnotation == null ? "" : prefixAnnotation.value();
     }
 
+    @NotNull
+    public String getPrefix() {
+        return prefix;
+    }
 }

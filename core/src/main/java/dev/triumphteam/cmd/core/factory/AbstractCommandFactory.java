@@ -49,6 +49,7 @@ public abstract class AbstractCommandFactory<S, C extends Command> {
     private String name;
     private final List<String> alias = new ArrayList<>();
 
+    private final BaseCommand baseCommand;
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
@@ -59,6 +60,7 @@ public abstract class AbstractCommandFactory<S, C extends Command> {
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry
     ) {
+        this.baseCommand = baseCommand;
         this.argumentRegistry = argumentRegistry;
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
@@ -93,6 +95,12 @@ public abstract class AbstractCommandFactory<S, C extends Command> {
     @NotNull
     public List<String> getAlias() {
         return alias;
+    }
+
+    // TODO: 11/6/2021 Comments
+    @NotNull
+    public BaseCommand getBaseCommand() {
+        return baseCommand;
     }
 
     // TODO: 11/6/2021 Comments

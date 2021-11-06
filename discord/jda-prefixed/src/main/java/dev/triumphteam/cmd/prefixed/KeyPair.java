@@ -1,5 +1,6 @@
 package dev.triumphteam.cmd.prefixed;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,9 +11,15 @@ final class KeyPair<F, S> {
     private final F first;
     private final S second;
 
-    public KeyPair(@NotNull final F first, @NotNull final S second) {
+    private KeyPair(@NotNull final F first, @NotNull final S second) {
         this.first = first;
         this.second = second;
+    }
+
+    @NotNull
+    @Contract("_, _ -> new")
+    public static <F, S> KeyPair<F, S> of(@NotNull final F first, @NotNull final S second) {
+        return new KeyPair<>(first, second);
     }
 
     @Override
