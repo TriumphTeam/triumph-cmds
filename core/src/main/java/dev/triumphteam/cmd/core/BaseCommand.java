@@ -23,8 +23,7 @@
  */
 package dev.triumphteam.cmd.core;
 
-import dev.triumphteam.cmd.core.annotations.Command;
-import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotation.Command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

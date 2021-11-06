@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotations;
+package dev.triumphteam.cmd.core.annotation;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,27 +31,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Sets the method to be a sub command.
+ * Annotation for declaring all the {@link Flag}s needed for the command.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface SubCommand {
+public @interface CommandFlags {
 
     /**
-     * Main sub command name.
-     * Must not contain spaces.
+     * List with all the flags that'll be needed by the command.
      *
-     * @return The sub command name.
+     * @return Array of flags.
      */
     @NotNull
-    String value();
-
-    /**
-     * List with all the valid aliases for the command.
-     *
-     * @return An array with command aliases.
-     */
-    @NotNull
-    String[] alias() default {};
+    Flag[] value();
 
 }

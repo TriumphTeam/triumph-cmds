@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotations;
+package dev.triumphteam.cmd.core.annotation;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,26 +31,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Command annotation, marks the class as a command class.
+ * Marks the method to be run without any subcommands.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Command {
+@Target(ElementType.METHOD)
+public @interface Default {
+
+    // Default sub commands use this name.
+    String DEFAULT_CMD_NAME = "TH_DEFAULT";
 
     /**
-     * Main command's name.
-     * Must be empty and have spaces.
+     * Gets the list of alias for the default sub command.
      *
-     * @return The command.
-     */
-    @NotNull
-    String value();
-
-    /**
-     * List with all command aliases.
-     * Can be empty but can't have spaces.
-     *
-     * @return The alias array.
+     * @return An array with command aliases.
      */
     @NotNull
     String[] alias() default {};

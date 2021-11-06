@@ -21,7 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotations;
+package dev.triumphteam.cmd.core.annotation;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,17 +31,28 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to hold all the command requirements.
+ * Requirement annotation. Holds all the requirement's data.
+ * To be used inside {@link Requirements}.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Requirements {
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface Requirement {
 
     /**
-     * A list with all the {@link Requirement} annotations.
+     * The requirement key.
+     * Required to be registered before used.
      *
-     * @return An array of {@link Requirement}s.
+     * @return The requirement key.
      */
-    Requirement[] value();
+    @NotNull
+    String value();
+
+    /**
+     * The message key will be used to send a custom message if the specified requirement is denied.
+     *
+     * @return The message key or empty if not needed.
+     */
+    @NotNull
+    String messageKey() default "";
 
 }

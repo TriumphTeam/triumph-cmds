@@ -65,11 +65,11 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
     }
 
     @Override
-    public void registerCommand(@NotNull final BaseCommand command) {
-        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry()).create();
+    public void registerCommand(@NotNull final BaseCommand baseCommand) {
+        final BukkitCommand bukkitCommand = new BukkitCommandFactory(baseCommand, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry()).create();
 
         // TODO multiple classes
-        if (!bukkitCommand.addSubCommands(command)) {
+        if (!bukkitCommand.addSubCommands(baseCommand)) {
             return;
         }
 
@@ -80,7 +80,7 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
         // From ACF (https://github.com/aikar/commands)
         // To allow commands to be registered on the plugin.yml
         if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
-            unregisterCommand(command);
+            unregisterCommand(baseCommand);
         }
 
         // Registering

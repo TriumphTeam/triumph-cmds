@@ -28,7 +28,7 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SimpleSubCommand;
 import dev.triumphteam.cmd.core.SubCommand;
-import dev.triumphteam.cmd.core.annotations.Default;
+import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;

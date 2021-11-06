@@ -24,9 +24,9 @@
 package dev.triumphteam.cmd.core.cases.registration
 
 import dev.triumphteam.cmd.core.BaseCommand
-import dev.triumphteam.cmd.core.annotations.Command
-import dev.triumphteam.cmd.core.annotations.Default
-import dev.triumphteam.cmd.core.annotations.SubCommand
+import dev.triumphteam.cmd.core.annotation.Command
+import dev.triumphteam.cmd.core.annotation.Default
+import dev.triumphteam.cmd.core.annotation.SubCommand
 import dev.triumphteam.cmd.core.cases.execution.COMMAND_NAME
 import dev.triumphteam.cmd.core.implementation.TestSender
 

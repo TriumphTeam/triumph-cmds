@@ -64,11 +64,11 @@ class TestCommandManager : CommandManager<TestSender>() {
         registerRequirement(RequirementKey.of("test.requirement")) { false }
     }
 
-    override fun registerCommand(command: BaseCommand) {
-        val cliCommand = TestCommandFactory(command, argumentRegistry, requirementRegistry, messageRegistry).create()
+    override fun registerCommand(baseCommand: BaseCommand) {
+        val cliCommand = TestCommandFactory(baseCommand, argumentRegistry, requirementRegistry, messageRegistry).create()
 
         // TODO multiple classes
-        if (!cliCommand.addSubCommands(command)) {
+        if (!cliCommand.addSubCommands(baseCommand)) {
             return
         }
 

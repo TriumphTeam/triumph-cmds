@@ -24,12 +24,12 @@
 package dev.triumphteam.cmd.core.cases.registration
 
 import dev.triumphteam.cmd.core.BaseCommand
-import dev.triumphteam.cmd.core.annotations.Command
-import dev.triumphteam.cmd.core.annotations.CommandFlags
-import dev.triumphteam.cmd.core.annotations.Flag
-import dev.triumphteam.cmd.core.annotations.Join
-import dev.triumphteam.cmd.core.annotations.Optional
-import dev.triumphteam.cmd.core.annotations.SubCommand
+import dev.triumphteam.cmd.core.annotation.Command
+import dev.triumphteam.cmd.core.annotation.CommandFlags
+import dev.triumphteam.cmd.core.annotation.Flag
+import dev.triumphteam.cmd.core.annotation.Join
+import dev.triumphteam.cmd.core.annotation.Optional
+import dev.triumphteam.cmd.core.annotation.SubCommand
 import dev.triumphteam.cmd.core.cases.execution.COMMAND_NAME
 import dev.triumphteam.cmd.core.cases.execution.SUB_COMMAND_NAME
 import dev.triumphteam.cmd.core.flag.Flags

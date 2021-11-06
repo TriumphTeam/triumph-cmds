@@ -25,12 +25,12 @@ package dev.triumphteam.cmd.core.factory;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.SubCommand;
-import dev.triumphteam.cmd.core.annotations.CommandFlags;
-import dev.triumphteam.cmd.core.annotations.Default;
-import dev.triumphteam.cmd.core.annotations.Flag;
-import dev.triumphteam.cmd.core.annotations.Join;
-import dev.triumphteam.cmd.core.annotations.Optional;
-import dev.triumphteam.cmd.core.annotations.Requirements;
+import dev.triumphteam.cmd.core.annotation.CommandFlags;
+import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.annotation.Flag;
+import dev.triumphteam.cmd.core.annotation.Join;
+import dev.triumphteam.cmd.core.annotation.Optional;
+import dev.triumphteam.cmd.core.annotation.Requirements;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.types.Argument;
@@ -139,7 +139,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
 
     /**
      * Used for the child factories to get the sub command name.
-     * It's nullable because a method might not have a {@link dev.triumphteam.cmd.core.annotations.SubCommand} or {@link Default} annotation.
+     * It's nullable because a method might not have a {@link dev.triumphteam.cmd.core.annotation.SubCommand} or {@link Default} annotation.
      *
      * @return The sub command name.
      */
@@ -309,7 +309,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
      */
     private void extractSubCommandNames() {
         final Default defaultAnnotation = getAnnotation(method, Default.class);
-        final dev.triumphteam.cmd.core.annotations.SubCommand subCommandAnnotation = getAnnotation(method, dev.triumphteam.cmd.core.annotations.SubCommand.class);
+        final dev.triumphteam.cmd.core.annotation.SubCommand subCommandAnnotation = getAnnotation(method, dev.triumphteam.cmd.core.annotation.SubCommand.class);
 
         if (defaultAnnotation == null && subCommandAnnotation == null) {
             return;
@@ -326,7 +326,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         alias.addAll(Arrays.stream(subCommandAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
 
         if (this.name.isEmpty()) {
-            throw createException("@" + dev.triumphteam.cmd.core.annotations.SubCommand.class.getSimpleName() + " name must not be empty");
+            throw createException("@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty");
         }
     }
 
@@ -391,7 +391,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
             return;
         }
 
-        for (final dev.triumphteam.cmd.core.annotations.Requirement requirementAnnotation : requirementsAnnotation.value()) {
+        for (final dev.triumphteam.cmd.core.annotation.Requirement requirementAnnotation : requirementsAnnotation.value()) {
             final RequirementKey requirementKey = RequirementKey.of(requirementAnnotation.value());
             final String messageKeyValue = requirementAnnotation.messageKey();
 

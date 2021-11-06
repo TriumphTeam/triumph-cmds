@@ -46,19 +46,19 @@ public abstract class CommandManager<S> {
     private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
 
     /**
-     * Main registering method to be implemented in other platform command managers.
+     * Main registering method to be implemented in other platform baseCommand managers.
      *
-     * @param command The {@link BaseCommand} to be registered.
+     * @param baseCommand The {@link BaseCommand} to be registered.
      */
-    public abstract void registerCommand(@NotNull final BaseCommand command);
+    public abstract void registerCommand(@NotNull final BaseCommand baseCommand);
 
     /**
-     * Method to register commands with vararg.
+     * Method to register baseCommands with vararg.
      *
-     * @param commands A list of commands to be registered.
+     * @param baseCommands A list of baseCommands to be registered.
      */
-    public final void registerCommand(@NotNull final BaseCommand... commands) {
-        for (final BaseCommand command : commands) {
+    public final void registerCommand(@NotNull final BaseCommand... baseCommands) {
+        for (final BaseCommand command : baseCommands) {
             registerCommand(command);
         }
     }

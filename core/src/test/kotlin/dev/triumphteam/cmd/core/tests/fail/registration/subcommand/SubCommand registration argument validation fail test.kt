@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.tests.fail.registration.subcommand
 
-import dev.triumphteam.cmd.core.annotations.Flag
+import dev.triumphteam.cmd.core.annotation.Flag
 import dev.triumphteam.cmd.core.cases.registration.MoreThanOneFlags
 import dev.triumphteam.cmd.core.cases.registration.MoreThanOneLimitlessArray
 import dev.triumphteam.cmd.core.cases.registration.MoreThanOneLimitlessCollection

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotations;
+package dev.triumphteam.cmd.core.annotation;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,28 +31,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Requirement annotation. Holds all the requirement's data.
- * To be used inside {@link Requirements}.
+ * Join annotation is to be used in a String parameter to join all the arguments into one continuous string.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
-public @interface Requirement {
+@Target(ElementType.PARAMETER)
+public @interface Join {
 
     /**
-     * The requirement key.
-     * Required to be registered before used.
+     * Sets the delimiter of the join.
+     * By default, it uses a space.
      *
-     * @return The requirement key.
+     * @return The delimiter of to be used by the join method.
      */
     @NotNull
-    String value();
-
-    /**
-     * The message key will be used to send a custom message if the specified requirement is denied.
-     *
-     * @return The message key or empty if not needed.
-     */
-    @NotNull
-    String messageKey() default "";
+    String value() default " ";
 
 }

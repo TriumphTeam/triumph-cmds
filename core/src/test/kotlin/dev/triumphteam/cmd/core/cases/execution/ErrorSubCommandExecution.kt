@@ -24,12 +24,12 @@
 package dev.triumphteam.cmd.core.cases.execution
 
 import dev.triumphteam.cmd.core.BaseCommand
-import dev.triumphteam.cmd.core.annotations.Command
-import dev.triumphteam.cmd.core.annotations.CommandFlags
-import dev.triumphteam.cmd.core.annotations.Flag
-import dev.triumphteam.cmd.core.annotations.Requirement
-import dev.triumphteam.cmd.core.annotations.Requirements
-import dev.triumphteam.cmd.core.annotations.SubCommand
+import dev.triumphteam.cmd.core.annotation.Command
+import dev.triumphteam.cmd.core.annotation.CommandFlags
+import dev.triumphteam.cmd.core.annotation.Flag
+import dev.triumphteam.cmd.core.annotation.Requirement
+import dev.triumphteam.cmd.core.annotation.Requirements
+import dev.triumphteam.cmd.core.annotation.SubCommand
 import dev.triumphteam.cmd.core.flag.Flags
 import dev.triumphteam.cmd.core.implementation.TestSender
 

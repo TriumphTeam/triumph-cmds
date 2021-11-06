@@ -23,8 +23,7 @@
  */
 package dev.triumphteam.cmd.core.message.context;
 
-import dev.triumphteam.cmd.core.annotations.Default;
-import dev.triumphteam.cmd.core.annotations.Default;
+import dev.triumphteam.cmd.core.annotation.Default;
 import org.jetbrains.annotations.NotNull;
 
 /**

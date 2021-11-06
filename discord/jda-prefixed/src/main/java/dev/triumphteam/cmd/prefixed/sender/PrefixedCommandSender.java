@@ -1,4 +1,4 @@
-package dev.triumphteam.cmd.jda.sender;
+package dev.triumphteam.cmd.prefixed.sender;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

@@ -25,7 +25,10 @@ package dev.triumphteam.cmd.core.factory;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
+import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,12 +44,25 @@ import java.util.List;
  *
  * @param <C> The command type.
  */
-public abstract class AbstractCommandFactory<C extends Command> {
+public abstract class AbstractCommandFactory<S, C extends Command> {
 
     private String name;
     private final List<String> alias = new ArrayList<>();
 
-    protected AbstractCommandFactory(@NotNull final BaseCommand baseCommand) {
+    private final ArgumentRegistry<S> argumentRegistry;
+    private final RequirementRegistry<S> requirementRegistry;
+    private final MessageRegistry<S> messageRegistry;
+
+    protected AbstractCommandFactory(
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final RequirementRegistry<S> requirementRegistry,
+            @NotNull final MessageRegistry<S> messageRegistry
+    ) {
+        this.argumentRegistry = argumentRegistry;
+        this.requirementRegistry = requirementRegistry;
+        this.messageRegistry = messageRegistry;
+
         extractCommandNames(baseCommand);
     }
 
@@ -65,7 +81,7 @@ public abstract class AbstractCommandFactory<C extends Command> {
      * @return The command name.
      */
     @NotNull
-    protected String getName() {
+    public String getName() {
         return name;
     }
 
@@ -75,8 +91,26 @@ public abstract class AbstractCommandFactory<C extends Command> {
      * @return The command alias.
      */
     @NotNull
-    protected List<String> getAlias() {
+    public List<String> getAlias() {
         return alias;
+    }
+
+    // TODO: 11/6/2021 Comments
+    @NotNull
+    public ArgumentRegistry<S> getArgumentRegistry() {
+        return argumentRegistry;
+    }
+
+    // TODO: 11/6/2021 Comments
+    @NotNull
+    public RequirementRegistry<S> getRequirementRegistry() {
+        return requirementRegistry;
+    }
+
+    // TODO: 11/6/2021 Comments
+    @NotNull
+    public MessageRegistry<S> getMessageRegistry() {
+        return messageRegistry;
     }
 
     /**
@@ -87,7 +121,7 @@ public abstract class AbstractCommandFactory<C extends Command> {
      */
     private void extractCommandNames(@NotNull final BaseCommand baseCommand) throws CommandRegistrationException {
         final Class<? extends BaseCommand> commandClass = baseCommand.getClass();
-        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation = AnnotationUtil.getAnnotation(commandClass, dev.triumphteam.cmd.core.annotations.Command.class);
+        final dev.triumphteam.cmd.core.annotation.Command commandAnnotation = AnnotationUtil.getAnnotation(commandClass, dev.triumphteam.cmd.core.annotation.Command.class);
 
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();

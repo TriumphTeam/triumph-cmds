@@ -1,14 +1,14 @@
-package dev.triumphteam.cmd.jda;
+package dev.triumphteam.cmd.prefixed;
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-final class JdaPrefixedCommandListener extends ListenerAdapter {
+final class PrefixedCommandListener extends ListenerAdapter {
 
-    private final JdaPrefixedCommandManager commandSenderCommandManager;
+    private final PrefixedCommandManager commandSenderCommandManager;
 
-    public JdaPrefixedCommandListener(@NotNull final JdaPrefixedCommandManager commandSenderCommandManager) {
+    public PrefixedCommandListener(@NotNull final PrefixedCommandManager commandSenderCommandManager) {
         this.commandSenderCommandManager = commandSenderCommandManager;
     }
 

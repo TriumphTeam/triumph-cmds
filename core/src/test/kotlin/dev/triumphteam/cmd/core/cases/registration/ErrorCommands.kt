@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.core.cases.registration
 
 import dev.triumphteam.cmd.core.BaseCommand
-import dev.triumphteam.cmd.core.annotations.Command
+import dev.triumphteam.cmd.core.annotation.Command
 
 class NoCommand : BaseCommand()
 

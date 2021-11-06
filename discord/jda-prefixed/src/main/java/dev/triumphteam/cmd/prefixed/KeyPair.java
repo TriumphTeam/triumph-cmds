@@ -1,4 +1,4 @@
-package dev.triumphteam.cmd.jda;
+package dev.triumphteam.cmd.prefixed;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
