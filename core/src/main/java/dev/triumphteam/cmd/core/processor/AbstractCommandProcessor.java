@@ -128,11 +128,9 @@ public abstract class AbstractCommandProcessor<S> {
 
     /**
      * Helper method for getting the command names from the command annotation.
-     *
-     * @throws CommandRegistrationException In case something goes wrong should throw exception.
      */
-    private void extractCommandNames() throws CommandRegistrationException {
-        final Command commandAnnotation = AnnotationUtil.getAnnotation(annotatedClass, dev.triumphteam.cmd.core.annotation.Command.class);
+    private void extractCommandNames() {
+        final Command commandAnnotation = AnnotationUtil.getAnnotation(annotatedClass, Command.class);
 
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
@@ -140,16 +138,16 @@ public abstract class AbstractCommandProcessor<S> {
                 throw new CommandRegistrationException("Command name or \"@" + Command.class.getSimpleName() + "\" annotation missing", baseCommand.getClass());
             }
 
-            this.name = commandName;
-            this.alias.addAll(baseCommand.getAlias());
+            name = commandName;
+            alias.addAll(baseCommand.getAlias());
         } else {
-            this.name = commandAnnotation.value();
-            Collections.addAll(this.alias, commandAnnotation.alias());
+            name = commandAnnotation.value();
+            Collections.addAll(alias, commandAnnotation.alias());
         }
 
-        this.alias.addAll(baseCommand.getAlias());
+        alias.addAll(baseCommand.getAlias());
 
-        if (this.name.isEmpty()) {
+        if (name.isEmpty()) {
             throw new CommandRegistrationException("Command name must not be empty", baseCommand.getClass());
         }
     }

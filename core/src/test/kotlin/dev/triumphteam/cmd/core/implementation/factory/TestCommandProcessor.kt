@@ -25,20 +25,14 @@ package dev.triumphteam.cmd.core.implementation.factory
 
 import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry
-import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor
-import dev.triumphteam.cmd.core.implementation.TestCommand
 import dev.triumphteam.cmd.core.implementation.TestSender
 import dev.triumphteam.cmd.core.message.MessageRegistry
+import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry
 
 class TestCommandProcessor(
     baseCommand: BaseCommand,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandProcessor<TestCommand>(baseCommand) {
-
-    override fun create(): TestCommand {
-        return TestCommand(name, alias, argumentRegistry, requirementRegistry, messageRegistry)
-    }
-}
+    argumentRegistry: ArgumentRegistry<TestSender>,
+    requirementRegistry: RequirementRegistry<TestSender>,
+    messageRegistry: MessageRegistry<TestSender>
+) : AbstractCommandProcessor<TestSender>(baseCommand, argumentRegistry, requirementRegistry, messageRegistry)

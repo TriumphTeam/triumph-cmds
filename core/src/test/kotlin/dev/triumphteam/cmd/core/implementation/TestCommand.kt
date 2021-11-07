@@ -28,21 +28,18 @@ import dev.triumphteam.cmd.core.Command
 import dev.triumphteam.cmd.core.SimpleSubCommand
 import dev.triumphteam.cmd.core.SubCommand
 import dev.triumphteam.cmd.core.annotation.Default
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry
+import dev.triumphteam.cmd.core.implementation.factory.TestCommandProcessor
 import dev.triumphteam.cmd.core.implementation.factory.TestSubCommandProcessor
 import dev.triumphteam.cmd.core.message.MessageKey
-import dev.triumphteam.cmd.core.message.MessageRegistry
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry
 import java.lang.reflect.Modifier
 
-class TestCommand(
-    private val name: String,
-    private val alias: List<String>,
-    private val argumentRegistry: ArgumentRegistry<TestSender>,
-    private val requirementRegistry: RequirementRegistry<TestSender>,
-    private val messageRegistry: MessageRegistry<TestSender>
-) : Command {
+class TestCommand(processor: TestCommandProcessor) : Command {
+
+    private val name = processor.name
+    private val argumentRegistry = processor.argumentRegistry
+    private val requirementRegistry = processor.requirementRegistry
+    private val messageRegistry = processor.messageRegistry
 
     private val subCommands: MutableMap<String, SubCommand<TestSender>> = HashMap()
     private val aliases: MutableMap<String, SubCommand<TestSender>> = HashMap()
@@ -54,23 +51,14 @@ class TestCommand(
         for (method in methods) {
             if (!Modifier.isPublic(method.modifiers)) continue
 
-            val subCommand: SimpleSubCommand<TestSender> =
-                TestSubCommandProcessor(
-                    baseCommand,
-                    method,
-                    argumentRegistry,
-                    requirementRegistry,
-                    messageRegistry
-                ).create(name) ?: continue
+            val processor = TestSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry)
 
-            added = true
-
-            // TODO add this later and add aliases
-            val subCommandName = subCommand.name
-            val subCommandAlias = subCommand.alias
+            val subCommandName = processor.name ?: continue
+            val subCommand = SimpleSubCommand(processor, name)
 
             subCommands[subCommandName] = subCommand
             // TODO handle alias later
+            added = true
         }
 
         return added

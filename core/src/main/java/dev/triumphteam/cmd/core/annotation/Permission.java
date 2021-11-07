@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotate a TriumphCMDs Method using this Annotation to add a required permission
+ * Annotate a method using this Annotation to add a required permission
+ * TODO: 11/7/2021 Move this to `Bukkit` module.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

@@ -47,13 +47,15 @@ public final class PrefixedCommandProcessor extends AbstractCommandProcessor<Pre
         prefix = extractPrefix();
     }
 
+    // TODO: 11/7/2021 Comments
     @NotNull
     public String getPrefix() {
         return prefix;
     }
 
+    // TODO: 11/7/2021 Comments
     private String extractPrefix() {
-        final Prefix prefixAnnotation = AnnotationUtil.getAnnotation(getBaseCommand().getClass(), Prefix.class);
+        final Prefix prefixAnnotation = AnnotationUtil.getAnnotation(getAnnotatedClass(), Prefix.class);
         return prefixAnnotation == null ? "" : prefixAnnotation.value();
     }
 
