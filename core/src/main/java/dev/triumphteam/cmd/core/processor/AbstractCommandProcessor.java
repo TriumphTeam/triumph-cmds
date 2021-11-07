@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.Command;
+import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -41,9 +41,11 @@ import java.util.List;
  * I know this could be done better, but couldn't think of a better way.
  * If you do please PR or let me know on my discord!
  *
- * @param <C> The command type.
+ * @param <S> Sender type
  */
 public abstract class AbstractCommandProcessor<S> {
+
+    private final Class<?> annotatedClass;
 
     private String name;
     private final List<String> alias = new ArrayList<>();
@@ -64,7 +66,8 @@ public abstract class AbstractCommandProcessor<S> {
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
 
-        extractCommandNames(baseCommand);
+        this.annotatedClass = extractAnnotationClass();
+        extractCommandNames();
     }
 
     /**
@@ -111,20 +114,30 @@ public abstract class AbstractCommandProcessor<S> {
         return messageRegistry;
     }
 
+    // TODO: 11/7/2021 Comments
+    protected Class<?> getAnnotatedClass() {
+        return annotatedClass;
+    }
+
+    // TODO: 11/7/2021 Comments
+    private Class<?> extractAnnotationClass() {
+        final Class<? extends BaseCommand> commandClass = baseCommand.getClass();
+        final Class<?> parent = commandClass.getSuperclass();
+        return parent != BaseCommand.class ? parent : commandClass;
+    }
+
     /**
      * Helper method for getting the command names from the command annotation.
      *
-     * @param baseCommand The {@link BaseCommand} instance.
      * @throws CommandRegistrationException In case something goes wrong should throw exception.
      */
-    private void extractCommandNames(@NotNull final BaseCommand baseCommand) throws CommandRegistrationException {
-        final Class<? extends BaseCommand> commandClass = baseCommand.getClass();
-        final dev.triumphteam.cmd.core.annotation.Command commandAnnotation = AnnotationUtil.getAnnotation(commandClass, dev.triumphteam.cmd.core.annotation.Command.class);
+    private void extractCommandNames() throws CommandRegistrationException {
+        final Command commandAnnotation = AnnotationUtil.getAnnotation(annotatedClass, dev.triumphteam.cmd.core.annotation.Command.class);
 
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
             if (commandName == null) {
-                throw new CommandRegistrationException("Command name or \"@" + Command.class.getSimpleName() + "\" annotation missing", commandClass);
+                throw new CommandRegistrationException("Command name or \"@" + Command.class.getSimpleName() + "\" annotation missing", baseCommand.getClass());
             }
 
             this.name = commandName;
@@ -137,7 +150,7 @@ public abstract class AbstractCommandProcessor<S> {
         this.alias.addAll(baseCommand.getAlias());
 
         if (this.name.isEmpty()) {
-            throw new CommandRegistrationException("Command name must not be empty", commandClass);
+            throw new CommandRegistrationException("Command name must not be empty", baseCommand.getClass());
         }
     }
 
