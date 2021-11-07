@@ -29,7 +29,7 @@ import dev.triumphteam.cmd.core.argument.types.Argument;
 import dev.triumphteam.cmd.core.argument.types.FlagArgument;
 import dev.triumphteam.cmd.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmd.core.argument.types.StringArgument;
-import dev.triumphteam.cmd.core.factory.AbstractSubCommandFactory;
+import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.flag.internal.result.InvalidFlagArgumentResult;
 import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
 import dev.triumphteam.cmd.core.flag.internal.result.RequiredArgResult;
@@ -78,7 +78,7 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private boolean containsFlags = false;
 
     public SimpleSubCommand(
-            @NotNull final AbstractSubCommandFactory<S, SimpleSubCommand<S>> factory,
+            @NotNull final AbstractSubCommandProcessor<S> factory,
             @NotNull final String parentName
     ) {
         this.baseCommand = factory.getBaseCommand();

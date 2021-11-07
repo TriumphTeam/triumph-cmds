@@ -30,8 +30,8 @@ import dev.triumphteam.cmd.core.SimpleSubCommand;
 import dev.triumphteam.cmd.core.annotation.Permission;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.factory.AbstractSubCommandFactory;
-import dev.triumphteam.cmd.core.factory.AnnotationUtil;
+import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.processor.AnnotationUtil;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
@@ -42,11 +42,11 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<CommandSender, SimpleSubCommand<CommandSender>> {
+public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor<CommandSender> {
 
     private Class<?> senderClass;
 
-    public BukkitSubCommandFactory(
+    public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
@@ -57,7 +57,7 @@ public final class BukkitSubCommandFactory extends AbstractSubCommandFactory<Com
     }
 
     @Nullable
-    @Override
+    //@Override
     public SimpleSubCommand<CommandSender> create(@NotNull final String parentName) {
         if (getName() == null) return null;
         checkPermission(getMethod());

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.factory;
+package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
@@ -29,7 +29,6 @@ import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ import java.util.List;
  *
  * @param <C> The command type.
  */
-public abstract class AbstractCommandFactory<S, C extends Command> {
+public abstract class AbstractCommandProcessor<S> {
 
     private String name;
     private final List<String> alias = new ArrayList<>();
@@ -54,7 +53,7 @@ public abstract class AbstractCommandFactory<S, C extends Command> {
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
 
-    protected AbstractCommandFactory(
+    protected AbstractCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
@@ -67,15 +66,6 @@ public abstract class AbstractCommandFactory<S, C extends Command> {
 
         extractCommandNames(baseCommand);
     }
-
-    /**
-     * Abstract method so children can handle the return of the new {@link Command}.
-     *
-     * @return A {@link Command} implementation.
-     */
-    @NotNull
-    @Contract(" -> new")
-    public abstract C create();
 
     /**
      * Used for the child factories to get the command name.

@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.core.implementation
 
 import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.CommandManager
-import dev.triumphteam.cmd.core.implementation.factory.TestCommandFactory
+import dev.triumphteam.cmd.core.implementation.factory.TestCommandProcessor
 import dev.triumphteam.cmd.core.message.MessageKey
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext
 import dev.triumphteam.cmd.core.message.context.MessageContext
@@ -65,7 +65,7 @@ class TestCommandManager : CommandManager<TestSender>() {
     }
 
     override fun registerCommand(baseCommand: BaseCommand) {
-        val cliCommand = TestCommandFactory(baseCommand, argumentRegistry, requirementRegistry, messageRegistry).create()
+        val cliCommand = TestCommandProcessor(baseCommand, argumentRegistry, requirementRegistry, messageRegistry).create()
 
         // TODO multiple classes
         if (!cliCommand.addSubCommands(baseCommand)) {

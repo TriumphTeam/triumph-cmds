@@ -21,10 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.factory;
+package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.CommandFlags;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.Flag;
@@ -70,7 +69,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static dev.triumphteam.cmd.core.factory.AnnotationUtil.getAnnotation;
+import static dev.triumphteam.cmd.core.processor.AnnotationUtil.getAnnotation;
 
 /**
  * Abstracts most of the "extracting" from sub command annotations, allows for extending.
@@ -81,7 +80,7 @@ import static dev.triumphteam.cmd.core.factory.AnnotationUtil.getAnnotation;
  * @param <S>  The sender type.
  * @param <SC> The sub command type.
  */
-public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
+public abstract class AbstractSubCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
     private final Method method;
@@ -98,7 +97,7 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
 
-    protected AbstractSubCommandFactory(
+    protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
@@ -120,15 +119,6 @@ public abstract class AbstractSubCommandFactory<S, SC extends SubCommand<S>> {
         extractArguments(method);
         validateArguments();
     }
-
-    /**
-     * Abstract method so children can handle the return of the new {@link SubCommand}.
-     * Nullable so the method can be ignored.
-     *
-     * @return A {@link SubCommand} implementation.
-     */
-    @Nullable
-    public abstract SC create(@NotNull final String parentName);
 
     /**
      * Allows for customizing the argument parsing, for example <code>@Value</code> and <code>@Completion</code> annotations.

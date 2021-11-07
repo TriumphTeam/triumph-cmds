@@ -29,7 +29,7 @@ import dev.triumphteam.cmd.core.SimpleSubCommand
 import dev.triumphteam.cmd.core.SubCommand
 import dev.triumphteam.cmd.core.annotation.Default
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry
-import dev.triumphteam.cmd.core.implementation.factory.TestSubCommandFactory
+import dev.triumphteam.cmd.core.implementation.factory.TestSubCommandProcessor
 import dev.triumphteam.cmd.core.message.MessageKey
 import dev.triumphteam.cmd.core.message.MessageRegistry
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext
@@ -55,7 +55,7 @@ class TestCommand(
             if (!Modifier.isPublic(method.modifiers)) continue
 
             val subCommand: SimpleSubCommand<TestSender> =
-                TestSubCommandFactory(
+                TestSubCommandProcessor(
                     baseCommand,
                     method,
                     argumentRegistry,

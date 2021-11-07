@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,45 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.factory;
+package dev.triumphteam.cmd.prefixed.factory;
 
-import dev.triumphteam.cmd.bukkit.command.BukkitCommand;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.factory.AbstractCommandFactory;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
-import org.bukkit.command.CommandSender;
+import dev.triumphteam.cmd.prefixed.sender.PrefixedCommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class BukkitCommandFactory extends AbstractCommandFactory<BukkitCommand> {
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
-    // TODO probably move this lol
-    private final ArgumentRegistry<CommandSender> argumentRegistry;
-    private final RequirementRegistry<CommandSender> requirementRegistry;
-    private final MessageRegistry<CommandSender> messageRegistry;
+public final class PrefixedSubCommandProcessor extends AbstractSubCommandProcessor<PrefixedCommandSender> {
 
-    public BukkitCommandFactory(
+    public PrefixedSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
-            @NotNull final MessageRegistry<CommandSender> messageRegistry
+            @NotNull final Method method,
+            @NotNull final ArgumentRegistry<PrefixedCommandSender> argumentRegistry,
+            @NotNull final RequirementRegistry<PrefixedCommandSender> requirementRegistry,
+            @NotNull final MessageRegistry<PrefixedCommandSender> messageRegistry
     ) {
-        super(baseCommand);
-        this.argumentRegistry = argumentRegistry;
-        this.requirementRegistry = requirementRegistry;
-        this.messageRegistry = messageRegistry;
+        super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry);
     }
 
-    /**
-     * Creates the final {@link BukkitCommand}.
-     *
-     * @return A new {@link BukkitCommand}.
-     */
-    @NotNull
     @Override
-    public BukkitCommand create() {
-        return new BukkitCommand(getName(), getAlias(), argumentRegistry, requirementRegistry, messageRegistry);
+    protected void extractArguments(@NotNull final Method method) {
+        final Parameter[] parameters = method.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            final Parameter parameter = parameters[i];
+            if (i == 0) {
+                if (!PrefixedCommandSender.class.isAssignableFrom(parameter.getType())) {
+                    throw createException("Invalid or missing sender parameter (must be a PrefixedCommandSender).");
+                }
+                continue;
+            }
+
+            createArgument(parameter);
+        }
     }
 
 }

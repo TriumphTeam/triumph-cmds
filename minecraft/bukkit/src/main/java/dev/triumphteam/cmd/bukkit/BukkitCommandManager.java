@@ -23,8 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.command.BukkitCommand;
-import dev.triumphteam.cmd.bukkit.factory.BukkitCommandFactory;
+import dev.triumphteam.cmd.bukkit.factory.BukkitCommandProcessor;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
@@ -34,7 +33,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -66,10 +64,10 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
 
     @Override
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
-        final BukkitCommand bukkitCommand = new BukkitCommandFactory(baseCommand, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry()).create();
+        //final BukkitCommand bukkitCommand = new BukkitCommandProcessor(baseCommand, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry()).create();
 
         // TODO multiple classes
-        if (!bukkitCommand.addSubCommands(baseCommand)) {
+        /*if (!bukkitCommand.addSubCommands(baseCommand)) {
             return;
         }
 
@@ -85,15 +83,15 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
 
         // Registering
         commandMap.register(commandName, plugin.getName(), bukkitCommand);
-        commands.put(commandName, bukkitCommand);
+        commands.put(commandName, bukkitCommand);*/
     }
 
     // TODO remove the need to create a new command
     @Override
     public void unregisterCommand(@NotNull final BaseCommand command) {
-        final BukkitCommand bukkitCommand = new BukkitCommandFactory(command, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry()).create();
+        final BukkitCommandProcessor bukkitCommand = new BukkitCommandProcessor(command, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry());
         bukkitCommands.remove(bukkitCommand.getName());
-        bukkitCommand.unregister(commandMap);
+        //bukkitCommand.unregister(commandMap);
         commands.remove(bukkitCommand.getName());
     }
 

@@ -3,8 +3,7 @@ package dev.triumphteam.cmd.prefixed;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
-import dev.triumphteam.cmd.prefixed.command.PrefixedCommand;
-import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandFactory;
+import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedCommandSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -12,10 +11,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public final class PrefixedCommandManager extends CommandManager<PrefixedCommandSender> {
 
+    private final Set<String> prefixes = new HashSet<>();
     private final Map<String, PrefixedCommandExecutor> globalCommands = new HashMap<>();
     private final Map<KeyPair<Long, String>, PrefixedCommandExecutor> guildCommands = new HashMap<>();
 
@@ -33,21 +35,21 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedCommand
 
     @Override
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
-
+        addCommand(null, baseCommand);
     }
 
     public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand baseCommand) {
     }
 
     private void addCommand(@Nullable final Guild guild, @NotNull final BaseCommand baseCommand) {
-        final PrefixedCommand prefixedCommand = new PrefixedCommandFactory(
+        final PrefixedCommandProcessor processor = new PrefixedCommandProcessor(
                 baseCommand,
                 getArgumentRegistry(),
                 getRequirementRegistry(),
                 getMessageRegistry()
-        ).create();
+        );
 
-        String prefix = prefixedCommand.getPrefix();
+        String prefix = processor.getPrefix();
         if (prefix.isEmpty()) {
             if (globalPrefix.isEmpty()) {
                 throw new CommandRegistrationException("TODO");
@@ -56,12 +58,15 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedCommand
             prefix = globalPrefix;
         }
 
+        prefixes.add(prefix);
+
         if (guild == null) {
             final PrefixedCommandExecutor commandExecutor = globalCommands.computeIfAbsent(
                     prefix,
                     p -> new PrefixedCommandExecutor()
             );
-            commandExecutor.register(prefixedCommand);
+
+            commandExecutor.register(processor);
             return;
         }
 
@@ -69,7 +74,7 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedCommand
                 KeyPair.of(guild.getIdLong(), prefix),
                 p -> new PrefixedCommandExecutor()
         );
-        commandExecutor.register(prefixedCommand);
+        commandExecutor.register(processor);
     }
 
     public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand... baseCommands) {
@@ -84,13 +89,18 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedCommand
     }
 
     @Nullable
-    PrefixedCommandExecutor getGuildCommand(@NotNull final KeyPair<Guild, String> key) {
-        return guildCommands.get(key);
+    PrefixedCommandExecutor getGuildCommand(@NotNull final Guild guild, @NotNull final String prefix) {
+        return guildCommands.get(KeyPair.of(guild.getIdLong(), prefix));
     }
 
     @Nullable
     PrefixedCommandExecutor getGlobalCommand(@NotNull final String key) {
         return globalCommands.get(key);
+    }
+
+    @NotNull
+    Set<String> getPrefixes() {
+        return prefixes;
     }
 
 }

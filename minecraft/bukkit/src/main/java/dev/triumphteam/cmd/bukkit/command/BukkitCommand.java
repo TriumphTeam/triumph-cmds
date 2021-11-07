@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit.command;
 
-import dev.triumphteam.cmd.bukkit.factory.BukkitSubCommandFactory;
+import dev.triumphteam.cmd.bukkit.factory.BukkitSubCommandProcessor;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SimpleSubCommand;
@@ -83,7 +83,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         for (final Method method : methods) {
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
-            final SimpleSubCommand<CommandSender> subCommand = new BukkitSubCommandFactory(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create(name);
+            final SimpleSubCommand<CommandSender> subCommand = new BukkitSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create(name);
             if (subCommand == null) continue;
             added = true;
 

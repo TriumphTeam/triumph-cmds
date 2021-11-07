@@ -21,46 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed.factory;
+package dev.triumphteam.cmd.bukkit.factory;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.factory.AbstractCommandFactory;
-import dev.triumphteam.cmd.core.factory.AnnotationUtil;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
-import dev.triumphteam.cmd.prefixed.annotation.Prefix;
-import dev.triumphteam.cmd.prefixed.command.PrefixedCommand;
-import dev.triumphteam.cmd.prefixed.sender.PrefixedCommandSender;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class PrefixedCommandFactory extends AbstractCommandFactory<PrefixedCommandSender, PrefixedCommand> {
+public final class BukkitCommandProcessor extends AbstractCommandProcessor<CommandSender> {
 
-    private final String prefix;
-
-    public PrefixedCommandFactory(
+    public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<PrefixedCommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<PrefixedCommandSender> requirementRegistry,
-            @NotNull final MessageRegistry<PrefixedCommandSender> messageRegistry
+            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
+            @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
+            @NotNull final MessageRegistry<CommandSender> messageRegistry
     ) {
         super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry);
-        prefix = extractPrefix();
     }
 
-    @NotNull
-    @Override
-    public PrefixedCommand create() {
-        return new PrefixedCommand(this);
-    }
-
-    private String extractPrefix() {
-        final Prefix prefixAnnotation = AnnotationUtil.getAnnotation(getBaseCommand().getClass(), Prefix.class);
-        return prefixAnnotation == null ? "" : prefixAnnotation.value();
-    }
-
-    @NotNull
-    public String getPrefix() {
-        return prefix;
-    }
 }
