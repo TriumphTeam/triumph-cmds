@@ -24,11 +24,10 @@
 package dev.triumphteam.cmd.core.implementation.factory
 
 import dev.triumphteam.cmd.core.BaseCommand
-import dev.triumphteam.cmd.core.SimpleSubCommand
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor
 import dev.triumphteam.cmd.core.implementation.TestSender
 import dev.triumphteam.cmd.core.message.MessageRegistry
+import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry
 import java.lang.reflect.Method
 
@@ -38,20 +37,13 @@ class TestSubCommandProcessor(
     argumentRegistry: ArgumentRegistry<TestSender>,
     requirementRegistry: RequirementRegistry<TestSender>,
     messageRegistry: MessageRegistry<TestSender>
-) : AbstractSubCommandProcessor<TestSender, SimpleSubCommand<TestSender>>(
+) : AbstractSubCommandProcessor<TestSender>(
     baseCommand,
     method,
     argumentRegistry,
     requirementRegistry,
     messageRegistry
 ) {
-
-    private var senderClass: Class<*>? = null
-
-    override fun create(parentName: String): SimpleSubCommand<TestSender>? {
-        if (name == null) return null
-        return SimpleSubCommand(this, parentName)
-    }
 
     override fun extractArguments(method: Method) {
         val parameters = method.parameters
@@ -66,7 +58,6 @@ class TestSubCommandProcessor(
                 if (!TestSender::class.java.isAssignableFrom(parameter.type)) {
                     throw createException("Invalid sender parameter \"${parameter.type.name}\"")
                 }
-                senderClass = parameter.type
                 continue
             }
             createArgument(parameter)
