@@ -30,6 +30,7 @@ import dev.triumphteam.cmd.core.annotation.Flag;
 import dev.triumphteam.cmd.core.annotation.Join;
 import dev.triumphteam.cmd.core.annotation.Optional;
 import dev.triumphteam.cmd.core.annotation.Requirements;
+import dev.triumphteam.cmd.core.annotation.Split;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.types.Argument;
@@ -40,6 +41,7 @@ import dev.triumphteam.cmd.core.argument.types.FlagArgument;
 import dev.triumphteam.cmd.core.argument.types.JoinedStringArgument;
 import dev.triumphteam.cmd.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmd.core.argument.types.ResolverArgument;
+import dev.triumphteam.cmd.core.argument.types.SplitStringArgument;
 import dev.triumphteam.cmd.core.argument.types.StringArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.flag.Flags;
@@ -253,6 +255,12 @@ public abstract class AbstractSubCommandProcessor<S> {
 
             if (types[0] != String.class) {
                 throw createException("Only String collections are allowed");
+            }
+
+            if (parameter.isAnnotationPresent(Split.class)) {
+                final Split splitAnnotation = parameter.getAnnotation(Split.class);
+                addArgument(new SplitStringArgument<>(parameterName, splitAnnotation.value(), optional));
+                return;
             }
 
             addArgument(new CollectionArgument<>(parameterName, type, optional));
