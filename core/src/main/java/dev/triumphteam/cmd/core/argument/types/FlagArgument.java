@@ -84,7 +84,7 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "FlagArgument{" +
                 "flagGroup=" + flagGroup +
                 ", super=" + super.toString() + "}";

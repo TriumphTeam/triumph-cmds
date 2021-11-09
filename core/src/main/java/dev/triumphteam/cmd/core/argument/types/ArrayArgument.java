@@ -52,7 +52,7 @@ public final class ArrayArgument<S> extends LimitlessArgument<S> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "ArrayArgument{super=" + super.toString() + "}";
     }
 }

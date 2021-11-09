@@ -21,27 +21,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.types;
+package dev.triumphteam.cmd.core.argument;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * A limitless argument is an argument type that won't check for argument size.
- * For example: Lists, Arrays, etc.
+ * Command argument.
  *
  * @param <S> The sender type.
+ * @param <T> The Argument type.
  */
-public abstract class LimitlessArgument<S> extends AbstractArgument<S, List<String>> {
+public interface Argument<S, T> {
 
-    public LimitlessArgument(final @NotNull String name, final @NotNull Class<?> type, final boolean isOptional) {
-        super(name, type, isOptional);
-    }
+    /**
+     * Gets the name of the argument.
+     * This will be either the parameter name or <code>arg1</code>, <code>arg2</code>, etc.
+     * Needs to be compiled with compiler argument <code>-parameters</code> to show actual names.
+     *
+     * @return The argument name.
+     */
+    @NotNull
+    String getName();
 
-    @Override
-    public @NotNull String toString() {
-        return "LimitlessArgument{super=" + super.toString() + "}";
-    }
+    /**
+     * The argument type.
+     * Holds the class type of the argument.
+     *
+     * @return The argument type.
+     */
+    @NotNull
+    Class<?> getType();
+
+    /**
+     * If argument is optional or not.
+     *
+     * @return Whether the argument is optional.
+     */
+    boolean isOptional();
+
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The argument value.
+     * @return An object with the resolved value.
+     */
+    @Nullable
+    Object resolve(@NotNull final S sender, @NotNull final T value);
 
 }

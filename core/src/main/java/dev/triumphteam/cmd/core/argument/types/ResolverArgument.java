@@ -80,7 +80,7 @@ public final class ResolverArgument<S> extends StringArgument<S> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "ResolverArgument{" +
                 "resolver=" + resolver +
                 ", super=" + super.toString() + "}";

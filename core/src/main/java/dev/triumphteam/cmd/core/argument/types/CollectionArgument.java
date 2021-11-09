@@ -79,7 +79,7 @@ public final class CollectionArgument<S> extends LimitlessArgument<S> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "CollectionArgument{" +
                 "collectionType=" + collectionType +
                 ", super=" + super.toString() + "}";

@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument.types;
 
+import dev.triumphteam.cmd.core.argument.Argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,13 +36,13 @@ import java.util.Objects;
  * @param <S> The sender type.
  * @param <T> The Argument type.
  */
-public abstract class Argument<S, T> {
+public abstract class AbstractArgument<S, T> implements Argument<S, T> {
 
     private final String name;
     private final Class<?> type;
     private final boolean optional;
 
-    public Argument(
+    public AbstractArgument(
             @NotNull final String name,
             @NotNull final Class<?> type,
             final boolean optional
@@ -59,6 +60,7 @@ public abstract class Argument<S, T> {
      * @return The argument name.
      */
     @NotNull
+    @Override
     public String getName() {
         return name;
     }
@@ -70,6 +72,7 @@ public abstract class Argument<S, T> {
      * @return The argument type.
      */
     @NotNull
+    @Override
     public Class<?> getType() {
         return type;
     }
@@ -79,25 +82,16 @@ public abstract class Argument<S, T> {
      *
      * @return Whether the argument is optional.
      */
+    @Override
     public boolean isOptional() {
         return optional;
     }
-
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The argument value.
-     * @return An object with the resolved value.
-     */
-    @Nullable
-    public abstract Object resolve(@NotNull final S sender, @NotNull final T value);
 
     @Override
     public boolean equals(@Nullable final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final Argument<?, ?> argument = (Argument<?, ?>) o;
+        final AbstractArgument<?, ?> argument = (AbstractArgument<?, ?>) o;
         return optional == argument.optional && name.equals(argument.name) && type.equals(argument.type);
     }
 
@@ -106,6 +100,7 @@ public abstract class Argument<S, T> {
         return Objects.hash(name, type, optional);
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "Argument{" +

@@ -33,7 +33,8 @@ import dev.triumphteam.cmd.core.annotation.Requirements;
 import dev.triumphteam.cmd.core.annotation.Split;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.types.Argument;
+import dev.triumphteam.cmd.core.argument.types.AbstractArgument;
+import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.argument.types.ArrayArgument;
 import dev.triumphteam.cmd.core.argument.types.CollectionArgument;
 import dev.triumphteam.cmd.core.argument.types.EnumArgument;
@@ -80,7 +81,6 @@ import static dev.triumphteam.cmd.core.processor.AnnotationUtil.getAnnotation;
  * If you do please PR or let me know on my discord!
  *
  * @param <S>  The sender type.
- * @param <SC> The sub command type.
  */
 public abstract class AbstractSubCommandProcessor<S> {
 
@@ -289,6 +289,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         addArgument(new ResolverArgument<>(parameterName, type, resolver, optional));
     }
 
+    private AbstractArgument<S, ?> createArgument(@NotNull final AbstractArgument<S, ?> argument) {
+        arguments.add(argument);
+        return argument;
+    }
+
     protected void addRequirement(@NotNull final Requirement<S, ?> requirement) {
         requirements.add(requirement);
     }
@@ -298,7 +303,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param argument The created argument.
      */
-    private void addArgument(@NotNull final Argument<S, ?> argument) {
+    private void addArgument(@NotNull final AbstractArgument<S, ?> argument) {
         arguments.add(argument);
     }
 

@@ -31,14 +31,14 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <S> The sender type.
  */
-public abstract class StringArgument<S> extends Argument<S, String> {
+public abstract class StringArgument<S> extends AbstractArgument<S, String> {
 
     public StringArgument(@NotNull final String name, @NotNull final Class<?> type, final boolean optional) {
         super(name, type, optional);
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "StringArgument{super=" + super.toString() + "}";
     }
 

@@ -76,7 +76,7 @@ public final class JoinedStringArgument<S> extends LimitlessArgument<S> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "JoinedStringArgument{" +
                 "delimiter=" + delimiter +
                 ", super=" + super.toString() + "}";

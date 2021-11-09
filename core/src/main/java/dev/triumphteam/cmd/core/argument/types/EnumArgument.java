@@ -118,7 +118,7 @@ public final class EnumArgument<S> extends StringArgument<S> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "EnumArgument{" +
                 "enumType=" + enumType +
                 ", super=" + super.toString() + "}";
