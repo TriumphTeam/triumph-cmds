@@ -52,8 +52,7 @@ public interface Command {
      * Adds a new sub command to the command.
      *
      * @param baseCommand The {@link BaseCommand} to get the sub commands from.
-     * @return Whether any sub command was added.
      */
-    boolean addSubCommands(@NotNull final BaseCommand baseCommand);
+    void addSubCommands(@NotNull final BaseCommand baseCommand);
 
 }

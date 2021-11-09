@@ -46,9 +46,8 @@ class TestCommand(processor: TestCommandProcessor) : Command {
 
     override fun addSubCommands(baseCommand: BaseCommand): Boolean {
         var added = false
-        val methods = baseCommand.javaClass.declaredMethods
 
-        for (method in methods) {
+        for (method in baseCommand.javaClass.declaredMethods) {
             if (!Modifier.isPublic(method.modifiers)) continue
 
             val processor = TestSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry)
@@ -94,7 +93,7 @@ class TestCommand(processor: TestCommandProcessor) : Command {
     }
 
     override fun getAlias(): List<String> {
-        return alias
+        return listOf()
     }
 
     private val defaultSubCommand: SubCommand<TestSender>?

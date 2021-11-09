@@ -156,16 +156,17 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         try {
             method.invoke(baseCommand, invokeArguments.toArray());
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
-                    .initCause(e instanceof InvocationTargetException ? e.getCause() : e);
+            e.printStackTrace();
+            //throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
+              //      .initCause(e instanceof InvocationTargetException ? e.getCause() : e);
         }
     }
 
     /**
-     * Used for checking if the arguments are valid and adding them to the invoke arguments.
+     * Used for checking if the arguments are valid and adding them to the `invokeArguments`.
      *
      * @param sender          The sender of the command.
-     * @param invokeArguments A list with the arguments that'll be used on the invoke of the command method.
+     * @param invokeArguments A list with the arguments that'll be used on the `invoke` of the command method.
      * @param commandArgs     The command arguments type.
      * @return False if any argument fails to pass.
      */

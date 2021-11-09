@@ -20,11 +20,11 @@ final class PrefixedCommandExecutor {
 
         final PrefixedCommand command = commands.computeIfAbsent(name, p -> new PrefixedCommand(processor));
 
-        if (!command.addSubCommands(processor.getBaseCommand())) {
-            return;
+        for (final String alias : processor.getAlias()) {
+            commands.putIfAbsent(alias, command);
         }
 
-        
+        command.addSubCommands(processor.getBaseCommand());
     }
 
     public void execute(
@@ -42,7 +42,7 @@ final class PrefixedCommandExecutor {
             return;
         }
 
-        message.reply("move on with command").queue();
+        command.execute(new SimplePrefixedSender(message, author, channel), args);
     }
 
 }

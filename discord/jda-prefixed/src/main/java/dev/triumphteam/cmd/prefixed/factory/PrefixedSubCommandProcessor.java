@@ -28,20 +28,20 @@ import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
-import dev.triumphteam.cmd.prefixed.sender.PrefixedCommandSender;
+import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-public final class PrefixedSubCommandProcessor extends AbstractSubCommandProcessor<PrefixedCommandSender> {
+public final class PrefixedSubCommandProcessor extends AbstractSubCommandProcessor<PrefixedSender> {
 
     public PrefixedSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
-            @NotNull final ArgumentRegistry<PrefixedCommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<PrefixedCommandSender> requirementRegistry,
-            @NotNull final MessageRegistry<PrefixedCommandSender> messageRegistry
+            @NotNull final ArgumentRegistry<PrefixedSender> argumentRegistry,
+            @NotNull final RequirementRegistry<PrefixedSender> requirementRegistry,
+            @NotNull final MessageRegistry<PrefixedSender> messageRegistry
     ) {
         super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry);
     }
@@ -52,7 +52,7 @@ public final class PrefixedSubCommandProcessor extends AbstractSubCommandProcess
         for (int i = 0; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
             if (i == 0) {
-                if (!PrefixedCommandSender.class.isAssignableFrom(parameter.getType())) {
+                if (!PrefixedSender.class.isAssignableFrom(parameter.getType())) {
                     throw createException("Invalid or missing sender parameter (must be a PrefixedCommandSender).");
                 }
                 continue;

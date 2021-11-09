@@ -47,7 +47,7 @@ final class PrefixedCommandListener extends ListenerAdapter {
             return;
         }
 
-        commandExecutor.execute(commandName, message, author, event.getChannel(), args);
+        commandExecutor.execute(commandName, message, author, event.getChannel(), args.subList(1, args.size()));
     }
 
     @Nullable

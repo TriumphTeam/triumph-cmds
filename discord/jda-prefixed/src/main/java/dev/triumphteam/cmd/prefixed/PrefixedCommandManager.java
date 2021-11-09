@@ -4,7 +4,7 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
-import dev.triumphteam.cmd.prefixed.sender.PrefixedCommandSender;
+import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public final class PrefixedCommandManager extends CommandManager<PrefixedCommandSender> {
+public final class PrefixedCommandManager extends CommandManager<PrefixedSender> {
 
     private final Set<String> prefixes = new HashSet<>();
     private final Map<String, PrefixedCommandExecutor> globalCommands = new HashMap<>();
@@ -66,6 +66,10 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedCommand
                     p -> new PrefixedCommandExecutor()
             );
 
+            for (final String alias : processor.getAlias()) {
+                globalCommands.putIfAbsent(alias, commandExecutor);
+            }
+
             commandExecutor.register(processor);
             return;
         }
@@ -74,6 +78,11 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedCommand
                 KeyPair.of(guild.getIdLong(), prefix),
                 p -> new PrefixedCommandExecutor()
         );
+
+        for (final String alias : processor.getAlias()) {
+            guildCommands.putIfAbsent(KeyPair.of(guild.getIdLong(), alias), commandExecutor);
+        }
+
         commandExecutor.register(processor);
     }
 

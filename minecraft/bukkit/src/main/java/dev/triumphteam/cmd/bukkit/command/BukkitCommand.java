@@ -76,8 +76,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     }
 
     @Override
-    public boolean addSubCommands(@NotNull final BaseCommand baseCommand) {
-        boolean added = false;
+    public void addSubCommands(@NotNull final BaseCommand baseCommand) {
         final Method[] methods = baseCommand.getClass().getDeclaredMethods();
         //methods.sort(Comparator.comparing(Method::getName));
         for (final Method method : methods) {
@@ -85,7 +84,6 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
 
             final SimpleSubCommand<CommandSender> subCommand = new BukkitSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create(name);
             if (subCommand == null) continue;
-            added = true;
 
             // TODO add aliases
             final String subCommandName = subCommand.getName();
@@ -93,8 +91,6 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
 
             commands.put(subCommandName, subCommand);
         }
-
-        return added;
     }
 
     @Override

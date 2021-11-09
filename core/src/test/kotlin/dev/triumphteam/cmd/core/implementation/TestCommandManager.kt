@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.core.requirement.RequirementKey
 
 class TestCommandManager : CommandManager<TestSender>() {
     private val commands = mutableMapOf<String, TestCommand>()
+    private val alias = mutableMapOf<String, TestCommand>()
 
     init {
         registerMessage(MessageKey.UNKNOWN_COMMAND) { sender, _ ->
@@ -67,21 +68,19 @@ class TestCommandManager : CommandManager<TestSender>() {
     override fun registerCommand(baseCommand: BaseCommand) {
         val processor = TestCommandProcessor(baseCommand, argumentRegistry, requirementRegistry, messageRegistry)
         val commandName = processor.name
-        val command = commands.computeIfAbsent(commandName) { TestCommand(processor) }
 
-        // TODO multiple classes
+        val command = commands.computeIfAbsent(commandName) { TestCommand(processor) }
+        processor.alias.forEach { alias.computeIfAbsent(it) { command } }
+
         if (!command.addSubCommands(baseCommand)) {
             return
         }
-
-        commands[commandName] = command
     }
 
     override fun unregisterCommand(command: BaseCommand) {}
 
     fun execute(sender: TestSender, commandName: String, args: List<String>) {
-        val command = commands[commandName]
-        if (command == null) {
+        val command = commands[commandName] ?: alias[commandName] ?: run {
             messageRegistry.sendMessage(
                 MessageKey.UNKNOWN_COMMAND, sender,
                 DefaultMessageContext(
