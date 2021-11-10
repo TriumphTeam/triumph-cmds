@@ -27,29 +27,36 @@ import dev.triumphteam.cmd.core.argument.Argument;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 // TODO: 11/9/2021 Comments
 public final class SplitStringArgument<S> extends StringArgument<S> {
 
     private final String regex;
     private final Argument<S, String> argument;
+    private final Class<?> collectionType;
 
     public SplitStringArgument(
             @NotNull final String name,
             @NotNull final String regex,
             @NotNull final Argument<S, String> argument,
+            @NotNull final Class<?> collectionType,
             final boolean optional
     ) {
         super(name, String.class, optional);
         this.regex = regex;
         this.argument = argument;
+        this.collectionType = collectionType;
     }
 
     @NotNull
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final String value) {;
-        return Arrays.stream(value.split(regex)).map(arg -> argument.resolve(sender, arg)).collect(Collectors.toList());
+    public Object resolve(@NotNull final S sender, @NotNull final String value) {
+        final Stream<Object> stream = Arrays.stream(value.split(regex)).map(arg -> argument.resolve(sender, arg));
+        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
+        return stream.collect(Collectors.toList());
     }
 
 }

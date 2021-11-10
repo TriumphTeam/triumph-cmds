@@ -23,13 +23,15 @@
  */
 package dev.triumphteam.cmd.core.argument.types;
 
+import dev.triumphteam.cmd.core.argument.Argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Collection argument, a {@link LimitlessArgument} but returns a {@link List} instead.
@@ -39,14 +41,17 @@ import java.util.Set;
  */
 public final class CollectionArgument<S> extends LimitlessArgument<S> {
 
+    private final Argument<S, String> argument;
     private final Class<?> collectionType;
 
     public CollectionArgument(
             @NotNull final String name,
+            @NotNull final Argument<S, String> argument,
             @NotNull final Class<?> collectionType,
             final boolean optional
     ) {
         super(name, String.class, optional);
+        this.argument = argument;
         this.collectionType = collectionType;
     }
 
@@ -60,8 +65,9 @@ public final class CollectionArgument<S> extends LimitlessArgument<S> {
     @NotNull
     @Override
     public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
-        if (collectionType == Set.class) return new HashSet<>(value);
-        return value;
+        final Stream<Object> stream = value.stream().map(arg -> argument.resolve(sender, arg));
+        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
+        return stream.collect(Collectors.toList());
     }
 
     @Override

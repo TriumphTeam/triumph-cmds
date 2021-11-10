@@ -80,7 +80,7 @@ import static dev.triumphteam.cmd.core.processor.AnnotationUtil.getAnnotation;
  * I know this could be done better, but couldn't think of a better way.
  * If you do please PR or let me know on my discord!
  *
- * @param <S>  The sender type.
+ * @param <S> The sender type.
  */
 public abstract class AbstractSubCommandProcessor<S> {
 
@@ -252,19 +252,15 @@ public abstract class AbstractSubCommandProcessor<S> {
             }
 
             final Type collectionType = ((WildcardType) genericType).getUpperBounds()[0];
-
-            /*if (types[0] != String.class) {
-                throw createException("Only String collections are allowed");
-            }*/
+            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, parameterName, optional);
 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
-                final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, parameterName, optional);
-                addArgument(new SplitStringArgument<>(parameterName, splitAnnotation.value(), argument, optional));
+                addArgument(new SplitStringArgument<>(parameterName, splitAnnotation.value(), argument, type, optional));
                 return;
             }
 
-            addArgument(new CollectionArgument<>(parameterName, type, optional));
+            addArgument(new CollectionArgument<>(parameterName, argument, type, optional));
             return;
         }
 
@@ -285,15 +281,15 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     private Argument<S, String> createSimpleArgument(@NotNull final Class<?> type, @NotNull final String parameterName, final boolean optional) {
-        // Handler for using any Enum.
-        if (Enum.class.isAssignableFrom(type)) {
-            //noinspection unchecked
-            return new EnumArgument<>(parameterName, (Class<? extends Enum<?>>) type, optional);
-        }
-
         // All other types default to the resolver.
         final ArgumentResolver<S> resolver = argumentRegistry.getResolver(type);
         if (resolver == null) {
+            // Handler for using any Enum.
+            if (Enum.class.isAssignableFrom(type)) {
+                //noinspection unchecked
+                return new EnumArgument<>(parameterName, (Class<? extends Enum<?>>) type, optional);
+            }
+
             throw createException("No argument of type \"" + type.getName() + "\" registered");
         }
         return new ResolverArgument<>(parameterName, type, resolver, optional);
