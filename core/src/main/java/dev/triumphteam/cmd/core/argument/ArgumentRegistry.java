@@ -61,8 +61,8 @@ public final class ArgumentRegistry<S> {
         register(double.class, (sender, arg) -> Doubles.tryParse(arg));
         register(Double.class, (sender, arg) -> Doubles.tryParse(arg));
 
-        register(Boolean.class, (sender, arg) -> Boolean.valueOf(arg));
         register(boolean.class, (sender, arg) -> Boolean.valueOf(arg));
+        register(Boolean.class, (sender, arg) -> Boolean.valueOf(arg));
 
         register(String.class, (sender, arg) -> arg);
     }
