@@ -31,10 +31,9 @@ import dev.triumphteam.cmd.core.annotation.Join;
 import dev.triumphteam.cmd.core.annotation.Optional;
 import dev.triumphteam.cmd.core.annotation.Requirements;
 import dev.triumphteam.cmd.core.annotation.Split;
+import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.types.AbstractArgument;
-import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.argument.types.ArrayArgument;
 import dev.triumphteam.cmd.core.argument.types.CollectionArgument;
 import dev.triumphteam.cmd.core.argument.types.EnumArgument;
@@ -65,6 +64,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -231,13 +231,6 @@ public abstract class AbstractSubCommandProcessor<S> {
         final String parameterName = parameter.getName();
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
-        // Handler for using any Enum.
-        if (Enum.class.isAssignableFrom(type)) {
-            //noinspection unchecked
-            addArgument(new EnumArgument<>(parameterName, (Class<? extends Enum<?>>) type, optional));
-            return;
-        }
-
         if (type == String[].class) {
             addArgument(new ArrayArgument<>(parameterName, optional));
             return;
@@ -253,13 +246,21 @@ public abstract class AbstractSubCommandProcessor<S> {
                 throw createException("Unsupported collection type \"" + type + "\"");
             }
 
-            if (types[0] != String.class) {
-                throw createException("Only String collections are allowed");
+            final Type genericType = types[0];
+            if (!(genericType instanceof WildcardType)) {
+                throw createException("Could not get collection type \"" + type + "\"");
             }
+
+            final Type collectionType = ((WildcardType) genericType).getUpperBounds()[0];
+
+            /*if (types[0] != String.class) {
+                throw createException("Only String collections are allowed");
+            }*/
 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
-                addArgument(new SplitStringArgument<>(parameterName, splitAnnotation.value(), optional));
+                final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, parameterName, optional);
+                addArgument(new SplitStringArgument<>(parameterName, splitAnnotation.value(), argument, optional));
                 return;
             }
 
@@ -280,18 +281,22 @@ public abstract class AbstractSubCommandProcessor<S> {
             return;
         }
 
+        addArgument(createSimpleArgument(type, parameterName, optional));
+    }
+
+    private Argument<S, String> createSimpleArgument(@NotNull final Class<?> type, @NotNull final String parameterName, final boolean optional) {
+        // Handler for using any Enum.
+        if (Enum.class.isAssignableFrom(type)) {
+            //noinspection unchecked
+            return new EnumArgument<>(parameterName, (Class<? extends Enum<?>>) type, optional);
+        }
+
         // All other types default to the resolver.
         final ArgumentResolver<S> resolver = argumentRegistry.getResolver(type);
         if (resolver == null) {
             throw createException("No argument of type \"" + type.getName() + "\" registered");
         }
-
-        addArgument(new ResolverArgument<>(parameterName, type, resolver, optional));
-    }
-
-    private AbstractArgument<S, ?> createArgument(@NotNull final AbstractArgument<S, ?> argument) {
-        arguments.add(argument);
-        return argument;
+        return new ResolverArgument<>(parameterName, type, resolver, optional);
     }
 
     protected void addRequirement(@NotNull final Requirement<S, ?> requirement) {
@@ -303,7 +308,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param argument The created argument.
      */
-    private void addArgument(@NotNull final AbstractArgument<S, ?> argument) {
+    private void addArgument(@NotNull final Argument<S, ?> argument) {
         arguments.add(argument);
     }
 

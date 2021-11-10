@@ -23,28 +23,33 @@
  */
 package dev.triumphteam.cmd.core.argument.types;
 
+import dev.triumphteam.cmd.core.argument.Argument;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 // TODO: 11/9/2021 Comments
 public final class SplitStringArgument<S> extends StringArgument<S> {
 
     private final String regex;
+    private final Argument<S, String> argument;
 
     public SplitStringArgument(
             @NotNull final String name,
             @NotNull final String regex,
+            @NotNull final Argument<S, String> argument,
             final boolean optional
     ) {
         super(name, String.class, optional);
         this.regex = regex;
+        this.argument = argument;
     }
 
     @NotNull
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final String value) {
-        return Arrays.asList(value.split(regex));
+    public Object resolve(@NotNull final S sender, @NotNull final String value) {;
+        return Arrays.stream(value.split(regex)).map(arg -> argument.resolve(sender, arg)).collect(Collectors.toList());
     }
 
 }
