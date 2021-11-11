@@ -21,18 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.annotation;
+package dev.triumphteam.cmds.kotlin
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import dev.triumphteam.cmd.core.CommandManager
+import dev.triumphteam.cmd.core.argument.ArgumentResolver
 
-/**
- * Annotate a method using this Annotation to add a required permission
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Permission {
-    String value();
-}
