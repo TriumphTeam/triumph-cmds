@@ -93,7 +93,7 @@ subprojects {
                     }
                     pom {
                         name.set("triumph-cmds")
-                        description.set("Multiplatform command library")
+                        description.set("Multiplatform command framework")
                         url.set("https://github.com/TriumphTeam/triumph-cmds")
 
                         licenses {

@@ -23,11 +23,12 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.prefixed.command.PrefixedCommand;
 import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -37,6 +38,12 @@ import java.util.Map;
 final class PrefixedCommandExecutor {
 
     private final Map<String, PrefixedCommand> commands = new HashMap<>();
+
+    private final MessageRegistry<PrefixedSender> messageRegistry;
+
+    public PrefixedCommandExecutor(@NotNull final MessageRegistry<PrefixedSender> messageRegistry) {
+        this.messageRegistry = messageRegistry;
+    }
 
     public void register(@NotNull final PrefixedCommandProcessor processor) {
         final String name = processor.getName();
@@ -52,20 +59,18 @@ final class PrefixedCommandExecutor {
 
     public void execute(
             @NotNull final String commandName,
-            @NotNull final Message message,
-            @NotNull final User author,
-            @NotNull final TextChannel channel,
+            @NotNull final PrefixedSender sender,
             @NotNull final List<String> args
     ) {
 
         final PrefixedCommand command = commands.get(commandName);
         if (command == null) {
             // TODO: 11/6/2021 INVALID COMMAND!
-            message.reply("yikes, invalid").queue();
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(commandName, ""));
             return;
         }
 
-        command.execute(new SimplePrefixedSender(message, author, channel), args);
+        command.execute(sender, args);
     }
 
 }

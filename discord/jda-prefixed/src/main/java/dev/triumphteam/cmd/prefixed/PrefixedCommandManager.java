@@ -45,7 +45,7 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
     private final Map<KeyPair<Long, String>, PrefixedCommandExecutor> guildCommands = new HashMap<>();
 
     private final String globalPrefix;
-    private final PrefixedCommandListener jdaCommandListener = new PrefixedCommandListener(this);
+    private final PrefixedCommandListener jdaCommandListener = new PrefixedCommandListener(this, getMessageRegistry());
 
     public PrefixedCommandManager(@NotNull final JDA jda, @NotNull final String globalPrefix) {
         this.globalPrefix = globalPrefix;
@@ -62,6 +62,7 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
     }
 
     public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand baseCommand) {
+        addCommand(guild, baseCommand);
     }
 
     private void addCommand(@Nullable final Guild guild, @NotNull final BaseCommand baseCommand) {
@@ -75,7 +76,8 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
         String prefix = processor.getPrefix();
         if (prefix.isEmpty()) {
             if (globalPrefix.isEmpty()) {
-                throw new CommandRegistrationException("TODO");
+                // TODO: 11/11/2021 Change message
+                throw new CommandRegistrationException("Please introduce a prefix.");
             }
 
             prefix = globalPrefix;
@@ -86,7 +88,7 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
         if (guild == null) {
             final PrefixedCommandExecutor commandExecutor = globalCommands.computeIfAbsent(
                     prefix,
-                    p -> new PrefixedCommandExecutor()
+                    p -> new PrefixedCommandExecutor(getMessageRegistry())
             );
 
             for (final String alias : processor.getAlias()) {
@@ -99,7 +101,7 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
 
         final PrefixedCommandExecutor commandExecutor = guildCommands.computeIfAbsent(
                 KeyPair.of(guild.getIdLong(), prefix),
-                p -> new PrefixedCommandExecutor()
+                p -> new PrefixedCommandExecutor(getMessageRegistry())
         );
 
         for (final String alias : processor.getAlias()) {

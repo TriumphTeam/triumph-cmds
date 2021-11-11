@@ -40,16 +40,12 @@ public final class SimplePrefixedSender implements PrefixedSender {
     private final TextChannel channel;
     private final Guild guild;
 
-    public SimplePrefixedSender(
-            @NotNull final Message message,
-            @NotNull final User user,
-            @NotNull final TextChannel channel
-    ) {
+    public SimplePrefixedSender(@NotNull final Message message) {
         this.message = message;
-        this.user = user;
+        this.user = message.getAuthor();
         this.member = message.getMember();
-        this.channel = channel;
-        this.guild = channel.getGuild();
+        this.channel = message.getTextChannel();
+        this.guild = message.getGuild();
     }
 
     @NotNull

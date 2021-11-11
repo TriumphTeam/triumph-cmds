@@ -23,6 +23,10 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -39,9 +43,11 @@ import java.util.regex.Pattern;
 final class PrefixedCommandListener extends ListenerAdapter {
 
     private final PrefixedCommandManager commandManager;
+    private final MessageRegistry<PrefixedSender> messageRegistry;
 
-    public PrefixedCommandListener(@NotNull final PrefixedCommandManager commandManager) {
+    public PrefixedCommandListener(@NotNull final PrefixedCommandManager commandManager, @NotNull final MessageRegistry<PrefixedSender> messageRegistry) {
         this.commandManager = commandManager;
+        this.messageRegistry = messageRegistry;
     }
 
     @Override
@@ -52,6 +58,8 @@ final class PrefixedCommandListener extends ListenerAdapter {
         final Guild guild = event.getGuild();
         final Message message = event.getMessage();
         final List<String> args = Arrays.asList(message.getContentRaw().split(" "));
+
+        final PrefixedSender sender = new SimplePrefixedSender(message);
 
         if (args.isEmpty()) return;
 
@@ -66,11 +74,11 @@ final class PrefixedCommandListener extends ListenerAdapter {
         if (commandExecutor == null) commandExecutor = commandManager.getGuildCommand(guild, prefix);
         if (commandExecutor == null) {
             // TODO: 11/6/2021 NO COMMAND
-            message.reply("yikes, no command").queue();
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(commandName, ""));
             return;
         }
 
-        commandExecutor.execute(commandName, message, author, event.getChannel(), args.subList(1, args.size()));
+        commandExecutor.execute(commandName, sender, args.subList(1, args.size()));
     }
 
     @Nullable
