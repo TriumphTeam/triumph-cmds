@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -56,6 +56,7 @@ import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -98,13 +99,15 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
+    private final SenderMapper<S, ?> senderMapper;
 
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SenderMapper<S, ?> senderMapper
     ) {
         this.baseCommand = baseCommand;
         this.method = method;
@@ -112,6 +115,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.argumentRegistry = argumentRegistry;
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
+        this.senderMapper = senderMapper;
 
         extractSubCommandNames();
         if (name == null) return;
@@ -211,6 +215,10 @@ public abstract class AbstractSubCommandProcessor<S> {
         return new SubCommandRegistrationException(message, method, baseCommand.getClass());
     }
 
+    protected void validateSender(@NotNull final Class<?> type) {
+        senderMapper.validate(type);
+    }
+
     /**
      * Gets the necessary arguments for the command.
      *
@@ -231,6 +239,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         final String parameterName = parameter.getName();
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
+        // TODO: 11/17/2021 Perhaps join arrays with collections to allow for type safe as well
         if (type == String[].class) {
             addArgument(new ArrayArgument<>(parameterName, optional));
             return;

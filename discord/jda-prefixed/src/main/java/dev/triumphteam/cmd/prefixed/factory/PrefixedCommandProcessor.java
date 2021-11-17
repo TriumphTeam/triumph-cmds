@@ -29,21 +29,23 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.processor.AnnotationUtil;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.annotation.Prefix;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class PrefixedCommandProcessor extends AbstractCommandProcessor<PrefixedSender> {
+public final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<S, PrefixedSender> {
 
     private final String prefix;
 
     public PrefixedCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<PrefixedSender> argumentRegistry,
-            @NotNull final RequirementRegistry<PrefixedSender> requirementRegistry,
-            @NotNull final MessageRegistry<PrefixedSender> messageRegistry
-    ) {
-        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry);
+            @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final RequirementRegistry<S> requirementRegistry,
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SenderMapper<S, PrefixedSender> senderMapper
+            ) {
+        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
         prefix = extractPrefix();
     }
 

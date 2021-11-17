@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
 import dev.triumphteam.cmd.prefixed.factory.PrefixedSubCommandProcessor;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
@@ -42,23 +43,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class PrefixedCommand implements Command {
+public final class PrefixedCommand<S> implements Command {
 
-    private final Map<String, SimpleSubCommand<PrefixedSender>> subCommands = new HashMap<>();
+    private final Map<String, SimpleSubCommand<S>> subCommands = new HashMap<>();
 
     private final String name;
     private final List<String> alias;
 
-    private final ArgumentRegistry<PrefixedSender> argumentRegistry;
-    private final MessageRegistry<PrefixedSender> messageRegistry;
-    private final RequirementRegistry<PrefixedSender> requirementRegistry;
+    private final ArgumentRegistry<S> argumentRegistry;
+    private final MessageRegistry<S> messageRegistry;
+    private final RequirementRegistry<S> requirementRegistry;
+    private final SenderMapper<S, PrefixedSender> senderMapper;
 
-    public PrefixedCommand(@NotNull final PrefixedCommandProcessor processor) {
+    public PrefixedCommand(@NotNull final PrefixedCommandProcessor<S> processor) {
         this.name = processor.getName();
         this.alias = processor.getAlias();
         this.argumentRegistry = processor.getArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
+        this.senderMapper = processor.getSenderMapper();
     }
 
     @NotNull
@@ -76,26 +79,27 @@ public final class PrefixedCommand implements Command {
     @Override
     public void addSubCommands(@NotNull final BaseCommand baseCommand) {
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
-            final PrefixedSubCommandProcessor processor = new PrefixedSubCommandProcessor(
+            final PrefixedSubCommandProcessor<S> processor = new PrefixedSubCommandProcessor<>(
                     baseCommand,
                     method,
                     argumentRegistry,
                     requirementRegistry,
-                    messageRegistry
+                    messageRegistry,
+                    senderMapper
             );
 
             final String subCommandName = processor.getName();
             if (subCommandName == null) continue;
 
-            final SimpleSubCommand<PrefixedSender> subCommand = subCommands.computeIfAbsent(subCommandName, s -> new SimpleSubCommand<>(processor, name));
+            final SimpleSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, s -> new SimpleSubCommand<>(processor, name));
             for (final String alias : processor.getAlias()) {
                 subCommands.putIfAbsent(alias, subCommand);
             }
         }
     }
 
-    public void execute(@NotNull final PrefixedSender sender, @NotNull final List<String> args) {
-        SubCommand<PrefixedSender> subCommand = getDefaultSubCommand();
+    public void execute(@NotNull final S sender, @NotNull final List<String> args) {
+        SubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
@@ -113,12 +117,12 @@ public final class PrefixedCommand implements Command {
     }
 
     @Nullable
-    private SubCommand<PrefixedSender> getDefaultSubCommand() {
+    private SubCommand<S> getDefaultSubCommand() {
         return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
     @Nullable
-    private SubCommand<PrefixedSender> getSubCommand(@NotNull final String key) {
+    private SubCommand<S> getSubCommand(@NotNull final String key) {
         return subCommands.get(key);
     }
 

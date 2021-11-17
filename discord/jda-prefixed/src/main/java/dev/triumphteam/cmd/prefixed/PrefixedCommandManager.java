@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.prefixed;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
@@ -38,22 +39,46 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public final class PrefixedCommandManager extends CommandManager<PrefixedSender> {
+// TODO: 11/17/2021 Comments
+public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
     private final Set<String> prefixes = new HashSet<>();
-    private final Map<String, PrefixedCommandExecutor> globalCommands = new HashMap<>();
-    private final Map<KeyPair<Long, String>, PrefixedCommandExecutor> guildCommands = new HashMap<>();
+    private final Map<String, PrefixedCommandExecutor<S>> globalCommands = new HashMap<>();
+    private final Map<KeyPair<Long, String>, PrefixedCommandExecutor<S>> guildCommands = new HashMap<>();
 
     private final String globalPrefix;
-    private final PrefixedCommandListener jdaCommandListener = new PrefixedCommandListener(this, getMessageRegistry());
+    private final SenderMapper<S, PrefixedSender> senderMapper;
 
-    public PrefixedCommandManager(@NotNull final JDA jda, @NotNull final String globalPrefix) {
+    private PrefixedCommandManager(
+            @NotNull final JDA jda,
+            @NotNull final String globalPrefix,
+            @NotNull final SenderMapper<S, PrefixedSender> senderMapper
+    ) {
         this.globalPrefix = globalPrefix;
-        jda.addEventListener(jdaCommandListener);
+        this.senderMapper = senderMapper;
+
+        jda.addEventListener(new PrefixedCommandListener<>(this, getMessageRegistry(), senderMapper));
     }
 
-    public PrefixedCommandManager(@NotNull final JDA jda) {
-        this(jda, "");
+    public static <S> PrefixedCommandManager<S> create(
+            @NotNull final JDA jda,
+            @NotNull final String globalPrefix,
+            @NotNull final SenderMapper<S, PrefixedSender> senderMapper) {
+        return new PrefixedCommandManager<>(jda, globalPrefix, senderMapper);
+    }
+
+    public static <S> PrefixedCommandManager<S> create(
+            @NotNull final JDA jda,
+            @NotNull final SenderMapper<S, PrefixedSender> senderMapper) {
+        return create(jda, "", senderMapper);
+    }
+
+    public static PrefixedCommandManager<PrefixedSender> createDefault(@NotNull final JDA jda, @NotNull final String globalPrefix) {
+        return new PrefixedCommandManager<>(jda, globalPrefix, new PrefixedSenderMapper());
+    }
+
+    public static PrefixedCommandManager<PrefixedSender> createDefault(@NotNull final JDA jda) {
+        return createDefault(jda, "");
     }
 
     @Override
@@ -66,11 +91,12 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
     }
 
     private void addCommand(@Nullable final Guild guild, @NotNull final BaseCommand baseCommand) {
-        final PrefixedCommandProcessor processor = new PrefixedCommandProcessor(
+        final PrefixedCommandProcessor<S> processor = new PrefixedCommandProcessor<>(
                 baseCommand,
                 getArgumentRegistry(),
                 getRequirementRegistry(),
-                getMessageRegistry()
+                getMessageRegistry(),
+                senderMapper
         );
 
         String prefix = processor.getPrefix();
@@ -86,9 +112,9 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
         prefixes.add(prefix);
 
         if (guild == null) {
-            final PrefixedCommandExecutor commandExecutor = globalCommands.computeIfAbsent(
+            final PrefixedCommandExecutor<S> commandExecutor = globalCommands.computeIfAbsent(
                     prefix,
-                    p -> new PrefixedCommandExecutor(getMessageRegistry())
+                    p -> new PrefixedCommandExecutor<>(getMessageRegistry())
             );
 
             for (final String alias : processor.getAlias()) {
@@ -99,9 +125,9 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
             return;
         }
 
-        final PrefixedCommandExecutor commandExecutor = guildCommands.computeIfAbsent(
+        final PrefixedCommandExecutor<S> commandExecutor = guildCommands.computeIfAbsent(
                 KeyPair.of(guild.getIdLong(), prefix),
-                p -> new PrefixedCommandExecutor(getMessageRegistry())
+                p -> new PrefixedCommandExecutor<>(getMessageRegistry())
         );
 
         for (final String alias : processor.getAlias()) {
@@ -123,12 +149,12 @@ public final class PrefixedCommandManager extends CommandManager<PrefixedSender>
     }
 
     @Nullable
-    PrefixedCommandExecutor getGuildCommand(@NotNull final Guild guild, @NotNull final String prefix) {
+    PrefixedCommandExecutor<S> getGuildCommand(@NotNull final Guild guild, @NotNull final String prefix) {
         return guildCommands.get(KeyPair.of(guild.getIdLong(), prefix));
     }
 
     @Nullable
-    PrefixedCommandExecutor getGlobalCommand(@NotNull final String key) {
+    PrefixedCommandExecutor<S> getGlobalCommand(@NotNull final String key) {
         return globalCommands.get(key);
     }
 

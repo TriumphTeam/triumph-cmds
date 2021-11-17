@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ import java.util.List;
  *
  * @param <S> Sender type
  */
-public abstract class AbstractCommandProcessor<S> {
+public abstract class AbstractCommandProcessor<S, SD> {
 
     private final Class<?> annotatedClass;
 
@@ -54,17 +55,20 @@ public abstract class AbstractCommandProcessor<S> {
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
+    private final SenderMapper<S, SD> senderMapper;
 
     protected AbstractCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SenderMapper<S, SD> senderMapper
     ) {
         this.baseCommand = baseCommand;
         this.argumentRegistry = argumentRegistry;
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
+        this.senderMapper = senderMapper;
 
         this.annotatedClass = extractAnnotationClass();
         extractCommandNames();
@@ -112,6 +116,10 @@ public abstract class AbstractCommandProcessor<S> {
     @NotNull
     public MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
+    }
+
+    public SenderMapper<S, SD> getSenderMapper() {
+        return senderMapper;
     }
 
     // TODO: 11/7/2021 Comments

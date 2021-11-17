@@ -35,20 +35,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class PrefixedCommandExecutor {
+final class PrefixedCommandExecutor<S> {
 
-    private final Map<String, PrefixedCommand> commands = new HashMap<>();
+    private final Map<String, PrefixedCommand<S>> commands = new HashMap<>();
 
-    private final MessageRegistry<PrefixedSender> messageRegistry;
+    private final MessageRegistry<S> messageRegistry;
 
-    public PrefixedCommandExecutor(@NotNull final MessageRegistry<PrefixedSender> messageRegistry) {
+    public PrefixedCommandExecutor(@NotNull final MessageRegistry<S> messageRegistry) {
         this.messageRegistry = messageRegistry;
     }
 
-    public void register(@NotNull final PrefixedCommandProcessor processor) {
+    public void register(@NotNull final PrefixedCommandProcessor<S> processor) {
         final String name = processor.getName();
 
-        final PrefixedCommand command = commands.computeIfAbsent(name, p -> new PrefixedCommand(processor));
+        final PrefixedCommand<S> command = commands.computeIfAbsent(name, p -> new PrefixedCommand<>(processor));
 
         for (final String alias : processor.getAlias()) {
             commands.putIfAbsent(alias, command);
@@ -59,11 +59,11 @@ final class PrefixedCommandExecutor {
 
     public void execute(
             @NotNull final String commandName,
-            @NotNull final PrefixedSender sender,
+            @NotNull final S sender,
             @NotNull final List<String> args
     ) {
 
-        final PrefixedCommand command = commands.get(commandName);
+        final PrefixedCommand<S> command = commands.get(commandName);
         if (command == null) {
             // TODO: 11/6/2021 INVALID COMMAND!
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(commandName, ""));
