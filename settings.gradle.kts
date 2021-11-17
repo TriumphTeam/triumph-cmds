@@ -10,7 +10,7 @@ listOf(
     includeProject(name, folder)
 }
 
-//include("test-module")
+include("test-module")
 
 fun includeProject(name: String) {
     include(name) {

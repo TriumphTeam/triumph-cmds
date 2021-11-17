@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.6.0"
     id("com.github.hierynomus.license") version "0.16.1"
     id("me.mattstudios.triumph") version "0.2.1"
     `maven-publish`
