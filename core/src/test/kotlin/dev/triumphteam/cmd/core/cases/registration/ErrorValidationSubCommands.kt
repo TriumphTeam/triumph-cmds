@@ -160,7 +160,7 @@ class WrongLocationFlagsLimitlessCollection : BaseCommand() {
 class UnsupportedCollectionType : BaseCommand() {
 
     @SubCommand(SUB_COMMAND_NAME)
-    fun test(sender: TestSender, number: Int, text: List<Int>) {
+    fun test(sender: TestSender, number: Int, text: List<dev.triumphteam.cmd.core.Command>) {
     }
 }
 

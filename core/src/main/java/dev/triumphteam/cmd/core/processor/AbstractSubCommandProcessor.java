@@ -247,11 +247,7 @@ public abstract class AbstractSubCommandProcessor<S> {
             }
 
             final Type genericType = types[0];
-            if (!(genericType instanceof WildcardType)) {
-                throw createException("Could not get collection type \"" + type + "\"");
-            }
-
-            final Type collectionType = ((WildcardType) genericType).getUpperBounds()[0];
+            final Type collectionType = genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType;
             final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, parameterName, optional);
 
             if (parameter.isAnnotationPresent(Split.class)) {

@@ -44,8 +44,7 @@ class TestCommand(processor: TestCommandProcessor) : Command {
     private val subCommands: MutableMap<String, SubCommand<TestSender>> = HashMap()
     private val aliases: MutableMap<String, SubCommand<TestSender>> = HashMap()
 
-    override fun addSubCommands(baseCommand: BaseCommand): Boolean {
-        var added = false
+    override fun addSubCommands(baseCommand: BaseCommand) {
 
         for (method in baseCommand.javaClass.declaredMethods) {
             if (!Modifier.isPublic(method.modifiers)) continue
@@ -57,10 +56,9 @@ class TestCommand(processor: TestCommandProcessor) : Command {
 
             subCommands[subCommandName] = subCommand
             // TODO handle alias later
-            added = true
+
         }
 
-        return added
     }
 
     fun execute(sender: TestSender, args: List<String>) {

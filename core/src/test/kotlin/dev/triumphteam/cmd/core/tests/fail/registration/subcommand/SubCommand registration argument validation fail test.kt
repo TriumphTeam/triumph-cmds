@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.tests.fail.registration.subcommand
 
+import dev.triumphteam.cmd.core.Command
 import dev.triumphteam.cmd.core.annotation.Flag
 import dev.triumphteam.cmd.core.cases.registration.MoreThanOneFlags
 import dev.triumphteam.cmd.core.cases.registration.MoreThanOneLimitlessArray
@@ -148,10 +149,11 @@ class `SubCommand registration argument validation fail test` {
 
     @Test
     fun `Unsupported collection argument type fail`() {
+        UnsupportedCollectionType()
         assertThatThrownBy {
             commandManager.registerCommand(UnsupportedCollectionType())
         }.isInstanceOf(SubCommandRegistrationException::class.java)
-            .hasMessageContaining("Only String collections are allowed")
+            .hasMessageContaining("No argument of type \"${Command::class.java.name}\" registered.")
     }
 
     @Test
@@ -159,7 +161,7 @@ class `SubCommand registration argument validation fail test` {
         assertThatThrownBy {
             commandManager.registerCommand(UnregisteredType())
         }.isInstanceOf(SubCommandRegistrationException::class.java)
-            .hasMessageContaining("No argument of type \"" + Flag::class.java.name + "\" registered")
+            .hasMessageContaining("No argument of type \"${Flag::class.java.name}\" registered")
     }
 
 }

@@ -72,9 +72,7 @@ class TestCommandManager : CommandManager<TestSender>() {
         val command = commands.computeIfAbsent(commandName) { TestCommand(processor) }
         processor.alias.forEach { alias.computeIfAbsent(it) { command } }
 
-        if (!command.addSubCommands(baseCommand)) {
-            return
-        }
+        command.addSubCommands(baseCommand)
     }
 
     override fun unregisterCommand(command: BaseCommand) {}
