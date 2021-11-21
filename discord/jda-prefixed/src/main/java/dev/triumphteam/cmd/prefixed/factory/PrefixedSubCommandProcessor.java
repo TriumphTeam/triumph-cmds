@@ -33,7 +33,6 @@ import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 public final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
@@ -44,26 +43,8 @@ public final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProc
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final SenderMapper<S, PrefixedSender> senderMapper
-            ) {
+    ) {
         super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
-    }
-
-    @Override
-    protected void extractArguments(@NotNull final Method method) {
-        final Parameter[] parameters = method.getParameters();
-        for (int i = 0; i < parameters.length; i++) {
-            final Parameter parameter = parameters[i];
-            if (i == 0) {
-                // TODO: 11/17/2021 CHANGE THIS
-                validateSender(parameter.getType());
-                /*if (!PrefixedSender.class.isAssignableFrom(parameter.getType())) {
-                    throw createException("Invalid or missing sender parameter (must be a PrefixedCommandSender).");
-                }*/
-                continue;
-            }
-
-            createArgument(parameter);
-        }
     }
 
 }

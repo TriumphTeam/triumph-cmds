@@ -131,7 +131,18 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param method The method to search from.
      */
-    protected abstract void extractArguments(@NotNull final Method method);
+    protected void extractArguments(@NotNull final Method method) {
+        final Parameter[] parameters = method.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            final Parameter parameter = parameters[i];
+            if (i == 0) {
+                validateSender(parameter.getType());
+                continue;
+            }
+
+            createArgument(parameter);
+        }
+    }
 
     /**
      * Used for the child factories to get the sub command name.
@@ -218,7 +229,7 @@ public abstract class AbstractSubCommandProcessor<S> {
     protected void validateSender(@NotNull final Class<?> type) {
         final Set<Class<? extends S>> allowedSenders = senderMapper.getAllowedSenders();
         if (allowedSenders.contains(type)) return;
-        
+
         throw createException(
                 "\"" + type.getSimpleName() + "\" is not a valid sender. " +
                         "Sender must be one of the following: " +

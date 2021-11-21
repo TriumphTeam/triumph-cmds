@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public class PrefixedSenderMapper implements SenderMapper<PrefixedSender, PrefixedSender> {
+class PrefixedSenderMapper implements SenderMapper<PrefixedSender, PrefixedSender> {
 
     @NotNull
     @Override
