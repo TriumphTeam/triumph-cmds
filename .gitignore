@@ -18,6 +18,9 @@ gradle-app.setting
 **/build/
 .idea/
 
+### IntelliJ out folder ###
+**/out/
+
 test-module/
 
 test-module/

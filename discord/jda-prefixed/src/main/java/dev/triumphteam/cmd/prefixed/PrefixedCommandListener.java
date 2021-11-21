@@ -67,6 +67,7 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
         final List<String> args = Arrays.asList(message.getContentRaw().split(" "));
 
         final S sender = senderMapper.map(new SimplePrefixedSender(message));
+        if (sender == null) return;
 
         if (args.isEmpty()) return;
 

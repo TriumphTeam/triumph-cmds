@@ -216,7 +216,17 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     protected void validateSender(@NotNull final Class<?> type) {
-        senderMapper.validate(type);
+        final Set<Class<? extends S>> allowedSenders = senderMapper.getAllowedSenders();
+        if (allowedSenders.contains(type)) return;
+        
+        throw createException(
+                "\"" + type.getSimpleName() + "\" is not a valid sender. " +
+                        "Sender must be one of the following: " +
+                        allowedSenders
+                                .stream()
+                                .map(it -> "\"" + it.getSimpleName() + "\"")
+                                .collect(Collectors.joining(", "))
+        );
     }
 
     /**

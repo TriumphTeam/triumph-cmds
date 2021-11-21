@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.factory.BukkitCommandProcessor;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
@@ -42,7 +41,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class BukkitCommandManager extends CommandManager<CommandSender> {
+public final class BukkitCommandManager<S> extends CommandManager<CommandSender> {
 
     private final Plugin plugin;
     private final CommandMap commandMap;
@@ -89,10 +88,10 @@ public final class BukkitCommandManager extends CommandManager<CommandSender> {
     // TODO remove the need to create a new command
     @Override
     public void unregisterCommand(@NotNull final BaseCommand command) {
-        final BukkitCommandProcessor bukkitCommand = new BukkitCommandProcessor(command, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry());
-        bukkitCommands.remove(bukkitCommand.getName());
+        //final BukkitCommandProcessor<S> bukkitCommand = new BukkitCommandProcessor<>(command, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry(), null);
+        //bukkitCommands.remove(bukkitCommand.getName());
         //bukkitCommand.unregister(commandMap);
-        commands.remove(bukkitCommand.getName());
+        //commands.remove(bukkitCommand.getName());
     }
 
     /**

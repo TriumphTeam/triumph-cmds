@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class SimplePrefixedSender implements PrefixedSender {
+final class SimplePrefixedSender implements PrefixedSender {
 
     private final Message message;
     private final User user;

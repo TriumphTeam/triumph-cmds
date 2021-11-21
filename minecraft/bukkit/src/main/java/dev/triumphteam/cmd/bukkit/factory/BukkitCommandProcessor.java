@@ -28,18 +28,20 @@ import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class BukkitCommandProcessor extends AbstractCommandProcessor<CommandSender> {
+public final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<S, CommandSender> {
 
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
-            @NotNull final MessageRegistry<CommandSender> messageRegistry
+            @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final RequirementRegistry<S> requirementRegistry,
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SenderMapper<S, CommandSender> senderMapper
     ) {
-        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry);
+        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
     }
 
 }

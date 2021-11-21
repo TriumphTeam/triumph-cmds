@@ -53,7 +53,7 @@ public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor
             @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
             @NotNull final MessageRegistry<CommandSender> messageRegistry
     ) {
-        super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry);
+        super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry, null);
     }
 
     @Nullable
