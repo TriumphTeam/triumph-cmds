@@ -68,6 +68,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -364,13 +365,8 @@ public abstract class AbstractSubCommandProcessor<S> {
      * Extract all the flag data for the subcommand from the method.
      */
     private void extractFlags() {
-        final CommandFlags commandFlags = getAnnotation(method, CommandFlags.class);
-        if (commandFlags == null) return;
-
-        final Flag[] flags = commandFlags.value();
-        if (flags.length == 0) {
-            throw createException("@" + CommandFlags.class.getSimpleName() + " must not be empty");
-        }
+        final List<Flag> flags = getFlagsFromAnnotations();
+        if (flags.isEmpty()) return;
 
         for (final Flag flagAnnotation : flags) {
             String flag = flagAnnotation.flag();
@@ -412,16 +408,21 @@ public abstract class AbstractSubCommandProcessor<S> {
         }
     }
 
+    // TODO: 11/21/2021 Comments
+    private List<Flag> getFlagsFromAnnotations() {
+        final CommandFlags flags = getAnnotation(method, CommandFlags.class);
+        if (flags != null) return Arrays.asList(flags.value());
+
+        final Flag flag = getAnnotation(method, Flag.class);
+        if (flag == null) return Collections.emptyList();
+        return Collections.singletonList(flag);
+    }
+
     /**
      * Extract all the requirement data for the sub command from the method.
      */
     public void extractRequirements() {
-        final Requirements requirementsAnnotation = getAnnotation(method, Requirements.class);
-        if (requirementsAnnotation == null) {
-            return;
-        }
-
-        for (final dev.triumphteam.cmd.core.annotation.Requirement requirementAnnotation : requirementsAnnotation.value()) {
+        for (final dev.triumphteam.cmd.core.annotation.Requirement requirementAnnotation : getRequirementsFromAnnotations()) {
             final RequirementKey requirementKey = RequirementKey.of(requirementAnnotation.value());
             final String messageKeyValue = requirementAnnotation.messageKey();
 
@@ -436,6 +437,16 @@ public abstract class AbstractSubCommandProcessor<S> {
 
             requirements.add(new Requirement<>(resolver, messageKey, DefaultMessageContext::new));
         }
+    }
+
+    // TODO: 11/21/2021 Comments
+    private List<dev.triumphteam.cmd.core.annotation.Requirement> getRequirementsFromAnnotations() {
+        final Requirements requirements = getAnnotation(method, Requirements.class);
+        if (requirements != null) return Arrays.asList(requirements.value());
+
+        final dev.triumphteam.cmd.core.annotation.Requirement requirement = getAnnotation(method, dev.triumphteam.cmd.core.annotation.Requirement.class);
+        if (requirement == null) return Collections.emptyList();
+        return Collections.singletonList(requirement);
     }
 
     /**
