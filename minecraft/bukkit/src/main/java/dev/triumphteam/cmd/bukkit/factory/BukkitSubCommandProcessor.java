@@ -44,8 +44,6 @@ import java.lang.reflect.Parameter;
 
 public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor<CommandSender> {
 
-    private Class<?> senderClass;
-
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Method method,
@@ -61,7 +59,8 @@ public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor
     public SimpleSubCommand<CommandSender> create(@NotNull final String parentName) {
         if (getName() == null) return null;
         checkPermission(getMethod());
-        return new SimpleSubCommand<>(this, parentName);
+        //return new SimpleSubCommand<>(this, parentName);
+        return null;
     }
 
     @Override
@@ -77,7 +76,6 @@ public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor
                     throw createException("Invalid or missing sender parameter (must be a CommandSender, Player, or ConsoleCommandSender).");
                 }
 
-                senderClass = parameter.getType();
                 continue;
             }
 

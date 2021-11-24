@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.argument.types.FlagArgument;
 import dev.triumphteam.cmd.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmd.core.argument.types.StringArgument;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.flag.internal.result.InvalidFlagArgumentResult;
 import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
@@ -73,13 +74,15 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private final Set<Requirement<S, ?>> requirements;
 
     private final MessageRegistry<S> messageRegistry;
+    private final ExecutionProvider executionProvider;
 
     private boolean containsLimitless = false;
     private boolean containsFlags = false;
 
     public SimpleSubCommand(
             @NotNull final AbstractSubCommandProcessor<S> factory,
-            @NotNull final String parentName
+            @NotNull final String parentName,
+            @NotNull final ExecutionProvider executionProvider
     ) {
         this.baseCommand = factory.getBaseCommand();
         this.method = factory.getMethod();
@@ -91,6 +94,8 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         this.isDefault = factory.isDefault();
 
         this.parentName = parentName;
+
+        this.executionProvider = executionProvider;
 
         checkArguments();
     }
@@ -153,13 +158,15 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
             return;
         }
 
-        try {
-            method.invoke(baseCommand, invokeArguments.toArray());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            //throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
-              //      .initCause(e instanceof InvocationTargetException ? e.getCause() : e);
-        }
+        executionProvider.execute(() -> {
+            try {
+                method.invoke(baseCommand, invokeArguments.toArray());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+                //throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
+                //      .initCause(e instanceof InvocationTargetException ? e.getCause() : e);
+            }
+        });
     }
 
     /**

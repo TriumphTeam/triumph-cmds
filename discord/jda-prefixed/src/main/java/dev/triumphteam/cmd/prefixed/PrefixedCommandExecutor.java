@@ -23,12 +23,12 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.prefixed.command.PrefixedCommand;
 import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
-import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -41,14 +41,23 @@ final class PrefixedCommandExecutor<S> {
 
     private final MessageRegistry<S> messageRegistry;
 
-    public PrefixedCommandExecutor(@NotNull final MessageRegistry<S> messageRegistry) {
+    private final ExecutionProvider syncExecutionProvider;
+    private final ExecutionProvider asyncExecutionProvider;
+
+    public PrefixedCommandExecutor(
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
+    ) {
         this.messageRegistry = messageRegistry;
+        this.syncExecutionProvider = syncExecutionProvider;
+        this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
     public void register(@NotNull final PrefixedCommandProcessor<S> processor) {
         final String name = processor.getName();
 
-        final PrefixedCommand<S> command = commands.computeIfAbsent(name, p -> new PrefixedCommand<>(processor));
+        final PrefixedCommand<S> command = commands.computeIfAbsent(name, p -> new PrefixedCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
 
         for (final String alias : processor.getAlias()) {
             commands.putIfAbsent(alias, command);

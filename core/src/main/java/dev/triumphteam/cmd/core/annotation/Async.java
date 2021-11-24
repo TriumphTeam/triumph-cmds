@@ -28,10 +28,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Marks the argument as optional, so if a user doesn't type it, it'll be null.
- * Argument must be nullable in Kotlin.
- */
+// TODO: 11/23/2021 Comments
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Optional {}
+@Target(ElementType.METHOD)
+public @interface Async {}

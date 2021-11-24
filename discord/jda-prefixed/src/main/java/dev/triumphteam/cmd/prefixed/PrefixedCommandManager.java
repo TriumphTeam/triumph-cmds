@@ -26,7 +26,10 @@ package dev.triumphteam.cmd.prefixed;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.prefixed.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
@@ -48,6 +51,9 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
     private final String globalPrefix;
     private final SenderMapper<S, PrefixedSender> senderMapper;
+
+    private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
+    private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
     private PrefixedCommandManager(
             @NotNull final JDA jda,
@@ -114,7 +120,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
         if (guild == null) {
             final PrefixedCommandExecutor<S> commandExecutor = globalCommands.computeIfAbsent(
                     prefix,
-                    p -> new PrefixedCommandExecutor<>(getMessageRegistry())
+                    p -> new PrefixedCommandExecutor<>(getMessageRegistry(), syncExecutionProvider, asyncExecutionProvider)
             );
 
             for (final String alias : processor.getAlias()) {
@@ -127,7 +133,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
         final PrefixedCommandExecutor<S> commandExecutor = guildCommands.computeIfAbsent(
                 KeyPair.of(guild.getIdLong(), prefix),
-                p -> new PrefixedCommandExecutor<>(getMessageRegistry())
+                p -> new PrefixedCommandExecutor<>(getMessageRegistry(), syncExecutionProvider, asyncExecutionProvider)
         );
 
         for (final String alias : processor.getAlias()) {

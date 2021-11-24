@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.SimpleSubCommand;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
@@ -55,13 +56,23 @@ public final class PrefixedCommand<S> implements Command {
     private final RequirementRegistry<S> requirementRegistry;
     private final SenderMapper<S, PrefixedSender> senderMapper;
 
-    public PrefixedCommand(@NotNull final PrefixedCommandProcessor<S> processor) {
+    private final ExecutionProvider syncExecutionProvider;
+    private final ExecutionProvider asyncExecutionProvider;
+
+    public PrefixedCommand(
+            @NotNull final PrefixedCommandProcessor<S> processor,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
+    ) {
         this.name = processor.getName();
         this.alias = processor.getAlias();
         this.argumentRegistry = processor.getArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
         this.senderMapper = processor.getSenderMapper();
+
+        this.syncExecutionProvider = syncExecutionProvider;
+        this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
     @NotNull
@@ -91,7 +102,9 @@ public final class PrefixedCommand<S> implements Command {
             final String subCommandName = processor.getName();
             if (subCommandName == null) continue;
 
-            final SimpleSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, s -> new SimpleSubCommand<>(processor, name));
+            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
+
+            final SimpleSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, s -> new SimpleSubCommand<>(processor, name, executionProvider));
             for (final String alias : processor.getAlias()) {
                 subCommands.putIfAbsent(alias, subCommand);
             }

@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.annotation.Async;
 import dev.triumphteam.cmd.core.annotation.CommandFlags;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.Flag;
@@ -91,7 +92,9 @@ public abstract class AbstractSubCommandProcessor<S> {
     // Name is nullable to detect if the method should or not be considered a sub command.
     private String name = null;
     private final List<String> alias = new ArrayList<>();
+
     private boolean isDefault = false;
+    private final boolean isAsync;
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S, ?>> arguments = new ArrayList<>();
@@ -117,6 +120,8 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
         this.senderMapper = senderMapper;
+
+        this.isAsync = method.isAnnotationPresent(Async.class);
 
         extractSubCommandNames();
         if (name == null) return;
@@ -173,6 +178,11 @@ public abstract class AbstractSubCommandProcessor<S> {
      */
     public boolean isDefault() {
         return isDefault;
+    }
+
+    // TODO: 11/23/2021 Comments
+    public boolean isAsync() {
+        return isAsync;
     }
 
     /**
