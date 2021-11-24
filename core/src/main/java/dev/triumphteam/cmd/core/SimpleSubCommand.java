@@ -161,10 +161,9 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
         executionProvider.execute(() -> {
             try {
                 method.invoke(baseCommand, invokeArguments.toArray());
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-                //throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
-                //      .initCause(e instanceof InvocationTargetException ? e.getCause() : e);
+            } catch (IllegalAccessException | InvocationTargetException exception) {
+                throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
+                        .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
             }
         });
     }
