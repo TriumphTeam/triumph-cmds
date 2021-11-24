@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -107,15 +107,17 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
      * Creates a new instance of the PrefixedCommandManager.
      * This constructor is for adding a custom sender, for default sender use {@link #createDefault(JDA)}.
      *
-     * @param jda The JDA instance.
-     * @param <S> The sender type.
+     * @param jda          The JDA instance.
+     * @param senderMapper The sender mapper.
+     * @param <S>          The sender type.
      * @return The new instance.
      */
     @NotNull
     @Contract("_, _ -> new")
     public static <S> PrefixedCommandManager<S> create(
             @NotNull final JDA jda,
-            @NotNull final SenderMapper<S, PrefixedSender> senderMapper) {
+            @NotNull final SenderMapper<S, PrefixedSender> senderMapper
+    ) {
         return create(jda, "", senderMapper);
     }
 
@@ -306,7 +308,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Long id = Longs.tryParse(arg);
             if (id != null) return guild.getTextChannelById(id);
 
-            if (CHANNEL_MENTION_PATTERN.matcher(arg).matches()) return guild.getTextChannelById(arg.replaceAll("[^\\d]", ""));
+            if (CHANNEL_MENTION_PATTERN.matcher(arg).matches())
+                return guild.getTextChannelById(arg.replaceAll("[^\\d]", ""));
 
             return null;
         });

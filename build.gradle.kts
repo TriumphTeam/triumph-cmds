@@ -114,7 +114,7 @@ subprojects {
                         scm {
                             connection.set("scm:git:git://github.com/TriumphTeam/triumph-cmds.git")
                             developerConnection.set("scm:git:ssh://github.com:TriumphTeam/triumph-cmds.git")
-                            url.set("http://github.com/TriumphTeam/triumph-cmds")
+                            url.set("https://github.com/TriumphTeam/triumph-cmds")
                         }
                     }
                 }
