@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,32 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.kotlin
+package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.flag.Flags
-
-/**
- * Checks if the flag key is present or not using operator function.
- * Useful for simple flags like `-l`.
- * Where you just want to check if the flag was added or not.
- * For flag with values recommended [getValueOrNull].
- */
-public operator fun Flags.contains(flag: String): Boolean = this.hasFlag(flag)
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.CommandManager;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Gets the flag value in a not nullable way, using reified types.
- * However, it'll throw exception if the flag isn't present.
- * Recommended use for required flags with required argument.
+ * Command Manager for Slash Commands.
+ * Allows for registering of global and guild specific commands.
+ * As well the implementation of custom command senders.
+ *
+ * @param <S> The sender type.
  */
-public inline fun <reified T> Flags.getValue(flag: String): T = this.getValue(flag, T::class.java)
+public final class SlashCommandManager<S> extends CommandManager<S> {
 
-/**
- * Gets the flag value in a nullable way, using reified types.
- */
-public inline fun <reified T> Flags.getValueOrNull(flag: String): T? = this.getValueOrNull(flag, T::class.java)
+    @Override
+    public void registerCommand(final @NotNull BaseCommand baseCommand) {
 
-/**
- * Gets the flag value in a not nullable way since a default value will be given, using reified types.
- */
-public inline fun <reified T : Any> Flags.getValueOrDefault(flag: String, default: T): T =
-    this.getValueOrDefault(flag, T::class.java, default)
+    }
+
+    @Override
+    public void unregisterCommand(final @NotNull BaseCommand command) {
+
+    }
+}

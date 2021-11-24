@@ -5,6 +5,7 @@ listOf("core", "kotlin").forEach(::includeProject)
 listOf(
     "minecraft/bukkit",
     "discord/jda-prefixed",
+    "discord/jda-slash",
 ).forEach {
     val (folder, name) = it.split('/')
     includeProject(name, folder)

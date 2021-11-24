@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core.flag;
 
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +54,7 @@ public interface Flags {
      * @return The flag's value.
      * @throws CommandExecutionException Thrown in case the flag doesn't exist.
      */
-    @NotNull <T> T getValue(@NotNull final String flag, @NotNull final Class<T> type) throws CommandExecutionException;
+    @NotNull <T> T getValue(@NotNull final String flag, @NotNull final Class<T> type);
 
     /**
      * Gets the flag value in a nullable way.
