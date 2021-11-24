@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed.factory;
+package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
-public final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
     public PrefixedSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,

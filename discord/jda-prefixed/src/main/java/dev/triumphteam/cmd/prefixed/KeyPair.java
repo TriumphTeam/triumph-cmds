@@ -29,6 +29,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+/**
+ * Key Pair is used as key for {@link net.dv8tion.jda.api.entities.Guild} only commands.
+ *
+ * @param <F> The first key type.
+ * @param <S> The second key type.
+ */
 final class KeyPair<F, S> {
 
     private final F first;
@@ -39,6 +45,15 @@ final class KeyPair<F, S> {
         this.second = second;
     }
 
+    /**
+     * Creates a new {@link KeyPair} from the given keys.
+     *
+     * @param first  The first key value.
+     * @param second The second key value.
+     * @param <F>    The type of the first key.
+     * @param <S>    The type of the second key.
+     * @return A new instance of {@link KeyPair} holding both keys.
+     */
     @NotNull
     @Contract("_, _ -> new")
     public static <F, S> KeyPair<F, S> of(@NotNull final F first, @NotNull final S second) {

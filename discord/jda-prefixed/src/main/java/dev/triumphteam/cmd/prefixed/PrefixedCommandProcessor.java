@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed.factory;
+package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
@@ -34,7 +34,7 @@ import dev.triumphteam.cmd.prefixed.annotation.Prefix;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<S, PrefixedSender> {
+final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<S, PrefixedSender> {
 
     private final String prefix;
 

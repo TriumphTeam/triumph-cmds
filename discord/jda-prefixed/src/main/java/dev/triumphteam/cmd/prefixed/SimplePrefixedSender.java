@@ -32,6 +32,12 @@ import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Basic implementation of a sender for this JDA implementation.
+ * Contains all the basic info needed to handle the command.
+ * Most of this info can be redundant as they are part of the {@link Message}.
+ * I decided to still add them as it can be easier than just getting the message.
+ */
 final class SimplePrefixedSender implements PrefixedSender {
 
     private final Message message;
@@ -48,30 +54,56 @@ final class SimplePrefixedSender implements PrefixedSender {
         this.guild = message.getGuild();
     }
 
+    /**
+     * Gets the {@link Message} the user sent.
+     *
+     * @return The original {@link Message}.
+     */
     @NotNull
     @Override
     public Message getMessage() {
         return message;
     }
 
+    /**
+     * Gets the {@link User} that send the message.
+     *
+     * @return The {@link User} that sent the message.
+     */
     @NotNull
     @Override
     public User getUser() {
         return user;
     }
 
+    /**
+     * Gets the {@link Member} that sent the message if the {@link User} is a member.
+     * Will be null if the message was not sent by a webhook.
+     *
+     * @return The {@link Member} that sent the message or null.
+     */
     @Nullable
     @Override
     public Member getMember() {
         return member;
     }
 
+    /**
+     * Gets the {@link TextChannel} the message was sent on.
+     *
+     * @return The {@link TextChannel}, will throw exception if the message was not sent in a text channel.
+     */
     @NotNull
     @Override
     public TextChannel getChannel() {
         return channel;
     }
 
+    /**
+     * Gets the {@link Guild} the command was sent from.
+     *
+     * @return The {@link Guild}.
+     */
     @NotNull
     @Override
     public Guild getGuild() {

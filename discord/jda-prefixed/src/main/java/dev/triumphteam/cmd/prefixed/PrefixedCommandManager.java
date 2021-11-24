@@ -30,7 +30,6 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.execution.AsyncExecutionProvider;
-import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;

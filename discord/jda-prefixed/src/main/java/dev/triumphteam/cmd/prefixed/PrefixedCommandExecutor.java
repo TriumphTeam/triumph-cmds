@@ -27,8 +27,6 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.prefixed.command.PrefixedCommand;
-import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

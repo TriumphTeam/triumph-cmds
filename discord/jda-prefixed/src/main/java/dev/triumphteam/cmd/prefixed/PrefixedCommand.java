@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed.command;
+package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
@@ -33,8 +33,6 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.prefixed.factory.PrefixedCommandProcessor;
-import dev.triumphteam.cmd.prefixed.factory.PrefixedSubCommandProcessor;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class PrefixedCommand<S> implements Command {
+final class PrefixedCommand<S> implements Command {
 
     private final Map<String, SimpleSubCommand<S>> subCommands = new HashMap<>();
 
