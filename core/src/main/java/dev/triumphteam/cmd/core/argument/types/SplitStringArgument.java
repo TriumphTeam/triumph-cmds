@@ -31,7 +31,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO: 11/9/2021 Comments
+/**
+ * Splitting argument takes a string and splits it into a collection.
+ *
+ * @param <S> The sender type.
+ */
 public final class SplitStringArgument<S> extends StringArgument<S> {
 
     private final String regex;
@@ -51,6 +55,13 @@ public final class SplitStringArgument<S> extends StringArgument<S> {
         this.collectionType = collectionType;
     }
 
+    /**
+     * Takes a string and splits it into a collection.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The argument value.
+     * @return A collection of the split strings.
+     */
     @NotNull
     @Override
     public Object resolve(@NotNull final S sender, @NotNull final String value) {

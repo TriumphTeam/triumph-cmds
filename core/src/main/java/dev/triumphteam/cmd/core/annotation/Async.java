@@ -28,7 +28,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// TODO: 11/23/2021 Comments
+/**
+ * Marks the sub-command to be executed asynchronously.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Async {}

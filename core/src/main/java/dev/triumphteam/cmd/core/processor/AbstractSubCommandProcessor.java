@@ -180,7 +180,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         return isDefault;
     }
 
-    // TODO: 11/23/2021 Comments
+    /**
+     * Gets whether the sub command is to be executed asynchronously.
+     *
+     * @return If the sub command is async.
+     */
     public boolean isAsync() {
         return isAsync;
     }
@@ -418,7 +422,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         }
     }
 
-    // TODO: 11/21/2021 Comments
+    /**
+     * Gets the flags from the annotations.
+     *
+     * @return The list of flags.
+     */
     private List<Flag> getFlagsFromAnnotations() {
         final CommandFlags flags = getAnnotation(method, CommandFlags.class);
         if (flags != null) return Arrays.asList(flags.value());
@@ -449,7 +457,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         }
     }
 
-    // TODO: 11/21/2021 Comments
+    /**
+     * Gets the requirements from the annotations.
+     *
+     * @return The list of requirements.
+     */
     private List<dev.triumphteam.cmd.core.annotation.Requirement> getRequirementsFromAnnotations() {
         final Requirements requirements = getAnnotation(method, Requirements.class);
         if (requirements != null) return Arrays.asList(requirements.value());

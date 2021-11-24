@@ -75,7 +75,7 @@ public abstract class AbstractCommandProcessor<S, SD> {
     }
 
     /**
-     * Used for the child factories to get the command name.
+     * Used for the child processors to get the command name.
      *
      * @return The command name.
      */
@@ -85,7 +85,7 @@ public abstract class AbstractCommandProcessor<S, SD> {
     }
 
     /**
-     * Used for the child factories to get a {@link List<String>} with the command's alias.
+     * Used for the child processors to get a {@link List<String>} with the command's alias.
      *
      * @return The command alias.
      */
@@ -94,40 +94,69 @@ public abstract class AbstractCommandProcessor<S, SD> {
         return alias;
     }
 
-    // TODO: 11/6/2021 Comments
+    /**
+     * Gets the {@link BaseCommand} which is needed to invoke the command later.
+     *
+     * @return The {@link BaseCommand}.
+     */
     @NotNull
     public BaseCommand getBaseCommand() {
         return baseCommand;
     }
 
-    // TODO: 11/6/2021 Comments
+    /**
+     * Gets the {@link ArgumentRegistry}.
+     *
+     * @return The {@link ArgumentRegistry}.
+     */
     @NotNull
     public ArgumentRegistry<S> getArgumentRegistry() {
         return argumentRegistry;
     }
 
-    // TODO: 11/6/2021 Comments
+    /**
+     * Gets the {@link RequirementRegistry}.
+     *
+     * @return The {@link RequirementRegistry}.
+     */
     @NotNull
     public RequirementRegistry<S> getRequirementRegistry() {
         return requirementRegistry;
     }
 
-    // TODO: 11/6/2021 Comments
+    /**
+     * Gets the {@link MessageRegistry}.
+     *
+     * @return The {@link MessageRegistry}.
+     */
     @NotNull
     public MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
     }
 
+    /**
+     * Gets the {@link SenderMapper}.
+     *
+     * @return The {@link SenderMapper}.
+     */
     public SenderMapper<S, SD> getSenderMapper() {
         return senderMapper;
     }
 
-    // TODO: 11/7/2021 Comments
+    /**
+     * Gets the annotated class, used for the child processors to get the class with all the main annotations.
+     *
+     * @return The annotated class.
+     */
     protected Class<?> getAnnotatedClass() {
         return annotatedClass;
     }
 
-    // TODO: 11/7/2021 Comments
+    /**
+     * Gets the parent class or the current one, the one with all the main annotations.
+     *
+     * @return The class that has all the annotations.
+     */
     private Class<?> extractAnnotationClass() {
         final Class<? extends BaseCommand> commandClass = baseCommand.getClass();
         final Class<?> parent = commandClass.getSuperclass();
