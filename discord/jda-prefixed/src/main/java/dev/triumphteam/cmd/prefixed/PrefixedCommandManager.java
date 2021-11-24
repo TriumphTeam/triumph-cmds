@@ -59,6 +59,7 @@ import java.util.regex.Pattern;
 public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
     private static final Pattern USER_MENTION_PATTERN = Pattern.compile("<@!?(\\d+)>");
+    private static final Pattern ROLE_MENTION_PATTERN = Pattern.compile("<@&(\\d+)>");
     private static final Pattern CHANNEL_MENTION_PATTERN = Pattern.compile("<#(\\d+)>");
     private static final Pattern USER_TAG_PATTERN = Pattern.compile("\\w+#\\d+");
 
@@ -315,7 +316,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Long id = Longs.tryParse(arg);
             if (id != null) return guild.getRoleById(id);
 
-            if (USER_MENTION_PATTERN.matcher(arg).matches()) return guild.getRoleById(arg.replaceAll("[^\\d]", ""));
+            if (ROLE_MENTION_PATTERN.matcher(arg).matches()) return guild.getRoleById(arg.replaceAll("[^\\d]", ""));
 
             return null;
         });
