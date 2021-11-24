@@ -31,20 +31,52 @@ import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Default sender for the prefixed JDA platform.
+ * Contains all the basic info needed to handle the command.
+ * Most of this info can be redundant as they are part of the {@link Message}.
+ * I decided to still add them as it can be easier than just getting the message.
+ */
 public interface PrefixedSender {
 
+    /**
+     * Gets the {@link Message} the user sent.
+     *
+     * @return The original {@link Message}.
+     */
     @NotNull
     Message getMessage();
 
+    /**
+     * Gets the {@link User} that send the message.
+     *
+     * @return The {@link User} that sent the message.
+     */
     @NotNull
     User getUser();
 
+    /**
+     * Gets the {@link Member} that sent the message if the {@link User} is a member.
+     * Will be null if the message was not sent by a webhook.
+     *
+     * @return The {@link Member} that sent the message or null.
+     */
     @Nullable
     Member getMember();
 
+    /**
+     * Gets the {@link TextChannel} the message was sent on.
+     *
+     * @return The {@link TextChannel}, will throw exception if the message was not sent in a text channel.
+     */
     @NotNull
     TextChannel getChannel();
 
+    /**
+     * Gets the {@link Guild} the command was sent from.
+     *
+     * @return The {@link Guild}.
+     */
     @NotNull
     Guild getGuild();
 

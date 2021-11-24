@@ -42,6 +42,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Main implementation of the command for prefixed JDA.
+ *
+ * @param <S> The sender type.
+ */
 final class PrefixedCommand<S> implements Command {
 
     private final Map<String, SimpleSubCommand<S>> subCommands = new HashMap<>();
@@ -73,18 +78,27 @@ final class PrefixedCommand<S> implements Command {
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
     public List<String> getAlias() {
         return alias;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addSubCommands(@NotNull final BaseCommand baseCommand) {
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
@@ -109,6 +123,12 @@ final class PrefixedCommand<S> implements Command {
         }
     }
 
+    /**
+     * Executes the current command for the given sender.
+     *
+     * @param sender The sender.
+     * @param args   The command arguments.
+     */
     public void execute(@NotNull final S sender, @NotNull final List<String> args) {
         SubCommand<S> subCommand = getDefaultSubCommand();
 
@@ -127,16 +147,33 @@ final class PrefixedCommand<S> implements Command {
         subCommand.execute(sender, args);
     }
 
+    /**
+     * Gets the default sub command or null if there is none.
+     *
+     * @return The default sub command.
+     */
     @Nullable
     private SubCommand<S> getDefaultSubCommand() {
         return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
+    /**
+     * Gets the valid sub command for the given name or null if there is none.
+     *
+     * @param key The sub command name.
+     * @return A sub command or null.
+     */
     @Nullable
     private SubCommand<S> getSubCommand(@NotNull final String key) {
         return subCommands.get(key);
     }
 
+    /**
+     * Checks if the given sub command exists.
+     *
+     * @param key The sub command name.
+     * @return True if the sub command exists.
+     */
     private boolean subCommandExists(@NotNull final String key) {
         return subCommands.containsKey(key);
     }

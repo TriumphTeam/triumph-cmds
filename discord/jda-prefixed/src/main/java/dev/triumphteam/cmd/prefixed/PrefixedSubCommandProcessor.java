@@ -34,6 +34,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
+/**
+ * Processor for Prefixed JDA platform specific code.
+ *
+ * @param <S> The sender type.
+ */
 final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
     public PrefixedSubCommandProcessor(

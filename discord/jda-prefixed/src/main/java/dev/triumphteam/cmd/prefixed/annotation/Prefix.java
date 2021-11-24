@@ -28,10 +28,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Prefix annotation, used to define a prefix for a command.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Prefix {
 
+    /**
+     * The prefix for the command.
+     *
+     * @return The prefix.
+     */
     String value();
 
 }

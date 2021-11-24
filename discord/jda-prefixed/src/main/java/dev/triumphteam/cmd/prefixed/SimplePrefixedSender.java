@@ -34,9 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Basic implementation of a sender for this JDA implementation.
- * Contains all the basic info needed to handle the command.
- * Most of this info can be redundant as they are part of the {@link Message}.
- * I decided to still add them as it can be easier than just getting the message.
  */
 final class SimplePrefixedSender implements PrefixedSender {
 
@@ -55,9 +52,7 @@ final class SimplePrefixedSender implements PrefixedSender {
     }
 
     /**
-     * Gets the {@link Message} the user sent.
-     *
-     * @return The original {@link Message}.
+     * {@inheritDoc}
      */
     @NotNull
     @Override
@@ -66,9 +61,7 @@ final class SimplePrefixedSender implements PrefixedSender {
     }
 
     /**
-     * Gets the {@link User} that send the message.
-     *
-     * @return The {@link User} that sent the message.
+     * {@inheritDoc}
      */
     @NotNull
     @Override
@@ -77,10 +70,7 @@ final class SimplePrefixedSender implements PrefixedSender {
     }
 
     /**
-     * Gets the {@link Member} that sent the message if the {@link User} is a member.
-     * Will be null if the message was not sent by a webhook.
-     *
-     * @return The {@link Member} that sent the message or null.
+     * {@inheritDoc}
      */
     @Nullable
     @Override
@@ -89,9 +79,7 @@ final class SimplePrefixedSender implements PrefixedSender {
     }
 
     /**
-     * Gets the {@link TextChannel} the message was sent on.
-     *
-     * @return The {@link TextChannel}, will throw exception if the message was not sent in a text channel.
+     * {@inheritDoc}
      */
     @NotNull
     @Override
@@ -100,9 +88,7 @@ final class SimplePrefixedSender implements PrefixedSender {
     }
 
     /**
-     * Gets the {@link Guild} the command was sent from.
-     *
-     * @return The {@link Guild}.
+     * {@inheritDoc}
      */
     @NotNull
     @Override

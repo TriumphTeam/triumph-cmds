@@ -5,8 +5,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Prefixed JDA platform's implementation of asynchronous execution.
+ */
 public final class AsyncExecutionProvider implements ExecutionProvider {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void execute(final @NotNull Runnable command) {
         CompletableFuture.runAsync(command);

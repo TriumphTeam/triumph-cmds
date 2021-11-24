@@ -34,6 +34,11 @@ import dev.triumphteam.cmd.prefixed.annotation.Prefix;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Processor for Prefixed JDA platform specific code.
+ *
+ * @param <S> The sender type.
+ */
 final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<S, PrefixedSender> {
 
     private final String prefix;
@@ -44,18 +49,27 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<S, Pref
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final SenderMapper<S, PrefixedSender> senderMapper
-            ) {
+    ) {
         super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
         prefix = extractPrefix();
     }
 
-    // TODO: 11/7/2021 Comments
+    /**
+     * Gets the prefix used by the command.
+     * The prefix can be any string, as long as it's not empty.
+     *
+     * @return The command's prefix.
+     */
     @NotNull
     public String getPrefix() {
         return prefix;
     }
 
-    // TODO: 11/7/2021 Comments
+    /**
+     * Extracts the prefix from the command class.
+     *
+     * @return The prefix from the annotation or an empty string.
+     */
     private String extractPrefix() {
         final Prefix prefixAnnotation = AnnotationUtil.getAnnotation(getAnnotatedClass(), Prefix.class);
         return prefixAnnotation == null ? "" : prefixAnnotation.value();

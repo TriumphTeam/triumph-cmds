@@ -41,6 +41,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Listener for the JDA's {@link GuildMessageReceivedEvent}, which triggers the command execution.
+ *
+ * @param <S> The sender type.
+ */
 final class PrefixedCommandListener<S> extends ListenerAdapter {
 
     private final PrefixedCommandManager<S> commandManager;
@@ -57,6 +62,12 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
         this.senderMapper = senderMapper;
     }
 
+    /**
+     * Listener method.
+     * Listens to every message to detect the command.
+     *
+     * @param event The event object.
+     */
     @Override
     public void onGuildMessageReceived(@NotNull final GuildMessageReceivedEvent event) {
         final User author = event.getAuthor();
@@ -81,7 +92,6 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
         PrefixedCommandExecutor<S> commandExecutor = commandManager.getGlobalCommand(prefix);
         if (commandExecutor == null) commandExecutor = commandManager.getGuildCommand(guild, prefix);
         if (commandExecutor == null) {
-            // TODO: 11/6/2021 NO COMMAND
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(commandName, ""));
             return;
         }
@@ -89,6 +99,12 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
         commandExecutor.execute(commandName, sender, args.subList(1, args.size()));
     }
 
+    /**
+     * Checks if the command string contains a valid prefix, returns null if it doesn't.
+     *
+     * @param command The command string.
+     * @return A prefix from the allowed prefixes.
+     */
     @Nullable
     private String getPrefix(final String command) {
         for (String prefix : commandManager.getPrefixes()) {

@@ -33,6 +33,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Main executor for the commands.
+ *
+ * @param <S> The sender type.
+ */
 final class PrefixedCommandExecutor<S> {
 
     private final Map<String, PrefixedCommand<S>> commands = new HashMap<>();
@@ -52,6 +57,11 @@ final class PrefixedCommandExecutor<S> {
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
+    /**
+     * Registers a command to the current executor.
+     *
+     * @param processor The processor with all the command data.
+     */
     public void register(@NotNull final PrefixedCommandProcessor<S> processor) {
         final String name = processor.getName();
 
@@ -64,6 +74,13 @@ final class PrefixedCommandExecutor<S> {
         command.addSubCommands(processor.getBaseCommand());
     }
 
+    /**
+     * Executes the given command for the given sender.
+     *
+     * @param commandName The command name.
+     * @param sender      The command sender.
+     * @param args        The command arguments.
+     */
     public void execute(
             @NotNull final String commandName,
             @NotNull final S sender,
@@ -72,7 +89,6 @@ final class PrefixedCommandExecutor<S> {
 
         final PrefixedCommand<S> command = commands.get(commandName);
         if (command == null) {
-            // TODO: 11/6/2021 INVALID COMMAND!
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(commandName, ""));
             return;
         }
