@@ -23,16 +23,22 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
+import com.google.common.primitives.Longs;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,6 +47,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Command Manager for Prefixed Commands.
@@ -50,6 +57,10 @@ import java.util.Set;
  * @param <S> The sender type.
  */
 public final class PrefixedCommandManager<S> extends CommandManager<S> {
+
+    private static final Pattern USER_MENTION_PATTERN = Pattern.compile("<@!?(\\d+)>");
+    private static final Pattern CHANNEL_MENTION_PATTERN = Pattern.compile("<#(\\d+)>");
+    private static final Pattern USER_TAG_PATTERN = Pattern.compile("\\w+#\\d+");
 
     private final Set<String> prefixes = new HashSet<>();
     private final Map<String, PrefixedCommandExecutor<S>> globalCommands = new HashMap<>();
@@ -117,7 +128,9 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     @NotNull
     @Contract("_, _ -> new")
     public static PrefixedCommandManager<PrefixedSender> createDefault(@NotNull final JDA jda, @NotNull final String globalPrefix) {
-        return new PrefixedCommandManager<>(jda, globalPrefix, new PrefixedSenderMapper());
+        final PrefixedCommandManager<PrefixedSender> manager = new PrefixedCommandManager<>(jda, globalPrefix, new PrefixedSenderMapper());
+        setUpDefaults(manager);
+        return manager;
     }
 
     /**
@@ -254,6 +267,58 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     @NotNull
     Set<String> getPrefixes() {
         return prefixes;
+    }
+
+    private static void setUpDefaults(@NotNull final CommandManager<PrefixedSender> manager) {
+        manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.getMessage().reply("Unknown command: `" + context.getCommand() + "`.").queue());
+        manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
+        manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
+        manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.getMessage().reply("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").queue());
+        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG, (sender, context) -> sender.getMessage().reply("Command is missing required flags.").queue());
+        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, (sender, context) -> sender.getMessage().reply("Command is missing required flags argument.").queue());
+        manager.registerMessage(MessageKey.INVALID_FLAG_ARGUMENT, (sender, context) -> sender.getMessage().reply("Invalid flag argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").queue());
+
+        manager.registerArgument(User.class, (sender, arg) -> {
+            final JDA jda = sender.getJDA();
+            final Long id = Longs.tryParse(arg);
+            if (id != null) return jda.getUserById(id);
+
+            if (USER_MENTION_PATTERN.matcher(arg).matches()) return jda.getUserById(arg.replaceAll("[^\\d]", ""));
+            if (USER_TAG_PATTERN.matcher(arg).matches()) return jda.getUserByTag(arg);
+
+            return null;
+        });
+
+        manager.registerArgument(Member.class, (sender, arg) -> {
+            final Guild guild = sender.getGuild();
+            final Long id = Longs.tryParse(arg);
+            if (id != null) return guild.getMemberById(id);
+
+            if (USER_MENTION_PATTERN.matcher(arg).matches()) return guild.getMemberById(arg.replaceAll("[^\\d]", ""));
+            if (USER_TAG_PATTERN.matcher(arg).matches()) return guild.getMemberByTag(arg);
+
+            return null;
+        });
+
+        manager.registerArgument(TextChannel.class, (sender, arg) -> {
+            final Guild guild = sender.getGuild();
+            final Long id = Longs.tryParse(arg);
+            if (id != null) return guild.getTextChannelById(id);
+
+            if (CHANNEL_MENTION_PATTERN.matcher(arg).matches()) return guild.getTextChannelById(arg.replaceAll("[^\\d]", ""));
+
+            return null;
+        });
+
+        manager.registerArgument(Role.class, (sender, arg) -> {
+            final Guild guild = sender.getGuild();
+            final Long id = Longs.tryParse(arg);
+            if (id != null) return guild.getRoleById(id);
+
+            if (USER_MENTION_PATTERN.matcher(arg).matches()) return guild.getRoleById(arg.replaceAll("[^\\d]", ""));
+
+            return null;
+        });
     }
 
 }

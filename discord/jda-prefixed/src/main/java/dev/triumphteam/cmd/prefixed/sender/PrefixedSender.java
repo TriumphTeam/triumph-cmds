@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.prefixed.sender;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -79,5 +80,13 @@ public interface PrefixedSender {
      */
     @NotNull
     Guild getGuild();
+
+    /**
+     * Gets the {@link JDA} instance.
+     *
+     * @return The {@link JDA} instance.
+     */
+    @NotNull
+    JDA getJDA();
 
 }

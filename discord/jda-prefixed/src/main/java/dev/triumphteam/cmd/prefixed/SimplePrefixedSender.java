@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -42,6 +43,7 @@ final class SimplePrefixedSender implements PrefixedSender {
     private final Member member;
     private final TextChannel channel;
     private final Guild guild;
+    private final JDA jda;
 
     public SimplePrefixedSender(@NotNull final Message message) {
         this.message = message;
@@ -49,6 +51,7 @@ final class SimplePrefixedSender implements PrefixedSender {
         this.member = message.getMember();
         this.channel = message.getTextChannel();
         this.guild = message.getGuild();
+        this.jda = message.getJDA();
     }
 
     /**
@@ -96,4 +99,12 @@ final class SimplePrefixedSender implements PrefixedSender {
         return guild;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public JDA getJDA() {
+        return jda;
+    }
 }
