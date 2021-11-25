@@ -34,11 +34,7 @@ import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,6 +43,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -58,12 +55,13 @@ import java.util.regex.Pattern;
  */
 public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
-    private static final Pattern USER_MENTION_PATTERN = Pattern.compile("<@!?(\\d+)>");
-    private static final Pattern ROLE_MENTION_PATTERN = Pattern.compile("<@&(\\d+)>");
-    private static final Pattern CHANNEL_MENTION_PATTERN = Pattern.compile("<#(\\d+)>");
-    private static final Pattern USER_TAG_PATTERN = Pattern.compile("\\w+#\\d+");
+    private static final Pattern USER_MENTION_PATTERN = Pattern.compile("<@!?(?<id>\\d+)>");
+    private static final Pattern ROLE_MENTION_PATTERN = Pattern.compile("<@&(?<id>\\d+)>");
+    private static final Pattern CHANNEL_MENTION_PATTERN = Pattern.compile("<#(?<id>\\d+)>");
+    private static final Pattern USER_TAG_PATTERN = Pattern.compile(".{3,32}#\\d{4}");
 
     private final Set<String> prefixes = new HashSet<>();
+    private final Set<Pattern> prefixesRegexes = new HashSet<>();
     private final Map<String, PrefixedCommandExecutor<S>> globalCommands = new HashMap<>();
     private final Map<KeyPair<Long, String>, PrefixedCommandExecutor<S>> guildCommands = new HashMap<>();
 
@@ -205,6 +203,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
         }
 
         prefixes.add(prefix);
+        prefixesRegexes.add(Pattern.compile("^(?<prefix>" + Pattern.quote(prefix) + ")[\\w]"));
 
         // Global command
         if (guild == null) {
@@ -272,6 +271,16 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
         return prefixes;
     }
 
+    /**
+     * Gets a {@link Set} with all registered prefixes regexes.
+     *
+     * @return A {@link Set} with all the registered prefixes regexes.
+     */
+    @NotNull
+    Set<Pattern> getPrefixesRegexes() {
+        return prefixesRegexes;
+    }
+
     private static void setUpDefaults(@NotNull final CommandManager<PrefixedSender> manager) {
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.getMessage().reply("Unknown command: `" + context.getCommand() + "`.").queue());
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
@@ -286,7 +295,12 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Long id = Longs.tryParse(arg);
             if (id != null) return jda.getUserById(id);
 
-            if (USER_MENTION_PATTERN.matcher(arg).matches()) return jda.getUserById(arg.replaceAll("[^\\d]", ""));
+            final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
+
+            if (userMentionMatcher.matches()) {
+                return jda.getUserById(userMentionMatcher.group("id"));
+            }
+
             if (USER_TAG_PATTERN.matcher(arg).matches()) return jda.getUserByTag(arg);
 
             return null;
@@ -297,7 +311,12 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Long id = Longs.tryParse(arg);
             if (id != null) return guild.getMemberById(id);
 
-            if (USER_MENTION_PATTERN.matcher(arg).matches()) return guild.getMemberById(arg.replaceAll("[^\\d]", ""));
+            final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
+
+            if (userMentionMatcher.matches()) {
+                return guild.getMemberById(userMentionMatcher.group("id"));
+            }
+
             if (USER_TAG_PATTERN.matcher(arg).matches()) return guild.getMemberByTag(arg);
 
             return null;
@@ -308,10 +327,9 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Long id = Longs.tryParse(arg);
             if (id != null) return guild.getTextChannelById(id);
 
-            if (CHANNEL_MENTION_PATTERN.matcher(arg).matches())
-                return guild.getTextChannelById(arg.replaceAll("[^\\d]", ""));
+            final Matcher channelMentionMatcher = CHANNEL_MENTION_PATTERN.matcher(arg);
 
-            return null;
+            return channelMentionMatcher.matches() ? guild.getTextChannelById(channelMentionMatcher.group("id")) : null;
         });
 
         manager.registerArgument(Role.class, (sender, arg) -> {
@@ -319,9 +337,9 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Long id = Longs.tryParse(arg);
             if (id != null) return guild.getRoleById(id);
 
-            if (ROLE_MENTION_PATTERN.matcher(arg).matches()) return guild.getRoleById(arg.replaceAll("[^\\d]", ""));
+            final Matcher roleMentionMatcher = ROLE_MENTION_PATTERN.matcher(arg);
 
-            return null;
+            return roleMentionMatcher.matches() ? guild.getRoleById(roleMentionMatcher.group("id")) : null;
         });
     }
 
