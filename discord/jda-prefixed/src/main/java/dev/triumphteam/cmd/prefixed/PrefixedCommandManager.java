@@ -61,6 +61,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     private static final Pattern USER_TAG_PATTERN = Pattern.compile(".{3,32}#\\d{4}");
 
     private final Set<String> prefixes = new HashSet<>();
+    private final Set<Pattern> prefixesRegexes = new HashSet<>();
     private final Map<String, PrefixedCommandExecutor<S>> globalCommands = new HashMap<>();
     private final Map<KeyPair<Long, String>, PrefixedCommandExecutor<S>> guildCommands = new HashMap<>();
 
@@ -202,6 +203,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
         }
 
         prefixes.add(prefix);
+        prefixesRegexes.add(Pattern.compile("^(?<prefix>" + Pattern.quote(prefix) + ")[\\w]"));
 
         // Global command
         if (guild == null) {
@@ -267,6 +269,16 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     @NotNull
     Set<String> getPrefixes() {
         return prefixes;
+    }
+
+    /**
+     * Gets a {@link Set} with all registered prefixes regexes.
+     *
+     * @return A {@link Set} with all the registered prefixes regexes.
+     */
+    @NotNull
+    Set<Pattern> getPrefixesRegexes() {
+        return prefixesRegexes;
     }
 
     private static void setUpDefaults(@NotNull final CommandManager<PrefixedSender> manager) {

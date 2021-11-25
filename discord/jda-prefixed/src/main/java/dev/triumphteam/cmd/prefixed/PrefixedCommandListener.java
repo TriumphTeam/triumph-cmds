@@ -107,12 +107,11 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
      */
     @Nullable
     private String getPrefix(final String command) {
-        for (String prefix : commandManager.getPrefixes()) {
-            final Pattern pattern = Pattern.compile("^" + Pattern.quote(prefix) + "[\\w]");
-            final Matcher matcher = pattern.matcher(command);
+        for (Pattern prefix : commandManager.getPrefixesRegexes()) {
+            final Matcher matcher = prefix.matcher(command);
 
             if (matcher.find()) {
-                return prefix;
+                return matcher.group("prefix");
             }
         }
 
