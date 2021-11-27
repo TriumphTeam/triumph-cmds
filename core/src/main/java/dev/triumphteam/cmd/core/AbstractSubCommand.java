@@ -60,7 +60,7 @@ import java.util.Set;
  *
  * @param <S> The sender type.
  */
-public final class SimpleSubCommand<S> implements SubCommand<S> {
+public abstract class AbstractSubCommand<S> implements SubCommand<S> {
 
     private final BaseCommand baseCommand;
     private final Method method;
@@ -79,46 +79,25 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
     private boolean containsLimitless = false;
     private boolean containsFlags = false;
 
-    public SimpleSubCommand(
-            @NotNull final AbstractSubCommandProcessor<S> factory,
+    public AbstractSubCommand(
+            @NotNull final AbstractSubCommandProcessor<S> processor,
             @NotNull final String parentName,
             @NotNull final ExecutionProvider executionProvider
     ) {
-        this.baseCommand = factory.getBaseCommand();
-        this.method = factory.getMethod();
-        this.name = factory.getName();
-        this.alias = factory.getAlias();
-        this.arguments = factory.getArguments();
-        this.requirements = factory.getRequirements();
-        this.messageRegistry = factory.getMessageRegistry();
-        this.isDefault = factory.isDefault();
+        this.baseCommand = processor.getBaseCommand();
+        this.method = processor.getMethod();
+        this.name = processor.getName();
+        this.alias = processor.getAlias();
+        this.arguments = processor.getArguments();
+        this.requirements = processor.getRequirements();
+        this.messageRegistry = processor.getMessageRegistry();
+        this.isDefault = processor.isDefault();
 
         this.parentName = parentName;
 
         this.executionProvider = executionProvider;
 
         checkArguments();
-    }
-
-    /**
-     * Gets the sub command name.
-     * If the sub command is default the name will be {@link Default#DEFAULT_CMD_NAME}.
-     *
-     * @return The sub command name.
-     */
-    @NotNull
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Gets a list with the command aliases.
-     *
-     * @return The command alias.
-     */
-    @NotNull
-    public List<String> getAlias() {
-        return alias;
     }
 
     /**
@@ -166,6 +145,15 @@ public final class SimpleSubCommand<S> implements SubCommand<S> {
                         .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
             }
         });
+    }
+
+    /**
+     * Gets the arguments of the sub command.
+     *
+     * @return The arguments of the sub command.
+     */
+    protected List<Argument<S, ?>> getArguments() {
+        return arguments;
     }
 
     /**

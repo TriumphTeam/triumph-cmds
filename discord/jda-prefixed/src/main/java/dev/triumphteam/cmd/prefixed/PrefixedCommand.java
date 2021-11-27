@@ -25,7 +25,6 @@ package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.SimpleSubCommand;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
@@ -49,7 +48,7 @@ import java.util.Map;
  */
 final class PrefixedCommand<S> implements Command {
 
-    private final Map<String, SimpleSubCommand<S>> subCommands = new HashMap<>();
+    private final Map<String, PrefixedSubCommand<S>> subCommands = new HashMap<>();
 
     private final String name;
     private final List<String> alias;
@@ -98,7 +97,7 @@ final class PrefixedCommand<S> implements Command {
 
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
 
-            final SimpleSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, s -> new SimpleSubCommand<>(processor, name, executionProvider));
+            final PrefixedSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, s -> new PrefixedSubCommand<>(processor, name, executionProvider));
             for (final String alias : processor.getAlias()) {
                 subCommands.putIfAbsent(alias, subCommand);
             }

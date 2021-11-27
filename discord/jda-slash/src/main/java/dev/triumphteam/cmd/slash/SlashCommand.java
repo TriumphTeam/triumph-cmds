@@ -25,10 +25,10 @@ package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.SimpleSubCommand;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
@@ -50,7 +50,7 @@ import java.util.Map;
  */
 final class SlashCommand<S> implements Command {
 
-    private final Map<String, SimpleSubCommand<S>> subCommands = new HashMap<>();
+    private final Map<String, SlashSubCommand<S>> subCommands = new HashMap<>();
 
     private final String name;
 
@@ -61,6 +61,8 @@ final class SlashCommand<S> implements Command {
 
     private final ExecutionProvider syncExecutionProvider;
     private final ExecutionProvider asyncExecutionProvider;
+
+    private boolean isDefault = false;
 
     public SlashCommand(
             @NotNull final SlashCommandProcessor<S> processor,
@@ -95,12 +97,25 @@ final class SlashCommand<S> implements Command {
             final String subCommandName = processor.getName();
             if (subCommandName == null) continue;
 
+            // TODO: 11/27/2021 Remove repeating code for throwing the exception.
+            if (isDefault) {
+                throw new CommandRegistrationException("Default commands cannot be registered with subcommands", baseCommand.getClass());
+            }
+
+            if (processor.isDefault()) {
+                if (subCommands.size() > 0) {
+                    throw new CommandRegistrationException("Default commands cannot be registered with subcommands", baseCommand.getClass());
+                }
+
+                isDefault = true;
+            }
+
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
 
-            final SimpleSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, s -> new SimpleSubCommand<>(processor, name, executionProvider));
-            for (final String alias : processor.getAlias()) {
+            subCommands.putIfAbsent(subCommandName, new SlashSubCommand<>(processor, name, executionProvider));
+            /*for (final String alias : processor.getAlias()) {
                 subCommands.putIfAbsent(alias, subCommand);
-            }
+            }*/
         }
     }
 
@@ -128,9 +143,17 @@ final class SlashCommand<S> implements Command {
         subCommand.execute(sender, args);
     }
 
+    @NotNull
     public CommandData asCommandData() {
         final CommandData commandData = new CommandData(name, "Some description");
-        final SubCommand<S> subCommand = subCommands.values().stream().findFirst().orElseThrow(() -> new IllegalStateException("No sub commands found"));
+
+        if (isDefault) {
+            final SlashSubCommand<S> subCommand = getDefaultSubCommand();
+            // Should never be null.
+            if (subCommand == null) throw new CommandRegistrationException("Could not find default subcommand");
+            commandData.addOptions(subCommand.getJdaOptions());
+        }
+
         return commandData;
     }
 
@@ -140,7 +163,7 @@ final class SlashCommand<S> implements Command {
      * @return The default sub command.
      */
     @Nullable
-    private SubCommand<S> getDefaultSubCommand() {
+    private SlashSubCommand<S> getDefaultSubCommand() {
         return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
@@ -151,7 +174,7 @@ final class SlashCommand<S> implements Command {
      * @return A sub command or null.
      */
     @Nullable
-    private SubCommand<S> getSubCommand(@NotNull final String key) {
+    private SlashSubCommand<S> getSubCommand(@NotNull final String key) {
         return subCommands.get(key);
     }
 

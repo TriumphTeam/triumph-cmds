@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,7 +74,10 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
     public static SlashCommandManager<SlashSender> createDefault(
             @NotNull final JDA jda
     ) {
-        return new SlashCommandManager<>(jda, new SlashSenderMapper());
+        final SlashCommandManager<SlashSender> commandManager = new SlashCommandManager<>(jda, new SlashSenderMapper());
+        // TODO: 11/27/2021 Defaults, this one is temp for testing
+        commandManager.registerArgument(Member.class, (sender, arg) -> null);
+        return commandManager;
     }
 
     @Override

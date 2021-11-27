@@ -26,7 +26,7 @@ package dev.triumphteam.cmd.bukkit.command;
 import dev.triumphteam.cmd.bukkit.factory.BukkitSubCommandProcessor;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.SimpleSubCommand;
+import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
@@ -82,14 +82,11 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         for (final Method method : methods) {
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
-            final SimpleSubCommand<CommandSender> subCommand = new BukkitSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create(name);
+            final AbstractSubCommand<CommandSender> subCommand = new BukkitSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create(name);
             if (subCommand == null) continue;
 
-            // TODO add aliases
-            final String subCommandName = subCommand.getName();
-            final List<String> subCommandAlias = subCommand.getAlias();
 
-            commands.put(subCommandName, subCommand);
+            //commands.put(subCommandName, subCommand);
         }
     }
 
@@ -129,28 +126,6 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     }
 
     // TODO comments in this class
-
-    /**
-     * Used to get Command {@link #name} of this particular Command.
-     *
-     * @return The command name.
-     */
-    @NotNull
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Used to get the {@link #alias} for this particular Command
-     *
-     * @return The command name.
-     */
-    @NotNull
-    @Override
-    public List<String> getAlias() {
-        return alias;
-    }
 
     /**
      * Gets a default command if present.

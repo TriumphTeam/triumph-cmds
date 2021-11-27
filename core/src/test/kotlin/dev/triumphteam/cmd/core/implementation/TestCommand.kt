@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.core.implementation
 
 import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.Command
-import dev.triumphteam.cmd.core.SimpleSubCommand
+import dev.triumphteam.cmd.core.AbstractSubCommand
 import dev.triumphteam.cmd.core.SubCommand
 import dev.triumphteam.cmd.core.annotation.Default
 import dev.triumphteam.cmd.core.implementation.factory.TestCommandProcessor
@@ -52,7 +52,7 @@ class TestCommand(processor: TestCommandProcessor) : Command {
             val processor = TestSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry)
 
             val subCommandName = processor.name ?: continue
-            val subCommand = SimpleSubCommand(processor, name)
+            val subCommand = AbstractSubCommand(processor, name)
 
             subCommands[subCommandName] = subCommand
             // TODO handle alias later

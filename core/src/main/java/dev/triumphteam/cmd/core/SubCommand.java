@@ -36,23 +36,6 @@ import java.util.List;
 public interface SubCommand<S> {
 
     /**
-     * Gets the sub command name.
-     * If the sub command is default the name will be {@link Default#DEFAULT_CMD_NAME}.
-     *
-     * @return The sub command name.
-     */
-    @NotNull
-    String getName();
-
-    /**
-     * Gets a list with the command aliases.
-     *
-     * @return The command alias.
-     */
-    @NotNull
-    List<String> getAlias();
-
-    /**
      * Checks if the sub command is default.
      * Can also just check if the name is {@link Default#DEFAULT_CMD_NAME}.
      *

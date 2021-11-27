@@ -27,7 +27,7 @@ import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.SimpleSubCommand;
+import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -56,7 +56,7 @@ public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor
 
     @Nullable
     //@Override
-    public SimpleSubCommand<CommandSender> create(@NotNull final String parentName) {
+    public AbstractSubCommand<CommandSender> create(@NotNull final String parentName) {
         if (getName() == null) return null;
         checkPermission(getMethod());
         //return new SimpleSubCommand<>(this, parentName);
