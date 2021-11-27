@@ -25,8 +25,21 @@ package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
+import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.util.Pair;
+import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Command Manager for Slash Commands.
@@ -39,17 +52,96 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
 
     private final JDA jda;
 
-    public SlashCommandManager(@NotNull final JDA jda) {
+    private final Map<String, SlashCommand<S>> globalCommands = new HashMap<>();
+    private final Map<Pair<Long, String>, SlashCommand<S>> guildCommands = new HashMap<>();
+
+    private final SenderMapper<S, SlashSender> senderMapper;
+
+    private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
+    private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
+
+    public SlashCommandManager(
+            @NotNull final JDA jda,
+            @NotNull final SenderMapper<S, SlashSender> senderMapper
+    ) {
         this.jda = jda;
+        this.senderMapper = senderMapper;
+
+        jda.addEventListener(new SlashCommandListener<>(this, getMessageRegistry(), senderMapper));
+    }
+
+    public static SlashCommandManager<SlashSender> createDefault(
+            @NotNull final JDA jda
+    ) {
+        return new SlashCommandManager<>(jda, new SlashSenderMapper());
     }
 
     @Override
-    public void registerCommand(final @NotNull BaseCommand baseCommand) {
+    public void registerCommand(@NotNull final BaseCommand baseCommand) {
+        addCommand(null, baseCommand);
+    }
 
+    public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand baseCommand) {
+        addCommand(guild, baseCommand);
     }
 
     @Override
     public void unregisterCommand(final @NotNull BaseCommand command) {
 
+    }
+
+    public void upsertCommands() {
+        jda.updateCommands().addCommands(globalCommands.values().stream().map(SlashCommand::asCommandData).collect(Collectors.toList())).queue();
+
+        guildCommands
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    final Guild guild = jda.getGuildById(entry.getKey().getFirst());
+                    return guild != null ? Pair.of(guild, entry.getValue().asCommandData()) : null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(Pair::getFirst, Collectors.mapping(Pair::getSecond, Collectors.toList())))
+                .forEach((guild, commands) -> guild.updateCommands().addCommands(commands).queue());
+    }
+
+    /**
+     * Adds a command to the manager.
+     *
+     * @param guild       The guild to add the command to or null if it's a global command.
+     * @param baseCommand The {@link BaseCommand} to be added.
+     */
+    private void addCommand(@Nullable final Guild guild, @NotNull final BaseCommand baseCommand) {
+        final SlashCommandProcessor<S> processor = new SlashCommandProcessor<>(
+                baseCommand,
+                getArgumentRegistry(),
+                getRequirementRegistry(),
+                getMessageRegistry(),
+                senderMapper
+        );
+
+        final String name = processor.getName();
+
+        // Global command
+        if (guild == null) {
+            final SlashCommand<S> command = globalCommands.computeIfAbsent(name, ignored -> new SlashCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
+            /*for (final String alias : processor.getAlias()) {
+                globalCommands.putIfAbsent(alias, command);
+            }*/
+
+            command.addSubCommands(baseCommand);
+            return;
+        }
+
+        final SlashCommand<S> command = guildCommands.computeIfAbsent(Pair.of(guild.getIdLong(), name), ignored -> new SlashCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
+        /*for (final String alias : processor.getAlias()) {
+            guildCommands.putIfAbsent(Pair.of(guild.getIdLong(), alias), command);
+        }*/
+
+        command.addSubCommands(baseCommand);
+    }
+
+    Map<String, SlashCommand<S>> getGlobalCommands() {
+        return globalCommands;
     }
 }

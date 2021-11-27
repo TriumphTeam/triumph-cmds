@@ -21,23 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed.execution;
+package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
+import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-
 /**
- * Prefixed JDA platform's implementation of asynchronous execution.
+ * Processor for Slash JDA platform specific code.
+ *
+ * @param <S> The sender type.
  */
-public final class AsyncExecutionProvider implements ExecutionProvider {
+final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSender> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(final @NotNull Runnable command) {
-        CompletableFuture.runAsync(command);
+    public SlashCommandProcessor(
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final RequirementRegistry<S> requirementRegistry,
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SenderMapper<S, SlashSender> senderMapper
+    ) {
+        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
     }
+
 }

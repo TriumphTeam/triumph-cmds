@@ -21,20 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core;
+package dev.triumphteam.cmd.slash;
 
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Command interface which all platforms will implement.
- */
-public interface Command {
+import java.lang.reflect.Method;
 
-    /**
-     * Adds a new sub command to the command.
-     *
-     * @param baseCommand The {@link BaseCommand} to get the sub commands from.
-     */
-    void addSubCommands(@NotNull final BaseCommand baseCommand);
+/**
+ * Processor for Slash JDA platform specific code.
+ *
+ * @param <S> The sender type.
+ */
+final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+
+    public SlashSubCommandProcessor(
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final Method method,
+            @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final RequirementRegistry<S> requirementRegistry,
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SenderMapper<S, SlashSender> senderMapper
+    ) {
+        super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+    }
 
 }

@@ -21,20 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core;
+package dev.triumphteam.cmd.core.execution;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
- * Command interface which all platforms will implement.
+ * Implementation of asynchronous execution, not necessarily used in all platforms.
  */
-public interface Command {
+public final class AsyncExecutionProvider implements ExecutionProvider {
 
     /**
-     * Adds a new sub command to the command.
-     *
-     * @param baseCommand The {@link BaseCommand} to get the sub commands from.
+     * {@inheritDoc}
      */
-    void addSubCommands(@NotNull final BaseCommand baseCommand);
-
+    @Override
+    public void execute(final @NotNull Runnable command) {
+        CompletableFuture.runAsync(command);
+    }
 }

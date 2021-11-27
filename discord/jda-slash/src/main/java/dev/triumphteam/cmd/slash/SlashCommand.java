@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed;
+package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
@@ -33,7 +33,8 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
+import dev.triumphteam.cmd.slash.sender.SlashSender;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,28 +48,26 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-final class PrefixedCommand<S> implements Command {
+final class SlashCommand<S> implements Command {
 
     private final Map<String, SimpleSubCommand<S>> subCommands = new HashMap<>();
 
     private final String name;
-    private final List<String> alias;
 
     private final ArgumentRegistry<S> argumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
-    private final SenderMapper<S, PrefixedSender> senderMapper;
+    private final SenderMapper<S, SlashSender> senderMapper;
 
     private final ExecutionProvider syncExecutionProvider;
     private final ExecutionProvider asyncExecutionProvider;
 
-    public PrefixedCommand(
-            @NotNull final PrefixedCommandProcessor<S> processor,
+    public SlashCommand(
+            @NotNull final SlashCommandProcessor<S> processor,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
         this.name = processor.getName();
-        this.alias = processor.getAlias();
         this.argumentRegistry = processor.getArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
@@ -84,7 +83,7 @@ final class PrefixedCommand<S> implements Command {
     @Override
     public void addSubCommands(@NotNull final BaseCommand baseCommand) {
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
-            final PrefixedSubCommandProcessor<S> processor = new PrefixedSubCommandProcessor<>(
+            final SlashSubCommandProcessor<S> processor = new SlashSubCommandProcessor<>(
                     baseCommand,
                     method,
                     argumentRegistry,
@@ -127,6 +126,12 @@ final class PrefixedCommand<S> implements Command {
         }
 
         subCommand.execute(sender, args);
+    }
+
+    public CommandData asCommandData() {
+        final CommandData commandData = new CommandData(name, "Some description");
+        final SubCommand<S> subCommand = subCommands.values().stream().findFirst().orElseThrow(() -> new IllegalStateException("No sub commands found"));
+        return commandData;
     }
 
     /**

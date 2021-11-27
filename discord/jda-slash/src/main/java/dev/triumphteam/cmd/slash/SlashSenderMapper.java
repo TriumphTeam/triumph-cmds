@@ -21,20 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core;
+package dev.triumphteam.cmd.slash;
 
+import com.google.common.collect.ImmutableSet;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Set;
 
 /**
- * Command interface which all platforms will implement.
+ * Simple mapper than returns itself.
  */
-public interface Command {
+class SlashSenderMapper implements SenderMapper<SlashSender, SlashSender> {
 
     /**
-     * Adds a new sub command to the command.
-     *
-     * @param baseCommand The {@link BaseCommand} to get the sub commands from.
+     * {@inheritDoc}
      */
-    void addSubCommands(@NotNull final BaseCommand baseCommand);
+    @NotNull
+    @Override
+    public Set<Class<? extends SlashSender>> getAllowedSenders() {
+        return ImmutableSet.of(SlashSender.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Nullable
+    @Override
+    public SlashSender map(@NotNull final SlashSender defaultSender) {
+        return defaultSender;
+    }
 
 }

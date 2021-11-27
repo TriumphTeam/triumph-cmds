@@ -31,7 +31,8 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.prefixed.execution.AsyncExecutionProvider;
+import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
+import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
@@ -63,7 +64,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     private final Set<String> prefixes = new HashSet<>();
     private final Set<Pattern> prefixesRegexes = new HashSet<>();
     private final Map<String, PrefixedCommandExecutor<S>> globalCommands = new HashMap<>();
-    private final Map<KeyPair<Long, String>, PrefixedCommandExecutor<S>> guildCommands = new HashMap<>();
+    private final Map<Pair<Long, String>, PrefixedCommandExecutor<S>> guildCommands = new HashMap<>();
 
     private final String globalPrefix;
     private final SenderMapper<S, PrefixedSender> senderMapper;
@@ -178,6 +179,11 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
         }
     }
 
+    @Override
+    public void unregisterCommand(@NotNull final BaseCommand command) {
+        // TODO: 11/23/2021 Add unregistering commands and also guild commands
+    }
+
     /**
      * Adds a command to the manager.
      *
@@ -203,6 +209,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
         }
 
         prefixes.add(prefix);
+        // TODO: 11/26/2021 Join into a map
         prefixesRegexes.add(Pattern.compile("^(?<prefix>" + Pattern.quote(prefix) + ")[\\w]"));
 
         // Global command
@@ -222,20 +229,15 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
         // Guild command
         final PrefixedCommandExecutor<S> commandExecutor = guildCommands.computeIfAbsent(
-                KeyPair.of(guild.getIdLong(), prefix),
+                Pair.of(guild.getIdLong(), prefix),
                 ignored -> new PrefixedCommandExecutor<>(getMessageRegistry(), syncExecutionProvider, asyncExecutionProvider)
         );
 
         for (final String alias : processor.getAlias()) {
-            guildCommands.putIfAbsent(KeyPair.of(guild.getIdLong(), alias), commandExecutor);
+            guildCommands.putIfAbsent(Pair.of(guild.getIdLong(), alias), commandExecutor);
         }
 
         commandExecutor.register(processor);
-    }
-
-    @Override
-    public void unregisterCommand(@NotNull final BaseCommand command) {
-        // TODO: 11/23/2021 Add unregistering commands and also guild commands
     }
 
     /**
@@ -247,7 +249,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
      */
     @Nullable
     PrefixedCommandExecutor<S> getGuildCommand(@NotNull final Guild guild, @NotNull final String prefix) {
-        return guildCommands.get(KeyPair.of(guild.getIdLong(), prefix));
+        return guildCommands.get(Pair.of(guild.getIdLong(), prefix));
     }
 
     /**
@@ -295,15 +297,10 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Long id = Longs.tryParse(arg);
             if (id != null) return jda.getUserById(id);
 
-            final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
-
-            if (userMentionMatcher.matches()) {
-                return jda.getUserById(userMentionMatcher.group("id"));
-            }
-
             if (USER_TAG_PATTERN.matcher(arg).matches()) return jda.getUserByTag(arg);
 
-            return null;
+            final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
+            return userMentionMatcher.matches() ? jda.getUserById(userMentionMatcher.group("id")) : null;
         });
 
         manager.registerArgument(Member.class, (sender, arg) -> {
@@ -311,15 +308,10 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Long id = Longs.tryParse(arg);
             if (id != null) return guild.getMemberById(id);
 
-            final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
-
-            if (userMentionMatcher.matches()) {
-                return guild.getMemberById(userMentionMatcher.group("id"));
-            }
-
             if (USER_TAG_PATTERN.matcher(arg).matches()) return guild.getMemberByTag(arg);
 
-            return null;
+            final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
+            return userMentionMatcher.matches() ? guild.getMemberById(userMentionMatcher.group("id")) : null;
         });
 
         manager.registerArgument(TextChannel.class, (sender, arg) -> {
@@ -328,7 +320,6 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             if (id != null) return guild.getTextChannelById(id);
 
             final Matcher channelMentionMatcher = CHANNEL_MENTION_PATTERN.matcher(arg);
-
             return channelMentionMatcher.matches() ? guild.getTextChannelById(channelMentionMatcher.group("id")) : null;
         });
 
@@ -338,7 +329,6 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             if (id != null) return guild.getRoleById(id);
 
             final Matcher roleMentionMatcher = ROLE_MENTION_PATTERN.matcher(arg);
-
             return roleMentionMatcher.matches() ? guild.getRoleById(roleMentionMatcher.group("id")) : null;
         });
     }
