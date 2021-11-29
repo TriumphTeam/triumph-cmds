@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Async;
 import dev.triumphteam.cmd.core.annotation.CommandFlags;
 import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.annotation.Flag;
 import dev.triumphteam.cmd.core.annotation.Join;
 import dev.triumphteam.cmd.core.annotation.Optional;
@@ -75,8 +76,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static dev.triumphteam.cmd.core.processor.AnnotationUtil.getAnnotation;
-
 /**
  * Abstracts most of the "extracting" from sub command annotations, allows for extending.
  * <br/>
@@ -91,6 +90,8 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final Method method;
     // Name is nullable to detect if the method should or not be considered a sub command.
     private String name = null;
+    // TODO: 11/28/2021 Add better default description 
+    private String description = "No description provided.";
     private final List<String> alias = new ArrayList<>();
 
     private boolean isDefault = false;
@@ -128,6 +129,7 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         extractFlags();
         extractRequirements();
+        extractDescription();
         extractArguments(method);
         validateArguments();
     }
@@ -159,6 +161,12 @@ public abstract class AbstractSubCommandProcessor<S> {
     @Nullable
     public String getName() {
         return name;
+    }
+
+    // TODO: 11/28/2021 Comments
+    @NotNull
+    public String getDescription() {
+        return description;
     }
 
     /**
@@ -353,8 +361,8 @@ public abstract class AbstractSubCommandProcessor<S> {
      * Extracts the data from the method to retrieve the sub command name or the default name.
      */
     private void extractSubCommandNames() {
-        final Default defaultAnnotation = getAnnotation(method, Default.class);
-        final dev.triumphteam.cmd.core.annotation.SubCommand subCommandAnnotation = getAnnotation(method, dev.triumphteam.cmd.core.annotation.SubCommand.class);
+        final Default defaultAnnotation = method.getAnnotation(Default.class);
+        final dev.triumphteam.cmd.core.annotation.SubCommand subCommandAnnotation = method.getAnnotation(dev.triumphteam.cmd.core.annotation.SubCommand.class);
 
         if (defaultAnnotation == null && subCommandAnnotation == null) {
             return;
@@ -428,10 +436,10 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @return The list of flags.
      */
     private List<Flag> getFlagsFromAnnotations() {
-        final CommandFlags flags = getAnnotation(method, CommandFlags.class);
+        final CommandFlags flags = method.getAnnotation(CommandFlags.class);
         if (flags != null) return Arrays.asList(flags.value());
 
-        final Flag flag = getAnnotation(method, Flag.class);
+        final Flag flag = method.getAnnotation(Flag.class);
         if (flag == null) return Collections.emptyList();
         return Collections.singletonList(flag);
     }
@@ -463,10 +471,10 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @return The list of requirements.
      */
     private List<dev.triumphteam.cmd.core.annotation.Requirement> getRequirementsFromAnnotations() {
-        final Requirements requirements = getAnnotation(method, Requirements.class);
+        final Requirements requirements = method.getAnnotation(Requirements.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
-        final dev.triumphteam.cmd.core.annotation.Requirement requirement = getAnnotation(method, dev.triumphteam.cmd.core.annotation.Requirement.class);
+        final dev.triumphteam.cmd.core.annotation.Requirement requirement = method.getAnnotation(dev.triumphteam.cmd.core.annotation.Requirement.class);
         if (requirement == null) return Collections.emptyList();
         return Collections.singletonList(requirement);
     }
@@ -529,6 +537,13 @@ public abstract class AbstractSubCommandProcessor<S> {
         if (limitlessPosition != -1 && limitlessPosition != argSize - 1) {
             throw createException("Limitless argument must be the last argument if \"Flags\" is not present");
         }
+    }
+
+    // TODO: 11/28/2021 Comments
+    private void extractDescription() {
+        final Description description = method.getAnnotation(Description.class);
+        if (description == null) return;
+        this.description = description.value();
     }
 
 }

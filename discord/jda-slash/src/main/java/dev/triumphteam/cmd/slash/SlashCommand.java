@@ -55,6 +55,7 @@ final class SlashCommand<S> implements Command {
     private final Map<String, SlashSubCommand<S>> subCommands = new HashMap<>();
 
     private final String name;
+    private final String description;
 
     private final ArgumentRegistry<S> argumentRegistry;
     private final MessageRegistry<S> messageRegistry;
@@ -72,6 +73,7 @@ final class SlashCommand<S> implements Command {
             @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
         this.name = processor.getName();
+        this.description = processor.getDescription();
         this.argumentRegistry = processor.getArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
@@ -147,7 +149,7 @@ final class SlashCommand<S> implements Command {
 
     @NotNull
     public CommandData asCommandData() {
-        final CommandData commandData = new CommandData(name, "Some description");
+        final CommandData commandData = new CommandData(name, description);
 
         if (isDefault) {
             final SlashSubCommand<S> subCommand = getDefaultSubCommand();
@@ -160,7 +162,7 @@ final class SlashCommand<S> implements Command {
         final List<SubcommandData> subData = subCommands
                 .entrySet()
                 .stream()
-                .map(entry -> new SubcommandData(entry.getKey(), "description boy").addOptions(entry.getValue().getJdaOptions()))
+                .map(entry -> new SubcommandData(entry.getKey(), entry.getValue().getDescription()).addOptions(entry.getValue().getJdaOptions()))
                 .collect(Collectors.toList());
 
         commandData.addSubcommands(subData);

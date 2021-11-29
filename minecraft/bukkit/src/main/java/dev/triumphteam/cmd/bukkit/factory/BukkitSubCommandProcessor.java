@@ -84,7 +84,7 @@ public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor
     }
 
     private void checkPermission(@NotNull final Method method) {
-        final Permission permission = AnnotationUtil.getAnnotation(method, Permission.class);
+        final Permission permission = method.getAnnotation(Permission.class);
         if (permission == null) return;
 
         final String annotatedPermission = permission.value();

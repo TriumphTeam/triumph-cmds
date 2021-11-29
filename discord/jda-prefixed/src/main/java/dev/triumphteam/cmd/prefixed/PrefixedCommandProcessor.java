@@ -27,7 +27,6 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.processor.AnnotationUtil;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.annotation.Prefix;
@@ -71,7 +70,7 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<S, Pref
      * @return The prefix from the annotation or an empty string.
      */
     private String extractPrefix() {
-        final Prefix prefixAnnotation = AnnotationUtil.getAnnotation(getAnnotatedClass(), Prefix.class);
+        final Prefix prefixAnnotation = getAnnotatedClass().getAnnotation(Prefix.class);
         return prefixAnnotation == null ? "" : prefixAnnotation.value();
     }
 

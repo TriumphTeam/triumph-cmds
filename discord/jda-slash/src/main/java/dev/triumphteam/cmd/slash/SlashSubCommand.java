@@ -15,18 +15,25 @@ import java.util.List;
 
 public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
 
+    private final String description;
+
     public SlashSubCommand(
             @NotNull final AbstractSubCommandProcessor<S> processor,
             @NotNull final String parentName,
             @NotNull final ExecutionProvider executionProvider
     ) {
         super(processor, parentName, executionProvider);
+        this.description = processor.getDescription();
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public List<OptionData> getJdaOptions() {
         final List<OptionData> options = new ArrayList<>();
         final List<Argument<S, ?>> arguments = getArguments();
-        
+
         for (final Argument<S, ?> argument : arguments) {
             options.add(new OptionData(OptionTypeMap.fromType(argument.getType()), CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, argument.getName()), "Description", !argument.isOptional()));
             // TODO: 11/28/2021 This is a hack, but it works for now.

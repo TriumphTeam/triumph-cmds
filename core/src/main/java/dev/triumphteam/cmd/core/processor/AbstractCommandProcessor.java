@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
+import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -49,6 +50,8 @@ public abstract class AbstractCommandProcessor<S, SD> {
     private final Class<?> annotatedClass;
 
     private String name;
+    // TODO: 11/28/2021 Add better default description
+    private String description = "No description provided.";
     private final List<String> alias = new ArrayList<>();
 
     private final BaseCommand baseCommand;
@@ -72,6 +75,7 @@ public abstract class AbstractCommandProcessor<S, SD> {
 
         this.annotatedClass = extractAnnotationClass();
         extractCommandNames();
+        extractDescription();
     }
 
     /**
@@ -139,8 +143,15 @@ public abstract class AbstractCommandProcessor<S, SD> {
      *
      * @return The {@link SenderMapper}.
      */
+    @NotNull
     public SenderMapper<S, SD> getSenderMapper() {
         return senderMapper;
+    }
+
+    // TODO: 11/28/2021 Comments
+    @NotNull
+    public String getDescription() {
+        return description;
     }
 
     /**
@@ -167,7 +178,7 @@ public abstract class AbstractCommandProcessor<S, SD> {
      * Helper method for getting the command names from the command annotation.
      */
     private void extractCommandNames() {
-        final Command commandAnnotation = AnnotationUtil.getAnnotation(annotatedClass, Command.class);
+        final Command commandAnnotation = annotatedClass.getAnnotation(Command.class);
 
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
@@ -187,6 +198,13 @@ public abstract class AbstractCommandProcessor<S, SD> {
         if (name.isEmpty()) {
             throw new CommandRegistrationException("Command name must not be empty", baseCommand.getClass());
         }
+    }
+
+    // TODO: 11/28/2021 Comments
+    private void extractDescription() {
+        final Description description = annotatedClass.getAnnotation(Description.class);
+        if (description == null) return;
+        this.description = description.value();
     }
 
 }
