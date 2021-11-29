@@ -151,10 +151,6 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
         return guildCommands.get(Pair.of(guild.getIdLong(), name));
     }
 
-    Map<String, SlashCommand<S>> getGlobalCommands() {
-        return globalCommands;
-    }
-
     private static void setUpDefaults(@NotNull final SlashCommandManager<SlashSender> manager) {
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.reply("Unknown command: `" + context.getCommand() + "`.").setEphemeral(true).queue());
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());

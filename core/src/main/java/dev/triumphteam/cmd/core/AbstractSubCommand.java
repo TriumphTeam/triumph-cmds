@@ -25,9 +25,9 @@ package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.Argument;
-import dev.triumphteam.cmd.core.argument.types.FlagArgument;
-import dev.triumphteam.cmd.core.argument.types.LimitlessArgument;
-import dev.triumphteam.cmd.core.argument.types.StringArgument;
+import dev.triumphteam.cmd.core.argument.FlagArgument;
+import dev.triumphteam.cmd.core.argument.LimitlessArgument;
+import dev.triumphteam.cmd.core.argument.StringArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.flag.internal.result.InvalidFlagArgumentResult;

@@ -21,36 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.types;
+package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.flag.Flags;
-import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
-import dev.triumphteam.cmd.core.flag.internal.FlagParser;
-import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * Flag argument, a {@link LimitlessArgument} but returns a {@link ParseResult} instead.
- * Which contains a {@link Flags} object and the left over to be passed to another {@link LimitlessArgument}.
+ * Joined string argument, a {@link LimitlessArgument}.
+ * Returns a single {@link String} that was joined from a {@link List} of arguments.
  *
  * @param <S> The sender type.
  */
-public final class FlagArgument<S> extends LimitlessArgument<S> {
+public final class JoinedStringArgument<S> extends LimitlessArgument<S> {
 
-    private final FlagGroup<S> flagGroup;
+    private final CharSequence delimiter;
 
-    public FlagArgument(
-            @NotNull final FlagGroup<S> flagGroup,
+    public JoinedStringArgument(
             @NotNull final String name,
-            final boolean isOptional
+            @NotNull final CharSequence delimiter,
+            final boolean optional
     ) {
-        super(name, Flags.class, isOptional);
-        this.flagGroup = flagGroup;
+        super(name, String.class, optional);
+        this.delimiter = delimiter;
     }
 
     /**
@@ -58,14 +53,12 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
      *
      * @param sender The sender to resolve to.
      * @param value  The arguments {@link List}.
-     * @return A {@link ParseResult} which contains the flags and left overs.
+     * @return A single {@link String} with the joined {@link List}.
      */
     @NotNull
     @Override
-    public ParseResult<S> resolve(@NotNull final S sender, @NotNull final List<String> value) {
-        final List<String> args = value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value;
-        System.out.println(args);
-        return FlagParser.parse(flagGroup, sender, args);
+    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
+        return String.join(delimiter, value);
     }
 
     @Override
@@ -73,19 +66,19 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final FlagArgument<?> that = (FlagArgument<?>) o;
-        return flagGroup.equals(that.flagGroup);
+        final JoinedStringArgument<?> that = (JoinedStringArgument<?>) o;
+        return delimiter.equals(that.delimiter);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), flagGroup);
+        return Objects.hash(super.hashCode(), delimiter);
     }
 
     @Override
     public @NotNull String toString() {
-        return "FlagArgument{" +
-                "flagGroup=" + flagGroup +
+        return "JoinedStringArgument{" +
+                "delimiter=" + delimiter +
                 ", super=" + super.toString() + "}";
     }
 

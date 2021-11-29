@@ -3,7 +3,7 @@ package dev.triumphteam.cmd.slash;
 import com.google.common.base.CaseFormat;
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.argument.Argument;
-import dev.triumphteam.cmd.core.argument.types.LimitlessArgument;
+import dev.triumphteam.cmd.core.argument.LimitlessArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.slash.util.OptionTypeMap;
