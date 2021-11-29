@@ -27,13 +27,10 @@ import dev.triumphteam.cmd.core.flag.Flags;
 import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
 import dev.triumphteam.cmd.core.flag.internal.FlagParser;
 import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
-import dev.triumphteam.cmd.core.flag.Flags;
-import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
-import dev.triumphteam.cmd.core.flag.internal.FlagParser;
-import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,7 +63,9 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
     @NotNull
     @Override
     public ParseResult<S> resolve(@NotNull final S sender, @NotNull final List<String> value) {
-        return FlagParser.parse(flagGroup, sender, value);
+        final List<String> args = value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value;
+        System.out.println(args);
+        return FlagParser.parse(flagGroup, sender, args);
     }
 
     @Override

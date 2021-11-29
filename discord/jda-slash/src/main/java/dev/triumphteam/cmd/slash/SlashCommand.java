@@ -35,6 +35,7 @@ import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Main implementation of the command for prefixed JDA.
@@ -125,17 +127,17 @@ final class SlashCommand<S> implements Command {
      * @param sender The sender.
      * @param args   The command arguments.
      */
-    public void execute(@NotNull final S sender, @NotNull final List<String> args) {
-        SubCommand<S> subCommand = getDefaultSubCommand();
-
-        String subCommandName = "";
-        if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
-
-        if (subCommand == null || subCommandExists(subCommandName)) {
-            subCommand = getSubCommand(subCommandName);
-        }
+    public void execute(
+            @NotNull final S sender,
+            @NotNull final String subCommandName,
+            @NotNull final List<String> args
+    ) {
+        System.out.println(subCommandName);
+        System.out.println(args);
+        final SubCommand<S> subCommand = getSubCommand(subCommandName);
 
         if (subCommand == null) {
+            System.out.println("invalid");
             //sender.sendMessage("Command doesn't exist matey.");
             return;
         }
@@ -152,8 +154,16 @@ final class SlashCommand<S> implements Command {
             // Should never be null.
             if (subCommand == null) throw new CommandRegistrationException("Could not find default subcommand");
             commandData.addOptions(subCommand.getJdaOptions());
+            return commandData;
         }
 
+        final List<SubcommandData> subData = subCommands
+                .entrySet()
+                .stream()
+                .map(entry -> new SubcommandData(entry.getKey(), "description boy").addOptions(entry.getValue().getJdaOptions()))
+                .collect(Collectors.toList());
+
+        commandData.addSubcommands(subData);
         return commandData;
     }
 

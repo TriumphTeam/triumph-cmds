@@ -76,7 +76,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
     ) {
         final SlashCommandManager<SlashSender> commandManager = new SlashCommandManager<>(jda, new SlashSenderMapper());
         // TODO: 11/27/2021 Defaults, this one is temp for testing
-        commandManager.registerArgument(Member.class, (sender, arg) -> null);
+        commandManager.registerArgument(Member.class, (sender, arg) -> sender.getGuild().getMemberById(arg));
         return commandManager;
     }
 
@@ -143,6 +143,16 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
         }*/
 
         command.addSubCommands(baseCommand);
+    }
+
+    @Nullable
+    SlashCommand<S> getCommand(@NotNull final String name) {
+        return globalCommands.get(name);
+    }
+
+    @Nullable
+    SlashCommand<S> getCommand(@NotNull Guild guild, @NotNull final String name) {
+        return guildCommands.get(Pair.of(guild.getIdLong(), name));
     }
 
     Map<String, SlashCommand<S>> getGlobalCommands() {

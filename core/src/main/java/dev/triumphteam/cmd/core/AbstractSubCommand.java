@@ -117,7 +117,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @param sender The sender.
      * @param args   The arguments to pass to the executor.
      */
-    // TODO: 11/28/2021 PASS SUB COMMAND TO EXECUTOR
     @Override
     public void execute(@NotNull final S sender, @NotNull final List<String> args) {
         if (!meetRequirements(sender)) return;

@@ -23,14 +23,21 @@
  */
 package dev.triumphteam.cmd.slash;
 
+import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Listener for the JDA's {@link GuildMessageReceivedEvent}, which triggers the command execution.
@@ -55,7 +62,35 @@ final class SlashCommandListener<S> extends ListenerAdapter {
 
     @Override
     public void onSlashCommand(@NotNull final SlashCommandEvent event) {
+        final String name = event.getName();
+        SlashCommand<S> command = commandManager.getCommand(name);
+        if (command == null) {
+            final Guild guild = event.getGuild();
+            if (guild == null) return;
+            command = commandManager.getCommand(guild, name);
+        }
 
+        if (command == null) return;
+
+        // TODO: 11/27/2021 sender
+        final S sender = senderMapper.map(new SlashSender() {
+            @Override
+            public Guild getGuild() {
+                return event.getGuild();
+            }
+
+            @Override
+            public RestAction reply(final String message) {
+                return event.reply(message);
+            }
+        });
+        if (sender == null) return;
+
+        final String subCommandName = event.getSubcommandName();
+
+        final List<String> args = event.getOptions().stream().map(OptionMapping::getAsString).collect(Collectors.toList());
+
+        command.execute(sender, subCommandName != null ? subCommandName : Default.DEFAULT_CMD_NAME, args);
     }
 
     @Override

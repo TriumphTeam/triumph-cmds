@@ -38,7 +38,9 @@ public operator fun Flags.contains(flag: String): Boolean = this.hasFlag(flag)
  * However, it'll throw exception if the flag isn't present.
  * Recommended use for required flags with required argument.
  */
-public inline fun <reified T> Flags.getValue(flag: String): T = this.getValue(flag, T::class.java)
+public inline fun <reified T> Flags.getValue(flag: String): T {
+    return this.getValue(flag, T::class.java)
+}
 
 /**
  * Gets the flag value in a nullable way, using reified types.

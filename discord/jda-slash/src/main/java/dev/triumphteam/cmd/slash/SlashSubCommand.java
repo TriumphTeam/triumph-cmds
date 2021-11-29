@@ -3,6 +3,7 @@ package dev.triumphteam.cmd.slash;
 import com.google.common.base.CaseFormat;
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.argument.Argument;
+import dev.triumphteam.cmd.core.argument.types.LimitlessArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.slash.util.OptionTypeMap;
@@ -25,10 +26,12 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
     public List<OptionData> getJdaOptions() {
         final List<OptionData> options = new ArrayList<>();
         final List<Argument<S, ?>> arguments = getArguments();
-
-        arguments.forEach(argument -> {
+        
+        for (final Argument<S, ?> argument : arguments) {
             options.add(new OptionData(OptionTypeMap.fromType(argument.getType()), CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, argument.getName()), "Description", true));
-        });
+            // TODO: 11/28/2021 This is a hack, but it works for now.
+            if (argument instanceof LimitlessArgument) break;
+        }
 
         return options;
     }
