@@ -33,7 +33,6 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -72,18 +71,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
 
         if (command == null) return;
 
-        // TODO: 11/27/2021 sender
-        final S sender = senderMapper.map(new SlashSender() {
-            @Override
-            public Guild getGuild() {
-                return event.getGuild();
-            }
-
-            @Override
-            public RestAction reply(final String message) {
-                return event.reply(message);
-            }
-        });
+        final S sender = senderMapper.map(new SlashCommandSender(event));
         if (sender == null) return;
 
         final String subCommandName = event.getSubcommandName();

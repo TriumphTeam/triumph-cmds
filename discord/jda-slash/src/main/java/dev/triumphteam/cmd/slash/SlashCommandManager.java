@@ -28,12 +28,17 @@ import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,8 +80,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
             @NotNull final JDA jda
     ) {
         final SlashCommandManager<SlashSender> commandManager = new SlashCommandManager<>(jda, new SlashSenderMapper());
-        // TODO: 11/27/2021 Defaults, this one is temp for testing
-        commandManager.registerArgument(Member.class, (sender, arg) -> sender.getGuild().getMemberById(arg));
+        setUpDefaults(commandManager);
         return commandManager;
     }
 
@@ -129,19 +133,11 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
         // Global command
         if (guild == null) {
             final SlashCommand<S> command = globalCommands.computeIfAbsent(name, ignored -> new SlashCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
-            /*for (final String alias : processor.getAlias()) {
-                globalCommands.putIfAbsent(alias, command);
-            }*/
-
             command.addSubCommands(baseCommand);
             return;
         }
 
         final SlashCommand<S> command = guildCommands.computeIfAbsent(Pair.of(guild.getIdLong(), name), ignored -> new SlashCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
-        /*for (final String alias : processor.getAlias()) {
-            guildCommands.putIfAbsent(Pair.of(guild.getIdLong(), alias), command);
-        }*/
-
         command.addSubCommands(baseCommand);
     }
 
@@ -158,4 +154,37 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
     Map<String, SlashCommand<S>> getGlobalCommands() {
         return globalCommands;
     }
+
+    private static void setUpDefaults(@NotNull final SlashCommandManager<SlashSender> manager) {
+        manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.reply("Unknown command: `" + context.getCommand() + "`.").setEphemeral(true).queue());
+        manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
+        manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
+        manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.reply("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").setEphemeral(true).queue());
+        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG, (sender, context) -> sender.reply("Command is missing required flags.").setEphemeral(true).queue());
+        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, (sender, context) -> sender.reply("Command is missing required flags argument.").setEphemeral(true).queue());
+        manager.registerMessage(MessageKey.INVALID_FLAG_ARGUMENT, (sender, context) -> sender.reply("Invalid flag argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").setEphemeral(true).queue());
+
+        manager.registerArgument(Member.class, (sender, arg) -> {
+            final Guild guild = sender.getGuild();
+            if (guild == null) return null;
+            return guild.getMemberById(arg);
+        });
+        manager.registerArgument(User.class, (sender, arg) -> sender.getEvent().getJDA().getUserById(arg));
+        manager.registerArgument(TextChannel.class, (sender, arg) -> {
+            final Guild guild = sender.getGuild();
+            if (guild == null) return null;
+            return guild.getTextChannelById(arg);
+        });
+        manager.registerArgument(VoiceChannel.class, (sender, arg) -> {
+            final Guild guild = sender.getGuild();
+            if (guild == null) return null;
+            return guild.getVoiceChannelById(arg);
+        });
+        manager.registerArgument(Role.class, (sender, arg) -> {
+            final Guild guild = sender.getGuild();
+            if (guild == null) return null;
+            return guild.getRoleById(arg);
+        });
+    }
+
 }

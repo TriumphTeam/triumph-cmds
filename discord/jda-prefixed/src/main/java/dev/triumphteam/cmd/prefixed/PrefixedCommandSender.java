@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Basic implementation of a sender for this JDA implementation.
  */
-final class SimplePrefixedSender implements PrefixedSender {
+final class PrefixedCommandSender implements PrefixedSender {
 
     private final Message message;
     private final User user;
@@ -45,7 +45,7 @@ final class SimplePrefixedSender implements PrefixedSender {
     private final Guild guild;
     private final JDA jda;
 
-    public SimplePrefixedSender(@NotNull final Message message) {
+    public PrefixedCommandSender(@NotNull final Message message) {
         this.message = message;
         this.user = message.getAuthor();
         this.member = message.getMember();

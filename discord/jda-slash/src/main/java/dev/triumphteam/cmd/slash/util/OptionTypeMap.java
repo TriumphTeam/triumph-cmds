@@ -2,7 +2,9 @@ package dev.triumphteam.cmd.slash.util;
 
 import com.google.common.collect.ImmutableMap;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +31,8 @@ public final class OptionTypeMap {
         map.put(Role.class, OptionType.ROLE);
         map.put(User.class, OptionType.USER);
         map.put(Member.class, OptionType.USER);
+        map.put(TextChannel.class, OptionType.CHANNEL);
+        map.put(MessageChannel.class, OptionType.CHANNEL);
 
         OPTION_TYPE_MAP = ImmutableMap.copyOf(map);
     }

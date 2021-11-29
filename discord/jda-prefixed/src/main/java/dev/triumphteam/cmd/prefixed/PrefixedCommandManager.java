@@ -283,7 +283,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
         return prefixesRegexes;
     }
 
-    private static void setUpDefaults(@NotNull final CommandManager<PrefixedSender> manager) {
+    private static void setUpDefaults(@NotNull final PrefixedCommandManager<PrefixedSender> manager) {
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.getMessage().reply("Unknown command: `" + context.getCommand() + "`.").queue());
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
@@ -302,7 +302,6 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
             return userMentionMatcher.matches() ? jda.getUserById(userMentionMatcher.group("id")) : null;
         });
-
         manager.registerArgument(Member.class, (sender, arg) -> {
             final Guild guild = sender.getGuild();
             final Long id = Longs.tryParse(arg);
@@ -313,7 +312,6 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
             return userMentionMatcher.matches() ? guild.getMemberById(userMentionMatcher.group("id")) : null;
         });
-
         manager.registerArgument(TextChannel.class, (sender, arg) -> {
             final Guild guild = sender.getGuild();
             final Long id = Longs.tryParse(arg);
@@ -322,7 +320,14 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
             final Matcher channelMentionMatcher = CHANNEL_MENTION_PATTERN.matcher(arg);
             return channelMentionMatcher.matches() ? guild.getTextChannelById(channelMentionMatcher.group("id")) : null;
         });
+        manager.registerArgument(VoiceChannel.class, (sender, arg) -> {
+            final Guild guild = sender.getGuild();
+            final Long id = Longs.tryParse(arg);
+            if (id != null) return guild.getVoiceChannelById(id);
 
+            final Matcher channelMentionMatcher = CHANNEL_MENTION_PATTERN.matcher(arg);
+            return channelMentionMatcher.matches() ? guild.getVoiceChannelById(channelMentionMatcher.group("id")) : null;
+        });
         manager.registerArgument(Role.class, (sender, arg) -> {
             final Guild guild = sender.getGuild();
             final Long id = Longs.tryParse(arg);
