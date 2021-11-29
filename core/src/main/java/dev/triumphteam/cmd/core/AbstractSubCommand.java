@@ -117,22 +117,20 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @param sender The sender.
      * @param args   The arguments to pass to the executor.
      */
+    // TODO: 11/28/2021 PASS SUB COMMAND TO EXECUTOR
     @Override
     public void execute(@NotNull final S sender, @NotNull final List<String> args) {
         if (!meetRequirements(sender)) return;
-
-        // Removes the sub command from the args if it's not default.
-        final List<String> commandArgs = getCommandArgs(args);
 
         // Creates the invoking arguments list
         final List<Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
-        if (!validateAndCollectArguments(sender, invokeArguments, commandArgs)) {
+        if (!validateAndCollectArguments(sender, invokeArguments, args)) {
             return;
         }
 
-        if ((!containsLimitless && !containsFlags) && commandArgs.size() >= invokeArguments.size()) {
+        if ((!containsLimitless && !containsFlags) && args.size() >= invokeArguments.size()) {
             messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext(parentName, name));
             return;
         }
@@ -262,7 +260,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         } else {
             result = getFlagResult(argument, sender, args);
         }
-
+        System.out.println(result);
         if (result instanceof RequiredFlagsResult) {
             messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(parentName, name, (RequiredFlagsResult<?>) result));
             return false;
@@ -310,23 +308,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         }
         final FlagArgument<S> flagArgument = (FlagArgument<S>) argument;
         return flagArgument.resolve(sender, args);
-    }
-
-    /**
-     * Gets the command args.
-     * Removes the sub command arg if current is default.
-     * TODO check for alias to default.
-     *
-     * @param args The typed arguments.
-     * @return A list with only command arguments.
-     */
-    @NotNull
-    private List<String> getCommandArgs(@NotNull final List<String> args) {
-        if (!isDefault) {
-            return args.subList(1, args.size());
-        }
-
-        return args;
     }
 
     /**

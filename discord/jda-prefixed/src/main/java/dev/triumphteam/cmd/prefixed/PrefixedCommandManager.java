@@ -248,7 +248,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
      * @return The {@link BaseCommand} or null if it doesn't exist.
      */
     @Nullable
-    PrefixedCommandExecutor<S> getGuildCommand(@NotNull final Guild guild, @NotNull final String prefix) {
+    PrefixedCommandExecutor<S> getCommand(@NotNull final Guild guild, @NotNull final String prefix) {
         return guildCommands.get(Pair.of(guild.getIdLong(), prefix));
     }
 
@@ -259,7 +259,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
      * @return The {@link BaseCommand} or null if it doesn't exist.
      */
     @Nullable
-    PrefixedCommandExecutor<S> getGlobalCommand(@NotNull final String prefix) {
+    PrefixedCommandExecutor<S> getCommand(@NotNull final String prefix) {
         return globalCommands.get(prefix);
     }
 

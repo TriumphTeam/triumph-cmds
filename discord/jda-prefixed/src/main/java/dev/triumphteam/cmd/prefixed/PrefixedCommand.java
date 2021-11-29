@@ -125,7 +125,9 @@ final class PrefixedCommand<S> implements Command {
             return;
         }
 
-        subCommand.execute(sender, args);
+        // TODO: 11/28/2021 Alias check
+        final List<String> arguments = subCommand.isDefault() ? args.subList(1, args.size()) : args;
+        subCommand.execute(sender, arguments);
     }
 
     /**
