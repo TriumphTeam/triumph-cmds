@@ -33,12 +33,18 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class StringArgument<S> extends AbstractArgument<S, String> {
 
-    public StringArgument(@NotNull final String name, @NotNull final Class<?> type, final boolean optional) {
-        super(name, type, optional);
+    public StringArgument(
+            @NotNull final String name,
+            @NotNull final String description,
+            @NotNull final Class<?> type,
+            final boolean optional
+    ) {
+        super(name, description, type, optional);
     }
 
+    @NotNull
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return "StringArgument{super=" + super.toString() + "}";
     }
 

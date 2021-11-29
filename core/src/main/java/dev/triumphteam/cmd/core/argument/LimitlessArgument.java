@@ -35,8 +35,13 @@ import java.util.List;
  */
 public abstract class LimitlessArgument<S> extends AbstractArgument<S, List<String>> {
 
-    public LimitlessArgument(final @NotNull String name, final @NotNull Class<?> type, final boolean isOptional) {
-        super(name, type, isOptional);
+    public LimitlessArgument(
+            @NotNull final String name,
+            @NotNull final String description,
+            @NotNull final Class<?> type,
+            final boolean isOptional
+    ) {
+        super(name, description, type, isOptional);
     }
 
     @Override

@@ -26,13 +26,12 @@ package dev.triumphteam.cmd.bukkit.factory;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.AbstractSubCommand;
+import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
-import dev.triumphteam.cmd.core.processor.AnnotationUtil;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import org.bukkit.command.CommandSender;
@@ -79,7 +78,7 @@ public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor
                 continue;
             }
 
-            createArgument(parameter);
+            createArgument(parameter, i - 1);
         }
     }
 

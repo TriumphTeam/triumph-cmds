@@ -45,11 +45,12 @@ public final class CollectionArgument<S> extends LimitlessArgument<S> {
 
     public CollectionArgument(
             @NotNull final String name,
+            @NotNull final String description,
             @NotNull final Argument<S, String> argument,
             @NotNull final Class<?> collectionType,
             final boolean optional
     ) {
-        super(name, String.class, optional);
+        super(name, description, String.class, optional);
         this.argument = argument;
         this.collectionType = collectionType;
     }

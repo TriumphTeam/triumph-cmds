@@ -38,17 +38,20 @@ import java.util.Objects;
 public abstract class AbstractArgument<S, T> implements Argument<S, T> {
 
     private final String name;
+    private final String description;
     private final Class<?> type;
     private final boolean optional;
 
     public AbstractArgument(
             @NotNull final String name,
+            @NotNull final String description,
             @NotNull final Class<?> type,
             final boolean optional
     ) {
         this.name = name;
         this.type = type;
         this.optional = optional;
+        this.description = description;
     }
 
     /**
@@ -62,6 +65,11 @@ public abstract class AbstractArgument<S, T> implements Argument<S, T> {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
     /**

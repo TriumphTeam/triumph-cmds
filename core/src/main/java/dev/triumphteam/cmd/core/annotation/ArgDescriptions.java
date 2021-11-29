@@ -21,42 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument;
+package dev.triumphteam.cmd.core.annotation;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * Array argument, a {@link LimitlessArgument} but returns an array instead.
- *
- * @param <S> The sender type.
- */
-public final class ArrayArgument<S> extends LimitlessArgument<S> {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface ArgDescriptions {
 
-    public ArrayArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            final boolean optional
-    ) {
-        super(name, description, String.class, optional);
-    }
-
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The arguments {@link List}.
-     * @return A String array as the resolved value.
-     */
     @NotNull
-    @Override
-    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
-        return value.toArray(new String[0]);
-    }
+    String[] value();
 
-    @Override
-    public @NotNull String toString() {
-        return "ArrayArgument{super=" + super.toString() + "}";
-    }
 }

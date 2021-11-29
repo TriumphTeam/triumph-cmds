@@ -45,11 +45,12 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
     private final FlagGroup<S> flagGroup;
 
     public FlagArgument(
-            @NotNull final FlagGroup<S> flagGroup,
             @NotNull final String name,
+            @NotNull final String description,
+            @NotNull final FlagGroup<S> flagGroup,
             final boolean isOptional
     ) {
-        super(name, Flags.class, isOptional);
+        super(name, description, Flags.class, isOptional);
         this.flagGroup = flagGroup;
     }
 

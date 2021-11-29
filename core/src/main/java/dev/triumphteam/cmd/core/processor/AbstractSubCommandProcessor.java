@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.annotation.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotation.Async;
 import dev.triumphteam.cmd.core.annotation.CommandFlags;
 import dev.triumphteam.cmd.core.annotation.Default;
@@ -90,8 +91,9 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final Method method;
     // Name is nullable to detect if the method should or not be considered a sub command.
     private String name = null;
-    // TODO: 11/28/2021 Add better default description 
+    // TODO: 11/28/2021 Add better default description
     private String description = "No description provided.";
+    private final List<String> argDescriptions = new ArrayList<>();
     private final List<String> alias = new ArrayList<>();
 
     private boolean isDefault = false;
@@ -130,6 +132,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         extractFlags();
         extractRequirements();
         extractDescription();
+        extractArgDescriptions();
         extractArguments(method);
         validateArguments();
     }
@@ -148,7 +151,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                 continue;
             }
 
-            createArgument(parameter);
+            createArgument(parameter, i - 1);
         }
     }
 
@@ -278,14 +281,15 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param parameter The current parameter to get data from.
      */
-    protected void createArgument(@NotNull final Parameter parameter) {
+    protected void createArgument(@NotNull final Parameter parameter, final int index) {
         final Class<?> type = parameter.getType();
         final String parameterName = parameter.getName();
+        final String argumentDescription = getArgumentDescription(parameter, index);
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
         // TODO: 11/17/2021 Perhaps join arrays with collections to allow for type safe as well
         if (type == String[].class) {
-            addArgument(new ArrayArgument<>(parameterName, optional));
+            addArgument(new ArrayArgument<>(parameterName, argumentDescription, optional));
             return;
         }
 
@@ -301,47 +305,65 @@ public abstract class AbstractSubCommandProcessor<S> {
 
             final Type genericType = types[0];
             final Type collectionType = genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType;
-            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, parameterName, optional);
+            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, parameterName, argumentDescription, optional);
 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
-                addArgument(new SplitStringArgument<>(parameterName, splitAnnotation.value(), argument, type, optional));
+                addArgument(new SplitStringArgument<>(parameterName, argumentDescription, splitAnnotation.value(), argument, type, optional));
                 return;
             }
 
-            addArgument(new CollectionArgument<>(parameterName, argument, type, optional));
+            addArgument(new CollectionArgument<>(parameterName, argumentDescription, argument, type, optional));
             return;
         }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(new JoinedStringArgument<>(parameterName, joinAnnotation.value(), optional));
+            addArgument(new JoinedStringArgument<>(parameterName, argumentDescription, joinAnnotation.value(), optional));
             return;
         }
 
         // Handler for flags.
         if (type == Flags.class) {
-            addArgument(new FlagArgument<>(flagGroup, parameterName, optional));
+            addArgument(new FlagArgument<>(parameterName, argumentDescription, flagGroup, optional));
             return;
         }
 
-        addArgument(createSimpleArgument(type, parameterName, optional));
+        addArgument(createSimpleArgument(type, parameterName, argumentDescription, optional));
     }
 
-    private Argument<S, String> createSimpleArgument(@NotNull final Class<?> type, @NotNull final String parameterName, final boolean optional) {
+    @NotNull
+    private String getArgumentDescription(@NotNull final Parameter parameter, final int index) {
+        final Description description = parameter.getAnnotation(Description.class);
+        if (description != null) {
+            return description.value();
+        }
+
+        if (index < argDescriptions.size()) return argDescriptions.get(index);
+        // TODO: 11/28/2021 Add better default description
+        return "No description provided.";
+    }
+
+    // TODO: 11/28/2021 Comments
+    private Argument<S, String> createSimpleArgument(
+            @NotNull final Class<?> type,
+            @NotNull final String parameterName,
+            @NotNull final String argumentDescription,
+            final boolean optional
+    ) {
         // All other types default to the resolver.
         final ArgumentResolver<S> resolver = argumentRegistry.getResolver(type);
         if (resolver == null) {
             // Handler for using any Enum.
             if (Enum.class.isAssignableFrom(type)) {
                 //noinspection unchecked
-                return new EnumArgument<>(parameterName, (Class<? extends Enum<?>>) type, optional);
+                return new EnumArgument<>(parameterName, argumentDescription, (Class<? extends Enum<?>>) type, optional);
             }
 
             throw createException("No argument of type \"" + type.getName() + "\" registered");
         }
-        return new ResolverArgument<>(parameterName, type, resolver, optional);
+        return new ResolverArgument<>(parameterName, argumentDescription, type, resolver, optional);
     }
 
     protected void addRequirement(@NotNull final Requirement<S, ?> requirement) {
@@ -407,14 +429,14 @@ public abstract class AbstractSubCommandProcessor<S> {
             if (argumentType != void.class) {
                 if (Enum.class.isAssignableFrom(argumentType)) {
                     //noinspection unchecked
-                    argument = new EnumArgument<>(argumentType.getName(), (Class<? extends Enum<?>>) argumentType, false);
+                    argument = new EnumArgument<>(argumentType.getName(), "", (Class<? extends Enum<?>>) argumentType, false);
                 } else {
                     final ArgumentResolver<S> resolver = argumentRegistry.getResolver(argumentType);
                     if (resolver == null) {
                         throw createException("@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argumentType.getName() + "\"");
                     }
 
-                    argument = new ResolverArgument<>(argumentType.getName(), argumentType, resolver, false);
+                    argument = new ResolverArgument<>(argumentType.getName(), "", argumentType, resolver, false);
                 }
             }
 
@@ -544,6 +566,13 @@ public abstract class AbstractSubCommandProcessor<S> {
         final Description description = method.getAnnotation(Description.class);
         if (description == null) return;
         this.description = description.value();
+    }
+
+    // TODO: 11/28/2021 Comments
+    private void extractArgDescriptions() {
+        final ArgDescriptions argDescriptions = method.getAnnotation(ArgDescriptions.class);
+        if (argDescriptions == null) return;
+        this.argDescriptions.addAll(Arrays.asList(argDescriptions.value()));
     }
 
 }

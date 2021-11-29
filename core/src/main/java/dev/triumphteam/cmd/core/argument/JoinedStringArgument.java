@@ -41,10 +41,11 @@ public final class JoinedStringArgument<S> extends LimitlessArgument<S> {
 
     public JoinedStringArgument(
             @NotNull final String name,
+            @NotNull final String description,
             @NotNull final CharSequence delimiter,
             final boolean optional
     ) {
-        super(name, String.class, optional);
+        super(name, description, String.class, optional);
         this.delimiter = delimiter;
     }
 

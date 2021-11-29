@@ -35,7 +35,14 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
         final List<Argument<S, ?>> arguments = getArguments();
 
         for (final Argument<S, ?> argument : arguments) {
-            options.add(new OptionData(OptionTypeMap.fromType(argument.getType()), CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, argument.getName()), "Description", !argument.isOptional()));
+            final OptionData option = new OptionData(
+                    OptionTypeMap.fromType(argument.getType()),
+                    CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, argument.getName()),
+                    argument.getDescription(),
+                    !argument.isOptional()
+            );
+            options.add(option);
+
             // TODO: 11/28/2021 This is a hack, but it works for now.
             if (argument instanceof LimitlessArgument) break;
         }

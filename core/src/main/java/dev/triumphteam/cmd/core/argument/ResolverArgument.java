@@ -42,11 +42,12 @@ public final class ResolverArgument<S> extends StringArgument<S> {
 
     public ResolverArgument(
             @NotNull final String name,
+            @NotNull final String description,
             @NotNull final Class<?> type,
             @NotNull final ArgumentResolver<S> resolver,
             final boolean optional
     ) {
-        super(name, type, optional);
+        super(name, description, type, optional);
         this.resolver = resolver;
     }
 
@@ -83,5 +84,5 @@ public final class ResolverArgument<S> extends StringArgument<S> {
                 "resolver=" + resolver +
                 ", super=" + super.toString() + "}";
     }
-    
+
 }

@@ -44,6 +44,9 @@ public interface Argument<S, T> {
     @NotNull
     String getName();
 
+    // TODO: 11/28/2021 Comments
+    String getDescription();
+
     /**
      * The argument type.
      * Holds the class type of the argument.
