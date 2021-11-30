@@ -25,21 +25,17 @@ package dev.triumphteam.cmd.core.implementation
 
 import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.Command
-import dev.triumphteam.cmd.core.AbstractSubCommand
 import dev.triumphteam.cmd.core.SubCommand
 import dev.triumphteam.cmd.core.annotation.Default
 import dev.triumphteam.cmd.core.implementation.factory.TestCommandProcessor
-import dev.triumphteam.cmd.core.implementation.factory.TestSubCommandProcessor
-import dev.triumphteam.cmd.core.message.MessageKey
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext
 import java.lang.reflect.Modifier
 
 class TestCommand(processor: TestCommandProcessor) : Command {
 
-    private val name = processor.name
-    private val argumentRegistry = processor.argumentRegistry
-    private val requirementRegistry = processor.requirementRegistry
-    private val messageRegistry = processor.messageRegistry
+    //private val name = processor.name
+    //private val argumentRegistry = processor.argumentRegistry
+    //private val requirementRegistry = processor.requirementRegistry
+    //private val messageRegistry = processor.messageRegistry
 
     private val subCommands: MutableMap<String, SubCommand<TestSender>> = HashMap()
     private val aliases: MutableMap<String, SubCommand<TestSender>> = HashMap()
@@ -49,12 +45,12 @@ class TestCommand(processor: TestCommandProcessor) : Command {
         for (method in baseCommand.javaClass.declaredMethods) {
             if (!Modifier.isPublic(method.modifiers)) continue
 
-            val processor = TestSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry)
+            //val processor = TestSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry)
 
-            val subCommandName = processor.name ?: continue
-            val subCommand = AbstractSubCommand(processor, name)
+          //  val subCommandName = processor.name ?: continue
+            //val subCommand = AbstractSubCommand(processor, name)
 
-            subCommands[subCommandName] = subCommand
+            //subCommands[subCommandName] = subCommand
             // TODO handle alias later
 
         }
@@ -72,26 +68,18 @@ class TestCommand(processor: TestCommandProcessor) : Command {
         }
 
         if (subCommand == null) {
-            messageRegistry.sendMessage(
+           /* messageRegistry.sendMessage(
                 MessageKey.UNKNOWN_COMMAND, sender,
                 DefaultMessageContext(
                     name,
                     ""
                 )
-            );
+            );*/
             return
         }
 
         subCommand.execute(sender, args)
         return
-    }
-
-    override fun getName(): String {
-        return name
-    }
-
-    override fun getAlias(): List<String> {
-        return listOf()
     }
 
     private val defaultSubCommand: SubCommand<TestSender>?

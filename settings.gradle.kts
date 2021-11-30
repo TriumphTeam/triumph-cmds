@@ -4,6 +4,7 @@ listOf("core", "kotlin").forEach(::includeProject)
 
 listOf(
     "minecraft/bukkit",
+    "discord/jda-common",
     "discord/jda-prefixed",
     "discord/jda-slash",
 ).forEach {

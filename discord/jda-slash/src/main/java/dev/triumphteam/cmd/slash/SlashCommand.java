@@ -57,6 +57,9 @@ final class SlashCommand<S> implements Command {
     private final String name;
     private final String description;
 
+    private final List<Long> enabledRoles;
+    private final List<Long> disabledRoles;
+
     private final ArgumentRegistry<S> argumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
@@ -69,6 +72,8 @@ final class SlashCommand<S> implements Command {
 
     public SlashCommand(
             @NotNull final SlashCommandProcessor<S> processor,
+            @NotNull final List<Long> enabledRoles,
+            @NotNull final List<Long> disabledRoles,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
@@ -79,8 +84,19 @@ final class SlashCommand<S> implements Command {
         this.requirementRegistry = processor.getRequirementRegistry();
         this.senderMapper = processor.getSenderMapper();
 
+        this.enabledRoles = enabledRoles;
+        this.disabledRoles = disabledRoles;
+
         this.syncExecutionProvider = syncExecutionProvider;
         this.asyncExecutionProvider = asyncExecutionProvider;
+    }
+
+    public List<Long> getEnabledRoles() {
+        return enabledRoles;
+    }
+
+    public List<Long> getDisabledRoles() {
+        return disabledRoles;
     }
 
     /**
@@ -117,9 +133,6 @@ final class SlashCommand<S> implements Command {
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
 
             subCommands.putIfAbsent(subCommandName, new SlashSubCommand<>(processor, name, executionProvider));
-            /*for (final String alias : processor.getAlias()) {
-                subCommands.putIfAbsent(alias, subCommand);
-            }*/
         }
     }
 
@@ -134,22 +147,15 @@ final class SlashCommand<S> implements Command {
             @NotNull final String subCommandName,
             @NotNull final List<String> args
     ) {
-        System.out.println(subCommandName);
-        System.out.println(args);
         final SubCommand<S> subCommand = getSubCommand(subCommandName);
-
-        if (subCommand == null) {
-            System.out.println("invalid");
-            //sender.sendMessage("Command doesn't exist matey.");
-            return;
-        }
-
+        if (subCommand == null) return;
         subCommand.execute(sender, args);
     }
 
     @NotNull
     public CommandData asCommandData() {
         final CommandData commandData = new CommandData(name, description);
+        commandData.setDefaultEnabled(enabledRoles.isEmpty());
 
         if (isDefault) {
             final SlashSubCommand<S> subCommand = getDefaultSubCommand();

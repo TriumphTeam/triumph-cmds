@@ -29,8 +29,15 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.jda.annotation.Privileges;
+import dev.triumphteam.cmd.jda.annotation.Roles;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Processor for Slash JDA platform specific code.
@@ -38,6 +45,9 @@ import org.jetbrains.annotations.NotNull;
  * @param <S> The sender type.
  */
 final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSender> {
+
+    private final List<Long> enabledRoles = new ArrayList<>();
+    private final List<Long> disabledRoles = new ArrayList<>();
 
     public SlashCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -47,6 +57,40 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
             @NotNull final SenderMapper<S, SlashSender> senderMapper
     ) {
         super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+        extractPrivilege();
+    }
+
+    public List<Long> getEnabledRoles() {
+        return enabledRoles;
+    }
+
+    public List<Long> getDisabledRoles() {
+        return disabledRoles;
+    }
+
+    private void extractPrivilege() {
+        final List<Roles> roles = getRolesFromAnnotations(getAnnotatedClass());
+        if (roles.isEmpty()) return;
+
+        for (final Roles role : roles) {
+            for (final long id : role.value()) {
+                if (role.disabled()) {
+                    disabledRoles.add(id);
+                    continue;
+                }
+
+                enabledRoles.add(id);
+            }
+        }
+    }
+
+    private List<Roles> getRolesFromAnnotations(@NotNull final Class<?> klass) {
+        final Privileges privileges = klass.getAnnotation(Privileges.class);
+        if (privileges != null) return Arrays.asList(privileges.value());
+
+        final Roles roles = klass.getAnnotation(Roles.class);
+        if (roles != null) return Collections.singletonList(roles);
+        return Collections.emptyList();
     }
 
 }

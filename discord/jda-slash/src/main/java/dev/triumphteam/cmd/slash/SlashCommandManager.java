@@ -39,13 +39,18 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Command Manager for Slash Commands.
@@ -59,7 +64,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
     private final JDA jda;
 
     private final Map<String, SlashCommand<S>> globalCommands = new HashMap<>();
-    private final Map<Pair<Long, String>, SlashCommand<S>> guildCommands = new HashMap<>();
+    private final Map<Long, Map<String, SlashCommand<S>>> guildCommands = new HashMap<>();
 
     private final SenderMapper<S, SlashSender> senderMapper;
 
@@ -86,11 +91,28 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
 
     @Override
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
-        addCommand(null, baseCommand);
+        addCommand(null, baseCommand, Collections.emptyList(), Collections.emptyList());
     }
 
     public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand baseCommand) {
-        addCommand(guild, baseCommand);
+        addCommand(guild, baseCommand, Collections.emptyList(), Collections.emptyList());
+    }
+
+    public void registerCommand(
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final List<Long> enabledRoles,
+            @NotNull final List<Long> disabledRoles
+    ) {
+        addCommand(null, baseCommand, enabledRoles, disabledRoles);
+    }
+
+    public void registerCommand(
+            @NotNull final Guild guild,
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final List<Long> enabledRoles,
+            @NotNull final List<Long> disabledRoles
+    ) {
+        addCommand(guild, baseCommand, enabledRoles, disabledRoles);
     }
 
     @Override
@@ -105,12 +127,30 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
                 .entrySet()
                 .stream()
                 .map(entry -> {
-                    final Guild guild = jda.getGuildById(entry.getKey().getFirst());
-                    return guild != null ? Pair.of(guild, entry.getValue().asCommandData()) : null;
+                    final Guild guild = jda.getGuildById(entry.getKey());
+                    return guild != null ? Pair.of(guild, entry.getValue()) : null;
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(Pair::getFirst, Collectors.mapping(Pair::getSecond, Collectors.toList())))
-                .forEach((guild, commands) -> guild.updateCommands().addCommands(commands).queue());
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
+                .forEach((guild, commands) -> guild.updateCommands()
+                        .addCommands(commands.values().stream().map(SlashCommand::asCommandData).collect(Collectors.toList()))
+                        .queue(cmds -> guild.updateCommandPrivileges(
+                                cmds.stream()
+                                        .map(cmd -> {
+                                            final SlashCommand<S> command = commands.get(cmd.getName());
+                                            if (command == null) return null;
+
+                                            final List<CommandPrivilege> privileges = Stream.concat(
+                                                    command.getEnabledRoles().stream().map(id -> new CommandPrivilege(CommandPrivilege.Type.ROLE, true, id)),
+                                                    command.getDisabledRoles().stream().map(id -> new CommandPrivilege(CommandPrivilege.Type.ROLE, false, id))
+                                            ).collect(Collectors.toList());
+
+                                            if (privileges.isEmpty()) return null;
+                                            return Pair.of(cmd.getId(), privileges);
+                                        })
+                                        .filter(Objects::nonNull)
+                                        .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
+                        ).queue()));
     }
 
     /**
@@ -119,7 +159,12 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
      * @param guild       The guild to add the command to or null if it's a global command.
      * @param baseCommand The {@link BaseCommand} to be added.
      */
-    private void addCommand(@Nullable final Guild guild, @NotNull final BaseCommand baseCommand) {
+    private void addCommand(
+            @Nullable final Guild guild,
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final List<Long> enabledRoles,
+            @NotNull final List<Long> disabledRoles
+    ) {
         final SlashCommandProcessor<S> processor = new SlashCommandProcessor<>(
                 baseCommand,
                 getArgumentRegistry(),
@@ -130,14 +175,22 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
 
         final String name = processor.getName();
 
-        // Global command
+        final List<Long> finalEnabledRoles = new ArrayList<>(enabledRoles);
+        final List<Long> finalDisabledRoles = new ArrayList<>(disabledRoles);
+
+        finalEnabledRoles.addAll(processor.getEnabledRoles());
+        finalDisabledRoles.addAll(processor.getDisabledRoles());
+
+        final SlashCommand<S> command;
         if (guild == null) {
-            final SlashCommand<S> command = globalCommands.computeIfAbsent(name, ignored -> new SlashCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
-            command.addSubCommands(baseCommand);
-            return;
+            // Global command
+            command = globalCommands.computeIfAbsent(name, ignored -> new SlashCommand<>(processor, finalEnabledRoles, finalDisabledRoles, syncExecutionProvider, asyncExecutionProvider));
+        } else {
+            command = guildCommands
+                    .computeIfAbsent(guild.getIdLong(), map -> new HashMap<>())
+                    .computeIfAbsent(name, ignored -> new SlashCommand<>(processor, finalEnabledRoles, finalDisabledRoles, syncExecutionProvider, asyncExecutionProvider));
         }
 
-        final SlashCommand<S> command = guildCommands.computeIfAbsent(Pair.of(guild.getIdLong(), name), ignored -> new SlashCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
         command.addSubCommands(baseCommand);
     }
 
@@ -148,7 +201,8 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
 
     @Nullable
     SlashCommand<S> getCommand(@NotNull Guild guild, @NotNull final String name) {
-        return guildCommands.get(Pair.of(guild.getIdLong(), name));
+        final Map<String, SlashCommand<S>> commands = guildCommands.get(guild.getIdLong());
+        return commands != null ? commands.get(name) : null;
     }
 
     private static void setUpDefaults(@NotNull final SlashCommandManager<SlashSender> manager) {

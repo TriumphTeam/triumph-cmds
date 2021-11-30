@@ -57,6 +57,10 @@ public final class EnumArgument<S> extends StringArgument<S> {
         populateCache(type);
     }
 
+    public Class<? extends Enum<?>> getEnumType() {
+        return enumType;
+    }
+
     /**
      * Resolves the argument type.
      *

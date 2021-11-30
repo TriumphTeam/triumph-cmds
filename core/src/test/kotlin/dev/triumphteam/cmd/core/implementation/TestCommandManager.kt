@@ -67,12 +67,12 @@ class TestCommandManager : CommandManager<TestSender>() {
 
     override fun registerCommand(baseCommand: BaseCommand) {
         val processor = TestCommandProcessor(baseCommand, argumentRegistry, requirementRegistry, messageRegistry)
-        val commandName = processor.name
+        //val commandName = processor.name
 
-        val command = commands.computeIfAbsent(commandName) { TestCommand(processor) }
-        processor.alias.forEach { alias.computeIfAbsent(it) { command } }
+        //val command = commands.computeIfAbsent(commandName) { TestCommand(processor) }
+        //processor.alias.forEach { alias.computeIfAbsent(it) { command } }
 
-        command.addSubCommands(baseCommand)
+        //command.addSubCommands(baseCommand)
     }
 
     override fun unregisterCommand(command: BaseCommand) {}

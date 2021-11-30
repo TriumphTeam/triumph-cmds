@@ -27,7 +27,6 @@ import dev.triumphteam.cmd.core.BaseCommand
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry
 import dev.triumphteam.cmd.core.implementation.TestSender
 import dev.triumphteam.cmd.core.message.MessageRegistry
-import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry
 
 class TestCommandProcessor(
@@ -35,4 +34,4 @@ class TestCommandProcessor(
     argumentRegistry: ArgumentRegistry<TestSender>,
     requirementRegistry: RequirementRegistry<TestSender>,
     messageRegistry: MessageRegistry<TestSender>
-) : AbstractCommandProcessor<TestSender>(baseCommand, argumentRegistry, requirementRegistry, messageRegistry)
+)// : AbstractCommandProcessor<TestSender, TestSender>(baseCommand, argumentRegistry, requirementRegistry, messageRegistry)
