@@ -29,10 +29,12 @@ import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -78,7 +80,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
         this.jda = jda;
         this.senderMapper = senderMapper;
 
-        jda.addEventListener(new SlashCommandListener<>(this, getMessageRegistry(), senderMapper));
+        jda.addEventListener(new SlashCommandListener<>(this, senderMapper));
     }
 
     public static SlashCommandManager<SlashSender> createDefault(

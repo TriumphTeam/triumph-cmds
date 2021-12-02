@@ -31,7 +31,7 @@ import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Listener for the JDA's {@link GuildMessageReceivedEvent}, which triggers the command execution.
+ * Listener for the JDA's {@link MessageReceivedEvent}, which triggers the command execution.
  *
  * @param <S> The sender type.
  */
@@ -69,7 +69,7 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
      * @param event The event object.
      */
     @Override
-    public void onGuildMessageReceived(@NotNull final GuildMessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
         final User author = event.getAuthor();
         if (author.isBot()) return;
 

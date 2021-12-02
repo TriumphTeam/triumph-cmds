@@ -259,7 +259,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         } else {
             result = getFlagResult(argument, sender, args);
         }
-        System.out.println(result);
+
         if (result instanceof RequiredFlagsResult) {
             messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(parentName, name, (RequiredFlagsResult<?>) result));
             return false;

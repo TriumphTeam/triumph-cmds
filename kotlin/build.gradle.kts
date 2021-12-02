@@ -1,10 +1,7 @@
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     api(project(":triumph-cmd-core"))
-    compileOnly(kotlin("stdlib"))
+    api(kotlin("stdlib"))
 }
 
 tasks {

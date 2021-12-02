@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,7 +30,6 @@ import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
@@ -39,23 +38,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Listener for the JDA's {@link GuildMessageReceivedEvent}, which triggers the command execution.
+ * Listener for handling slash command registration and execution.
  *
  * @param <S> The sender type.
  */
 final class SlashCommandListener<S> extends ListenerAdapter {
 
     private final SlashCommandManager<S> commandManager;
-    private final MessageRegistry<S> messageRegistry;
     private final SenderMapper<S, SlashSender> senderMapper;
 
     public SlashCommandListener(
             @NotNull final SlashCommandManager<S> commandManager,
-            @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final SenderMapper<S, SlashSender> senderMapper
     ) {
         this.commandManager = commandManager;
-        this.messageRegistry = messageRegistry;
         this.senderMapper = senderMapper;
     }
 
