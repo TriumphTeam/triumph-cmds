@@ -44,7 +44,12 @@ public interface Argument<S, T> {
     @NotNull
     String getName();
 
-    // TODO: 11/28/2021 Comments
+    /**
+     * The description of this Argument
+     * Holds the description
+     *
+     * @return The description of this Argument
+     */
     String getDescription();
 
     /**
