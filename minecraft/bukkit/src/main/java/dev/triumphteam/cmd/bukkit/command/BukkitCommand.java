@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,9 +24,9 @@
 package dev.triumphteam.cmd.bukkit.command;
 
 import dev.triumphteam.cmd.bukkit.factory.BukkitSubCommandProcessor;
+import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
@@ -75,6 +75,11 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         this.alias = alias;
     }
 
+    /**
+     * adds SubCommands from the Command.
+     *
+     * @param baseCommand The {@link BaseCommand} to get the sub commands from.
+     */
     @Override
     public void addSubCommands(@NotNull final BaseCommand baseCommand) {
         final Method[] methods = baseCommand.getClass().getDeclaredMethods();
@@ -90,6 +95,14 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         }
     }
 
+    /**
+     * Execute a Command.
+     *
+     * @param sender       the Sender of this Command
+     * @param commandLabel the CommandLabel for the Command
+     * @param args         the Arguments that were passed to the Command on execution
+     * @return true.
+     */
     @Override
     public boolean execute(
             @NotNull final CommandSender sender,
@@ -125,7 +138,6 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         return true;
     }
 
-    // TODO comments in this class
 
     /**
      * Gets a default command if present.
@@ -150,6 +162,12 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         return aliases.get(key);
     }
 
+    /**
+     * Checks if a SubCommand with the specified key exists.
+     *
+     * @param key the Key to check for
+     * @return whether or not a SubCommand with that key exists
+     */
     private boolean subCommandExists(@NotNull final String key) {
         return commands.containsKey(key) || aliases.containsKey(key);
     }

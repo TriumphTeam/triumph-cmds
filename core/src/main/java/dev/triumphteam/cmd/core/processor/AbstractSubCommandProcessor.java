@@ -166,7 +166,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         return name;
     }
 
-    // TODO: 11/28/2021 Comments
+    /**
+     * gets the Description of the SubCommand.
+     *
+     * @return either the extracted Description or the default one.
+     */
     @NotNull
     public String getDescription() {
         return description;
@@ -345,7 +349,15 @@ public abstract class AbstractSubCommandProcessor<S> {
         return "No description provided.";
     }
 
-    // TODO: 11/28/2021 Comments
+    /**
+     * Create a SimpleArgument.
+     *
+     * @param type                The Type of this Argument.
+     * @param parameterName       The Name to use for this Argument.
+     * @param argumentDescription the Description to use for this Argument.
+     * @param optional            whether or not this Argument is optional.
+     * @return The created {@link Argument<S, String>} Argument.
+     */
     private Argument<S, String> createSimpleArgument(
             @NotNull final Class<?> type,
             @NotNull final String parameterName,
@@ -561,14 +573,18 @@ public abstract class AbstractSubCommandProcessor<S> {
         }
     }
 
-    // TODO: 11/28/2021 Comments
+    /**
+     * Extracts the {@link Description} Annotation from the Method.
+     */
     private void extractDescription() {
         final Description description = method.getAnnotation(Description.class);
         if (description == null) return;
         this.description = description.value();
     }
 
-    // TODO: 11/28/2021 Comments
+    /**
+     * Extracts the {@link ArgDescriptions} Annotation from the Method.
+     */
     private void extractArgDescriptions() {
         final ArgDescriptions argDescriptions = method.getAnnotation(ArgDescriptions.class);
         if (argDescriptions == null) return;
