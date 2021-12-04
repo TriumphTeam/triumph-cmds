@@ -45,10 +45,10 @@ public interface Argument<S, T> {
     String getName();
 
     /**
-     * The description of this Argument
-     * Holds the description
+     * The description of this Argument.
+     * Holds the description.
      *
-     * @return The description of this Argument
+     * @return The description of this Argument.
      */
     String getDescription();
 

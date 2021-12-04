@@ -76,7 +76,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     }
 
     /**
-     * adds SubCommands from the Command
+     * adds SubCommands from the Command.
      *
      * @param baseCommand The {@link BaseCommand} to get the sub commands from.
      */
@@ -96,7 +96,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     }
 
     /**
-     * Execute a Command
+     * Execute a Command.
      *
      * @param sender       the Sender of this Command
      * @param commandLabel the CommandLabel for the Command
@@ -163,7 +163,7 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
     }
 
     /**
-     * Checks if a SubCommand with the specified key exists
+     * Checks if a SubCommand with the specified key exists.
      *
      * @param key the Key to check for
      * @return whether or not a SubCommand with that key exists

@@ -149,9 +149,9 @@ public abstract class AbstractCommandProcessor<S, SD> {
     }
 
     /**
-     * gets the Description of the SubCommand
+     * gets the Description of the SubCommand.
      *
-     * @return either the extracted Description or the default one
+     * @return either the extracted Description or the default one.
      */
     @NotNull
     public String getDescription() {

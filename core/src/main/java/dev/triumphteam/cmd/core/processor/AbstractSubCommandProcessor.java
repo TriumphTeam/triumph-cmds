@@ -167,9 +167,9 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * gets the Description of the SubCommand
+     * gets the Description of the SubCommand.
      *
-     * @return either the extracted Description or the default one
+     * @return either the extracted Description or the default one.
      */
     @NotNull
     public String getDescription() {
@@ -350,13 +350,13 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Create a SimpleArgument
+     * Create a SimpleArgument.
      *
-     * @param type                The Type of this Argument
-     * @param parameterName       The Name to use for this Argument
-     * @param argumentDescription the Description to use for this Argument
-     * @param optional            whether or not this Argument is optional
-     * @return The created {@link Argument<S, String>} Argument
+     * @param type                The Type of this Argument.
+     * @param parameterName       The Name to use for this Argument.
+     * @param argumentDescription the Description to use for this Argument.
+     * @param optional            whether or not this Argument is optional.
+     * @return The created {@link Argument<S, String>} Argument.
      */
     private Argument<S, String> createSimpleArgument(
             @NotNull final Class<?> type,

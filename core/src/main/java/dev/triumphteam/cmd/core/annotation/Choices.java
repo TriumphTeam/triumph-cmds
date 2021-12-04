@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides the Option to add custom Choices to Command Parameters in order to add Auto-Complete
+ * Provides the Option to add custom Choices to Command Parameters in order to add Auto-Complete.
  * Argument must be nullable in Kotlin.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 public @interface Choices {
 
     /**
-     * An array of possible Choices for this Command Argument
+     * An array of possible Choices for this Command Argument.
      *
      * @return An array of Choices.
      */
