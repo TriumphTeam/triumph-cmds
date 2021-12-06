@@ -33,10 +33,10 @@ import java.util.List;
  * @param <S> The command sender type.
  */
 @FunctionalInterface
-public interface SuggestionResolver<S> {
+public interface SuggestionResolver {
 
     // TODO: 12/5/2021 Comments
-    // TODO: 12/6/2021 Likely nice to add a context, similar to messages
-    List<String> resolve(@NotNull final S sender);
+    @NotNull
+    List<String> resolve();
 
 }

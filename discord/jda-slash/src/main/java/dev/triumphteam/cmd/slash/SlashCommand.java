@@ -64,7 +64,7 @@ final class SlashCommand<S> implements Command {
     private final ArgumentRegistry<S> argumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
-    private final SuggestionRegistry<S> suggestionRegistry;
+    private final SuggestionRegistry suggestionRegistry;
 
     private final SenderMapper<S, SlashSender> senderMapper;
 

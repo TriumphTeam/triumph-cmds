@@ -30,7 +30,6 @@ import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import dev.triumphteam.cmd.jda.annotation.Privileges;
 import dev.triumphteam.cmd.jda.annotation.Roles;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
@@ -48,7 +47,7 @@ import java.util.List;
  */
 final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSender> {
 
-    private final SuggestionRegistry<S> suggestionRegistry;
+    private final SuggestionRegistry suggestionRegistry;
 
     private final List<Long> enabledRoles = new ArrayList<>();
     private final List<Long> disabledRoles = new ArrayList<>();
@@ -58,7 +57,7 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SuggestionRegistry<S> suggestionRegistry,
+            @NotNull final SuggestionRegistry suggestionRegistry,
             @NotNull final SenderMapper<S, SlashSender> senderMapper
     ) {
         super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
@@ -80,7 +79,7 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
 
     // TODO: 12/6/2021 Comments
     @NotNull
-    public SuggestionRegistry<S> getSuggestionRegistry() {
+    public SuggestionRegistry getSuggestionRegistry() {
         return suggestionRegistry;
     }
 

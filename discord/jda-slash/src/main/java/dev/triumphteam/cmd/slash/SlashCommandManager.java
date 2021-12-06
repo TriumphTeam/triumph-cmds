@@ -63,13 +63,13 @@ import java.util.stream.Stream;
  *
  * @param <S> The sender type.
  */
-public final class SlashCommandManager<S> extends CommandManager<S> implements SuggestiblePlatform<S> {
+public final class SlashCommandManager<S> extends CommandManager<S> implements SuggestiblePlatform {
 
     private final JDA jda;
 
     private final Map<String, SlashCommand<S>> globalCommands = new HashMap<>();
     private final Map<Long, Map<String, SlashCommand<S>>> guildCommands = new HashMap<>();
-    private final SuggestionRegistry<S> suggestionRegistry = new SuggestionRegistry<>();
+    private final SuggestionRegistry suggestionRegistry = new SuggestionRegistry();
 
     private final SenderMapper<S, SlashSender> senderMapper;
 
@@ -121,7 +121,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
     }
 
     @Override
-    public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver) {
+    public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver suggestionResolver) {
         suggestionRegistry.register(key, suggestionResolver);
     }
 

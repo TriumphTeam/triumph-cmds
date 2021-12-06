@@ -23,8 +23,6 @@
  */
 package dev.triumphteam.cmd.core.suggestion;
 
-import dev.triumphteam.cmd.core.requirement.RequirementKey;
-import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,9 +34,9 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public final class SuggestionRegistry<S> {
+public final class SuggestionRegistry {
 
-    private final Map<SuggestionKey, SuggestionResolver<S>> suggestions = new HashMap<>();
+    private final Map<SuggestionKey, SuggestionResolver> suggestions = new HashMap<>();
 
 
     /**
@@ -47,7 +45,7 @@ public final class SuggestionRegistry<S> {
      * @param key      The suggestion key.
      * @param resolver The action to get the suggestions.
      */
-    public void register(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> resolver) {
+    public void register(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver resolver) {
         suggestions.put(key, resolver);
     }
 
@@ -58,7 +56,7 @@ public final class SuggestionRegistry<S> {
      * @return A saved {@link SuggestionResolver}.
      */
     @Nullable
-    public SuggestionResolver<S> getSuggestion(@NotNull final SuggestionKey key) {
+    public SuggestionResolver getSuggestion(@NotNull final SuggestionKey key) {
         return suggestions.get(key);
     }
 

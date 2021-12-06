@@ -2,8 +2,8 @@ package dev.triumphteam.cmd.core.suggestion;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface SuggestiblePlatform<S> {
+public interface SuggestiblePlatform {
 
-    void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver);
+    void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver suggestionResolver);
 
 }

@@ -24,19 +24,20 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Suggestions;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
+import dev.triumphteam.cmd.core.util.PlatformUtils;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Processor for Slash JDA platform specific code.
@@ -45,7 +46,7 @@ import java.lang.reflect.Method;
  */
 final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private final SuggestionRegistry<S> suggestionRegistry;
+    private final List<Suggestion> suggestions = new ArrayList<>();
 
     public SlashSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -53,23 +54,16 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SuggestionRegistry<S> suggestionRegistry,
+            @NotNull final SuggestionRegistry suggestionRegistry,
             @NotNull final SenderMapper<S, SlashSender> senderMapper
     ) {
         super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
-        this.suggestionRegistry = suggestionRegistry;
         if (getName() == null) return;
-        extractSuggestions();
+        suggestions.addAll(PlatformUtils.extractSuggestions(suggestionRegistry, method, baseCommand.getClass()));
     }
 
-    private void extractSuggestions() {
-        final Suggestions suggestions = getMethod().getAnnotation(Suggestions.class);
-        if (suggestions == null) return;
-
-        for (final String key : suggestions.value()) {
-            final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestion(SuggestionKey.of(key));
-
-        }
+    @NotNull
+    public List<Suggestion> getSuggestions() {
+        return suggestions;
     }
-
 }
