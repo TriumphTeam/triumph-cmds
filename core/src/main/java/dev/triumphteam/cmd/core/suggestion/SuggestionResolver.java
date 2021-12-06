@@ -21,42 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.requirement;
+package dev.triumphteam.cmd.core.suggestion;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
- * Registry used for registering new requirements for all commands to use.
+ * Functional interface to allow simple requirement suggestion without the use of any hard coded data.
  *
- * @param <S> The sender type.
+ * @param <S> The command sender type.
  */
-public final class RequirementRegistry<S> {
+@FunctionalInterface
+public interface SuggestionResolver<S> {
 
-    private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
-
-    /**
-     * Registers a new {@link RequirementResolver} for the specific Key.
-     *
-     * @param key      The requirement key.
-     * @param resolver The resolver to check if the requirement is met.
-     */
-    public void register(@NotNull final RequirementKey key, @NotNull final RequirementResolver<S> resolver) {
-        requirements.put(key, resolver);
-    }
-
-    /**
-     * Gets the {@link RequirementResolver} for the specific Key.
-     *
-     * @param key The specific key.
-     * @return A saved {@link RequirementResolver}.
-     */
-    @Nullable
-    public RequirementResolver<S> getRequirement(@NotNull final RequirementKey key) {
-        return requirements.get(key);
-    }
+    // TODO: 12/5/2021 Comments 
+    List<String> resolve(@NotNull final S sender);
 
 }
