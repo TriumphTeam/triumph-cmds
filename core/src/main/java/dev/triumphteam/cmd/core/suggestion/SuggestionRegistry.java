@@ -58,7 +58,7 @@ public final class SuggestionRegistry<S> {
      * @return A saved {@link SuggestionResolver}.
      */
     @Nullable
-    public SuggestionResolver<S> getRequirement(@NotNull final SuggestionKey key) {
+    public SuggestionResolver<S> getSuggestion(@NotNull final SuggestionKey key) {
         return suggestions.get(key);
     }
 

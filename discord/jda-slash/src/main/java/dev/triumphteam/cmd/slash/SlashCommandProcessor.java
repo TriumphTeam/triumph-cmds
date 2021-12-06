@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,6 +29,8 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import dev.triumphteam.cmd.jda.annotation.Privileges;
 import dev.triumphteam.cmd.jda.annotation.Roles;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
@@ -46,6 +48,8 @@ import java.util.List;
  */
 final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSender> {
 
+    private final SuggestionRegistry<S> suggestionRegistry;
+
     private final List<Long> enabledRoles = new ArrayList<>();
     private final List<Long> disabledRoles = new ArrayList<>();
 
@@ -54,20 +58,33 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SuggestionRegistry<S> suggestionRegistry,
             @NotNull final SenderMapper<S, SlashSender> senderMapper
     ) {
         super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+        this.suggestionRegistry = suggestionRegistry;
         extractPrivilege();
     }
 
+    // TODO: 12/6/2021 Comments
+    @NotNull
     public List<Long> getEnabledRoles() {
         return enabledRoles;
     }
 
+    // TODO: 12/6/2021 Comments
+    @NotNull
     public List<Long> getDisabledRoles() {
         return disabledRoles;
     }
 
+    // TODO: 12/6/2021 Comments
+    @NotNull
+    public SuggestionRegistry<S> getSuggestionRegistry() {
+        return suggestionRegistry;
+    }
+
+    // TODO: 12/6/2021 Comments
     private void extractPrivilege() {
         final List<Roles> roles = getRolesFromAnnotations(getAnnotatedClass());
         if (roles.isEmpty()) return;
@@ -84,6 +101,7 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
         }
     }
 
+    // TODO: 12/6/2021 Comments
     private List<Roles> getRolesFromAnnotations(@NotNull final Class<?> klass) {
         final Privileges privileges = klass.getAnnotation(Privileges.class);
         if (privileges != null) return Arrays.asList(privileges.value());
@@ -92,5 +110,4 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
         if (roles != null) return Collections.singletonList(roles);
         return Collections.emptyList();
     }
-
 }

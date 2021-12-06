@@ -180,6 +180,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
                 getArgumentRegistry(),
                 getRequirementRegistry(),
                 getMessageRegistry(),
+                suggestionRegistry,
                 senderMapper
         );
 

@@ -35,7 +35,8 @@ import java.util.List;
 @FunctionalInterface
 public interface SuggestionResolver<S> {
 
-    // TODO: 12/5/2021 Comments 
+    // TODO: 12/5/2021 Comments
+    // TODO: 12/6/2021 Likely nice to add a context, similar to messages
     List<String> resolve(@NotNull final S sender);
 
 }

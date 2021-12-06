@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -63,6 +64,8 @@ final class SlashCommand<S> implements Command {
     private final ArgumentRegistry<S> argumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
+    private final SuggestionRegistry<S> suggestionRegistry;
+
     private final SenderMapper<S, SlashSender> senderMapper;
 
     private final ExecutionProvider syncExecutionProvider;
@@ -82,6 +85,7 @@ final class SlashCommand<S> implements Command {
         this.argumentRegistry = processor.getArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
+        this.suggestionRegistry = processor.getSuggestionRegistry();
         this.senderMapper = processor.getSenderMapper();
 
         this.enabledRoles = enabledRoles;
@@ -112,6 +116,7 @@ final class SlashCommand<S> implements Command {
                     argumentRegistry,
                     requirementRegistry,
                     messageRegistry,
+                    suggestionRegistry,
                     senderMapper
             );
 
