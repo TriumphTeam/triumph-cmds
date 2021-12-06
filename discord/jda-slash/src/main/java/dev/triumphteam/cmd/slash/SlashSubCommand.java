@@ -75,7 +75,7 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
             options.add(option);
 
             final Suggestion suggestion = getSuggestion(i);
-            if (suggestion == EmptySuggestion.INSTANCE) continue;
+            if (suggestion instanceof EmptySuggestion) continue;
 
             option.addChoices(suggestion.getSuggestions().stream().map(it -> new Command.Choice(it, it)).limit(25).collect(Collectors.toList()));
 
