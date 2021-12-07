@@ -74,6 +74,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -89,6 +90,8 @@ import java.util.stream.Collectors;
 public abstract class AbstractSubCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
+    private final String parentName;
+
     private final Method method;
     // Name is nullable to detect if the method should or not be considered a sub command.
     private String name = null;
@@ -111,6 +114,7 @@ public abstract class AbstractSubCommandProcessor<S> {
 
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
+            @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
@@ -118,6 +122,8 @@ public abstract class AbstractSubCommandProcessor<S> {
             @NotNull final SenderMapper<S, ?> senderMapper
     ) {
         this.baseCommand = baseCommand;
+        this.parentName = parentName;
+
         this.method = method;
 
         this.argumentRegistry = argumentRegistry;
@@ -330,7 +336,11 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         // Handler for flags.
         if (type == Flags.class) {
-            addArgument(new FlagArgument<>(argumentName, argumentDescription, flagGroup, optional));
+            if (flagGroup.isEmpty()) {
+                throw createException("Flags argument detected but no flag annotation declared");
+            }
+
+            addArgument(new FlagArgument<>(argumentName, argumentDescription, parentName, name, flagGroup, messageRegistry, optional));
             return;
         }
 
@@ -542,62 +552,24 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Argument validation makes sure some arguments are placed in the correct order.
-     * For example a limitless argument and flags argument being one after the other, like:
-     * `@Join final String text, final Flags flags`.
-     * TODO: This can be improved.
+     * Argument validation makes sure some arguments are placed in the correct place.
+     * For example a limitless arguments and optional arguments are only allowed at the end of the command.
+     * Method is left opened for maybe being overridden by SlashCommand in JDA.
      */
-    private void validateArguments() {
-        final int argSize = arguments.size();
-        int limitlessPosition = -1;
-        int flagsPosition = -1;
+    protected void validateArguments() {
+        final Iterator<Argument<S, ?>> iterator = arguments.iterator();
+        while (iterator.hasNext()) {
+            final Argument<S, ?> argument = iterator.next();
 
-        // Collects validatable argument's position.
-        for (int i = 0; i < argSize; i++) {
-            final Argument<S, ?> argument = arguments.get(i);
+            if (!iterator.hasNext()) continue;
 
-            if (argument.isOptional() && i != argSize - 1) {
+            if (argument.isOptional()) {
                 throw createException("Optional argument is only allowed as the last argument");
             }
 
-            if (argument instanceof FlagArgument) {
-                if (flagGroup.isEmpty()) {
-                    throw createException("\"Flags\" argument found but no \"CommandFlags\" annotation present");
-                }
-
-                if (flagsPosition != -1) {
-                    throw createException("More than one \"Flags\" argument declared");
-                }
-
-                flagsPosition = i;
-                continue;
-            }
-
             if (argument instanceof LimitlessArgument) {
-                if (limitlessPosition != -1) {
-                    throw createException("More than one limitless argument declared");
-                }
-
-                limitlessPosition = i;
+                throw createException("Limitless argument is only allowed as the last argument");
             }
-        }
-
-        // If flags argument is present check if it's the last one and if there is a limitless behind of it instead of after.
-        if (flagsPosition != -1) {
-            if (limitlessPosition != -1 && limitlessPosition != argSize - 2) {
-                throw createException("\"Flags\" argument must always be after a limitless argument");
-            }
-
-            if (flagsPosition != argSize - 1) {
-                throw createException("\"Flags\" argument must always be the last argument");
-            }
-
-            return;
-        }
-
-        // If it's a limitless argument checks if it's the last argument.
-        if (limitlessPosition != -1 && limitlessPosition != argSize - 1) {
-            throw createException("Limitless argument must be the last argument if \"Flags\" is not present");
         }
     }
 

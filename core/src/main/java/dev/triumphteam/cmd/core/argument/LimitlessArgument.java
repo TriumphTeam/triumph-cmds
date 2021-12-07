@@ -44,8 +44,9 @@ public abstract class LimitlessArgument<S> extends AbstractArgument<S, List<Stri
         super(name, description, type, isOptional);
     }
 
+    @NotNull
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return "LimitlessArgument{super=" + super.toString() + "}";
     }
 

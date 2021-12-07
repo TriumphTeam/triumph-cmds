@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,8 @@ package dev.triumphteam.cmd.core.flag;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Contains all the command flags that was typed by the user in an easy-to-access way.
@@ -75,5 +77,30 @@ public interface Flags {
      * @return The flag's value.
      */
     @NotNull <T> T getValueOrDefault(@NotNull final String flag, @NotNull final Class<T> type, @NotNull final T def);
+
+    /**
+     * Gets the arguments typed without the flags, joined to string.
+     *
+     * @return The arguments joined to string.
+     */
+    @NotNull
+    String getText();
+
+    /**
+     * Gets the arguments typed without the flags, joined to string.
+     *
+     * @param delimiter The delimiter of the joining.
+     * @return The arguments joined to string with a delimiter.
+     */
+    @NotNull
+    String getText(@NotNull final String delimiter);
+
+    /**
+     * Gets the arguments typed without the flags.
+     *
+     * @return A {@link List} with the typed arguments.
+     */
+    @NotNull
+    List<String> getArgs();
 
 }

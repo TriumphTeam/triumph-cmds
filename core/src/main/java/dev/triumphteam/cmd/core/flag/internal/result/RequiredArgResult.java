@@ -30,10 +30,8 @@ import java.util.Objects;
 
 /**
  * Returned when the flag has required argument, and it's missing.
- *
- * @param <S> The sender type.
  */
-public final class RequiredArgResult<S> implements ParseResult<S> {
+public final class RequiredArgResult implements ParseResult {
 
     private final String flag;
     private final Class<?> argumentType;
@@ -70,7 +68,7 @@ public final class RequiredArgResult<S> implements ParseResult<S> {
     public boolean equals(@Nullable final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final RequiredArgResult<?> that = (RequiredArgResult<?>) o;
+        final RequiredArgResult that = (RequiredArgResult) o;
         return flag.equals(that.flag) && argumentType.equals(that.argumentType);
     }
 

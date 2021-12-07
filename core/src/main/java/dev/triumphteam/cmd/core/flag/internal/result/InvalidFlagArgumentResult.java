@@ -30,10 +30,8 @@ import java.util.Objects;
 
 /**
  * Returned when the flag contains an invalid argument.
- *
- * @param <S> The sender type.
  */
-public final class InvalidFlagArgumentResult<S> implements ParseResult<S> {
+public final class InvalidFlagArgumentResult implements ParseResult {
 
     private final String typedArgument;
     private final String flag;
@@ -83,7 +81,7 @@ public final class InvalidFlagArgumentResult<S> implements ParseResult<S> {
     public boolean equals(@Nullable final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final InvalidFlagArgumentResult<?> that = (InvalidFlagArgumentResult<?>) o;
+        final InvalidFlagArgumentResult that = (InvalidFlagArgumentResult) o;
         return typedArgument.equals(that.typedArgument) && flag.equals(that.flag) && argumentType.equals(that.argumentType);
     }
 
