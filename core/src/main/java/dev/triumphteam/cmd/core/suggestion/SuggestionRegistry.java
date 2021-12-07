@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.requirement;
+package dev.triumphteam.cmd.core.suggestion;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,33 +30,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Registry used for registering new requirements for all commands to use.
+ * Registry used for registering new suggestions for all commands to use.
  *
  * @param <S> The sender type.
  */
-public final class RequirementRegistry<S> {
+public final class SuggestionRegistry {
 
-    private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
+    private final Map<SuggestionKey, SuggestionResolver> suggestions = new HashMap<>();
+
 
     /**
-     * Registers a new {@link RequirementResolver} for the specific Key.
+     * Registers a new {@link SuggestionResolver} for the specific Key.
      *
-     * @param key      The requirement key.
-     * @param resolver The resolver to check if the requirement is met.
+     * @param key      The suggestion key.
+     * @param resolver The action to get the suggestions.
      */
-    public void register(@NotNull final RequirementKey key, @NotNull final RequirementResolver<S> resolver) {
-        requirements.put(key, resolver);
+    public void register(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver resolver) {
+        suggestions.put(key, resolver);
     }
 
     /**
-     * Gets the {@link RequirementResolver} for the specific Key.
+     * Gets the {@link SuggestionResolver} for the specific Key.
      *
      * @param key The specific key.
-     * @return A saved {@link RequirementResolver}.
+     * @return A saved {@link SuggestionResolver}.
      */
     @Nullable
-    public RequirementResolver<S> getRequirement(@NotNull final RequirementKey key) {
-        return requirements.get(key);
+    public SuggestionResolver getSuggestion(@NotNull final SuggestionKey key) {
+        return suggestions.get(key);
     }
 
 }
