@@ -34,12 +34,12 @@ import java.util.Objects;
  */
 public final class InvalidFlagArgumentContext extends AbstractMessageContext {
 
-    private final InvalidFlagArgumentResult<?> result;
+    private final InvalidFlagArgumentResult result;
 
     public InvalidFlagArgumentContext(
             @NotNull final String command,
             @NotNull final String subCommand,
-            @NotNull final InvalidFlagArgumentResult<?> result
+            @NotNull final InvalidFlagArgumentResult result
     ) {
         super(command, subCommand);
         this.result = result;

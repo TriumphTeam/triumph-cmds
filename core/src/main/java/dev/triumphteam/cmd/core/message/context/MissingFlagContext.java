@@ -36,12 +36,12 @@ import java.util.Objects;
  */
 public final class MissingFlagContext extends AbstractMessageContext {
 
-    private final RequiredFlagsResult<?> result;
+    private final RequiredFlagsResult result;
 
     public MissingFlagContext(
             @NotNull final String command,
             @NotNull final String subCommand,
-            @NotNull final RequiredFlagsResult<?> result
+            @NotNull final RequiredFlagsResult result
     ) {
         super(command, subCommand);
         this.result = result;

@@ -31,12 +31,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class MissingFlagArgumentContext extends AbstractMessageContext {
 
-    private final RequiredArgResult<?> result;
+    private final RequiredArgResult result;
 
     public MissingFlagArgumentContext(
             @NotNull final String command,
             @NotNull final String subCommand,
-            @NotNull final RequiredArgResult<?> result
+            @NotNull final RequiredArgResult result
     ) {
         super(command, subCommand);
         this.result = result;

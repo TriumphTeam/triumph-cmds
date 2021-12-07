@@ -51,6 +51,7 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
         super(processor, parentName, executionProvider);
         this.description = processor.getDescription();
         this.suggestions = processor.getSuggestions();
+        System.out.println(suggestions);
     }
 
     public String getDescription() {

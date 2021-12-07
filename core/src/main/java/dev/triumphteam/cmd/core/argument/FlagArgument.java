@@ -63,7 +63,7 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
      */
     @NotNull
     @Override
-    public ParseResult<S> resolve(@NotNull final S sender, @NotNull final List<String> value) {
+    public ParseResult resolve(@NotNull final S sender, @NotNull final List<String> value) {
         final List<String> args = value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value;
         return FlagParser.parse(flagGroup, sender, args);
     }

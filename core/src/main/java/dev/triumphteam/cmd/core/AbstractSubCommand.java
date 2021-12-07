@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,11 +30,11 @@ import dev.triumphteam.cmd.core.argument.LimitlessArgument;
 import dev.triumphteam.cmd.core.argument.StringArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
+import dev.triumphteam.cmd.core.flag.Flags;
 import dev.triumphteam.cmd.core.flag.internal.result.InvalidFlagArgumentResult;
 import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
 import dev.triumphteam.cmd.core.flag.internal.result.RequiredArgResult;
 import dev.triumphteam.cmd.core.flag.internal.result.RequiredFlagsResult;
-import dev.triumphteam.cmd.core.flag.internal.result.SuccessResult;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
@@ -251,7 +251,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
             return true;
         }
 
-        final ParseResult<S> result;
+        final ParseResult result;
         if (containsLimitless) {
             //noinspection unchecked
             final LimitlessArgument<S> tempArg = (LimitlessArgument<S>) arguments.get(index + 1);
@@ -261,31 +261,26 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         }
 
         if (result instanceof RequiredFlagsResult) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(parentName, name, (RequiredFlagsResult<?>) result));
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(parentName, name, (RequiredFlagsResult) result));
             return false;
         }
 
         if (result instanceof RequiredArgResult) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, sender, new MissingFlagArgumentContext(parentName, name, (RequiredArgResult<?>) result));
+            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, sender, new MissingFlagArgumentContext(parentName, name, (RequiredArgResult) result));
             return false;
         }
 
         if (result instanceof InvalidFlagArgumentResult) {
-            messageRegistry.sendMessage(MessageKey.INVALID_FLAG_ARGUMENT, sender, new InvalidFlagArgumentContext(parentName, name, (InvalidFlagArgumentResult<?>) result));
+            messageRegistry.sendMessage(MessageKey.INVALID_FLAG_ARGUMENT, sender, new InvalidFlagArgumentContext(parentName, name, (InvalidFlagArgumentResult) result));
             return false;
         }
 
         // Should never happen
-        if (!(result instanceof SuccessResult)) {
+        if (!(result instanceof Flags)) {
             throw new CommandExecutionException("Error occurred while parsing command flags", parentName, name);
         }
 
-        final SuccessResult<S> successResult = (SuccessResult<S>) result;
-        if (containsLimitless) {
-            invokeArguments.add(argument.resolve(sender, successResult.getLeftOvers()));
-        }
-
-        invokeArguments.add(successResult.getFlags());
+        invokeArguments.add(result);
         return true;
     }
 
@@ -297,7 +292,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @param args     The remaining arguments typed.
      * @return The {@link ParseResult} of the flags.
      */
-    private ParseResult<S> getFlagResult(
+    private ParseResult getFlagResult(
             @NotNull final LimitlessArgument<S> argument,
             @NotNull final S sender,
             @NotNull final List<String> args
