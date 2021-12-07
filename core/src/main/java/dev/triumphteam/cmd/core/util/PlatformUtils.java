@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public final class PlatformUtils {
@@ -55,24 +54,25 @@ public final class PlatformUtils {
      * @return A list of {@link Suggestion}s.
      */
     public static List<Suggestion> extractSuggestions(@NotNull final SuggestionRegistry suggestionRegistry, @NotNull final Method method, @NotNull final Class<? extends BaseCommand> commandClass) {
-        final Suggestions suggestions = method.getAnnotation(Suggestions.class);
-        if (suggestions == null) return Collections.emptyList();
-
         final List<Suggestion> suggestionList = new ArrayList<>();
 
-        for (final String key : suggestions.value()) {
-            if (key.isEmpty()) {
-                suggestionList.add(EmptySuggestion.INSTANCE);
-                continue;
+        final Suggestions suggestions = method.getAnnotation(Suggestions.class);
+        if (suggestions != null) {
+
+            for (final String key : suggestions.value()) {
+                if (key.isEmpty()) {
+                    suggestionList.add(EmptySuggestion.INSTANCE);
+                    continue;
+                }
+
+                final SuggestionResolver resolver = suggestionRegistry.getSuggestion(SuggestionKey.of(key));
+
+                if (resolver == null) {
+                    throw new SubCommandRegistrationException("Cannot find the suggestion key `" + key + "`", method, commandClass);
+                }
+
+                suggestionList.add(new SimpleSuggestion(resolver));
             }
-
-            final SuggestionResolver resolver = suggestionRegistry.getSuggestion(SuggestionKey.of(key));
-
-            if (resolver == null) {
-                throw new SubCommandRegistrationException("Cannot find the suggestion key `" + key + "`", method, commandClass);
-            }
-
-            suggestionList.add(new SimpleSuggestion(resolver));
         }
 
         extractSuggestionFromParams(suggestionRegistry, method, suggestionList, commandClass);
@@ -117,9 +117,9 @@ public final class PlatformUtils {
     /**
      * Adds a suggestion or overrides an existing one.
      *
-     * @param suggestionList
-     * @param index
-     * @param suggestion
+     * @param suggestionList The list of suggestions to add or set to.
+     * @param index          The index of the suggestion.
+     * @param suggestion     The suggestion.
      */
     private static void setOrAdd(@NotNull final List<Suggestion> suggestionList, final int index, @Nullable final Suggestion suggestion) {
         if (index >= suggestionList.size()) {
