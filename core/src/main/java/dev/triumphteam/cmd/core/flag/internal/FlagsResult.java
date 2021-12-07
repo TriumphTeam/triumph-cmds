@@ -167,6 +167,7 @@ class FlagsResult implements Flags, ParseResult {
     public String toString() {
         return "FlagsResult{" +
                 "flags=" + flags +
+                ", args=" + args +
                 '}';
     }
 }

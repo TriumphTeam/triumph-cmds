@@ -90,6 +90,8 @@ import java.util.stream.Collectors;
 public abstract class AbstractSubCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
+    private final String parentName;
+
     private final Method method;
     // Name is nullable to detect if the method should or not be considered a sub command.
     private String name = null;
@@ -112,6 +114,7 @@ public abstract class AbstractSubCommandProcessor<S> {
 
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
+            @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
@@ -119,6 +122,8 @@ public abstract class AbstractSubCommandProcessor<S> {
             @NotNull final SenderMapper<S, ?> senderMapper
     ) {
         this.baseCommand = baseCommand;
+        this.parentName = parentName;
+
         this.method = method;
 
         this.argumentRegistry = argumentRegistry;
@@ -334,7 +339,8 @@ public abstract class AbstractSubCommandProcessor<S> {
             if (flagGroup.isEmpty()) {
                 throw createException("Flags argument detected but no flag annotation declared");
             }
-            addArgument(new FlagArgument<>(argumentName, argumentDescription, flagGroup, optional));
+
+            addArgument(new FlagArgument<>(argumentName, argumentDescription, parentName, name, flagGroup, messageRegistry, optional));
             return;
         }
 

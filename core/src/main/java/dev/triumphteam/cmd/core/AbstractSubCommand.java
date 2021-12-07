@@ -25,23 +25,14 @@ package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.Argument;
-import dev.triumphteam.cmd.core.argument.FlagArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessArgument;
 import dev.triumphteam.cmd.core.argument.StringArgument;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.flag.Flags;
-import dev.triumphteam.cmd.core.flag.internal.result.InvalidFlagArgumentResult;
-import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
-import dev.triumphteam.cmd.core.flag.internal.result.RequiredArgResult;
-import dev.triumphteam.cmd.core.flag.internal.result.RequiredFlagsResult;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.message.context.InvalidFlagArgumentContext;
-import dev.triumphteam.cmd.core.message.context.MissingFlagArgumentContext;
-import dev.triumphteam.cmd.core.message.context.MissingFlagContext;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import org.jetbrains.annotations.NotNull;
@@ -76,8 +67,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     private final MessageRegistry<S> messageRegistry;
     private final ExecutionProvider executionProvider;
 
-    private boolean containsLimitless = false;
-    private boolean containsFlags = false;
+    private final boolean containsLimitless;
 
     public AbstractSubCommand(
             @NotNull final AbstractSubCommandProcessor<S> processor,
@@ -97,7 +87,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
 
         this.executionProvider = executionProvider;
 
-        checkArguments();
+        this.containsLimitless = arguments.stream().anyMatch(LimitlessArgument.class::isInstance);
     }
 
     /**
@@ -129,7 +119,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
             return;
         }
 
-        if ((!containsLimitless && !containsFlags) && args.size() >= invokeArguments.size()) {
+        if ((!containsLimitless) && args.size() >= invokeArguments.size()) {
             messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new DefaultMessageContext(parentName, name));
             return;
         }
@@ -174,7 +164,11 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
                 final LimitlessArgument<S> limitlessArgument = (LimitlessArgument<S>) argument;
                 final List<String> leftOvers = leftOvers(commandArgs, i);
 
-                return handleLimitless(limitlessArgument, sender, invokeArguments, leftOvers, i);
+                final Object result = limitlessArgument.resolve(sender, leftOvers);
+
+                if (result == null) return false;
+                invokeArguments.add(result);
+                return true;
             }
 
             if (!(argument instanceof StringArgument)) {
@@ -228,83 +222,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     }
 
     /**
-     * Handles all types of {@link LimitlessArgument}s.
-     *
-     * TODO: 10/9/2021 Not very happy with the current implementation of handling List + Flags arguments
-     *  but it work for now, definitely need to change this before full release.
-     *
-     * @param argument        The current limitless argument.
-     * @param sender          The sender for resolution.
-     * @param invokeArguments The list with invoke arguments to add new values to.
-     * @param args            The current arguments to parse.
-     * @return Whether the parsing was successful or not.
-     */
-    private boolean handleLimitless(
-            @NotNull final LimitlessArgument<S> argument,
-            @NotNull final S sender,
-            @NotNull final List<Object> invokeArguments,
-            @NotNull final List<String> args,
-            final int index
-    ) {
-        if (!containsFlags) {
-            invokeArguments.add(argument.resolve(sender, args));
-            return true;
-        }
-
-        final ParseResult result;
-        if (containsLimitless) {
-            //noinspection unchecked
-            final LimitlessArgument<S> tempArg = (LimitlessArgument<S>) arguments.get(index + 1);
-            result = getFlagResult(tempArg, sender, args);
-        } else {
-            result = getFlagResult(argument, sender, args);
-        }
-
-        if (result instanceof RequiredFlagsResult) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(parentName, name, (RequiredFlagsResult) result));
-            return false;
-        }
-
-        if (result instanceof RequiredArgResult) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, sender, new MissingFlagArgumentContext(parentName, name, (RequiredArgResult) result));
-            return false;
-        }
-
-        if (result instanceof InvalidFlagArgumentResult) {
-            messageRegistry.sendMessage(MessageKey.INVALID_FLAG_ARGUMENT, sender, new InvalidFlagArgumentContext(parentName, name, (InvalidFlagArgumentResult) result));
-            return false;
-        }
-
-        // Should never happen
-        if (!(result instanceof Flags)) {
-            throw new CommandExecutionException("Error occurred while parsing command flags", parentName, name);
-        }
-
-        invokeArguments.add(result);
-        return true;
-    }
-
-    /**
-     * Simply gets the parsed flags from the argument
-     *
-     * @param argument The argument to check if it's a flag argument which should always be.
-     * @param sender   The sender of the command.
-     * @param args     The remaining arguments typed.
-     * @return The {@link ParseResult} of the flags.
-     */
-    private ParseResult getFlagResult(
-            @NotNull final LimitlessArgument<S> argument,
-            @NotNull final S sender,
-            @NotNull final List<String> args
-    ) {
-        if (!(argument instanceof FlagArgument)) {
-            throw new CommandExecutionException("An error occurred while handling command flags", parentName, name);
-        }
-        final FlagArgument<S> flagArgument = (FlagArgument<S>) argument;
-        return flagArgument.resolve(sender, args);
-    }
-
-    /**
      * Gets an argument value or null.
      *
      * @param list  The list to check from.
@@ -328,22 +245,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     private List<String> leftOvers(@NotNull final List<String> list, final int from) {
         if (from > list.size()) return Collections.emptyList();
         return list.subList(from, list.size());
-    }
-
-    /**
-     * Checks and records if the arguments contain Flags or/and LimitlessArguments.
-     */
-    private void checkArguments() {
-        for (final Argument<S, ?> argument : arguments) {
-            if (argument instanceof FlagArgument) {
-                containsFlags = true;
-                continue;
-            }
-
-            if (argument instanceof LimitlessArgument) {
-                containsLimitless = true;
-            }
-        }
     }
 
     @NotNull

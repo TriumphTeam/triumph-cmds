@@ -114,6 +114,7 @@ final class SlashCommand<S> implements Command {
             
             final SlashSubCommandProcessor<S> processor = new SlashSubCommandProcessor<>(
                     baseCommand,
+                    name,
                     method,
                     argumentRegistry,
                     requirementRegistry,
