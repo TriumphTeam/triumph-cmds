@@ -31,8 +31,6 @@ import java.util.Map;
 
 /**
  * Registry used for registering new suggestions for all commands to use.
- *
- * @param <S> The sender type.
  */
 public final class SuggestionRegistry {
 

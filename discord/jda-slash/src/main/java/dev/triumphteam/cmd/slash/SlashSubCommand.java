@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.slash;
 
-import com.google.common.base.CaseFormat;
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.argument.LimitlessArgument;
@@ -67,7 +66,7 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
 
             final OptionData option = new OptionData(
                     OptionTypeMap.fromType(argument.getType()),
-                    CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, argument.getName()),
+                    argument.getName(),
                     argument.getDescription(),
                     !argument.isOptional()
             );
