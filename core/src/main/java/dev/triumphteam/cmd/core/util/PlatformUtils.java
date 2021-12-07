@@ -34,6 +34,7 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -89,7 +90,7 @@ public final class PlatformUtils {
      */
     private static void extractSuggestionFromParams(@NotNull final SuggestionRegistry suggestionRegistry, @NotNull final Method method, @NotNull final List<Suggestion> suggestionList, @NotNull final Class<? extends BaseCommand> commandClass) {
         final Parameter[] parameters = method.getParameters();
-        for (int i = 0; i < parameters.length; i++) {
+        for (int i = 1; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
             final Class<?> type = parameter.getType();
 
@@ -101,7 +102,7 @@ public final class PlatformUtils {
                     continue;
                 }
 
-                setOrAdd(suggestionList, i, EmptySuggestion.INSTANCE);
+                setOrAdd(suggestionList, i, null);
                 continue;
             }
 
@@ -120,14 +121,17 @@ public final class PlatformUtils {
      * @param index          The index of the suggestion.
      * @param suggestion     The suggestion to set or add.
      */
-    private static void setOrAdd(@NotNull final List<Suggestion> suggestionList, final int index, @NotNull final Suggestion suggestion) {
-        if (suggestion instanceof EmptySuggestion) return;
-
+    private static void setOrAdd(@NotNull final List<Suggestion> suggestionList, final int index, @Nullable final Suggestion suggestion) {
         if (index >= suggestionList.size()) {
+            if (suggestion == null) {
+                suggestionList.add(EmptySuggestion.INSTANCE);
+                return;
+            }
             suggestionList.add(suggestion);
             return;
         }
 
+        if (suggestion == null) return;
         suggestionList.set(index, suggestion);
     }
 }
