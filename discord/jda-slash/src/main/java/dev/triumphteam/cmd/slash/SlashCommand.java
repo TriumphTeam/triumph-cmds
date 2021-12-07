@@ -205,14 +205,4 @@ final class SlashCommand<S> implements Command {
         return subCommands.get(key);
     }
 
-    /**
-     * Checks if the given sub command exists.
-     *
-     * @param key The sub command name.
-     * @return True if the sub command exists.
-     */
-    private boolean subCommandExists(@NotNull final String key) {
-        return subCommands.containsKey(key);
-    }
-
 }

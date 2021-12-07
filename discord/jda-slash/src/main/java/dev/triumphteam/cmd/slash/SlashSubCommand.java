@@ -29,7 +29,7 @@ import dev.triumphteam.cmd.core.argument.LimitlessArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
-import dev.triumphteam.cmd.slash.util.OptionTypeMap;
+import dev.triumphteam.cmd.slash.util.JdaOptionUtil;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +65,7 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
             final Argument<S, ?> argument = arguments.get(i);
 
             final OptionData option = new OptionData(
-                    OptionTypeMap.fromType(argument.getType()),
+                    JdaOptionUtil.fromType(argument.getType()),
                     argument.getName(),
                     argument.getDescription(),
                     !argument.isOptional()
