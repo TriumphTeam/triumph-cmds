@@ -28,14 +28,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Functional interface to allow simple requirement suggestion without the use of any hard coded data.
- *
- * @param <S> The command sender type.
+ * Functional interface to allow simple requirement suggestion without the use of any hard coded data.e command sender type.
  */
 @FunctionalInterface
 public interface SuggestionResolver {
 
-    // TODO: 12/5/2021 Comments
+    /**
+     * Resolves the suggestions for the command argument.
+     *
+     * @return A list of suggestions.
+     */
     @NotNull
     List<String> resolve();
 

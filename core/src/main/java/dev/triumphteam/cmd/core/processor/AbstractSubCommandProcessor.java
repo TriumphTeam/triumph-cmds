@@ -23,8 +23,10 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
+import com.google.common.base.CaseFormat;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.ArgDescriptions;
+import dev.triumphteam.cmd.core.annotation.ArgName;
 import dev.triumphteam.cmd.core.annotation.Async;
 import dev.triumphteam.cmd.core.annotation.CommandFlags;
 import dev.triumphteam.cmd.core.annotation.Default;
@@ -34,7 +36,6 @@ import dev.triumphteam.cmd.core.annotation.Join;
 import dev.triumphteam.cmd.core.annotation.Optional;
 import dev.triumphteam.cmd.core.annotation.Requirements;
 import dev.triumphteam.cmd.core.annotation.Split;
-import dev.triumphteam.cmd.core.annotation.Suggestions;
 import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
@@ -61,9 +62,6 @@ import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -260,6 +258,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         return new SubCommandRegistrationException(message, method, baseCommand.getClass());
     }
 
+    /**
+     * Used for validating if the sender is valid or not.
+     *
+     * @param type The sender type.
+     */
     protected void validateSender(@NotNull final Class<?> type) {
         final Set<Class<? extends S>> allowedSenders = senderMapper.getAllowedSenders();
         if (allowedSenders.contains(type)) return;
@@ -291,13 +294,13 @@ public abstract class AbstractSubCommandProcessor<S> {
      */
     protected void createArgument(@NotNull final Parameter parameter, final int index) {
         final Class<?> type = parameter.getType();
-        final String parameterName = parameter.getName();
+        final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(parameter, index);
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
         // TODO: 11/17/2021 Perhaps join arrays with collections to allow for type safe as well
         if (type == String[].class) {
-            addArgument(new ArrayArgument<>(parameterName, argumentDescription, optional));
+            addArgument(new ArrayArgument<>(argumentName, argumentDescription, optional));
             return;
         }
 
@@ -313,32 +316,41 @@ public abstract class AbstractSubCommandProcessor<S> {
 
             final Type genericType = types[0];
             final Type collectionType = genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType;
-            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, parameterName, argumentDescription, optional);
+            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, argumentName, argumentDescription, optional);
 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
-                addArgument(new SplitStringArgument<>(parameterName, argumentDescription, splitAnnotation.value(), argument, type, optional));
+                addArgument(new SplitStringArgument<>(argumentName, argumentDescription, splitAnnotation.value(), argument, type, optional));
                 return;
             }
 
-            addArgument(new CollectionArgument<>(parameterName, argumentDescription, argument, type, optional));
+            addArgument(new CollectionArgument<>(argumentName, argumentDescription, argument, type, optional));
             return;
         }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(new JoinedStringArgument<>(parameterName, argumentDescription, joinAnnotation.value(), optional));
+            addArgument(new JoinedStringArgument<>(argumentName, argumentDescription, joinAnnotation.value(), optional));
             return;
         }
 
         // Handler for flags.
         if (type == Flags.class) {
-            addArgument(new FlagArgument<>(parameterName, argumentDescription, flagGroup, optional));
+            addArgument(new FlagArgument<>(argumentName, argumentDescription, flagGroup, optional));
             return;
         }
 
-        addArgument(createSimpleArgument(type, parameterName, argumentDescription, optional));
+        addArgument(createSimpleArgument(type, argumentName, argumentDescription, optional));
+    }
+
+    @NotNull
+    private String getArgName(@NotNull final Parameter parameter) {
+        if (parameter.isAnnotationPresent(ArgName.class)) {
+            return parameter.getAnnotation(ArgName.class).value();
+        }
+
+        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, parameter.getName());
     }
 
     @NotNull
