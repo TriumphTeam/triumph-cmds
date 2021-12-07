@@ -54,6 +54,12 @@ final class SlashCommandListener<S> extends ListenerAdapter {
         this.senderMapper = senderMapper;
     }
 
+    /**
+     * Handler for the slash commands.
+     * Needs to map the given result to the correct arguments to be used.
+     *
+     * @param event The slash command event.
+     */
     @Override
     public void onSlashCommand(@NotNull final SlashCommandEvent event) {
         final String name = event.getName();
@@ -79,8 +85,13 @@ final class SlashCommandListener<S> extends ListenerAdapter {
         command.execute(sender, subCommandName != null ? subCommandName : Default.DEFAULT_CMD_NAME, args);
     }
 
+    /**
+     * Updates all the commands on ready.
+     *
+     * @param event The ready event.
+     */
     @Override
     public void onReady(@NotNull final ReadyEvent event) {
-        commandManager.upsertCommands();
+        commandManager.updateAllCommands();
     }
 }

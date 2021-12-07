@@ -44,6 +44,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,21 +87,64 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
         jda.addEventListener(new SlashCommandListener<>(this, senderMapper));
     }
 
+    /**
+     * Creates a new instance of the {@link SlashCommandManager}.
+     * This constructor is for adding a custom sender, for default sender use {@link #create(JDA)}.
+     *
+     * @param jda          The JDA instance created.
+     * @param senderMapper The Mapper to get the custom sender from.
+     * @param <S>          The type of the custom sender.
+     * @return A new instance of the {@link SlashCommandManager}.
+     */
+    @NotNull
+    @Contract("_, _ -> new")
+    public static <S> SlashCommandManager<S> create(
+            @NotNull final JDA jda,
+            @NotNull final SenderMapper<S, SlashSender> senderMapper
+    ) {
+        return new SlashCommandManager<>(jda, senderMapper);
+    }
+
+    /**
+     * Creates a new instance of the {@link SlashCommandManager}.
+     * This constructor adds all the defaults based on the default sender {@link SlashSender}.
+     *
+     * @param jda The JDA instance created.
+     * @return A new instance of the {@link SlashCommandManager}.
+     */
     public static SlashCommandManager<SlashSender> create(@NotNull final JDA jda) {
-        final SlashCommandManager<SlashSender> commandManager = new SlashCommandManager<>(jda, new SlashSenderMapper());
+        final SlashCommandManager<SlashSender> commandManager = create(jda, new SlashSenderMapper());
         setUpDefaults(commandManager);
         return commandManager;
     }
 
+    /**
+     * Registers a global command.
+     *
+     * @param baseCommand The {@link BaseCommand} to be registered.
+     */
     @Override
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
         addCommand(null, baseCommand, Collections.emptyList(), Collections.emptyList());
     }
 
+    /**
+     * Registers a {@link Guild} command.
+     *
+     * @param guild       The {@link Guild} to register the command for.
+     * @param baseCommand The {@link BaseCommand} to be registered.
+     */
     public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand baseCommand) {
         addCommand(guild, baseCommand, Collections.emptyList(), Collections.emptyList());
     }
 
+    /**
+     * Registers a global command for only specific roles.
+     *
+     * @param baseCommand   The {@link BaseCommand} to be registered.
+     * @param enabledRoles  The {@link Role}s that are allowed to use the command.
+     * @param disabledRoles The {@link Role}s that are not allowed to use the command.
+     */
     public void registerCommand(
             @NotNull final BaseCommand baseCommand,
             @NotNull final List<Long> enabledRoles,
@@ -109,6 +153,14 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
         addCommand(null, baseCommand, enabledRoles, disabledRoles);
     }
 
+    /**
+     * Registers a {@link Guild} command for only specific roles.
+     *
+     * @param guild         The {@link Guild} to register the command for.
+     * @param baseCommand   The {@link BaseCommand} to be registered.
+     * @param enabledRoles  The {@link Role}s that are allowed to use the command.
+     * @param disabledRoles The {@link Role}s that are not allowed to use the command.
+     */
     public void registerCommand(
             @NotNull final Guild guild,
             @NotNull final BaseCommand baseCommand,
@@ -118,12 +170,21 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
         addCommand(guild, baseCommand, enabledRoles, disabledRoles);
     }
 
+    /**
+     * Registers a {@link Guild} command varargs.
+     *
+     * @param guild        The {@link Guild} to register the command for.
+     * @param baseCommands The {@link BaseCommand}s to be registered.
+     */
     public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand... baseCommands) {
         for (final BaseCommand baseCommand : baseCommands) {
             registerCommand(guild, baseCommand);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver suggestionResolver) {
         suggestionRegistry.register(key, suggestionResolver);
@@ -134,7 +195,12 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
         // TODO: 12/7/2021 Implement some sort of unregistering
     }
 
-    public void upsertCommands() {
+    /**
+     * Updates all the commands in one go.
+     * This should be used if the default trigger for the updating of the commands isn't working.
+     * Or if commands are added after the initial setup.
+     */
+    public void updateAllCommands() {
         jda.updateCommands().addCommands(globalCommands.values().stream().map(SlashCommand::asCommandData).collect(Collectors.toList())).queue();
 
         guildCommands
@@ -209,17 +275,35 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
         command.addSubCommands(baseCommand);
     }
 
+    /**
+     * Gets the {@link SlashCommand} for the given name.
+     *
+     * @param name The name of the command.
+     * @return The {@link SlashCommand} or null if it doesn't exist.
+     */
     @Nullable
     SlashCommand<S> getCommand(@NotNull final String name) {
         return globalCommands.get(name);
     }
 
+    /**
+     * Gets the {@link SlashCommand} for the given name and guild.
+     *
+     * @param guild The guild to get the command from.
+     * @param name  The name of the command.
+     * @return The {@link SlashCommand} or null if it doesn't exist.
+     */
     @Nullable
     SlashCommand<S> getCommand(@NotNull Guild guild, @NotNull final String name) {
         final Map<String, SlashCommand<S>> commands = guildCommands.get(guild.getIdLong());
         return commands != null ? commands.get(name) : null;
     }
 
+    /**
+     * Sets up all the default values for the default sender on the platform.
+     *
+     * @param manager The {@link CommandManager} to use.
+     */
     private static void setUpDefaults(@NotNull final SlashCommandManager<SlashSender> manager) {
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.reply("Unknown command: `" + context.getCommand() + "`.").setEphemeral(true).queue());
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());

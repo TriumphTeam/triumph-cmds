@@ -107,7 +107,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     }
 
     /**
-     * Creates a new instance of the PrefixedCommandManager.
+     * Creates a new instance of the {@link PrefixedCommandManager}.
      * This constructor is for adding a custom sender, for default sender use {@link #create(JDA)}.
      *
      * @param jda          The JDA instance.
@@ -134,7 +134,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     @NotNull
     @Contract("_, _ -> new")
     public static PrefixedCommandManager<PrefixedSender> create(@NotNull final JDA jda, @NotNull final String globalPrefix) {
-        final PrefixedCommandManager<PrefixedSender> manager = new PrefixedCommandManager<>(jda, globalPrefix, new PrefixedSenderMapper());
+        final PrefixedCommandManager<PrefixedSender> manager = create(jda, globalPrefix, new PrefixedSenderMapper());
         setUpDefaults(manager);
         return manager;
     }
