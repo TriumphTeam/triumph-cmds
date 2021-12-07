@@ -24,13 +24,10 @@
 package dev.triumphteam.cmd.core.flag.internal;
 
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
 import dev.triumphteam.cmd.core.flag.internal.result.InvalidFlagArgumentResult;
 import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
 import dev.triumphteam.cmd.core.flag.internal.result.RequiredArgResult;
 import dev.triumphteam.cmd.core.flag.internal.result.RequiredFlagsResult;
-import dev.triumphteam.cmd.core.flag.internal.result.SuccessResult;
-import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,7 +78,7 @@ public final class FlagParser<S> {
      * @return A new {@link ParseResult} based on what happens in the code.
      */
     @NotNull
-    public static <S> ParseResult<S> parse(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
+    public static <S> ParseResult parse(@NotNull final FlagGroup<S> flagGroup, @NotNull final S sender, @NotNull final List<String> args) {
         return new FlagParser<S>(flagGroup, sender, args).parseAndBuild();
     }
 
@@ -91,7 +88,7 @@ public final class FlagParser<S> {
      * @return An implementation of {@link ParseResult}.
      */
     @NotNull
-    public ParseResult<S> parseAndBuild() {
+    public ParseResult parseAndBuild() {
         while (flagScanner.hasNext()) {
             if (parseState != ParseState.SUCCESS) break;
 
@@ -116,7 +113,7 @@ public final class FlagParser<S> {
             if (errorFlag == null || errorArgumentType == null) {
                 throw new CommandExecutionException("Error occurred when parsing flags.");
             }
-            return new RequiredArgResult<>(errorFlag, errorArgumentType);
+            return new RequiredArgResult(errorFlag, errorArgumentType);
         }
 
         if (parseState == ParseState.INVALID_ARGUMENT) {
@@ -124,14 +121,15 @@ public final class FlagParser<S> {
             if (errorFlag == null || errorArgumentToken == null || errorArgumentType == null) {
                 throw new CommandExecutionException("Error occurred when parsing flags.");
             }
-            return new InvalidFlagArgumentResult<>(errorArgumentToken, errorFlag, errorArgumentType);
+            return new InvalidFlagArgumentResult(errorArgumentToken, errorFlag, errorArgumentType);
         }
 
         if (parseState == ParseState.SUCCESS && !missingRequiredFlags.isEmpty()) {
-            return new RequiredFlagsResult<>(missingRequiredFlags, requiredFlags);
+            return new RequiredFlagsResult(missingRequiredFlags, requiredFlags);
         }
 
-        return new SuccessResult<>(leftOver, result);
+        result.addArgs(leftOver);
+        return result;
     }
 
     /**
