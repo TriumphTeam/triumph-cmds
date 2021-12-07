@@ -65,25 +65,39 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
         extractPrivilege();
     }
 
-    // TODO: 12/6/2021 Comments
+    /**
+     * Gets the roles to which the command should be enabled to.
+     *
+     * @return The enabled roles.
+     */
     @NotNull
     public List<Long> getEnabledRoles() {
         return enabledRoles;
     }
 
-    // TODO: 12/6/2021 Comments
+    /**
+     * Gets the roles to which the command should be disabled to.
+     *
+     * @return The disabled roles.
+     */
     @NotNull
     public List<Long> getDisabledRoles() {
         return disabledRoles;
     }
 
-    // TODO: 12/6/2021 Comments
+    /**
+     * Gets the suggestion registry.
+     *
+     * @return The suggestion registry.
+     */
     @NotNull
     public SuggestionRegistry getSuggestionRegistry() {
         return suggestionRegistry;
     }
 
-    // TODO: 12/6/2021 Comments
+    /**
+     * Extracts the privilege data from the command.
+     */
     private void extractPrivilege() {
         final List<Roles> roles = getRolesFromAnnotations(getAnnotatedClass());
         if (roles.isEmpty()) return;
@@ -100,7 +114,12 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
         }
     }
 
-    // TODO: 12/6/2021 Comments
+    /**
+     * Gets the roles annotations from the class.
+     *
+     * @param klass The class to get from.
+     * @return List with all the roles annotations.
+     */
     private List<Roles> getRolesFromAnnotations(@NotNull final Class<?> klass) {
         final Privileges privileges = klass.getAnnotation(Privileges.class);
         if (privileges != null) return Arrays.asList(privileges.value());

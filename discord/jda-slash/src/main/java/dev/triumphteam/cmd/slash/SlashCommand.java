@@ -41,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,8 +109,9 @@ final class SlashCommand<S> implements Command {
      */
     @Override
     public void addSubCommands(@NotNull final BaseCommand baseCommand) {
-        // todo skip private methods
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
+            if (Modifier.isPrivate(method.getModifiers())) continue;
+            
             final SlashSubCommandProcessor<S> processor = new SlashSubCommandProcessor<>(
                     baseCommand,
                     method,
