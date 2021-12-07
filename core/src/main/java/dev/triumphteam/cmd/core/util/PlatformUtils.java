@@ -1,3 +1,26 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2019-2021 Matt
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package dev.triumphteam.cmd.core.util;
 
 import dev.triumphteam.cmd.core.BaseCommand;
@@ -22,6 +45,14 @@ public final class PlatformUtils {
 
     private PlatformUtils() {throw new AssertionError("Util must not be initialized");}
 
+    /**
+     * Extract all suggestions from the method and parameters.
+     *
+     * @param suggestionRegistry The suggestion registry.
+     * @param method             The method.
+     * @param commandClass       The command class, for the exception.
+     * @return A list of {@link Suggestion}s.
+     */
     public static List<Suggestion> extractSuggestions(
             @NotNull final SuggestionRegistry suggestionRegistry,
             @NotNull final Method method,
@@ -33,7 +64,6 @@ public final class PlatformUtils {
         final List<Suggestion> suggestionList = new ArrayList<>();
 
         for (final String key : suggestions.value()) {
-
             if (key.isEmpty()) {
                 suggestionList.add(EmptySuggestion.INSTANCE);
                 continue;
@@ -49,10 +79,18 @@ public final class PlatformUtils {
         }
 
         extractSuggestionFromParams(suggestionRegistry, method, suggestionList, commandClass);
-
         return suggestionList;
     }
 
+    /**
+     * Extract all suggestions from the parameters.
+     * Adds the suggestions to the passed list.
+     *
+     * @param suggestionRegistry The suggestion registry.
+     * @param method             The method.
+     * @param suggestionList     The list of suggestions.
+     * @param commandClass       The command class, for the exception.
+     */
     private static void extractSuggestionFromParams(
             @NotNull final SuggestionRegistry suggestionRegistry,
             @NotNull final Method method,
@@ -84,6 +122,12 @@ public final class PlatformUtils {
         }
     }
 
+    /**
+     * Adds a suggestion or overrides an existing one.
+     * @param suggestionList
+     * @param index
+     * @param suggestion
+     */
     private static void setOrAdd(@NotNull final List<Suggestion> suggestionList, final int index, @NotNull final Suggestion suggestion) {
         if (suggestion instanceof EmptySuggestion) return;
 
