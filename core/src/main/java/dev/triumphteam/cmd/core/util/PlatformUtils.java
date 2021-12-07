@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -53,11 +53,7 @@ public final class PlatformUtils {
      * @param commandClass       The command class, for the exception.
      * @return A list of {@link Suggestion}s.
      */
-    public static List<Suggestion> extractSuggestions(
-            @NotNull final SuggestionRegistry suggestionRegistry,
-            @NotNull final Method method,
-            @NotNull final Class<? extends BaseCommand> commandClass
-    ) {
+    public static List<Suggestion> extractSuggestions(@NotNull final SuggestionRegistry suggestionRegistry, @NotNull final Method method, @NotNull final Class<? extends BaseCommand> commandClass) {
         final Suggestions suggestions = method.getAnnotation(Suggestions.class);
         if (suggestions == null) return Collections.emptyList();
 
@@ -91,12 +87,7 @@ public final class PlatformUtils {
      * @param suggestionList     The list of suggestions.
      * @param commandClass       The command class, for the exception.
      */
-    private static void extractSuggestionFromParams(
-            @NotNull final SuggestionRegistry suggestionRegistry,
-            @NotNull final Method method,
-            @NotNull final List<Suggestion> suggestionList,
-            @NotNull final Class<? extends BaseCommand> commandClass
-    ) {
+    private static void extractSuggestionFromParams(@NotNull final SuggestionRegistry suggestionRegistry, @NotNull final Method method, @NotNull final List<Suggestion> suggestionList, @NotNull final Class<? extends BaseCommand> commandClass) {
         final Parameter[] parameters = method.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
@@ -124,9 +115,10 @@ public final class PlatformUtils {
 
     /**
      * Adds a suggestion or overrides an existing one.
-     * @param suggestionList
-     * @param index
-     * @param suggestion
+     *
+     * @param suggestionList The list of suggestions to set or add to.
+     * @param index          The index of the suggestion.
+     * @param suggestion     The suggestion to set or add.
      */
     private static void setOrAdd(@NotNull final List<Suggestion> suggestionList, final int index, @NotNull final Suggestion suggestion) {
         if (suggestion instanceof EmptySuggestion) return;
@@ -138,5 +130,4 @@ public final class PlatformUtils {
 
         suggestionList.set(index, suggestion);
     }
-
 }
