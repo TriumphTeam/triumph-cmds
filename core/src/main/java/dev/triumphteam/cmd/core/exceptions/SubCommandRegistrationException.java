@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core.exceptions;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;

@@ -23,6 +23,3 @@
  */
 package dev.triumphteam.cmds.kotlin
 
-import dev.triumphteam.cmd.core.CommandManager
-import dev.triumphteam.cmd.core.argument.ArgumentResolver
-

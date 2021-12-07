@@ -25,8 +25,6 @@ package dev.triumphteam.cmd.core.message;
 
 import dev.triumphteam.cmd.core.key.RegistryKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.key.RegistryKey;
-import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;

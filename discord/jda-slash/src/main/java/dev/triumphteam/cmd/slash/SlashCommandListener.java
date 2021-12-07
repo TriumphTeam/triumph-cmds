@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
