@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -77,6 +77,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -552,25 +553,53 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
+     * Gets a list of all the arg validations for the platform.
+     * Defaults to just optional and limitless.
+     * This is likely to change.
+     *
+     * @return A list of BiConsumers with checks.
+     */
+    protected List<BiConsumer<Boolean, Argument<S, ?>>> getArgValidations() {
+        return Arrays.asList(validateOptionals(), validateLimitless());
+    }
+
+    /**
      * Argument validation makes sure some arguments are placed in the correct place.
      * For example a limitless arguments and optional arguments are only allowed at the end of the command.
-     * Method is left opened for maybe being overridden by SlashCommand in JDA.
      */
-    protected void validateArguments() {
+    private void validateArguments() {
+        final List<BiConsumer<Boolean, Argument<S, ?>>> validations = getArgValidations();
         final Iterator<Argument<S, ?>> iterator = arguments.iterator();
         while (iterator.hasNext()) {
             final Argument<S, ?> argument = iterator.next();
+            validations.forEach(consumer -> consumer.accept(iterator.hasNext(), argument));
+        }
+    }
 
-            if (!iterator.hasNext()) continue;
-
-            if (argument.isOptional()) {
+    /**
+     * Validation function for optionals.
+     *
+     * @return Returns a BiConsumer with a is optional check.
+     */
+    protected BiConsumer<Boolean, Argument<S, ?>> validateOptionals() {
+        return (hasNext, argument) -> {
+            if (hasNext && argument.isOptional()) {
                 throw createException("Optional argument is only allowed as the last argument");
             }
+        };
+    }
 
-            if (argument instanceof LimitlessArgument) {
+    /**
+     * Validation function for limitless position.
+     *
+     * @return Returns a BiConsumer with an instance of check.
+     */
+    protected BiConsumer<Boolean, Argument<S, ?>> validateLimitless() {
+        return (hasNext, argument) -> {
+            if (hasNext && argument instanceof LimitlessArgument) {
                 throw createException("Limitless argument is only allowed as the last argument");
             }
-        }
+        };
     }
 
     /**
