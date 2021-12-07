@@ -1,6 +1,6 @@
 rootProject.name = "triumph-cmd"
 
-listOf("core", "kotlin").forEach(::includeProject)
+listOf("core", "kotlin-extras").forEach(::includeProject)
 
 listOf(
     //"minecraft/bukkit",
