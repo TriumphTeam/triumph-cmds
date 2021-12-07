@@ -23,9 +23,9 @@
  */
 package dev.triumphteam.cmd.slash;
 
+import com.google.common.collect.Maps;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -73,8 +73,8 @@ final class SlashCommandListener<S> extends ListenerAdapter {
 
         final Map<String, String> args = event.getOptions()
                 .stream()
-                .map(it -> Pair.of(it.getName(), it.getAsString()))
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+                .map(it -> Maps.immutableEntry(it.getName(), it.getAsString()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         command.execute(sender, subCommandName != null ? subCommandName : Default.DEFAULT_CMD_NAME, args);
     }

@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.slash;
 
+import com.google.common.collect.Maps;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
@@ -34,7 +35,6 @@ import dev.triumphteam.cmd.core.suggestion.SuggestiblePlatform;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
-import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -138,10 +138,10 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
                 .stream()
                 .map(entry -> {
                     final Guild guild = jda.getGuildById(entry.getKey());
-                    return guild != null ? Pair.of(guild, entry.getValue()) : null;
+                    return guild != null ? Maps.immutableEntry(guild, entry.getValue()) : null;
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
                 .forEach((guild, commands) -> guild.updateCommands()
                         .addCommands(commands.values().stream().map(SlashCommand::asCommandData).collect(Collectors.toList()))
                         .queue(cmds -> guild.updateCommandPrivileges(
@@ -156,10 +156,10 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
                                             ).collect(Collectors.toList());
 
                                             if (privileges.isEmpty()) return null;
-                                            return Pair.of(cmd.getId(), privileges);
+                                            return Maps.immutableEntry(cmd.getId(), privileges);
                                         })
                                         .filter(Objects::nonNull)
-                                        .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))
+                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
                         ).queue()));
     }
 
