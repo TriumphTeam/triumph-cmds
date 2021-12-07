@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -86,9 +86,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
         jda.addEventListener(new SlashCommandListener<>(this, senderMapper));
     }
 
-    public static SlashCommandManager<SlashSender> createDefault(
-            @NotNull final JDA jda
-    ) {
+    public static SlashCommandManager<SlashSender> create(@NotNull final JDA jda) {
         final SlashCommandManager<SlashSender> commandManager = new SlashCommandManager<>(jda, new SlashSenderMapper());
         setUpDefaults(commandManager);
         return commandManager;
@@ -120,6 +118,12 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
         addCommand(guild, baseCommand, enabledRoles, disabledRoles);
     }
 
+    public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand... baseCommands) {
+        for (final BaseCommand baseCommand : baseCommands) {
+            registerCommand(guild, baseCommand);
+        }
+    }
+
     @Override
     public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver suggestionResolver) {
         suggestionRegistry.register(key, suggestionResolver);
@@ -127,7 +131,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
 
     @Override
     public void unregisterCommand(final @NotNull BaseCommand command) {
-
+        // TODO: 12/7/2021 Implement some sort of unregistering
     }
 
     public void upsertCommands() {
