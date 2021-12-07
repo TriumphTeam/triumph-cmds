@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,7 +39,6 @@ import dev.triumphteam.cmd.core.annotation.Split;
 import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.ArrayArgument;
 import dev.triumphteam.cmd.core.argument.CollectionArgument;
 import dev.triumphteam.cmd.core.argument.EnumArgument;
 import dev.triumphteam.cmd.core.argument.FlagArgument;
@@ -298,12 +297,6 @@ public abstract class AbstractSubCommandProcessor<S> {
         final String argumentDescription = getArgumentDescription(parameter, index);
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
-        // TODO: 11/17/2021 Perhaps join arrays with collections to allow for type safe as well
-        if (type == String[].class) {
-            addArgument(new ArrayArgument<>(argumentName, argumentDescription, optional));
-            return;
-        }
-
         // Handles collection argument.
         // TODO: Add more collection types.
         if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
@@ -344,6 +337,13 @@ public abstract class AbstractSubCommandProcessor<S> {
         addArgument(createSimpleArgument(type, argumentName, argumentDescription, optional));
     }
 
+    /**
+     * Gets the argument name, either from the parameter or from the annotation.
+     * If the parameter is not annotated, turn the name from Camel Case to "lower-hyphen".
+     *
+     * @param parameter The parameter to get data from.
+     * @return The final argument name.
+     */
     @NotNull
     private String getArgName(@NotNull final Parameter parameter) {
         if (parameter.isAnnotationPresent(ArgName.class)) {
@@ -353,6 +353,13 @@ public abstract class AbstractSubCommandProcessor<S> {
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, parameter.getName());
     }
 
+    /**
+     * Gets the argument description.
+     *
+     * @param parameter The parameter to get data from.
+     * @param index     The index of the argument.
+     * @return The final argument description.
+     */
     @NotNull
     private String getArgumentDescription(@NotNull final Parameter parameter, final int index) {
         final Description description = parameter.getAnnotation(Description.class);
@@ -371,8 +378,8 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param type                The Type of this Argument.
      * @param parameterName       The Name to use for this Argument.
      * @param argumentDescription the Description to use for this Argument.
-     * @param optional            whether or not this Argument is optional.
-     * @return The created {@link Argument<S, String>} Argument.
+     * @param optional            whether this Argument is optional.
+     * @return The created {@link Argument}.
      */
     private Argument<S, String> createSimpleArgument(
             @NotNull final Class<?> type,
@@ -394,6 +401,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         return new ResolverArgument<>(parameterName, argumentDescription, type, resolver, optional);
     }
 
+    /**
+     * Adds a required argument to the list.
+     *
+     * @param requirement The requirement to add.
+     */
     protected void addRequirement(@NotNull final Requirement<S, ?> requirement) {
         requirements.add(requirement);
     }
@@ -511,7 +523,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                 throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
             }
 
-            requirements.add(new Requirement<>(resolver, messageKey, DefaultMessageContext::new));
+            addRequirement(new Requirement<>(resolver, messageKey, DefaultMessageContext::new));
         }
     }
 
