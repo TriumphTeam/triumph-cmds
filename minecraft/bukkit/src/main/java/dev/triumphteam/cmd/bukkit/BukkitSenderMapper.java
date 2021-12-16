@@ -21,21 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed;
+package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.core.AbstractSubCommand;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
-import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
+import com.google.common.collect.ImmutableSet;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-final class PrefixedSubCommand<S> extends AbstractSubCommand<S, PrefixedSender> {
+import java.util.Set;
 
-    public PrefixedSubCommand(
-            @NotNull final AbstractSubCommandProcessor<S, PrefixedSender> processor,
-            @NotNull final String parentName,
-            @NotNull final ExecutionProvider executionProvider
-    ) {
-        super(processor, parentName, executionProvider);
+/**
+ * Simple mapper than returns itself.
+ */
+class BukkitSenderMapper implements SenderMapper<CommandSender, CommandSender> {
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public Set<Class<? extends CommandSender>> getAllowedSenders() {
+        return ImmutableSet.of(CommandSender.class, ConsoleCommandSender.class, Player.class);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Nullable
+    @Override
+    public CommandSender map(@NotNull final CommandSender defaultSender) {
+        
+        return defaultSender;
+    }
+
 }

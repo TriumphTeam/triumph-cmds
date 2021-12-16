@@ -39,7 +39,7 @@ import java.lang.reflect.Method;
  *
  * @param <S> The sender type.
  */
-final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S, PrefixedSender> {
 
     public PrefixedSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,

@@ -21,12 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.processor;
+package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
-import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
@@ -34,32 +33,28 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor<CommandSender> {
+final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S, CommandSender> {
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
+            @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
-            @NotNull final MessageRegistry<CommandSender> messageRegistry
+            @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final RequirementRegistry<S> requirementRegistry,
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SuggestionRegistry suggestionRegistry,
+            @NotNull final SenderMapper<S, CommandSender> senderMapper
     ) {
-        super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry, null);
-    }
-
-    @Nullable
-    //@Override
-    public AbstractSubCommand<CommandSender> create(@NotNull final String parentName) {
-        if (getName() == null) return null;
+        super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
         checkPermission(getMethod());
-        //return new SimpleSubCommand<>(this, parentName);
-        return null;
     }
 
     @Override
@@ -68,8 +63,7 @@ public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor
         for (int i = 0; i < parameters.length; i++) {
             // TODO handle @value and @completion
             final Parameter parameter = parameters[i];
-            System.out.println(method.getName());
-            System.out.println(parameter.getType().getName() + " - " + i);
+
             if (i == 0) {
                 if (!CommandSender.class.isAssignableFrom(parameter.getType())) {
                     throw createException("Invalid or missing sender parameter (must be a CommandSender, Player, or ConsoleCommandSender).");
@@ -92,7 +86,7 @@ public final class BukkitSubCommandProcessor extends AbstractSubCommandProcessor
             throw new SubCommandRegistrationException("Permission cannot be empty", method, getBaseCommand().getClass());
         }
 
-        addRequirement(
+        addDefaultRequirement(
                 new Requirement<>(
                         sender -> sender.hasPermission(annotatedPermission),
                         BukkitMessageKey.NO_PERMISSION,

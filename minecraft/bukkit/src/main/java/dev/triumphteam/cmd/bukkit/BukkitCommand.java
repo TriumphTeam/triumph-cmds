@@ -21,10 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.command;
+package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.factory.BukkitSubCommandProcessor;
-import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
@@ -87,8 +85,8 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
         for (final Method method : methods) {
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
-            final AbstractSubCommand<CommandSender> subCommand = new BukkitSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create(name);
-            if (subCommand == null) continue;
+            //final AbstractSubCommand<CommandSender> subCommand = new BukkitSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create(name);
+            //if (subCommand == null) continue;
 
 
             //commands.put(subCommandName, subCommand);

@@ -3,7 +3,7 @@ rootProject.name = "triumph-cmd"
 listOf("core", "kotlin-extras").forEach(::includeProject)
 
 listOf(
-    //"minecraft/bukkit",
+    "minecraft/bukkit",
     "discord/jda-common",
     "discord/jda-prefixed",
     "discord/jda-slash",

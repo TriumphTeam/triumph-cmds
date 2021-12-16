@@ -47,7 +47,7 @@ import java.util.function.BiConsumer;
  *
  * @param <S> The sender type.
  */
-final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S, SlashSender> {
 
     private final List<Suggestion> suggestions = new ArrayList<>();
 

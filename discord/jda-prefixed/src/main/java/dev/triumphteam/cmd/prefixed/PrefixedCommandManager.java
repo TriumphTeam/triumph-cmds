@@ -89,7 +89,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
     /**
      * Creates a new instance of the PrefixedCommandManager.
-     * This constructor is for adding a custom sender, for default sender use {@link #create(JDA, String)}.
+     * This factory is for adding a custom sender, for default sender use {@link #create(JDA, String)}.
      *
      * @param jda          The JDA instance.
      * @param globalPrefix The global prefix.
@@ -108,7 +108,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
     /**
      * Creates a new instance of the {@link PrefixedCommandManager}.
-     * This constructor is for adding a custom sender, for default sender use {@link #create(JDA)}.
+     * This factory is for adding a custom sender, for default sender use {@link #create(JDA)}.
      *
      * @param jda          The JDA instance.
      * @param senderMapper The sender mapper.
