@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
@@ -34,6 +33,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginIdentifiableCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Contract;
@@ -48,7 +48,7 @@ public final class BukkitCommandManager<S> extends CommandManager<S> {
 
     private final Plugin plugin;
 
-    private final Map<String, Command> commands = new HashMap<>();
+    private final Map<String, BukkitCommand<S>> commands = new HashMap<>();
 
     private final SenderMapper<S, CommandSender> senderMapper;
 
@@ -87,16 +87,18 @@ public final class BukkitCommandManager<S> extends CommandManager<S> {
 
     @Override
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
-        //final BukkitCommand bukkitCommand = new BukkitCommandProcessor(baseCommand, getArgumentRegistry(), getRequirementRegistry(), getMessageRegistry()).create();
+        final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(
+                baseCommand,
+                getArgumentRegistry(),
+                getRequirementRegistry(),
+                getMessageRegistry(),
+                //suggestionRegistry,
+                senderMapper
+        );
 
-        // TODO multiple classes
-        /*if (!bukkitCommand.addSubCommands(baseCommand)) {
-            return;
-        }
+        final String name = processor.getName();
 
-        final String commandName = bukkitCommand.getName();
-
-        final org.bukkit.command.Command oldCommand = commandMap.getCommand(commandName);
+        final org.bukkit.command.Command oldCommand = commandMap.getCommand(name);
 
         // From ACF (https://github.com/aikar/commands)
         // To allow commands to be registered on the plugin.yml
@@ -104,9 +106,13 @@ public final class BukkitCommandManager<S> extends CommandManager<S> {
             unregisterCommand(baseCommand);
         }
 
+        final BukkitCommand<S> command = commands.computeIfAbsent(name, ignored -> new BukkitCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
+
+        command.addSubCommands(baseCommand);
+
         // Registering
-        commandMap.register(commandName, plugin.getName(), bukkitCommand);
-        commands.put(commandName, bukkitCommand);*/
+        commandMap.register(name, plugin.getName(), command);
+        // TODO: 12/16/2021 Check if command isn't added yet
     }
 
     @Override

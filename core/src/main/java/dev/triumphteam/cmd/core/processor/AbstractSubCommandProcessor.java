@@ -88,7 +88,7 @@ import java.util.stream.Collectors;
  *
  * @param <S> The sender type.
  */
-public abstract class AbstractSubCommandProcessor<S, DS> {
+public abstract class AbstractSubCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
     private final String parentName;
@@ -107,7 +107,6 @@ public abstract class AbstractSubCommandProcessor<S, DS> {
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S, ?>> arguments = new ArrayList<>();
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
-    private final Set<Requirement<DS, ?>> defaultRequirements = new HashSet<>();
 
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
@@ -241,16 +240,6 @@ public abstract class AbstractSubCommandProcessor<S, DS> {
     @NotNull
     public Set<Requirement<S, ?>> getRequirements() {
         return requirements;
-    }
-
-    /**
-     * Gets a set with the default requirements.
-     *
-     * @return The requirements.
-     */
-    @NotNull
-    public Set<Requirement<DS, ?>> getDefaultRequirements() {
-        return defaultRequirements;
     }
 
     /**
@@ -430,15 +419,6 @@ public abstract class AbstractSubCommandProcessor<S, DS> {
      */
     protected void addRequirement(@NotNull final Requirement<S, ?> requirement) {
         requirements.add(requirement);
-    }
-
-    /**
-     * Adds a default required argument to the list.
-     *
-     * @param requirement The requirement to add.
-     */
-    protected void addDefaultRequirement(@NotNull final Requirement<DS, ?> requirement) {
-        defaultRequirements.add(requirement);
     }
 
     /**

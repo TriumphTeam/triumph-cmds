@@ -51,7 +51,7 @@ import java.util.Set;
  *
  * @param <S> The sender type.
  */
-public abstract class AbstractSubCommand<S, DS> implements SubCommand<S> {
+public abstract class AbstractSubCommand<S> implements SubCommand<S> {
 
     private final BaseCommand baseCommand;
     private final Method method;
@@ -63,7 +63,6 @@ public abstract class AbstractSubCommand<S, DS> implements SubCommand<S> {
 
     private final List<Argument<S, ?>> arguments;
     private final Set<Requirement<S, ?>> requirements;
-    private final Set<Requirement<DS, ?>> defaultRequirements;
 
     private final MessageRegistry<S> messageRegistry;
     private final ExecutionProvider executionProvider;
@@ -71,7 +70,7 @@ public abstract class AbstractSubCommand<S, DS> implements SubCommand<S> {
     private final boolean containsLimitless;
 
     public AbstractSubCommand(
-            @NotNull final AbstractSubCommandProcessor<S, DS> processor,
+            @NotNull final AbstractSubCommandProcessor<S> processor,
             @NotNull final String parentName,
             @NotNull final ExecutionProvider executionProvider
     ) {
@@ -81,7 +80,6 @@ public abstract class AbstractSubCommand<S, DS> implements SubCommand<S> {
         this.alias = processor.getAlias();
         this.arguments = processor.getArguments();
         this.requirements = processor.getRequirements();
-        this.defaultRequirements = processor.getDefaultRequirements();
         this.messageRegistry = processor.getMessageRegistry();
         this.isDefault = processor.isDefault();
 
@@ -101,6 +99,36 @@ public abstract class AbstractSubCommand<S, DS> implements SubCommand<S> {
     @Override
     public boolean isDefault() {
         return isDefault;
+    }
+
+    /**
+     * Gets the name of the parent command.
+     *
+     * @return The name of the parent command.
+     */
+    @NotNull
+    protected String getParentName() {
+        return parentName;
+    }
+
+    /**
+     * Gets the name of the sub command.
+     *
+     * @return The name of the sub command.
+     */
+    @NotNull
+    protected String getName() {
+        return name;
+    }
+
+    /**
+     * Gets the message registry.
+     *
+     * @return The message registry.
+     */
+    @NotNull
+    protected MessageRegistry<S> getMessageRegistry() {
+        return messageRegistry;
     }
 
     /**
@@ -219,23 +247,6 @@ public abstract class AbstractSubCommand<S, DS> implements SubCommand<S> {
         for (final Requirement<S, ?> requirement : requirements) {
             if (!requirement.isMet(sender)) {
                 requirement.sendMessage(messageRegistry, sender, parentName, name);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks if the requirements to run the command are met.
-     *
-     * @param sender The sender of the command.
-     * @return Whether all requirements are met.
-     */
-    private boolean meetDefaultRequirements(@NotNull final DS sender) {
-        for (final Requirement<DS, ?> requirement : defaultRequirements) {
-            if (!requirement.isMet(sender)) {
-                //requirement.sendMessage(messageRegistry, sender, parentName, name);
                 return false;
             }
         }
