@@ -53,7 +53,6 @@ class BukkitSenderMapper implements SenderMapper<CommandSender, CommandSender> {
     @Nullable
     @Override
     public CommandSender map(@NotNull final CommandSender defaultSender) {
-        
         return defaultSender;
     }
 

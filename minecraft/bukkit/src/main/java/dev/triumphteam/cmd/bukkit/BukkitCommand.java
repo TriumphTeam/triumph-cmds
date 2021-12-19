@@ -56,8 +56,8 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private final ExecutionProvider syncExecutionProvider;
     private final ExecutionProvider asyncExecutionProvider;
 
-    private final Map<String, BukkitSubCommand<S>> commands = new HashMap<>();
-    private final Map<String, BukkitSubCommand<S>> aliases = new HashMap<>();
+    private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
+    private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
 
     public BukkitCommand(
             @NotNull final BukkitCommandProcessor<S> processor,
@@ -102,8 +102,8 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             if (subCommandName == null) continue;
 
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-            commands.putIfAbsent(subCommandName, new BukkitSubCommand<>(processor, getName(), executionProvider));
-            // TODO: 12/16/2021 ADD ALIASES
+            final BukkitSubCommand<S> subCommand = subCommands.putIfAbsent(subCommandName, new BukkitSubCommand<>(processor, getName(), executionProvider));
+            processor.getAlias().forEach(alias -> subCommandAliases.putIfAbsent(alias, subCommand));
         }
     }
 
@@ -125,7 +125,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         String subCommandName = "";
         if (args.length > 0) subCommandName = args[0].toLowerCase();
-
         if (subCommand == null || subCommandExists(subCommandName)) {
             subCommand = getSubCommand(subCommandName);
         }
@@ -141,7 +140,8 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final List<String> commandArgs = new ArrayList<>();
         Collections.addAll(commandArgs, args);
-        subCommand.execute(mappedSender, commandArgs);
+
+        subCommand.execute(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
         return true;
     }
 
@@ -153,20 +153,20 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
      */
     @Nullable
     private BukkitSubCommand<S> getDefaultSubCommand() {
-        return commands.get(Default.DEFAULT_CMD_NAME);
+        return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
     /**
-     * Used in order to search for the given {@link SubCommand<CommandSender>} in the {@link #aliases}
+     * Used in order to search for the given {@link SubCommand<CommandSender>} in the {@link #subCommandAliases}
      *
      * @param key the String to look for the {@link SubCommand<CommandSender>}
      * @return the {@link SubCommand<CommandSender>} for the particular key or NULL
      */
     @Nullable
     private BukkitSubCommand<S> getSubCommand(@NotNull final String key) {
-        final BukkitSubCommand<S> subCommand = commands.get(key);
+        final BukkitSubCommand<S> subCommand = subCommands.get(key);
         if (subCommand != null) return subCommand;
-        return aliases.get(key);
+        return subCommandAliases.get(key);
     }
 
     /**
@@ -176,6 +176,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
      * @return whether a SubCommand with that key exists
      */
     private boolean subCommandExists(@NotNull final String key) {
-        return commands.containsKey(key) || aliases.containsKey(key);
+        return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
     }
 }
