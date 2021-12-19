@@ -103,16 +103,17 @@ public final class BukkitCommandManager<S> extends CommandManager<S> {
         // From ACF (https://github.com/aikar/commands)
         // To allow commands to be registered on the plugin.yml
         if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
-            unregisterCommand(baseCommand);
+            bukkitCommands.remove(name);
+            oldCommand.unregister(commandMap);
         }
 
-        final BukkitCommand<S> command = commands.computeIfAbsent(name, ignored -> new BukkitCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
+        final BukkitCommand<S> command = commands.computeIfAbsent(name, ignored -> {
+            final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, syncExecutionProvider, asyncExecutionProvider);
+            commandMap.register(name, plugin.getName(), newCommand);
+            return newCommand;
+        });
 
         command.addSubCommands(baseCommand);
-
-        // Registering
-        commandMap.register(name, plugin.getName(), command);
-        // TODO: 12/16/2021 Check if command isn't added yet
     }
 
     @Override
