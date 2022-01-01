@@ -21,73 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.flag.internal.result;
+package dev.triumphteam.cmd.core.suggestion;
 
-import dev.triumphteam.cmd.core.flag.Flags;
-import dev.triumphteam.cmd.core.flag.Flags;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Returned when the parsing is successful.
- *
- * @param <S> The sender type.
- */
-public final class SuccessResult<S> implements ParseResult<S> {
+public final class SimpleSuggestion implements Suggestion {
 
-    private final List<String> leftOvers;
-    private final Flags flags;
+    private final SuggestionResolver resolver;
 
-    public SuccessResult(
-            @NotNull final List<String> leftOvers,
-            @NotNull final Flags flags
-    ) {
-        this.leftOvers = leftOvers;
-        this.flags = flags;
+    public SimpleSuggestion(@NotNull final SuggestionResolver resolver) {
+        this.resolver = resolver;
     }
 
-    /**
-     * Gets a list with the leftover arguments.
-     * Which can then be given back to the command.
-     *
-     * @return The leftovers.
-     */
     @NotNull
-    public List<String> getLeftOvers() {
-        return leftOvers;
-    }
-
-    /**
-     * Get {@link Flags} instance with the parsed flags.
-     *
-     * @return The parsed flags.
-     */
-    @NotNull
-    public Flags getFlags() {
-        return flags;
+    @Override
+    public List<String> getSuggestions() {
+        return resolver.resolve();
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final SuccessResult<?> that = (SuccessResult<?>) o;
-        return leftOvers.equals(that.leftOvers) && flags.equals(that.flags);
+        final SimpleSuggestion that = (SimpleSuggestion) o;
+        return resolver.equals(that.resolver);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(leftOvers, flags);
+        return Objects.hash(resolver);
     }
 
     @Override
     public String toString() {
-        return "SuccessResult{" +
-                "leftOvers=" + leftOvers +
-                ", flags=" + flags +
+        return "SimpleSuggestion{" +
+                "resolver=" + resolver +
                 '}';
     }
 }

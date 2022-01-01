@@ -38,10 +38,13 @@ public final class RequirementRegistry<S> {
 
     private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
 
-    public void register(
-            @NotNull final RequirementKey key,
-            @NotNull final RequirementResolver<S> resolver
-    ) {
+    /**
+     * Registers a new {@link RequirementResolver} for the specific Key.
+     *
+     * @param key      The requirement key.
+     * @param resolver The resolver to check if the requirement is met.
+     */
+    public void register(@NotNull final RequirementKey key, @NotNull final RequirementResolver<S> resolver) {
         requirements.put(key, resolver);
     }
 

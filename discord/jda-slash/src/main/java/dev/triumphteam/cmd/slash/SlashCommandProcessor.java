@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import dev.triumphteam.cmd.jda.annotation.Privileges;
 import dev.triumphteam.cmd.jda.annotation.Roles;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
@@ -46,6 +47,8 @@ import java.util.List;
  */
 final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSender> {
 
+    private final SuggestionRegistry suggestionRegistry;
+
     private final List<Long> enabledRoles = new ArrayList<>();
     private final List<Long> disabledRoles = new ArrayList<>();
 
@@ -54,20 +57,47 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SuggestionRegistry suggestionRegistry,
             @NotNull final SenderMapper<S, SlashSender> senderMapper
     ) {
         super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+        this.suggestionRegistry = suggestionRegistry;
         extractPrivilege();
     }
 
+    /**
+     * Gets the roles to which the command should be enabled to.
+     *
+     * @return The enabled roles.
+     */
+    @NotNull
     public List<Long> getEnabledRoles() {
         return enabledRoles;
     }
 
+    /**
+     * Gets the roles to which the command should be disabled to.
+     *
+     * @return The disabled roles.
+     */
+    @NotNull
     public List<Long> getDisabledRoles() {
         return disabledRoles;
     }
 
+    /**
+     * Gets the suggestion registry.
+     *
+     * @return The suggestion registry.
+     */
+    @NotNull
+    public SuggestionRegistry getSuggestionRegistry() {
+        return suggestionRegistry;
+    }
+
+    /**
+     * Extracts the privilege data from the command.
+     */
     private void extractPrivilege() {
         final List<Roles> roles = getRolesFromAnnotations(getAnnotatedClass());
         if (roles.isEmpty()) return;
@@ -84,6 +114,12 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
         }
     }
 
+    /**
+     * Gets the roles annotations from the class.
+     *
+     * @param klass The class to get from.
+     * @return List with all the roles annotations.
+     */
     private List<Roles> getRolesFromAnnotations(@NotNull final Class<?> klass) {
         final Privileges privileges = klass.getAnnotation(Privileges.class);
         if (privileges != null) return Arrays.asList(privileges.value());
@@ -92,5 +128,4 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
         if (roles != null) return Collections.singletonList(roles);
         return Collections.emptyList();
     }
-
 }

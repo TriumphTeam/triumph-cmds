@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core.flag.internal;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

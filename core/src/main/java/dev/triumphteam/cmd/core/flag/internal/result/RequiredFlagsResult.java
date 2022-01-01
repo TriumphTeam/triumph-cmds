@@ -31,10 +31,8 @@ import java.util.Objects;
 
 /**
  * Returned when the parer requires a flag and the flag isn't present.
- *
- * @param <S> The sender type.
  */
-public final class RequiredFlagsResult<S> implements ParseResult<S> {
+public final class RequiredFlagsResult implements ParseResult {
 
     private final List<String> missingRequiredFlags;
     private final List<String> requiredFlags;
@@ -71,7 +69,7 @@ public final class RequiredFlagsResult<S> implements ParseResult<S> {
     public boolean equals(@Nullable final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final RequiredFlagsResult<?> that = (RequiredFlagsResult<?>) o;
+        final RequiredFlagsResult that = (RequiredFlagsResult) o;
         return missingRequiredFlags.equals(that.missingRequiredFlags) && requiredFlags.equals(that.requiredFlags);
     }
 

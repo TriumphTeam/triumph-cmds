@@ -27,6 +27,8 @@ import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 /**
  * Contains all the command flags that was typed by the user in an easy-to-access way.
  */
@@ -75,5 +77,30 @@ public interface Flags {
      * @return The flag's value.
      */
     @NotNull <T> T getValueOrDefault(@NotNull final String flag, @NotNull final Class<T> type, @NotNull final T def);
+
+    /**
+     * Gets the arguments typed without the flags, joined to string.
+     *
+     * @return The arguments joined to string.
+     */
+    @NotNull
+    String getText();
+
+    /**
+     * Gets the arguments typed without the flags, joined to string.
+     *
+     * @param delimiter The delimiter of the joining.
+     * @return The arguments joined to string with a delimiter.
+     */
+    @NotNull
+    String getText(@NotNull final String delimiter);
+
+    /**
+     * Gets the arguments typed without the flags.
+     *
+     * @return A {@link List} with the typed arguments.
+     */
+    @NotNull
+    List<String> getArgs();
 
 }

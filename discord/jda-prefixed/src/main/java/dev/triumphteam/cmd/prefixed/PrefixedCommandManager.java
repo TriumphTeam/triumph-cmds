@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,15 +27,19 @@ import com.google.common.primitives.Longs;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
-import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,7 +68,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     private final Set<String> prefixes = new HashSet<>();
     private final Set<Pattern> prefixesRegexes = new HashSet<>();
     private final Map<String, PrefixedCommandExecutor<S>> globalCommands = new HashMap<>();
-    private final Map<Pair<Long, String>, PrefixedCommandExecutor<S>> guildCommands = new HashMap<>();
+    private final Map<Long, Map<String, PrefixedCommandExecutor<S>>> guildCommands = new HashMap<>();
 
     private final String globalPrefix;
     private final SenderMapper<S, PrefixedSender> senderMapper;
@@ -85,7 +89,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
 
     /**
      * Creates a new instance of the PrefixedCommandManager.
-     * This constructor is for adding a custom sender, for default sender use {@link #createDefault(JDA, String)}.
+     * This constructor is for adding a custom sender, for default sender use {@link #create(JDA, String)}.
      *
      * @param jda          The JDA instance.
      * @param globalPrefix The global prefix.
@@ -103,8 +107,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     }
 
     /**
-     * Creates a new instance of the PrefixedCommandManager.
-     * This constructor is for adding a custom sender, for default sender use {@link #createDefault(JDA)}.
+     * Creates a new instance of the {@link PrefixedCommandManager}.
+     * This constructor is for adding a custom sender, for default sender use {@link #create(JDA)}.
      *
      * @param jda          The JDA instance.
      * @param senderMapper The sender mapper.
@@ -129,8 +133,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
      */
     @NotNull
     @Contract("_, _ -> new")
-    public static PrefixedCommandManager<PrefixedSender> createDefault(@NotNull final JDA jda, @NotNull final String globalPrefix) {
-        final PrefixedCommandManager<PrefixedSender> manager = new PrefixedCommandManager<>(jda, globalPrefix, new PrefixedSenderMapper());
+    public static PrefixedCommandManager<PrefixedSender> create(@NotNull final JDA jda, @NotNull final String globalPrefix) {
+        final PrefixedCommandManager<PrefixedSender> manager = create(jda, globalPrefix, new PrefixedSenderMapper());
         setUpDefaults(manager);
         return manager;
     }
@@ -143,8 +147,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
      */
     @NotNull
     @Contract("_, -> new")
-    public static PrefixedCommandManager<PrefixedSender> createDefault(@NotNull final JDA jda) {
-        return createDefault(jda, "");
+    public static PrefixedCommandManager<PrefixedSender> create(@NotNull final JDA jda) {
+        return create(jda, "");
     }
 
     /**
@@ -228,13 +232,20 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
         }
 
         // Guild command
-        final PrefixedCommandExecutor<S> commandExecutor = guildCommands.computeIfAbsent(
-                Pair.of(guild.getIdLong(), prefix),
-                ignored -> new PrefixedCommandExecutor<>(getMessageRegistry(), syncExecutionProvider, asyncExecutionProvider)
-        );
+        final PrefixedCommandExecutor<S> commandExecutor = guildCommands
+                .computeIfAbsent(guild.getIdLong(), ignored -> new HashMap<>())
+                .computeIfAbsent(
+                        prefix,
+                        ignored -> new PrefixedCommandExecutor<>(
+                                getMessageRegistry(),
+                                syncExecutionProvider,
+                                asyncExecutionProvider
+                        )
+                );
 
         for (final String alias : processor.getAlias()) {
-            guildCommands.putIfAbsent(Pair.of(guild.getIdLong(), alias), commandExecutor);
+            // TODO: 12/7/2021 Alias need rework
+            //guildCommands.putIfAbsent(Pair.of(guild.getIdLong(), alias), commandExecutor);
         }
 
         commandExecutor.register(processor);
@@ -249,7 +260,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
      */
     @Nullable
     PrefixedCommandExecutor<S> getCommand(@NotNull final Guild guild, @NotNull final String prefix) {
-        return guildCommands.get(Pair.of(guild.getIdLong(), prefix));
+        final Map<String, PrefixedCommandExecutor<S>> commands = guildCommands.get(guild.getIdLong());
+        return commands != null ? commands.get(prefix) : null;
     }
 
     /**

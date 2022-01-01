@@ -21,8 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.kotlin
+package dev.triumphteam.cmd.core.annotation;
 
-import dev.triumphteam.cmd.core.CommandManager
-import dev.triumphteam.cmd.core.argument.ArgumentResolver
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.PARAMETER})
+public @interface Suggestions {
+
+    String[] value();
+
+}

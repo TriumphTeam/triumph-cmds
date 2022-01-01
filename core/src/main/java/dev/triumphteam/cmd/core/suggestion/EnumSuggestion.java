@@ -21,81 +21,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.util;
+package dev.triumphteam.cmd.core.suggestion;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-/**
- * Pair is an util for creating a value with 2 types.
- *
- * @param <F> The first key type.
- * @param <S> The second key type.
- */
-public final class Pair<F, S> {
+import static dev.triumphteam.cmd.core.util.EnumUtils.getEnumConstants;
+import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
 
-    private final F first;
-    private final S second;
+public final class EnumSuggestion implements Suggestion {
 
-    private Pair(@NotNull final F first, @NotNull final S second) {
-        this.first = first;
-        this.second = second;
+    private final Class<? extends Enum<?>> enumType;
+
+    public EnumSuggestion(@NotNull final Class<? extends Enum<?>> enumType) {
+        this.enumType = enumType;
+
+        populateCache(enumType);
     }
 
-    /**
-     * Creates a new {@link Pair} from the given keys.
-     *
-     * @param first  The first key value.
-     * @param second The second key value.
-     * @param <F>    The type of the first key.
-     * @param <S>    The type of the second key.
-     * @return A new instance of {@link Pair} holding both keys.
-     */
     @NotNull
-    @Contract("_, _ -> new")
-    public static <F, S> Pair<F, S> of(@NotNull final F first, @NotNull final S second) {
-        return new Pair<>(first, second);
-    }
-
-    /**
-     * Gets the first key.
-     *
-     * @return The first key.
-     */
-    public F getFirst() {
-        return first;
-    }
-
-    /**
-     * Gets the second key.
-     *
-     * @return The second key.
-     */
-    public S getSecond() {
-        return second;
+    @Override
+    public List<String> getSuggestions() {
+        return getEnumConstants(enumType)
+                .values()
+                .stream()
+                .map(it -> {
+                    final Enum<?> constant = it.get();
+                    if (constant == null) return null;
+                    return constant.name();
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean equals(@Nullable final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final Pair<?, ?> pair = (Pair<?, ?>) o;
-        return first.equals(pair.first) && second.equals(pair.second);
+        final EnumSuggestion that = (EnumSuggestion) o;
+        return enumType.equals(that.enumType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(first, second);
+        return Objects.hash(enumType);
     }
 
+    @NotNull
     @Override
     public String toString() {
-        return "Pair{" +
-                "first=" + first +
-                ", second=" + second +
+        return "EnumSuggestion{" +
+                "enumType=" + enumType +
                 '}';
     }
 }

@@ -21,17 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmd.core.suggestion;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Privileges {
+import java.util.HashMap;
+import java.util.Map;
 
-    Roles[] value();
+/**
+ * Registry used for registering new suggestions for all commands to use.
+ */
+public final class SuggestionRegistry {
+
+    private final Map<SuggestionKey, SuggestionResolver> suggestions = new HashMap<>();
+
+
+    /**
+     * Registers a new {@link SuggestionResolver} for the specific Key.
+     *
+     * @param key      The suggestion key.
+     * @param resolver The action to get the suggestions.
+     */
+    public void register(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver resolver) {
+        suggestions.put(key, resolver);
+    }
+
+    /**
+     * Gets the {@link SuggestionResolver} for the specific Key.
+     *
+     * @param key The specific key.
+     * @return A saved {@link SuggestionResolver}.
+     */
+    @Nullable
+    public SuggestionResolver getSuggestion(@NotNull final SuggestionKey key) {
+        return suggestions.get(key);
+    }
 
 }

@@ -43,13 +43,14 @@ final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S
 
     public PrefixedSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
+            @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final SenderMapper<S, PrefixedSender> senderMapper
     ) {
-        super(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+        super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
     }
 
 }

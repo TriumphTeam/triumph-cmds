@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class OptionTypeMap {
+public final class JdaOptionUtil {
 
     private static final Map<Class<?>, OptionType> OPTION_TYPE_MAP;
 
@@ -60,7 +60,7 @@ public final class OptionTypeMap {
         OPTION_TYPE_MAP = ImmutableMap.copyOf(map);
     }
 
-    private OptionTypeMap() {}
+    private JdaOptionUtil() {}
 
     @NotNull
     public static OptionType fromType(@NotNull final Class<?> type) {

@@ -21,17 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmd.core.suggestion;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.jetbrains.annotations.NotNull;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Privileges {
+import java.util.List;
 
-    Roles[] value();
+/**
+ * Functional interface to allow simple requirement suggestion without the use of any hard coded data.e command sender type.
+ */
+@FunctionalInterface
+public interface SuggestionResolver {
+
+    /**
+     * Resolves the suggestions for the command argument.
+     *
+     * @return A list of suggestions.
+     */
+    @NotNull
+    List<String> resolve();
 
 }

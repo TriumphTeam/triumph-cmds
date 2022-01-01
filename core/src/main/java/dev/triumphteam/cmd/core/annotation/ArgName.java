@@ -21,17 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmd.core.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Allows to specify the name of the argument instead of just using the parameter name.
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Privileges {
+@Target(ElementType.PARAMETER)
+public @interface ArgName {
 
-    Roles[] value();
+    /**
+     * Gets the name of the argument.
+     *
+     * @return The name of the argument
+     */
+    String value();
 
 }

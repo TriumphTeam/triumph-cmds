@@ -85,6 +85,7 @@ final class PrefixedCommand<S> implements Command {
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
             final PrefixedSubCommandProcessor<S> processor = new PrefixedSubCommandProcessor<>(
                     baseCommand,
+                    name,
                     method,
                     argumentRegistry,
                     requirementRegistry,

@@ -24,21 +24,25 @@
 package dev.triumphteam.cmd.core.flag.internal;
 
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.flag.Flags;
+import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 /**
  * Implementation of the {@link Flags} which will be passed to the command method.
  */
-class FlagsResult implements Flags {
+class FlagsResult implements Flags, ParseResult {
 
     private final Map<String, FlagValue> flags = new HashMap<>();
+    private final List<String> args = new ArrayList<>();
 
     /**
      * Adds a flag to the list.
@@ -64,10 +68,16 @@ class FlagsResult implements Flags {
     }
 
     /**
-     * For checking if the flag is present or not.
+     * Adds to the left over args.
      *
-     * @param flag The flag to check.
-     * @return Whether the flag is present or not.
+     * @param leftOver The left over args.
+     */
+    void addArgs(@NotNull final List<String> leftOver) {
+        args.addAll(leftOver);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public boolean hasFlag(final @NotNull String flag) {
@@ -75,13 +85,7 @@ class FlagsResult implements Flags {
     }
 
     /**
-     * Gets a flag value.
-     *
-     * @param flag The flag to get.
-     * @param type The {@link Class} type the value should be.
-     * @param <T>  The generic type the value should be.
-     * @return The value of the flag, not null.
-     * @throws CommandExecutionException If the value is not present or null, it'll throw.
+     * {@inheritDoc}
      */
     @NotNull
     @Override
@@ -92,12 +96,7 @@ class FlagsResult implements Flags {
     }
 
     /**
-     * Nullable getter for the flag value.
-     *
-     * @param flag The flag to get.
-     * @param type The {@link Class} type the value should be.
-     * @param <T>  The generic type the value should be.
-     * @return The value of the flag or null.
+     * {@inheritDoc}
      */
     @Nullable
     @Override
@@ -117,12 +116,7 @@ class FlagsResult implements Flags {
     }
 
     /**
-     * Not nullable getter for the flag value, with a default in case the value doesn't exist.
-     *
-     * @param flag The flag to get.
-     * @param type The {@link Class} type the value should be.
-     * @param <T>  The generic type the value should be.
-     * @return The value of the flag or default.
+     * {@inheritDoc}
      */
     @NotNull
     @Override
@@ -130,6 +124,30 @@ class FlagsResult implements Flags {
         final T value = getValueOrNull(flag, type);
         if (value == null) return def;
         return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NotNull String getText() {
+        return String.join(" ", args);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NotNull String getText(final @NotNull String delimiter) {
+        return String.join(delimiter, args);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NotNull List<String> getArgs() {
+        return Collections.unmodifiableList(args);
     }
 
     @Override
@@ -149,6 +167,7 @@ class FlagsResult implements Flags {
     public String toString() {
         return "FlagsResult{" +
                 "flags=" + flags +
+                ", args=" + args +
                 '}';
     }
 }

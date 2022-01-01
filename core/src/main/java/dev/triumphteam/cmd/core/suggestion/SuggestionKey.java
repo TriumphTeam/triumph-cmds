@@ -21,40 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.message;
+package dev.triumphteam.cmd.core.suggestion;
 
 import dev.triumphteam.cmd.core.key.RegistryKey;
-import dev.triumphteam.cmd.core.message.context.MessageContext;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
- * Registry key, for more organized way of registering and getting things from the registries.
+ * Key used to identify the {@link } in the {@link }.
  */
-public abstract class ContextualKey<C extends MessageContext> extends RegistryKey {
+public final class SuggestionKey extends RegistryKey {
 
     // Holds all registered keys, default and custom ones
-    private static final Set<ContextualKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();
+    private static final Set<SuggestionKey> REGISTERED_KEYS = new HashSet<>();
 
-    private final Class<C> type;
-
-    protected ContextualKey(@NotNull final String key, @NotNull final Class<C> type) {
+    private SuggestionKey(@NotNull final String key) {
         super(key);
-        this.type = type;
         REGISTERED_KEYS.add(this);
     }
 
     /**
-     * Getter for the Context type, in case it's needed.
+     * Factory method for creating a {@link SuggestionKey}.
      *
-     * @return The Context type.
+     * @param key The value of the key, normally separated by <code>.</code>.
+     * @return A new {@link SuggestionKey}.
      */
-    public Class<C> getType() {
-        return type;
+    @NotNull
+    @Contract("_ -> new")
+    public static SuggestionKey of(@NotNull final String key) {
+        return new SuggestionKey(key);
     }
 
     /**
@@ -63,28 +62,12 @@ public abstract class ContextualKey<C extends MessageContext> extends RegistryKe
      * @return The keys {@link Set}.
      */
     @NotNull
-    public static Set<ContextualKey<? extends MessageContext>> getRegisteredKeys() {
+    public static Set<SuggestionKey> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final ContextualKey<?> that = (ContextualKey<?>) o;
-        return type.equals(that.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), type);
-    }
-
-    @Override
     public String toString() {
-        return "ContextualKey{" +
-                "type=" + type +
-                ", super=" + super.toString() + "}";
+        return "SuggestionKey{super=" + super.toString() + "}";
     }
 }

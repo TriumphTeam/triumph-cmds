@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,8 +23,10 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
+import com.google.common.base.CaseFormat;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.ArgDescriptions;
+import dev.triumphteam.cmd.core.annotation.ArgName;
 import dev.triumphteam.cmd.core.annotation.Async;
 import dev.triumphteam.cmd.core.annotation.CommandFlags;
 import dev.triumphteam.cmd.core.annotation.Default;
@@ -37,7 +39,6 @@ import dev.triumphteam.cmd.core.annotation.Split;
 import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.ArrayArgument;
 import dev.triumphteam.cmd.core.argument.CollectionArgument;
 import dev.triumphteam.cmd.core.argument.EnumArgument;
 import dev.triumphteam.cmd.core.argument.FlagArgument;
@@ -73,8 +74,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -88,6 +91,8 @@ import java.util.stream.Collectors;
 public abstract class AbstractSubCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
+    private final String parentName;
+
     private final Method method;
     // Name is nullable to detect if the method should or not be considered a sub command.
     private String name = null;
@@ -110,6 +115,7 @@ public abstract class AbstractSubCommandProcessor<S> {
 
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
+            @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
@@ -117,6 +123,8 @@ public abstract class AbstractSubCommandProcessor<S> {
             @NotNull final SenderMapper<S, ?> senderMapper
     ) {
         this.baseCommand = baseCommand;
+        this.parentName = parentName;
+
         this.method = method;
 
         this.argumentRegistry = argumentRegistry;
@@ -256,6 +264,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         return new SubCommandRegistrationException(message, method, baseCommand.getClass());
     }
 
+    /**
+     * Used for validating if the sender is valid or not.
+     *
+     * @param type The sender type.
+     */
     protected void validateSender(@NotNull final Class<?> type) {
         final Set<Class<? extends S>> allowedSenders = senderMapper.getAllowedSenders();
         if (allowedSenders.contains(type)) return;
@@ -287,15 +300,9 @@ public abstract class AbstractSubCommandProcessor<S> {
      */
     protected void createArgument(@NotNull final Parameter parameter, final int index) {
         final Class<?> type = parameter.getType();
-        final String parameterName = parameter.getName();
+        final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(parameter, index);
         final boolean optional = parameter.isAnnotationPresent(Optional.class);
-
-        // TODO: 11/17/2021 Perhaps join arrays with collections to allow for type safe as well
-        if (type == String[].class) {
-            addArgument(new ArrayArgument<>(parameterName, argumentDescription, optional));
-            return;
-        }
 
         // Handles collection argument.
         // TODO: Add more collection types.
@@ -309,34 +316,61 @@ public abstract class AbstractSubCommandProcessor<S> {
 
             final Type genericType = types[0];
             final Type collectionType = genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType;
-            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, parameterName, argumentDescription, optional);
+            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, argumentName, argumentDescription, optional);
 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
-                addArgument(new SplitStringArgument<>(parameterName, argumentDescription, splitAnnotation.value(), argument, type, optional));
+                addArgument(new SplitStringArgument<>(argumentName, argumentDescription, splitAnnotation.value(), argument, type, optional));
                 return;
             }
 
-            addArgument(new CollectionArgument<>(parameterName, argumentDescription, argument, type, optional));
+            addArgument(new CollectionArgument<>(argumentName, argumentDescription, argument, type, optional));
             return;
         }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(new JoinedStringArgument<>(parameterName, argumentDescription, joinAnnotation.value(), optional));
+            addArgument(new JoinedStringArgument<>(argumentName, argumentDescription, joinAnnotation.value(), optional));
             return;
         }
 
         // Handler for flags.
         if (type == Flags.class) {
-            addArgument(new FlagArgument<>(parameterName, argumentDescription, flagGroup, optional));
+            if (flagGroup.isEmpty()) {
+                throw createException("Flags argument detected but no flag annotation declared");
+            }
+
+            addArgument(new FlagArgument<>(argumentName, argumentDescription, parentName, name, flagGroup, messageRegistry, optional));
             return;
         }
 
-        addArgument(createSimpleArgument(type, parameterName, argumentDescription, optional));
+        addArgument(createSimpleArgument(type, argumentName, argumentDescription, optional));
     }
 
+    /**
+     * Gets the argument name, either from the parameter or from the annotation.
+     * If the parameter is not annotated, turn the name from Camel Case to "lower-hyphen".
+     *
+     * @param parameter The parameter to get data from.
+     * @return The final argument name.
+     */
+    @NotNull
+    private String getArgName(@NotNull final Parameter parameter) {
+        if (parameter.isAnnotationPresent(ArgName.class)) {
+            return parameter.getAnnotation(ArgName.class).value();
+        }
+
+        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, parameter.getName());
+    }
+
+    /**
+     * Gets the argument description.
+     *
+     * @param parameter The parameter to get data from.
+     * @param index     The index of the argument.
+     * @return The final argument description.
+     */
     @NotNull
     private String getArgumentDescription(@NotNull final Parameter parameter, final int index) {
         final Description description = parameter.getAnnotation(Description.class);
@@ -355,8 +389,8 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param type                The Type of this Argument.
      * @param parameterName       The Name to use for this Argument.
      * @param argumentDescription the Description to use for this Argument.
-     * @param optional            whether or not this Argument is optional.
-     * @return The created {@link Argument<S, String>} Argument.
+     * @param optional            whether this Argument is optional.
+     * @return The created {@link Argument}.
      */
     private Argument<S, String> createSimpleArgument(
             @NotNull final Class<?> type,
@@ -378,6 +412,11 @@ public abstract class AbstractSubCommandProcessor<S> {
         return new ResolverArgument<>(parameterName, argumentDescription, type, resolver, optional);
     }
 
+    /**
+     * Adds a required argument to the list.
+     *
+     * @param requirement The requirement to add.
+     */
     protected void addRequirement(@NotNull final Requirement<S, ?> requirement) {
         requirements.add(requirement);
     }
@@ -495,7 +534,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                 throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
             }
 
-            requirements.add(new Requirement<>(resolver, messageKey, DefaultMessageContext::new));
+            addRequirement(new Requirement<>(resolver, messageKey, DefaultMessageContext::new));
         }
     }
 
@@ -514,63 +553,53 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Argument validation makes sure some arguments are placed in the correct order.
-     * For example a limitless argument and flags argument being one after the other, like:
-     * `@Join final String text, final Flags flags`.
-     * TODO: This can be improved.
+     * Gets a list of all the arg validations for the platform.
+     * Defaults to just optional and limitless.
+     * This is likely to change.
+     *
+     * @return A list of BiConsumers with checks.
+     */
+    protected List<BiConsumer<Boolean, Argument<S, ?>>> getArgValidations() {
+        return Arrays.asList(validateOptionals(), validateLimitless());
+    }
+
+    /**
+     * Argument validation makes sure some arguments are placed in the correct place.
+     * For example a limitless arguments and optional arguments are only allowed at the end of the command.
      */
     private void validateArguments() {
-        final int argSize = arguments.size();
-        int limitlessPosition = -1;
-        int flagsPosition = -1;
+        final List<BiConsumer<Boolean, Argument<S, ?>>> validations = getArgValidations();
+        final Iterator<Argument<S, ?>> iterator = arguments.iterator();
+        while (iterator.hasNext()) {
+            final Argument<S, ?> argument = iterator.next();
+            validations.forEach(consumer -> consumer.accept(iterator.hasNext(), argument));
+        }
+    }
 
-        // Collects validatable argument's position.
-        for (int i = 0; i < argSize; i++) {
-            final Argument<S, ?> argument = arguments.get(i);
-
-            if (argument.isOptional() && i != argSize - 1) {
+    /**
+     * Validation function for optionals.
+     *
+     * @return Returns a BiConsumer with a is optional check.
+     */
+    protected BiConsumer<Boolean, Argument<S, ?>> validateOptionals() {
+        return (hasNext, argument) -> {
+            if (hasNext && argument.isOptional()) {
                 throw createException("Optional argument is only allowed as the last argument");
             }
+        };
+    }
 
-            if (argument instanceof FlagArgument) {
-                if (flagGroup.isEmpty()) {
-                    throw createException("\"Flags\" argument found but no \"CommandFlags\" annotation present");
-                }
-
-                if (flagsPosition != -1) {
-                    throw createException("More than one \"Flags\" argument declared");
-                }
-
-                flagsPosition = i;
-                continue;
+    /**
+     * Validation function for limitless position.
+     *
+     * @return Returns a BiConsumer with an instance of check.
+     */
+    protected BiConsumer<Boolean, Argument<S, ?>> validateLimitless() {
+        return (hasNext, argument) -> {
+            if (hasNext && argument instanceof LimitlessArgument) {
+                throw createException("Limitless argument is only allowed as the last argument");
             }
-
-            if (argument instanceof LimitlessArgument) {
-                if (limitlessPosition != -1) {
-                    throw createException("More than one limitless argument declared");
-                }
-
-                limitlessPosition = i;
-            }
-        }
-
-        // If flags argument is present check if it's the last one and if there is a limitless behind of it instead of after.
-        if (flagsPosition != -1) {
-            if (limitlessPosition != -1 && limitlessPosition != argSize - 2) {
-                throw createException("\"Flags\" argument must always be after a limitless argument");
-            }
-
-            if (flagsPosition != argSize - 1) {
-                throw createException("\"Flags\" argument must always be the last argument");
-            }
-
-            return;
-        }
-
-        // If it's a limitless argument checks if it's the last argument.
-        if (limitlessPosition != -1 && limitlessPosition != argSize - 1) {
-            throw createException("Limitless argument must be the last argument if \"Flags\" is not present");
-        }
+        };
     }
 
     /**

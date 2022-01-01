@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.cmd.core.flag.internal;
 
-import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.argument.StringArgument;
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

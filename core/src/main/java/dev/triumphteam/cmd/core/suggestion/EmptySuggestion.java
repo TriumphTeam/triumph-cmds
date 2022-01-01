@@ -21,17 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmd.core.suggestion;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.jetbrains.annotations.NotNull;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Privileges {
+import java.util.Collections;
+import java.util.List;
 
-    Roles[] value();
+public final class EmptySuggestion implements Suggestion {
 
+    public static final Suggestion INSTANCE = new EmptySuggestion();
+
+    @NotNull
+    @Override
+    public List<String> getSuggestions() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String toString() {
+        return "EmptySuggestion{}";
+    }
 }

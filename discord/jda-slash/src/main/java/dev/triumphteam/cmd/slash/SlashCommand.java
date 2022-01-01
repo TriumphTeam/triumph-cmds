@@ -25,7 +25,6 @@ package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
@@ -33,6 +32,7 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,8 @@ final class SlashCommand<S> implements Command {
     private final ArgumentRegistry<S> argumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
+    private final SuggestionRegistry suggestionRegistry;
+
     private final SenderMapper<S, SlashSender> senderMapper;
 
     private final ExecutionProvider syncExecutionProvider;
@@ -82,6 +85,7 @@ final class SlashCommand<S> implements Command {
         this.argumentRegistry = processor.getArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
+        this.suggestionRegistry = processor.getSuggestionRegistry();
         this.senderMapper = processor.getSenderMapper();
 
         this.enabledRoles = enabledRoles;
@@ -104,14 +108,17 @@ final class SlashCommand<S> implements Command {
      */
     @Override
     public void addSubCommands(@NotNull final BaseCommand baseCommand) {
-        // todo skip private methods
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
+            if (Modifier.isPrivate(method.getModifiers())) continue;
+
             final SlashSubCommandProcessor<S> processor = new SlashSubCommandProcessor<>(
                     baseCommand,
+                    name,
                     method,
                     argumentRegistry,
                     requirementRegistry,
                     messageRegistry,
+                    suggestionRegistry,
                     senderMapper
             );
 
@@ -146,11 +153,11 @@ final class SlashCommand<S> implements Command {
     public void execute(
             @NotNull final S sender,
             @NotNull final String subCommandName,
-            @NotNull final List<String> args
+            @NotNull final Map<String, String> args
     ) {
-        final SubCommand<S> subCommand = getSubCommand(subCommandName);
+        final SlashSubCommand<S> subCommand = getSubCommand(subCommandName);
         if (subCommand == null) return;
-        subCommand.execute(sender, args);
+        subCommand.execute(sender, subCommand.mapArguments(args));
     }
 
     @NotNull
@@ -195,16 +202,6 @@ final class SlashCommand<S> implements Command {
     @Nullable
     private SlashSubCommand<S> getSubCommand(@NotNull final String key) {
         return subCommands.get(key);
-    }
-
-    /**
-     * Checks if the given sub command exists.
-     *
-     * @param key The sub command name.
-     * @return True if the sub command exists.
-     */
-    private boolean subCommandExists(@NotNull final String key) {
-        return subCommands.containsKey(key);
     }
 
 }
