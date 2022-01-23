@@ -21,58 +21,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.command;
+package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.factory.BukkitSubCommandProcessor;
-import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class BukkitCommand extends org.bukkit.command.Command implements Command {
+public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command {
 
-    private final ArgumentRegistry<CommandSender> argumentRegistry;
-    private final RequirementRegistry<CommandSender> requirementRegistry;
-    private final MessageRegistry<CommandSender> messageRegistry;
+    private final ArgumentRegistry<S> argumentRegistry;
+    private final MessageRegistry<S> messageRegistry;
+    private final RequirementRegistry<S> requirementRegistry;
+    //private final SuggestionRegistry suggestionRegistry;
 
-    private final String name;
-    private final List<String> alias;
+    private final SenderMapper<S, CommandSender> senderMapper;
 
-    private final Map<String, SubCommand<CommandSender>> commands = new HashMap<>();
-    private final Map<String, SubCommand<CommandSender>> aliases = new HashMap<>();
+    private final ExecutionProvider syncExecutionProvider;
+    private final ExecutionProvider asyncExecutionProvider;
+
+    private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
+    private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
 
     public BukkitCommand(
-            @NotNull final String name,
-            @NotNull final List<String> alias,
-            @NotNull final ArgumentRegistry<CommandSender> argumentRegistry,
-            @NotNull final RequirementRegistry<CommandSender> requirementRegistry,
-            @NotNull final MessageRegistry<CommandSender> messageRegistry
+            @NotNull final BukkitCommandProcessor<S> processor,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
-        super(name);
-        setAliases(alias);
+        super(processor.getName());
+        setAliases(processor.getAlias());
 
-        this.argumentRegistry = argumentRegistry;
-        this.requirementRegistry = requirementRegistry;
-        this.messageRegistry = messageRegistry;
+        this.description = processor.getDescription();
+        this.argumentRegistry = processor.getArgumentRegistry();
+        this.messageRegistry = processor.getMessageRegistry();
+        this.requirementRegistry = processor.getRequirementRegistry();
+        //this.suggestionRegistry = processor.getSuggestionRegistry();
+        this.senderMapper = processor.getSenderMapper();
 
-        this.name = name;
-        this.alias = alias;
+        this.syncExecutionProvider = syncExecutionProvider;
+        this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
     /**
@@ -82,16 +85,25 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
      */
     @Override
     public void addSubCommands(@NotNull final BaseCommand baseCommand) {
-        final Method[] methods = baseCommand.getClass().getDeclaredMethods();
-        //methods.sort(Comparator.comparing(Method::getName));
-        for (final Method method : methods) {
-            if (!Modifier.isPublic(method.getModifiers())) continue;
+        for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
+            if (Modifier.isPrivate(method.getModifiers())) continue;
 
-            final AbstractSubCommand<CommandSender> subCommand = new BukkitSubCommandProcessor(baseCommand, method, argumentRegistry, requirementRegistry, messageRegistry).create(name);
-            if (subCommand == null) continue;
+            final BukkitSubCommandProcessor<S> processor = new BukkitSubCommandProcessor<>(
+                    baseCommand,
+                    getName(),
+                    method,
+                    argumentRegistry,
+                    requirementRegistry,
+                    messageRegistry,
+                    senderMapper
+            );
 
+            final String subCommandName = processor.getName();
+            if (subCommandName == null) continue;
 
-            //commands.put(subCommandName, subCommand);
+            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
+            final BukkitSubCommand<S> subCommand = subCommands.putIfAbsent(subCommandName, new BukkitSubCommand<>(processor, getName(), executionProvider));
+            processor.getAlias().forEach(alias -> subCommandAliases.putIfAbsent(alias, subCommand));
         }
     }
 
@@ -109,32 +121,27 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
             @NotNull final String commandLabel,
             @NotNull final String[] args
     ) {
-        // TODO DEBUG
-        final double start = System.nanoTime();
-        // // //
-        SubCommand<CommandSender> subCommand = getDefaultSubCommand();
+        BukkitSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.length > 0) subCommandName = args[0].toLowerCase();
-
         if (subCommand == null || subCommandExists(subCommandName)) {
             subCommand = getSubCommand(subCommandName);
         }
+
+        final S mappedSender = senderMapper.map(sender);
 
         if (subCommand == null) {
             sender.sendMessage("Command doesn't exist matey.");
             return true;
         }
 
+        if (!subCommand.meetsDefaultRequirements(sender, mappedSender)) return true;
+
         final List<String> commandArgs = new ArrayList<>();
         Collections.addAll(commandArgs, args);
-        subCommand.execute(sender, commandArgs);
 
-        final double end = System.nanoTime();
-        // TODO DEBUG
-        final DecimalFormat format = new DecimalFormat("#.####");
-        System.out.println("Command (`" + name + "`) execution took: " + format.format((end - start) / 1_000_000.0) + "ms.");
-        // // //
+        subCommand.execute(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
         return true;
     }
 
@@ -145,31 +152,30 @@ public final class BukkitCommand extends org.bukkit.command.Command implements C
      * @return A default SubCommand.
      */
     @Nullable
-    private SubCommand<CommandSender> getDefaultSubCommand() {
-        return commands.get(Default.DEFAULT_CMD_NAME);
+    private BukkitSubCommand<S> getDefaultSubCommand() {
+        return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
     /**
-     * Used in order to search for the given {@link SubCommand<CommandSender>} in the {@link #aliases}
+     * Used in order to search for the given {@link SubCommand<CommandSender>} in the {@link #subCommandAliases}
      *
      * @param key the String to look for the {@link SubCommand<CommandSender>}
      * @return the {@link SubCommand<CommandSender>} for the particular key or NULL
      */
     @Nullable
-    private SubCommand<CommandSender> getSubCommand(@NotNull final String key) {
-        final SubCommand<CommandSender> subCommand = commands.get(key);
+    private BukkitSubCommand<S> getSubCommand(@NotNull final String key) {
+        final BukkitSubCommand<S> subCommand = subCommands.get(key);
         if (subCommand != null) return subCommand;
-        return aliases.get(key);
+        return subCommandAliases.get(key);
     }
 
     /**
      * Checks if a SubCommand with the specified key exists.
      *
      * @param key the Key to check for
-     * @return whether or not a SubCommand with that key exists
+     * @return whether a SubCommand with that key exists
      */
     private boolean subCommandExists(@NotNull final String key) {
-        return commands.containsKey(key) || aliases.containsKey(key);
+        return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
     }
-
 }

@@ -89,7 +89,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
 
     /**
      * Creates a new instance of the {@link SlashCommandManager}.
-     * This constructor is for adding a custom sender, for default sender use {@link #create(JDA)}.
+     * This factory is for adding a custom sender, for default sender use {@link #create(JDA)}.
      *
      * @param jda          The JDA instance created.
      * @param senderMapper The Mapper to get the custom sender from.
@@ -107,7 +107,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
 
     /**
      * Creates a new instance of the {@link SlashCommandManager}.
-     * This constructor adds all the defaults based on the default sender {@link SlashSender}.
+     * This factory adds all the defaults based on the default sender {@link SlashSender}.
      *
      * @param jda The JDA instance created.
      * @return A new instance of the {@link SlashCommandManager}.

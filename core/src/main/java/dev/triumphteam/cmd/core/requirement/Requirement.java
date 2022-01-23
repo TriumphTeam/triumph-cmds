@@ -63,9 +63,17 @@ public final class Requirement<S, C extends MessageContext> {
         return messageKey;
     }
 
-    public void sendMessage(
-            @NotNull final MessageRegistry<S> registry,
-            @NotNull final S sender,
+    /**
+     * Sends the message to the sender.
+     * @param registry The registry which contains the message.
+     * @param sender The sender which will receive the message.
+     * @param command The command which is being executed.
+     * @param subCommand The sub command which is being executed.
+     * @param <ST> The sender type.
+     */
+    public <ST> void sendMessage(
+            @NotNull final MessageRegistry<ST> registry,
+            @NotNull final ST sender,
             @NotNull final String command,
             @NotNull final String subCommand
     ) {

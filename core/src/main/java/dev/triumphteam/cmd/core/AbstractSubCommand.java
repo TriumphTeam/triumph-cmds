@@ -102,6 +102,36 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     }
 
     /**
+     * Gets the name of the parent command.
+     *
+     * @return The name of the parent command.
+     */
+    @NotNull
+    protected String getParentName() {
+        return parentName;
+    }
+
+    /**
+     * Gets the name of the sub command.
+     *
+     * @return The name of the sub command.
+     */
+    @NotNull
+    protected String getName() {
+        return name;
+    }
+
+    /**
+     * Gets the message registry.
+     *
+     * @return The message registry.
+     */
+    @NotNull
+    protected MessageRegistry<S> getMessageRegistry() {
+        return messageRegistry;
+    }
+
+    /**
      * Executes the sub command.
      *
      * @param sender The sender.

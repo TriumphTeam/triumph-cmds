@@ -21,27 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.factory;
+package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import com.google.common.collect.ImmutableSet;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<S, CommandSender> {
+import java.util.Set;
 
-    public BukkitCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SenderMapper<S, CommandSender> senderMapper
-    ) {
-        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+/**
+ * Simple mapper than returns itself.
+ */
+class BukkitSenderMapper implements SenderMapper<CommandSender, CommandSender> {
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public Set<Class<? extends CommandSender>> getAllowedSenders() {
+        return ImmutableSet.of(CommandSender.class, ConsoleCommandSender.class, Player.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Nullable
+    @Override
+    public CommandSender map(@NotNull final CommandSender defaultSender) {
+        return defaultSender;
     }
 
 }

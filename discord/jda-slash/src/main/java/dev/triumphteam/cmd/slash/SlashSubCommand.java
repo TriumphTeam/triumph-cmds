@@ -25,7 +25,6 @@ package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.argument.Argument;
-import dev.triumphteam.cmd.core.argument.LimitlessArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
@@ -87,9 +86,6 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
             if (suggestion instanceof EmptySuggestion) continue;
 
             option.addChoices(suggestion.getSuggestions().stream().map(it -> new Command.Choice(it, it)).limit(25).collect(Collectors.toList()));
-
-            // TODO: 11/28/2021 This is a hack, but it works for now.
-            if (argument instanceof LimitlessArgument) break;
         }
 
         return options;

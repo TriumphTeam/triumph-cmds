@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,37 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.command;
+package dev.triumphteam.cmd.bukkit;
 
-/*
-public final class BukkitSubCommand implements SubCommand<CommandSender> {
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
-    public BukkitSubCommand(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final Method method,
-            @NotNull final String name,
-            @NotNull final List<String> alias,
-            @NotNull final List<Argument<CommandSender>> arguments,
-            @NotNull final FlagGroup<CommandSender> flagGroup,
-            @NotNull final Set<RequirementResolver<CommandSender>> requirements,
-            final boolean isDefault
-    ) {
-        //super(baseCommand, method, name, alias, arguments, flagGroup, requirements, isDefault);
+/**
+ * Implementation of asynchronous execution, not necessarily used in all platforms.
+ */
+public final class BukkitAsyncExecutionProvider implements ExecutionProvider {
+
+    private final Plugin plugin;
+
+    public BukkitAsyncExecutionProvider(@NotNull final Plugin plugin) {
+        this.plugin = plugin;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public @NotNull String getName() {
-        return null;
-    }
-
-    @Override
-    public @NotNull List<String> getAlias() {
-        return null;
-    }
-
-    @Override
-    public void execute(@NotNull final CommandSender sender, final @NotNull List<String> args) {
-
+    public void execute(final @NotNull Runnable command) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, command);
     }
 }
-*/
