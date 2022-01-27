@@ -1,3 +1,8 @@
+dependencyResolutionManagement {
+    includeBuild("build-logic")
+    repositories.gradlePluginPortal()
+}
+
 rootProject.name = "triumph-cmd"
 
 listOf("core", "kotlin-extras").forEach(::includeProject)
@@ -31,3 +36,5 @@ fun include(name: String, block: ProjectDescriptor.() -> Unit) {
     include(name)
     project(":$name").apply(block)
 }
+
+enableFeaturePreview("VERSION_CATALOGS")

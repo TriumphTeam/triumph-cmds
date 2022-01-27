@@ -1,0 +1,29 @@
+[versions]
+# Code
+guava = "28.0-jre"
+
+# Testing
+junit = "5.8.2"
+assertj = "3.22.0"
+
+# Minecraft
+spigot = "1.18.1-R0.1-SNAPSHOT"
+
+# Discord
+jda = "5.0.0-alpha.4"
+
+
+[libraries]
+# Core
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+
+# Testing
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+
+# Minecraft
+spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+
+# Discord
+jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
