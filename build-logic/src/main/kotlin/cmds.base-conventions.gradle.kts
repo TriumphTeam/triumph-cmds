@@ -2,14 +2,34 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
+    id("com.github.hierynomus.license")
     kotlin("jvm")
-    //id("me.mattstudios.triumph") version "0.2.1"
-    `maven-publish`
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compileOnly("org.jetbrains:annotations:23.0.0")
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+    withJavadocJar()
+}
+
+license {
+    header = rootProject.file("LICENSE")
+    encoding = "UTF-8"
+    mapping("kotlin", "JAVADOC_STYLE")
+    mapping("java", "JAVADOC_STYLE")
+
+    include("**/*.kt")
+    include("**/*.java")
 }
 
 tasks {

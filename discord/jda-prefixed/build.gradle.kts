@@ -1,6 +1,6 @@
 plugins {
-    id("common-conventions")
-    id("publish-conventions")
+    id("cmds.base-conventions")
+    id("cmds.library-conventions")
 }
 
 dependencies {

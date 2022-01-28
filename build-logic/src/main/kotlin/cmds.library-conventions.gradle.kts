@@ -1,33 +1,13 @@
 plugins {
     `java-library`
     `maven-publish`
-    kotlin("jvm")
 }
 
 tasks {
-    val kotlinComponent: SoftwareComponent = components["kotlin"]
-    val javaComponent: SoftwareComponent = components["java"]
-
-    val sourcesJar by creating(Jar::class) {
-        archiveClassifier.set("sources")
-        from(sourceSets.main.get().allSource)
-    }
-
-    val javadocJar by creating(Jar::class) {
-        dependsOn.add(javadoc)
-        archiveClassifier.set("javadoc")
-        from(javadoc)
-    }
-
     publishing {
         publications {
             create<MavenPublication>("maven") {
                 //from(kotlinComponent)
-                from(javaComponent)
-
-                artifact(sourcesJar)
-                artifact(javadocJar)
-
                 versionMapping {
                     usage("java-api") {
                         fromResolutionOf("runtimeClasspath")
