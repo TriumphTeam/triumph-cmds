@@ -31,6 +31,10 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.suggestion.SuggestiblePlatform;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -49,11 +53,12 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class BukkitCommandManager<S> extends CommandManager<S> {
+public final class BukkitCommandManager<S> extends CommandManager<S> implements SuggestiblePlatform<S> {
 
     private final Plugin plugin;
 
     private final Map<String, BukkitCommand<S>> commands = new HashMap<>();
+    private final SuggestionRegistry<S> suggestionRegistry = new SuggestionRegistry<>();
 
     private final SenderMapper<S, CommandSender> senderMapper;
 
@@ -97,8 +102,8 @@ public final class BukkitCommandManager<S> extends CommandManager<S> {
                 getArgumentRegistry(),
                 getRequirementRegistry(),
                 getMessageRegistry(),
-                //suggestionRegistry,
-                senderMapper
+                senderMapper,
+                suggestionRegistry
         );
 
         final String name = processor.getName();
@@ -124,6 +129,11 @@ public final class BukkitCommandManager<S> extends CommandManager<S> {
     @Override
     public void unregisterCommand(@NotNull final BaseCommand command) {
         // TODO add a remove functionality
+    }
+
+    @Override
+    public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver) {
+        suggestionRegistry.register(key, suggestionResolver);
     }
 
     /**

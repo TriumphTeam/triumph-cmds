@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,21 +25,20 @@ package dev.triumphteam.cmd.core.suggestion;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
+/**
+ * Marks the platform manager as able to handle suggestions.
+ * Examples: <code>JDA slash commands</code> and <code>Bukkit commands</code>.
+ *
+ * @param <S> The type the sender.
+ */
+public interface SuggestiblePlatform<S> {
 
-public final class EmptySuggestion implements Suggestion {
+    /**
+     * Registers an argument suggestion resolver.
+     *
+     * @param key                The key to register the resolver under.
+     * @param suggestionResolver The resolver to register.
+     */
+    void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver);
 
-    public static final Suggestion INSTANCE = new EmptySuggestion();
-
-    @NotNull
-    @Override
-    public List<String> getSuggestions() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String toString() {
-        return "EmptySuggestion{}";
-    }
 }

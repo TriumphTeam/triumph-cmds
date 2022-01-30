@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,24 +32,27 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command {
 
     private final ArgumentRegistry<S> argumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
-    //private final SuggestionRegistry suggestionRegistry;
+    private final SuggestionRegistry suggestionRegistry;
 
     private final SenderMapper<S, CommandSender> senderMapper;
 
@@ -71,7 +74,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         this.argumentRegistry = processor.getArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
-        //this.suggestionRegistry = processor.getSuggestionRegistry();
+        this.suggestionRegistry = processor.getSuggestionRegistry();
         this.senderMapper = processor.getSenderMapper();
 
         this.syncExecutionProvider = syncExecutionProvider;
@@ -95,6 +98,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
                     argumentRegistry,
                     requirementRegistry,
                     messageRegistry,
+                    suggestionRegistry,
                     senderMapper
             );
 
@@ -130,6 +134,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         }
 
         final S mappedSender = senderMapper.map(sender);
+        // TODO: 1/29/2022 check if new sender is null
 
         if (subCommand == null) {
             sender.sendMessage("Command doesn't exist matey.");
@@ -138,13 +143,45 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         if (!subCommand.meetsDefaultRequirements(sender, mappedSender)) return true;
 
-        final List<String> commandArgs = new ArrayList<>();
-        Collections.addAll(commandArgs, args);
-
+        final List<String> commandArgs = Arrays.asList(args);
         subCommand.execute(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
         return true;
     }
 
+    @NotNull
+    @Override
+    public List<String> tabComplete(
+            @NotNull final CommandSender sender,
+            @NotNull final String alias,
+            @NotNull final String[] args
+    ) throws IllegalArgumentException {
+        if (args.length == 0) return emptyList();
+        BukkitSubCommand<S> subCommand = getDefaultSubCommand();
+
+        final String arg = args[0].toLowerCase();
+
+        if (args.length == 1 && (subCommand == null || !subCommand.hasSuggestions())) {
+            return subCommands
+                    .keySet()
+                    .stream()
+                    .filter(it -> !it.equals(Default.DEFAULT_CMD_NAME))
+                    .filter(it -> it.toLowerCase().startsWith(arg))
+                    // TODO: 1/29/2022 - Add a way to filter out commands that are not visible to the sender
+                    .collect(Collectors.toList());
+        }
+
+        if (subCommandExists(arg)) {
+            subCommand = getSubCommand(arg);
+        }
+
+        if (subCommand == null) return emptyList();
+
+        final S mappedSender = senderMapper.map(sender);
+        // TODO: 1/29/2022 check if new sender is null
+
+        final List<String> commandArgs = Arrays.asList(args);
+        return subCommand.getSuggestions(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
+    }
 
     /**
      * Gets a default command if present.

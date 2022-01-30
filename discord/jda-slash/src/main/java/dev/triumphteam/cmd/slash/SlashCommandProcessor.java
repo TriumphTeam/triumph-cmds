@@ -29,9 +29,9 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import dev.triumphteam.cmd.jda.annotation.Privileges;
 import dev.triumphteam.cmd.jda.annotation.Roles;
+import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,7 +47,7 @@ import java.util.List;
  */
 final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSender> {
 
-    private final SuggestionRegistry suggestionRegistry;
+    private final ChoiceRegistry choiceRegistry;
 
     private final List<Long> enabledRoles = new ArrayList<>();
     private final List<Long> disabledRoles = new ArrayList<>();
@@ -57,11 +57,11 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SuggestionRegistry suggestionRegistry,
+            @NotNull final ChoiceRegistry suggestionRegistry,
             @NotNull final SenderMapper<S, SlashSender> senderMapper
     ) {
         super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
-        this.suggestionRegistry = suggestionRegistry;
+        this.choiceRegistry = suggestionRegistry;
         extractPrivilege();
     }
 
@@ -86,13 +86,13 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<S, SlashSe
     }
 
     /**
-     * Gets the suggestion registry.
+     * Gets the choice registry.
      *
-     * @return The suggestion registry.
+     * @return The choice registry.
      */
     @NotNull
-    public SuggestionRegistry getSuggestionRegistry() {
-        return suggestionRegistry;
+    public ChoiceRegistry getChoiceRegistry() {
+        return choiceRegistry;
     }
 
     /**

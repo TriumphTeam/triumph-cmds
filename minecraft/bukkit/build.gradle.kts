@@ -9,5 +9,6 @@ repositories {
 
 dependencies {
     api(project(":triumph-cmd-core"))
+    api(project(":triumph-cmd-suggestions"))
     compileOnly(libs.spigot)
 }

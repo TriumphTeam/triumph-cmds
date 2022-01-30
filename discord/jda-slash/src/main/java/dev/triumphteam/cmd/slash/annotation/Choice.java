@@ -21,20 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.slash.annotation;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Value {
-    /**
-     * The String to represent the Value in the given Method Parameter
-     *
-     * @return name for the Value
-     */
+@Target({ElementType.METHOD, ElementType.PARAMETER})
+@Repeatable(Choices.class)
+public @interface Choice {
+
     String value();
+
 }

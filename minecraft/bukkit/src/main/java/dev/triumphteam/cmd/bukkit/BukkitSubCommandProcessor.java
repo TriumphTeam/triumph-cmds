@@ -34,6 +34,8 @@ import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +47,7 @@ import java.util.List;
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
     private final List<Requirement<CommandSender, ?>> defaultRequirements = new ArrayList<>();
+    private final List<Suggestion<S>> suggestions = new ArrayList<>();
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -53,11 +56,18 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            //@NotNull final SuggestionRegistry suggestionRegistry,
+            @NotNull final SuggestionRegistry<S> suggestionRegistry,
             @NotNull final SenderMapper<S, CommandSender> senderMapper
     ) {
         super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+        if (getName() == null) return;
+        suggestions.addAll(SuggestionRegistry.extractSuggestions(suggestionRegistry, method, baseCommand.getClass()));
         checkPermission(getMethod());
+    }
+
+    @NotNull
+    public List<Suggestion<S>> getSuggestions() {
+        return suggestions;
     }
 
     /**

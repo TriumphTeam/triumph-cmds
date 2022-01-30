@@ -32,6 +32,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 public @interface Suggestions {
 
-    String[] value();
+    Suggestion[] value();
 
 }

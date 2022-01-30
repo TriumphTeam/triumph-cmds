@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,14 +26,19 @@ package dev.triumphteam.cmd.bukkit;
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.requirement.Requirement;
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
     private final List<Requirement<CommandSender, ?>> defaultRequirements;
+    private final List<Suggestion<S>> suggestions;
 
     public BukkitSubCommand(
             @NotNull final BukkitSubCommandProcessor<S> processor,
@@ -43,6 +48,23 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         super(processor, parentName, executionProvider);
 
         this.defaultRequirements = processor.getDefaultRequirements();
+        this.suggestions = processor.getSuggestions();
+    }
+
+    public List<String> getSuggestions(@NotNull final S sender, @NotNull final List<String> args) {
+        final int index = args.size() - 1;
+        if (index < 0 || index >= suggestions.size()) return emptyList();
+        final String arg = args.get(index).toLowerCase();
+        return suggestions
+                .get(index)
+                .getSuggestions(sender)
+                .stream()
+                .filter(it -> it.toLowerCase().startsWith(arg))
+                .collect(Collectors.toList());
+    }
+
+    public boolean hasSuggestions() {
+        return !suggestions.isEmpty();
     }
 
     public boolean meetsDefaultRequirements(@NotNull final CommandSender defaultSender, @NotNull final S sender) {

@@ -26,8 +26,8 @@ package dev.triumphteam.cmd.slash;
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.slash.choices.Choice;
+import dev.triumphteam.cmd.slash.choices.EmptyChoice;
 import dev.triumphteam.cmd.slash.util.JdaOptionUtil;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
 
     private final String description;
-    private final List<Suggestion> suggestions;
+    private final List<Choice> choices;
 
     public SlashSubCommand(
             @NotNull final SlashSubCommandProcessor<S> processor,
@@ -51,7 +51,7 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
     ) {
         super(processor, parentName, executionProvider);
         this.description = processor.getDescription();
-        this.suggestions = processor.getSuggestions();
+        this.choices = processor.getChoices();
     }
 
     public List<@Nullable String> mapArguments(@NotNull final Map<String, String> args) {
@@ -82,19 +82,19 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
 
             options.add(option);
 
-            final Suggestion suggestion = getSuggestion(i);
-            if (suggestion instanceof EmptySuggestion) continue;
+            final Choice suggestion = getChoice(i);
+            if (suggestion instanceof EmptyChoice) continue;
 
-            option.addChoices(suggestion.getSuggestions().stream().map(it -> new Command.Choice(it, it)).limit(25).collect(Collectors.toList()));
+            option.addChoices(suggestion.getChoices().stream().map(it -> new Command.Choice(it, it)).limit(25).collect(Collectors.toList()));
         }
 
         return options;
     }
 
     @NotNull
-    private Suggestion getSuggestion(final int index) {
-        if (index >= suggestions.size()) return EmptySuggestion.INSTANCE;
-        return suggestions.get(index);
+    private Choice getChoice(final int index) {
+        if (index >= choices.size()) return EmptyChoice.INSTANCE;
+        return choices.get(index);
     }
 
 }

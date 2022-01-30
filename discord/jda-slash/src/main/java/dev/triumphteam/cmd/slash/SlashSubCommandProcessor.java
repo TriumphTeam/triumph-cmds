@@ -30,9 +30,8 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.util.PlatformUtils;
+import dev.triumphteam.cmd.slash.choices.Choice;
+import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +48,7 @@ import java.util.function.BiConsumer;
  */
 final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private final List<Suggestion> suggestions = new ArrayList<>();
+    private final List<Choice> choices = new ArrayList<>();
 
     public SlashSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -58,12 +57,12 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SuggestionRegistry suggestionRegistry,
+            @NotNull final ChoiceRegistry choiceRegistry,
             @NotNull final SenderMapper<S, SlashSender> senderMapper
     ) {
         super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
         if (getName() == null) return;
-        suggestions.addAll(PlatformUtils.extractSuggestions(suggestionRegistry, method, baseCommand.getClass()));
+        //suggestions.addAll(PlatformUtils.extractSuggestions(suggestionRegistry, method, baseCommand.getClass()));
     }
 
     @Override
@@ -72,8 +71,8 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
     }
 
     @NotNull
-    public List<Suggestion> getSuggestions() {
-        return suggestions;
+    public List<Choice> getChoices() {
+        return choices;
     }
 
 }

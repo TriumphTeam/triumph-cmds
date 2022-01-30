@@ -31,10 +31,8 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.suggestion.SuggestiblePlatform;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
+import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
+import dev.triumphteam.cmd.slash.choices.ChoiceKey;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -54,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,13 +63,13 @@ import java.util.stream.Stream;
  *
  * @param <S> The sender type.
  */
-public final class SlashCommandManager<S> extends CommandManager<S> implements SuggestiblePlatform {
+public final class SlashCommandManager<S> extends CommandManager<S> {
 
     private final JDA jda;
 
     private final Map<String, SlashCommand<S>> globalCommands = new HashMap<>();
     private final Map<Long, Map<String, SlashCommand<S>>> guildCommands = new HashMap<>();
-    private final SuggestionRegistry suggestionRegistry = new SuggestionRegistry();
+    private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
 
     private final SenderMapper<S, SlashSender> senderMapper;
 
@@ -182,12 +181,8 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver suggestionResolver) {
-        suggestionRegistry.register(key, suggestionResolver);
+    public void registerChoices(@NotNull final ChoiceKey key, @NotNull final Supplier<List<String>> choiceSupplier) {
+        choiceRegistry.register(key, choiceSupplier);
     }
 
     @Override
@@ -250,7 +245,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> implements S
                 getArgumentRegistry(),
                 getRequirementRegistry(),
                 getMessageRegistry(),
-                suggestionRegistry,
+                choiceRegistry,
                 senderMapper
         );
 

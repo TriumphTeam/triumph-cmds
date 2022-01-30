@@ -5,7 +5,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "triumph-cmd"
 
-listOf("core", "kotlin-extras").forEach(::includeProject)
+listOf("core", "kotlin-extras", "suggestions").forEach(::includeProject)
 
 listOf(
     "minecraft/bukkit",
