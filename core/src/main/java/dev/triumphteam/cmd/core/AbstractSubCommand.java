@@ -43,6 +43,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -190,6 +191,15 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
 
         if (foundArgs.size() != 1) return null;
         return foundArgs.get(0);
+    }
+
+    // TODO: 2/1/2022 Comments
+    public List<@Nullable String> mapArguments(@NotNull final Map<String, String> args) {
+        final List<String> arguments = getArguments().stream().map(Argument::getName).collect(Collectors.toList());
+        return arguments.stream().map(it -> {
+            final String value = args.get(it);
+            return value == null ? "" : value;
+        }).collect(Collectors.toList());
     }
 
     /**

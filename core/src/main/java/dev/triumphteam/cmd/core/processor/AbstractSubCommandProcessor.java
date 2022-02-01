@@ -310,8 +310,8 @@ public abstract class AbstractSubCommandProcessor<S> {
         final Class<?> type = parameter.getType();
         final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(parameter, position);
-        final boolean optional = parameter.isAnnotationPresent(Optional.class);
-
+        final boolean optional = isNamedArguments || parameter.isAnnotationPresent(Optional.class);
+        System.out.println("Sub - " + getName() + " - " + argumentName + " - " + optional);
         // Handles collection argument.
         // TODO: Add more collection types.
         if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
@@ -592,7 +592,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      */
     protected BiConsumer<Boolean, Argument<S, ?>> validateOptionals() {
         return (hasNext, argument) -> {
-            if (hasNext && argument.isOptional()) {
+            if (hasNext && argument.isOptional() && !isNamedArguments) {
                 throw createException("Optional argument is only allowed as the last argument");
             }
         };

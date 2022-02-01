@@ -32,11 +32,9 @@ import dev.triumphteam.cmd.slash.util.JdaOptionUtil;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
@@ -57,14 +55,6 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
     @Override
     public boolean isNamedArguments() {
         return true;
-    }
-
-    public List<@Nullable String> mapArguments(@NotNull final Map<String, String> args) {
-        final List<String> arguments = getArguments().stream().map(Argument::getName).collect(Collectors.toList());
-        return arguments.stream().map(it -> {
-            final String value = args.get(it);
-            return value == null ? "" : value;
-        }).collect(Collectors.toList());
     }
 
     public String getDescription() {
