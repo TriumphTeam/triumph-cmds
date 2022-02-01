@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
+import com.google.common.collect.Maps;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
@@ -43,6 +44,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -134,7 +136,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         }
 
         final S mappedSender = senderMapper.map(sender);
-        // TODO: 1/29/2022 check if new sender is null
+        if (mappedSender == null) return true;
 
         if (subCommand == null) {
             sender.sendMessage("Command doesn't exist matey.");
@@ -143,8 +145,24 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         if (!subCommand.meetsDefaultRequirements(sender, mappedSender)) return true;
 
-        final List<String> commandArgs = Arrays.asList(args);
-        subCommand.execute(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
+        List<String> commandArgs = Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
+        if (subCommand.isNamedArguments()) {
+            // TODO: 2/1/2022 - This needs a special parser instead of just splitting the args
+            final Map<String, String> commandMap = Arrays.stream(args)
+                    .map(it -> {
+                        final String[] split = it.split(":");
+                        if (split.length != 2) {
+                            return null;
+                        }
+                        return Maps.immutableEntry(split[0], split[1]);
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            commandArgs = subCommand.mapArguments(commandMap);
+        }
+
+        subCommand.execute(mappedSender, commandArgs);
         return true;
     }
 
@@ -170,14 +188,11 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
                     .collect(Collectors.toList());
         }
 
-        if (subCommandExists(arg)) {
-            subCommand = getSubCommand(arg);
-        }
-
+        if (subCommandExists(arg)) subCommand = getSubCommand(arg);
         if (subCommand == null) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
-        // TODO: 1/29/2022 check if new sender is null
+        if (mappedSender == null) return emptyList();
 
         final List<String> commandArgs = Arrays.asList(args);
         return subCommand.getSuggestions(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);

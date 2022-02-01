@@ -35,6 +35,9 @@ import java.util.List;
  */
 public interface SubCommand<S> {
 
+    // TODO: 1/30/2022
+    boolean isNamedArguments();
+
     /**
      * Checks if the sub command is default.
      * Can also just check if the name is {@link Default#DEFAULT_CMD_NAME}.

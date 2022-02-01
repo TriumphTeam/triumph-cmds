@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.annotation.Flag;
 import dev.triumphteam.cmd.core.annotation.Join;
+import dev.triumphteam.cmd.core.annotation.NamedArguments;
 import dev.triumphteam.cmd.core.annotation.Optional;
 import dev.triumphteam.cmd.core.annotation.Requirements;
 import dev.triumphteam.cmd.core.annotation.Split;
@@ -103,6 +104,7 @@ public abstract class AbstractSubCommandProcessor<S> {
 
     private boolean isDefault = false;
     private final boolean isAsync;
+    private final boolean isNamedArguments;
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S, ?>> arguments = new ArrayList<>();
@@ -133,6 +135,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.senderMapper = senderMapper;
 
         this.isAsync = method.isAnnotationPresent(Async.class);
+        this.isNamedArguments = method.isAnnotationPresent(NamedArguments.class);
 
         extractSubCommandNames();
         if (name == null) return;
@@ -210,6 +213,11 @@ public abstract class AbstractSubCommandProcessor<S> {
      */
     public boolean isAsync() {
         return isAsync;
+    }
+
+    // TODO: 1/30/2022
+    public boolean isNamedArguments() {
+        return isNamedArguments;
     }
 
     /**
@@ -298,12 +306,12 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param parameter The current parameter to get data from.
      */
-    protected void createArgument(@NotNull final Parameter parameter, final int index) {
+    protected void createArgument(@NotNull final Parameter parameter, final int position) {
         final Class<?> type = parameter.getType();
         final String argumentName = getArgName(parameter);
-        final String argumentDescription = getArgumentDescription(parameter, index);
-        final boolean optional = parameter.isAnnotationPresent(Optional.class);
-
+        final String argumentDescription = getArgumentDescription(parameter, position);
+        final boolean optional = isNamedArguments || parameter.isAnnotationPresent(Optional.class);
+        System.out.println("Sub - " + getName() + " - " + argumentName + " - " + optional);
         // Handles collection argument.
         // TODO: Add more collection types.
         if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
@@ -316,22 +324,22 @@ public abstract class AbstractSubCommandProcessor<S> {
 
             final Type genericType = types[0];
             final Type collectionType = genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType;
-            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, argumentName, argumentDescription, optional);
+            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, argumentName, argumentDescription, position, optional);
 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
-                addArgument(new SplitStringArgument<>(argumentName, argumentDescription, splitAnnotation.value(), argument, type, optional));
+                addArgument(new SplitStringArgument<>(argumentName, argumentDescription, splitAnnotation.value(), argument, type, position, optional));
                 return;
             }
 
-            addArgument(new CollectionArgument<>(argumentName, argumentDescription, argument, type, optional));
+            addArgument(new CollectionArgument<>(argumentName, argumentDescription, argument, type, position, optional));
             return;
         }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(new JoinedStringArgument<>(argumentName, argumentDescription, joinAnnotation.value(), optional));
+            addArgument(new JoinedStringArgument<>(argumentName, argumentDescription, joinAnnotation.value(), position, optional));
             return;
         }
 
@@ -341,11 +349,11 @@ public abstract class AbstractSubCommandProcessor<S> {
                 throw createException("Flags argument detected but no flag annotation declared");
             }
 
-            addArgument(new FlagArgument<>(argumentName, argumentDescription, parentName, name, flagGroup, messageRegistry, optional));
+            addArgument(new FlagArgument<>(argumentName, argumentDescription, parentName, name, flagGroup, messageRegistry, position, optional));
             return;
         }
 
-        addArgument(createSimpleArgument(type, argumentName, argumentDescription, optional));
+        addArgument(createSimpleArgument(type, argumentName, argumentDescription, position, optional));
     }
 
     /**
@@ -396,6 +404,7 @@ public abstract class AbstractSubCommandProcessor<S> {
             @NotNull final Class<?> type,
             @NotNull final String parameterName,
             @NotNull final String argumentDescription,
+            final int position,
             final boolean optional
     ) {
         // All other types default to the resolver.
@@ -404,12 +413,12 @@ public abstract class AbstractSubCommandProcessor<S> {
             // Handler for using any Enum.
             if (Enum.class.isAssignableFrom(type)) {
                 //noinspection unchecked
-                return new EnumArgument<>(parameterName, argumentDescription, (Class<? extends Enum<?>>) type, optional);
+                return new EnumArgument<>(parameterName, argumentDescription, (Class<? extends Enum<?>>) type, position, optional);
             }
 
             throw createException("No argument of type \"" + type.getName() + "\" registered");
         }
-        return new ResolverArgument<>(parameterName, argumentDescription, type, resolver, optional);
+        return new ResolverArgument<>(parameterName, argumentDescription, type, resolver, position, optional);
     }
 
     /**
@@ -480,14 +489,14 @@ public abstract class AbstractSubCommandProcessor<S> {
             if (argumentType != void.class) {
                 if (Enum.class.isAssignableFrom(argumentType)) {
                     //noinspection unchecked
-                    argument = new EnumArgument<>(argumentType.getName(), "", (Class<? extends Enum<?>>) argumentType, false);
+                    argument = new EnumArgument<>(argumentType.getName(), "", (Class<? extends Enum<?>>) argumentType, 0, false);
                 } else {
                     final ArgumentResolver<S> resolver = argumentRegistry.getResolver(argumentType);
                     if (resolver == null) {
                         throw createException("@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argumentType.getName() + "\"");
                     }
 
-                    argument = new ResolverArgument<>(argumentType.getName(), "", argumentType, resolver, false);
+                    argument = new ResolverArgument<>(argumentType.getName(), "", argumentType, resolver, 0, false);
                 }
             }
 
@@ -583,7 +592,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      */
     protected BiConsumer<Boolean, Argument<S, ?>> validateOptionals() {
         return (hasNext, argument) -> {
-            if (hasNext && argument.isOptional()) {
+            if (hasNext && argument.isOptional() && !isNamedArguments) {
                 throw createException("Optional argument is only allowed as the last argument");
             }
         };

@@ -39,8 +39,8 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
 
     @NotNull
     @Override
-    public List<String> getSuggestions(@NotNull final S sender) {
-        return resolver.resolve(sender);
+    public List<String> getSuggestions(@NotNull final S sender, @NotNull final SuggestionContext context) {
+        return resolver.resolve(sender, context);
     }
 
     @Override

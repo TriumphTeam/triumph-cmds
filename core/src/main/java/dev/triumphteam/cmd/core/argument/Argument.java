@@ -44,6 +44,9 @@ public interface Argument<S, T> {
     @NotNull
     String getName();
 
+    // TODO: 1/31/2022
+    int getPosition();
+
     /**
      * The description of this Argument.
      * Holds the description.

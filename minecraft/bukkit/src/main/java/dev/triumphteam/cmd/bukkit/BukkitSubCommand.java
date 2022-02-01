@@ -24,13 +24,16 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
+import dev.triumphteam.cmd.core.argument.Argument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -55,9 +58,42 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         final int index = args.size() - 1;
         if (index < 0 || index >= suggestions.size()) return emptyList();
         final String arg = args.get(index).toLowerCase();
+
+        final SuggestionContext context = new SuggestionContext(args, getParentName(), getName());
+
+        if (isNamedArguments()) {
+            final String[] split = arg.split(":");
+
+            final Argument<S, ?> argument = getArgument(split[0]);
+            if (argument == null) {
+                final List<Argument<S, ?>> usedArguments = args
+                        .stream()
+                        .map(it -> getArgument(it.split(":")[0]))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+
+                return getArguments()
+                        .stream()
+                        .filter(it -> !usedArguments.contains(it))
+                        .map(it -> it.getName() + ":")
+                        .filter(it -> it.toLowerCase().startsWith(arg))
+                        .collect(Collectors.toList());
+            }
+
+            final String typed = split.length > 1 ? split[1] : "";
+
+            return suggestions
+                    .get(argument.getPosition())
+                    .getSuggestions(sender, context)
+                    .stream()
+                    .filter(it -> it.toLowerCase().startsWith(typed))
+                    .map(it -> argument.getName() + ":" + it)
+                    .collect(Collectors.toList());
+        }
+
         return suggestions
                 .get(index)
-                .getSuggestions(sender)
+                .getSuggestions(sender, context)
                 .stream()
                 .filter(it -> it.toLowerCase().startsWith(arg))
                 .collect(Collectors.toList());

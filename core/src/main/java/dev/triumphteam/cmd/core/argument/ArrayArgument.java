@@ -37,9 +37,10 @@ public final class ArrayArgument<S> extends LimitlessArgument<S> {
     public ArrayArgument(
             @NotNull final String name,
             @NotNull final String description,
+            final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, optional);
+        super(name, description, String.class, position, optional);
     }
 
     /**
