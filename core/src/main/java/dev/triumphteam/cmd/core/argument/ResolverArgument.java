@@ -45,9 +45,10 @@ public final class ResolverArgument<S> extends StringArgument<S> {
             @NotNull final String description,
             @NotNull final Class<?> type,
             @NotNull final ArgumentResolver<S> resolver,
+            final int position,
             final boolean optional
     ) {
-        super(name, description, type, optional);
+        super(name, description, type, position, optional);
         this.resolver = resolver;
     }
 

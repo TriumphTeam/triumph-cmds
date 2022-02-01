@@ -43,7 +43,7 @@ public final class EnumSuggestion<S> implements Suggestion<S> {
 
     @NotNull
     @Override
-    public List<String> getSuggestions(@NotNull final S sender) {
+    public List<String> getSuggestions(@NotNull final S sender, @NotNull final SuggestionContext context) {
         return EnumUtils.getEnumConstants(enumType)
                 .values()
                 .stream()

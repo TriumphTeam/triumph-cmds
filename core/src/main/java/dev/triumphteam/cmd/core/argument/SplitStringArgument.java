@@ -47,9 +47,10 @@ public final class SplitStringArgument<S> extends StringArgument<S> {
             @NotNull final String regex,
             @NotNull final Argument<S, String> argument,
             @NotNull final Class<?> collectionType,
+            final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, optional);
+        super(name, description, String.class, position, optional);
         this.regex = regex;
         this.argument = argument;
         this.collectionType = collectionType;

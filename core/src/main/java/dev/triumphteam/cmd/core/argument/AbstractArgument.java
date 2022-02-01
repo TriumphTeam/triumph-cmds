@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,18 +40,21 @@ public abstract class AbstractArgument<S, T> implements Argument<S, T> {
     private final String name;
     private final String description;
     private final Class<?> type;
+    private final int position;
     private final boolean optional;
 
     public AbstractArgument(
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final Class<?> type,
+            final int position,
             final boolean optional
     ) {
         this.name = name;
-        this.type = type;
-        this.optional = optional;
         this.description = description;
+        this.type = type;
+        this.position = position;
+        this.optional = optional;
     }
 
     /**
@@ -65,6 +68,11 @@ public abstract class AbstractArgument<S, T> implements Argument<S, T> {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getPosition() {
+        return position;
     }
 
     @Override

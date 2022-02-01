@@ -46,9 +46,10 @@ public final class EnumArgument<S> extends StringArgument<S> {
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final Class<? extends Enum<?>> type,
+            final int position,
             final boolean optional
     ) {
-        super(name, description, type, optional);
+        super(name, description, type, position, optional);
         this.enumType = type;
 
         // Populates on creation to reduce runtime of first run for certain enums, like Bukkit's Material.
