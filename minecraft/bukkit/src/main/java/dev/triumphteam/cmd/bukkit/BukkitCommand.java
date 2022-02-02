@@ -30,7 +30,9 @@ import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
@@ -139,7 +141,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         if (mappedSender == null) return true;
 
         if (subCommand == null) {
-            sender.sendMessage("Command doesn't exist matey.");
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(getName(), subCommandName));
             return true;
         }
 

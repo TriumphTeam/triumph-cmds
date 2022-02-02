@@ -311,7 +311,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(parameter, position);
         final boolean optional = isNamedArguments || parameter.isAnnotationPresent(Optional.class);
-        System.out.println("Sub - " + getName() + " - " + argumentName + " - " + optional);
+
         // Handles collection argument.
         // TODO: Add more collection types.
         if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
