@@ -53,7 +53,7 @@ tasks {
                     password = System.getenv("REPO_PASS")
                 }
 
-                url = uri("https://repo.triumphteam.dev/releases")
+                url = uri("https://repo.triumphteam.dev/snapshots/")
             }
         }
     }
