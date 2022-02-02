@@ -40,7 +40,7 @@ public final class ChoiceRegistry {
     }
 
     @Nullable
-    public Supplier<List<String>> getSuggestionResolver(@NotNull final ChoiceKey key) {
+    public Supplier<List<String>> getChoiceResolver(@NotNull final ChoiceKey key) {
         return suggestions.get(key);
     }
 
