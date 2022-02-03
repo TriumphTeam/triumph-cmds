@@ -7,7 +7,7 @@ tasks {
     publishing {
         publications {
             create<MavenPublication>("maven") {
-                //from(kotlinComponent)
+                from(components["java"])
                 versionMapping {
                     usage("java-api") {
                         fromResolutionOf("runtimeClasspath")

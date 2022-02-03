@@ -9,7 +9,7 @@ dependencies {
     testImplementation(libs.junit.engine)
     testImplementation(libs.assertj)
 
-    implementation(libs.guava)
+    compileOnly(libs.guava)
 }
 
 tasks {

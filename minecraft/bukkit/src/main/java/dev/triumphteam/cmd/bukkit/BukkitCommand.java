@@ -56,7 +56,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private final ArgumentRegistry<S> argumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
-    private final SuggestionRegistry suggestionRegistry;
+    private final SuggestionRegistry<S> suggestionRegistry;
 
     private final SenderMapper<S, CommandSender> senderMapper;
 
@@ -110,7 +110,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             if (subCommandName == null) continue;
 
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-            final BukkitSubCommand<S> subCommand = subCommands.putIfAbsent(subCommandName, new BukkitSubCommand<>(processor, getName(), executionProvider));
+            final BukkitSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, it -> new BukkitSubCommand<>(processor, getName(), executionProvider));
             processor.getAlias().forEach(alias -> subCommandAliases.putIfAbsent(alias, subCommand));
         }
     }

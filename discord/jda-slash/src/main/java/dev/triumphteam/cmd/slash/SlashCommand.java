@@ -34,7 +34,8 @@ import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -161,8 +162,8 @@ final class SlashCommand<S> implements Command {
     }
 
     @NotNull
-    public CommandData asCommandData() {
-        final CommandData commandData = new CommandData(name, description);
+    public SlashCommandData asCommandData() {
+        final SlashCommandData commandData = Commands.slash(name, description);
         commandData.setDefaultEnabled(enabledRoles.isEmpty());
 
         if (isDefault) {

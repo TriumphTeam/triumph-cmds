@@ -29,16 +29,16 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
 /**
- * Works like a shortcut for most things present on {@link SlashCommandEvent}.
+ * Works like a shortcut for most things present on {@link SlashCommandInteractionEvent}.
  * Contains the more useful methods from it, but still allows you to get the original event if more is needed.
  */
 public interface SlashSender {
@@ -49,7 +49,7 @@ public interface SlashSender {
      * @return The original event.
      */
     @NotNull
-    SlashCommandEvent getEvent();
+    SlashCommandInteractionEvent getEvent();
 
     /**
      * Gets the guild that the command was sent in or null if it was sent in a private message.
@@ -98,7 +98,7 @@ public interface SlashSender {
      * @return The reply action.
      */
     @NotNull
-    ReplyAction reply(@NotNull final String message);
+    ReplyCallbackAction reply(@NotNull final String message);
 
     /**
      * Replies to the command with a message.
@@ -107,7 +107,7 @@ public interface SlashSender {
      * @return The reply action.
      */
     @NotNull
-    ReplyAction reply(@NotNull final Message message);
+    ReplyCallbackAction reply(@NotNull final Message message);
 
     /**
      * Replies to the command with a message embed.
@@ -117,7 +117,7 @@ public interface SlashSender {
      * @return The reply action.
      */
     @NotNull
-    ReplyAction reply(@NotNull final MessageEmbed embed, @NotNull final MessageEmbed... embeds);
+    ReplyCallbackAction reply(@NotNull final MessageEmbed embed, @NotNull final MessageEmbed... embeds);
 
     /**
      * Replies to the command with a message embeds.
@@ -126,7 +126,7 @@ public interface SlashSender {
      * @return The reply action.
      */
     @NotNull
-    ReplyAction reply(@NotNull final Collection<? extends MessageEmbed> embeds);
+    ReplyCallbackAction reply(@NotNull final Collection<? extends MessageEmbed> embeds);
 
     /**
      * Defers the reply to the command.
@@ -134,7 +134,7 @@ public interface SlashSender {
      * @return The reply action.
      */
     @NotNull
-    ReplyAction deferReply();
+    ReplyCallbackAction deferReply();
 
     /**
      * Defers the reply to the command but ephemeral.
@@ -143,6 +143,6 @@ public interface SlashSender {
      * @return The reply action.
      */
     @NotNull
-    ReplyAction deferReply(boolean ephemeral);
+    ReplyCallbackAction deferReply(boolean ephemeral);
 
 }

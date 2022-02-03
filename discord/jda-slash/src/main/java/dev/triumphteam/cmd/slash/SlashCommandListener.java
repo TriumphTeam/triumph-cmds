@@ -29,7 +29,7 @@ import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,7 +61,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
      * @param event The slash command event.
      */
     @Override
-    public void onSlashCommand(@NotNull final SlashCommandEvent event) {
+    public void onSlashCommandInteraction(@NotNull final SlashCommandInteractionEvent event) {
         final String name = event.getName();
         SlashCommand<S> command = commandManager.getCommand(name);
         if (command == null) {

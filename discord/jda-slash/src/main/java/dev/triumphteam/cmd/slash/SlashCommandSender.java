@@ -30,9 +30,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,9 +40,9 @@ import java.util.Collection;
 
 final class SlashCommandSender implements SlashSender {
 
-    private final SlashCommandEvent event;
+    private final SlashCommandInteractionEvent event;
 
-    public SlashCommandSender(@NotNull final SlashCommandEvent event) {
+    public SlashCommandSender(@NotNull final SlashCommandInteractionEvent event) {
         this.event = event;
     }
 
@@ -51,7 +51,7 @@ final class SlashCommandSender implements SlashSender {
      */
     @NotNull
     @Override
-    public SlashCommandEvent getEvent() {
+    public SlashCommandInteractionEvent getEvent() {
         return event;
     }
 
@@ -105,7 +105,7 @@ final class SlashCommandSender implements SlashSender {
      */
     @NotNull
     @Override
-    public ReplyAction reply(@NotNull final String message) {
+    public ReplyCallbackAction reply(@NotNull final String message) {
         return event.reply(message);
     }
 
@@ -114,7 +114,7 @@ final class SlashCommandSender implements SlashSender {
      */
     @NotNull
     @Override
-    public ReplyAction reply(@NotNull final Message message) {
+    public ReplyCallbackAction reply(@NotNull final Message message) {
         return event.reply(message);
     }
 
@@ -123,7 +123,7 @@ final class SlashCommandSender implements SlashSender {
      */
     @NotNull
     @Override
-    public ReplyAction reply(@NotNull final MessageEmbed embed, @NotNull final MessageEmbed... embeds) {
+    public ReplyCallbackAction reply(@NotNull final MessageEmbed embed, @NotNull final MessageEmbed... embeds) {
         return event.replyEmbeds(embed, embeds);
     }
 
@@ -132,7 +132,7 @@ final class SlashCommandSender implements SlashSender {
      */
     @NotNull
     @Override
-    public ReplyAction reply(@NotNull final Collection<? extends MessageEmbed> embeds) {
+    public ReplyCallbackAction reply(@NotNull final Collection<? extends MessageEmbed> embeds) {
         return event.replyEmbeds(embeds);
     }
 
@@ -141,7 +141,7 @@ final class SlashCommandSender implements SlashSender {
      */
     @NotNull
     @Override
-    public ReplyAction deferReply() {
+    public ReplyCallbackAction deferReply() {
         return event.deferReply();
     }
 
@@ -150,7 +150,7 @@ final class SlashCommandSender implements SlashSender {
      */
     @NotNull
     @Override
-    public ReplyAction deferReply(final boolean ephemeral) {
+    public ReplyCallbackAction deferReply(final boolean ephemeral) {
         return event.deferReply(ephemeral);
     }
 }
