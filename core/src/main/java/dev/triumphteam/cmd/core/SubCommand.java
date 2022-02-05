@@ -35,6 +35,13 @@ import java.util.List;
  */
 public interface SubCommand<S> {
 
+    @NotNull
+    String getName();
+
+    @NotNull
+    String getParentName();
+
+    @NotNull
     Class<? extends S> getSenderType();
 
     // TODO: 1/30/2022

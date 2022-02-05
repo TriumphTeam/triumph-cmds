@@ -131,7 +131,8 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @return The name of the parent command.
      */
     @NotNull
-    protected String getParentName() {
+    @Override
+    public String getParentName() {
         return parentName;
     }
 
@@ -141,7 +142,8 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @return The name of the sub command.
      */
     @NotNull
-    protected String getName() {
+    @Override
+    public String getName() {
         return name;
     }
 

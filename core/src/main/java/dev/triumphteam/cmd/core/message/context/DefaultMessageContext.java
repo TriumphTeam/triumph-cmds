@@ -38,5 +38,4 @@ public final class DefaultMessageContext extends AbstractMessageContext {
     public String toString() {
         return "DefaultMessageContext{super=" + super.toString() + "}";
     }
-
 }

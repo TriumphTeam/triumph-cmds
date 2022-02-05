@@ -24,8 +24,10 @@
 package dev.triumphteam.cmd.bukkit;
 
 import com.google.common.collect.ImmutableSet;
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -54,7 +56,26 @@ class BukkitSenderValidator implements SenderValidator<CommandSender> {
             final @NotNull SubCommand<CommandSender> subCommand,
             final @NotNull CommandSender sender
     ) {
-        System.out.println(sender.getClass().getName());
+        final Class<? extends CommandSender> senderClass = subCommand.getSenderType();
+
+        if (Player.class.isAssignableFrom(senderClass) && !(sender instanceof Player)) {
+            messageRegistry.sendMessage(
+                    BukkitMessageKey.PLAYER_ONLY,
+                    sender,
+                    new DefaultMessageContext(subCommand.getParentName(), subCommand.getName())
+            );
+            return false;
+        }
+
+        if (ConsoleCommandSender.class.isAssignableFrom(senderClass) && !(sender instanceof ConsoleCommandSender)) {
+            messageRegistry.sendMessage(
+                    BukkitMessageKey.CONSOLE_ONLY,
+                    sender,
+                    new DefaultMessageContext(subCommand.getParentName(), subCommand.getName())
+            );
+            return false;
+        }
+
         return true;
     }
 }

@@ -154,7 +154,10 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG, (sender, context) -> sender.sendMessage("Command is missing required flags."));
         manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, (sender, context) -> sender.sendMessage("Command is missing required flags argument."));
         manager.registerMessage(MessageKey.INVALID_FLAG_ARGUMENT, (sender, context) -> sender.sendMessage("Invalid flag argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`."));
+
         manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`."));
+        manager.registerMessage(BukkitMessageKey.PLAYER_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by players."));
+        manager.registerMessage(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by the console."));
 
         manager.registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(arg));
         manager.registerArgument(Player.class, (sender, arg) -> Bukkit.getPlayer(arg));
