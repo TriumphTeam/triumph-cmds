@@ -99,6 +99,25 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         return commandManager;
     }
 
+    /**
+     * Creates a new instance of the {@link BukkitCommandManager}.
+     * This factory is used for adding custom senders.
+     *
+     * @param plugin          The {@link Plugin} instance created.
+     * @param senderMapper    The {@link SenderMapper} used to map the {@link CommandSender} to the {@link S} type.
+     * @param senderValidator The {@link SenderValidator} used to validate the {@link S} type.
+     * @return A new instance of the {@link BukkitCommandManager}.
+     */
+    @NotNull
+    @Contract("_, _, _ -> new")
+    public static <S> BukkitCommandManager<S> create(
+            @NotNull final Plugin plugin,
+            @NotNull final SenderMapper<CommandSender, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
+    ) {
+        return new BukkitCommandManager<>(plugin, senderMapper, senderValidator);
+    }
+
     @Override
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
         final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(

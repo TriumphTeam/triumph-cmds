@@ -560,7 +560,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                 throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
             }
 
-            addRequirement(new Requirement<>(resolver, messageKey, DefaultMessageContext::new));
+            addRequirement(new Requirement<>(resolver, messageKey, DefaultMessageContext::new, requirementAnnotation.invert()));
         }
     }
 

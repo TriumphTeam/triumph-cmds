@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,15 +42,18 @@ public final class Requirement<S, C extends MessageContext> {
     private final RequirementResolver<S> resolver;
     private final ContextualKey<C> messageKey;
     private final MessageContextFactory<C> contextFactory;
+    private final boolean invert;
 
     public Requirement(
             @NotNull final RequirementResolver<S> resolver,
             @Nullable final ContextualKey<C> messageKey,
-            @NotNull final MessageContextFactory<C> contextFactory
+            @NotNull final MessageContextFactory<C> contextFactory,
+            final boolean invert
     ) {
         this.resolver = resolver;
         this.messageKey = messageKey;
         this.contextFactory = contextFactory;
+        this.invert = invert;
     }
 
     /**
@@ -65,11 +68,12 @@ public final class Requirement<S, C extends MessageContext> {
 
     /**
      * Sends the message to the sender.
-     * @param registry The registry which contains the message.
-     * @param sender The sender which will receive the message.
-     * @param command The command which is being executed.
+     *
+     * @param registry   The registry which contains the message.
+     * @param sender     The sender which will receive the message.
+     * @param command    The command which is being executed.
      * @param subCommand The sub command which is being executed.
-     * @param <ST> The sender type.
+     * @param <ST>       The sender type.
      */
     public <ST> void sendMessage(
             @NotNull final MessageRegistry<ST> registry,
@@ -88,7 +92,7 @@ public final class Requirement<S, C extends MessageContext> {
      * @return Whether the requirement is met.
      */
     public boolean isMet(@NotNull final S sender) {
-        return resolver.resolve(sender);
+        return resolver.resolve(sender) != invert;
     }
 
     @Override
