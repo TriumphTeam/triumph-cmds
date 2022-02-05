@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ import java.util.List;
  *
  * @param <S> Sender type
  */
-public abstract class AbstractCommandProcessor<S, SD> {
+public abstract class AbstractCommandProcessor<SD, S> {
 
     private final Class<?> annotatedClass;
 
@@ -58,20 +59,23 @@ public abstract class AbstractCommandProcessor<S, SD> {
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
-    private final SenderMapper<S, SD> senderMapper;
+    private final SenderMapper<SD, S> senderMapper;
+    private final SenderValidator<S> senderValidator;
 
     protected AbstractCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SenderMapper<S, SD> senderMapper
+            @NotNull final SenderMapper<SD, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
         this.baseCommand = baseCommand;
         this.argumentRegistry = argumentRegistry;
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
         this.senderMapper = senderMapper;
+        this.senderValidator = senderValidator;
 
         this.annotatedClass = extractAnnotationClass();
         extractCommandNames();
@@ -144,8 +148,14 @@ public abstract class AbstractCommandProcessor<S, SD> {
      * @return The {@link SenderMapper}.
      */
     @NotNull
-    public SenderMapper<S, SD> getSenderMapper() {
+    public SenderMapper<SD, S> getSenderMapper() {
         return senderMapper;
+    }
+
+    // TODO: 2/4/2022 comments
+    @NotNull
+    public SenderValidator<S> getSenderValidator() {
+        return senderValidator;
     }
 
     /**

@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.prefixed.annotation.Prefix;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +39,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <S> The sender type.
  */
-final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<S, PrefixedSender> {
+final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<PrefixedSender, S> {
 
     private final String prefix;
 
@@ -47,9 +48,10 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<S, Pref
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SenderMapper<S, PrefixedSender> senderMapper
+            @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
         prefix = extractPrefix();
     }
 

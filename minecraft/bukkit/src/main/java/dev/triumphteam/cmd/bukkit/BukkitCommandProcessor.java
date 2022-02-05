@@ -29,11 +29,12 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<S, CommandSender> {
+public final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S> {
 
     private final SuggestionRegistry<S> suggestionRegistry;
 
@@ -42,10 +43,11 @@ public final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<S,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SenderMapper<S, CommandSender> senderMapper,
+            @NotNull final SenderMapper<CommandSender, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator,
             @NotNull final SuggestionRegistry<S> suggestionRegistry
     ) {
-        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
         this.suggestionRegistry = suggestionRegistry;
     }
 

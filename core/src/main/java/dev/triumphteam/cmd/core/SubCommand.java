@@ -35,6 +35,8 @@ import java.util.List;
  */
 public interface SubCommand<S> {
 
+    Class<? extends S> getSenderType();
+
     // TODO: 1/30/2022
     boolean isNamedArguments();
 

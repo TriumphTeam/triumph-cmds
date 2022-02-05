@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,6 +32,7 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -58,7 +59,7 @@ import java.util.regex.Pattern;
  *
  * @param <S> The sender type.
  */
-public final class PrefixedCommandManager<S> extends CommandManager<S> {
+public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSender, S> {
 
     private static final Pattern USER_MENTION_PATTERN = Pattern.compile("<@!?(?<id>\\d+)>");
     private static final Pattern ROLE_MENTION_PATTERN = Pattern.compile("<@&(?<id>\\d+)>");
@@ -71,7 +72,6 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     private final Map<Long, Map<String, PrefixedCommandExecutor<S>>> guildCommands = new HashMap<>();
 
     private final String globalPrefix;
-    private final SenderMapper<S, PrefixedSender> senderMapper;
 
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
@@ -79,10 +79,11 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     private PrefixedCommandManager(
             @NotNull final JDA jda,
             @NotNull final String globalPrefix,
-            @NotNull final SenderMapper<S, PrefixedSender> senderMapper
+            @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
+        super(senderMapper, senderValidator);
         this.globalPrefix = globalPrefix;
-        this.senderMapper = senderMapper;
 
         jda.addEventListener(new PrefixedCommandListener<>(this, getMessageRegistry(), senderMapper));
     }
@@ -91,37 +92,42 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
      * Creates a new instance of the PrefixedCommandManager.
      * This factory is for adding a custom sender, for default sender use {@link #create(JDA, String)}.
      *
-     * @param jda          The JDA instance.
-     * @param globalPrefix The global prefix.
-     * @param senderMapper The sender mapper.
-     * @param <S>          The sender type.
+     * @param jda             The JDA instance.
+     * @param globalPrefix    The global prefix.
+     * @param senderMapper    The sender mapper.
+     * @param senderValidator The sender validator.
+     * @param <S>             The sender type.
      * @return The new instance.
      */
     @NotNull
-    @Contract("_, _, _ -> new")
+    @Contract("_, _, _, _ -> new")
     public static <S> PrefixedCommandManager<S> create(
             @NotNull final JDA jda,
             @NotNull final String globalPrefix,
-            @NotNull final SenderMapper<S, PrefixedSender> senderMapper) {
-        return new PrefixedCommandManager<>(jda, globalPrefix, senderMapper);
+            @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
+    ) {
+        return new PrefixedCommandManager<>(jda, globalPrefix, senderMapper, senderValidator);
     }
 
     /**
      * Creates a new instance of the {@link PrefixedCommandManager}.
      * This factory is for adding a custom sender, for default sender use {@link #create(JDA)}.
      *
-     * @param jda          The JDA instance.
-     * @param senderMapper The sender mapper.
-     * @param <S>          The sender type.
+     * @param jda             The JDA instance.
+     * @param senderMapper    The sender mapper.
+     * @param senderValidator The sender validator.
+     * @param <S>             The sender type.
      * @return The new instance.
      */
     @NotNull
-    @Contract("_, _ -> new")
+    @Contract("_, _, _ -> new")
     public static <S> PrefixedCommandManager<S> create(
             @NotNull final JDA jda,
-            @NotNull final SenderMapper<S, PrefixedSender> senderMapper
+            @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        return create(jda, "", senderMapper);
+        return create(jda, "", senderMapper, senderValidator);
     }
 
     /**
@@ -134,7 +140,12 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
     @NotNull
     @Contract("_, _ -> new")
     public static PrefixedCommandManager<PrefixedSender> create(@NotNull final JDA jda, @NotNull final String globalPrefix) {
-        final PrefixedCommandManager<PrefixedSender> manager = create(jda, globalPrefix, new PrefixedSenderMapper());
+        final PrefixedCommandManager<PrefixedSender> manager = create(
+                jda,
+                globalPrefix,
+                SenderMapper.defaultMapper(),
+                new PrefixedSenderValidator()
+        );
         setUpDefaults(manager);
         return manager;
     }
@@ -200,7 +211,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<S> {
                 getArgumentRegistry(),
                 getRequirementRegistry(),
                 getMessageRegistry(),
-                senderMapper
+                getSenderMapper(),
+                getSenderValidator()
         );
 
         String prefix = processor.getPrefix();

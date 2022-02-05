@@ -30,7 +30,7 @@ import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.annotation.Choices;
 import dev.triumphteam.cmd.slash.choices.Choice;
 import dev.triumphteam.cmd.slash.choices.ChoiceKey;
@@ -38,7 +38,6 @@ import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.choices.EmptyChoice;
 import dev.triumphteam.cmd.slash.choices.EnumChoice;
 import dev.triumphteam.cmd.slash.choices.SimpleChoice;
-import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,9 +72,9 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final ChoiceRegistry choiceRegistry,
-            @NotNull final SenderMapper<S, SlashSender> senderMapper
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderMapper);
+        super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderValidator);
         this.choiceRegistry = choiceRegistry;
         this.choices = extractChoices(method, baseCommand.getClass());
     }

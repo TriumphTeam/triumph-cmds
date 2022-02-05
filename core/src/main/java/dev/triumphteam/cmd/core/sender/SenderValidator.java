@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,39 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit;
+package dev.triumphteam.cmd.core.sender;
 
-import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
+import dev.triumphteam.cmd.core.SubCommand;
+import dev.triumphteam.cmd.core.message.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
 /**
- * Simple mapper than returns itself.
+ * Interface for mapping a default send into a custom sender.
+ *
+ * @param <S> The type of the custom sender.
  */
-class BukkitSenderMapper implements SenderMapper<CommandSender, CommandSender> {
+public interface SenderValidator<S> {
 
-    /**
-     * {@inheritDoc}
-     */
     @NotNull
-    @Override
-    public Set<Class<? extends CommandSender>> getAllowedSenders() {
-        return ImmutableSet.of(CommandSender.class, ConsoleCommandSender.class, Player.class);
-    }
+    Set<Class<? extends S>> getAllowedSenders();
 
-    /**
-     * {@inheritDoc}
-     */
-    @Nullable
-    @Override
-    public CommandSender map(@NotNull final CommandSender defaultSender) {
-        return defaultSender;
-    }
-
+    boolean validate(
+            @NotNull final MessageRegistry<S> messageRegistry,
+            final @NotNull SubCommand<S> subCommand,
+            @NotNull final S sender
+    );
 }

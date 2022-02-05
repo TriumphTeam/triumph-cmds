@@ -50,12 +50,12 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
 
     private final PrefixedCommandManager<S> commandManager;
     private final MessageRegistry<S> messageRegistry;
-    private final SenderMapper<S, PrefixedSender> senderMapper;
+    private final SenderMapper<PrefixedSender, S> senderMapper;
 
     public PrefixedCommandListener(
             @NotNull final PrefixedCommandManager<S> commandManager,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SenderMapper<S, PrefixedSender> senderMapper
+            @NotNull final SenderMapper<PrefixedSender, S> senderMapper
     ) {
         this.commandManager = commandManager;
         this.messageRegistry = messageRegistry;
@@ -78,7 +78,6 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
         final List<String> args = Arrays.asList(message.getContentRaw().split(" "));
 
         final S sender = senderMapper.map(new PrefixedCommandSender(message));
-        if (sender == null) return;
 
         if (args.isEmpty()) return;
 

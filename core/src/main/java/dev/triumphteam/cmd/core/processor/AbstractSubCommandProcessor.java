@@ -61,7 +61,7 @@ import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -106,6 +106,8 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final boolean isAsync;
     private final boolean isNamedArguments;
 
+    private Class<? extends S> senderType;
+
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Argument<S, ?>> arguments = new ArrayList<>();
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
@@ -113,7 +115,7 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final ArgumentRegistry<S> argumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
-    private final SenderMapper<S, ?> senderMapper;
+    private final SenderValidator<S> senderValidator;
 
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -122,7 +124,7 @@ public abstract class AbstractSubCommandProcessor<S> {
             @NotNull final ArgumentRegistry<S> argumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SenderMapper<S, ?> senderMapper
+            @NotNull final SenderValidator<S> senderValidator
     ) {
         this.baseCommand = baseCommand;
         this.parentName = parentName;
@@ -132,7 +134,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.argumentRegistry = argumentRegistry;
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
-        this.senderMapper = senderMapper;
+        this.senderValidator = senderValidator;
 
         this.isAsync = method.isAnnotationPresent(Async.class);
         this.isNamedArguments = method.isAnnotationPresent(NamedArguments.class);
@@ -185,6 +187,12 @@ public abstract class AbstractSubCommandProcessor<S> {
     @NotNull
     public String getDescription() {
         return description;
+    }
+
+    @NotNull
+    public Class<? extends S> getSenderType() {
+        if (senderType == null) throw createException("Sender type could not be found.");
+        return senderType;
     }
 
     /**
@@ -260,6 +268,12 @@ public abstract class AbstractSubCommandProcessor<S> {
         return messageRegistry;
     }
 
+    // TODO: 2/4/2022 comments
+    @NotNull
+    public SenderValidator<S> getSenderValidator() {
+        return senderValidator;
+    }
+
     /**
      * Simple utility method for creating a new exception using the method and base command class.
      *
@@ -278,8 +292,11 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param type The sender type.
      */
     protected void validateSender(@NotNull final Class<?> type) {
-        final Set<Class<? extends S>> allowedSenders = senderMapper.getAllowedSenders();
-        if (allowedSenders.contains(type)) return;
+        final Set<Class<? extends S>> allowedSenders = senderValidator.getAllowedSenders();
+        if (allowedSenders.contains(type)) {
+            senderType = (Class<? extends S>) type;
+            return;
+        }
 
         throw createException(
                 "\"" + type.getSimpleName() + "\" is not a valid sender. " +

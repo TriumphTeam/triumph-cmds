@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.choices.ChoiceKey;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
@@ -63,7 +64,7 @@ import java.util.stream.Stream;
  *
  * @param <S> The sender type.
  */
-public final class SlashCommandManager<S> extends CommandManager<S> {
+public final class SlashCommandManager<S> extends CommandManager<SlashSender, S> {
 
     private final JDA jda;
 
@@ -71,17 +72,16 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
     private final Map<Long, Map<String, SlashCommand<S>>> guildCommands = new HashMap<>();
     private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
 
-    private final SenderMapper<S, SlashSender> senderMapper;
-
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
     public SlashCommandManager(
             @NotNull final JDA jda,
-            @NotNull final SenderMapper<S, SlashSender> senderMapper
+            @NotNull final SenderMapper<SlashSender, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
+        super(senderMapper, senderValidator);
         this.jda = jda;
-        this.senderMapper = senderMapper;
 
         jda.addEventListener(new SlashCommandListener<>(this, senderMapper));
     }
@@ -90,18 +90,20 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
      * Creates a new instance of the {@link SlashCommandManager}.
      * This factory is for adding a custom sender, for default sender use {@link #create(JDA)}.
      *
-     * @param jda          The JDA instance created.
-     * @param senderMapper The Mapper to get the custom sender from.
-     * @param <S>          The type of the custom sender.
+     * @param jda             The JDA instance created.
+     * @param senderMapper    The Mapper to get the custom sender from.
+     * @param senderValidator The validator to validate the sender.
+     * @param <S>             The type of the custom sender.
      * @return A new instance of the {@link SlashCommandManager}.
      */
     @NotNull
-    @Contract("_, _ -> new")
+    @Contract("_, _, _ -> new")
     public static <S> SlashCommandManager<S> create(
             @NotNull final JDA jda,
-            @NotNull final SenderMapper<S, SlashSender> senderMapper
+            @NotNull final SenderMapper<SlashSender, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        return new SlashCommandManager<>(jda, senderMapper);
+        return new SlashCommandManager<>(jda, senderMapper, senderValidator);
     }
 
     /**
@@ -112,7 +114,7 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
      * @return A new instance of the {@link SlashCommandManager}.
      */
     public static SlashCommandManager<SlashSender> create(@NotNull final JDA jda) {
-        final SlashCommandManager<SlashSender> commandManager = create(jda, new SlashSenderMapper());
+        final SlashCommandManager<SlashSender> commandManager = create(jda, SenderMapper.defaultMapper(), new SlashSenderValidator());
         setUpDefaults(commandManager);
         return commandManager;
     }
@@ -246,7 +248,8 @@ public final class SlashCommandManager<S> extends CommandManager<S> {
                 getRequirementRegistry(),
                 getMessageRegistry(),
                 choiceRegistry,
-                senderMapper
+                getSenderMapper(),
+                getSenderValidator()
         );
 
         final String name = processor.getName();

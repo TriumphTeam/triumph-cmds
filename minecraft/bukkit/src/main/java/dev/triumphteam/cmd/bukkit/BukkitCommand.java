@@ -35,6 +35,7 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +59,8 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private final RequirementRegistry<S> requirementRegistry;
     private final SuggestionRegistry<S> suggestionRegistry;
 
-    private final SenderMapper<S, CommandSender> senderMapper;
+    private final SenderMapper<CommandSender, S> senderMapper;
+    private final SenderValidator<S> senderValidator;
 
     private final ExecutionProvider syncExecutionProvider;
     private final ExecutionProvider asyncExecutionProvider;
@@ -80,6 +82,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         this.requirementRegistry = processor.getRequirementRegistry();
         this.suggestionRegistry = processor.getSuggestionRegistry();
         this.senderMapper = processor.getSenderMapper();
+        this.senderValidator = processor.getSenderValidator();
 
         this.syncExecutionProvider = syncExecutionProvider;
         this.asyncExecutionProvider = asyncExecutionProvider;
@@ -103,7 +106,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
                     requirementRegistry,
                     messageRegistry,
                     suggestionRegistry,
-                    senderMapper
+                    senderValidator
             );
 
             final String subCommandName = processor.getName();
@@ -138,7 +141,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         }
 
         final S mappedSender = senderMapper.map(sender);
-        if (mappedSender == null) return true;
 
         if (subCommand == null) {
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(getName(), subCommandName));
@@ -194,7 +196,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         if (subCommand == null) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
-        if (mappedSender == null) return emptyList();
 
         final List<String> commandArgs = Arrays.asList(args);
         return subCommand.getSuggestions(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);

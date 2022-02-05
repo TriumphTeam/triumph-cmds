@@ -35,6 +35,7 @@ import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,11 +65,15 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     private final boolean isDefault;
     private final boolean isNamedArguments;
 
+    private final Class<? extends S> senderType;
+
     private final List<Argument<S, ?>> arguments;
     private final Set<Requirement<S, ?>> requirements;
 
     private final MessageRegistry<S> messageRegistry;
     private final ExecutionProvider executionProvider;
+
+    private final SenderValidator<S> senderValidator;
 
     private final boolean containsLimitless;
 
@@ -86,6 +91,9 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         this.messageRegistry = processor.getMessageRegistry();
         this.isDefault = processor.isDefault();
         this.isNamedArguments = processor.isNamedArguments();
+        this.senderValidator = processor.getSenderValidator();
+
+        this.senderType = processor.getSenderType();
 
         this.parentName = parentName;
 
@@ -108,6 +116,13 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     @Override
     public boolean isNamedArguments() {
         return isNamedArguments;
+    }
+
+    // TODO: 2/5/2022 comments
+    @NotNull
+    @Override
+    public Class<? extends S> getSenderType() {
+        return senderType;
     }
 
     /**
@@ -148,6 +163,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      */
     @Override
     public void execute(@NotNull final S sender, @NotNull final List<String> args) {
+        if (!senderValidator.validate(messageRegistry, this, sender)) return;
         if (!meetRequirements(sender)) return;
 
         // Creates the invoking arguments list

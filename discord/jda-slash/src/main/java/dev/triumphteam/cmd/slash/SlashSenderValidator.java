@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,35 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed;
+package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import com.google.common.collect.ImmutableSet;
+import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
+import java.util.Set;
 
 /**
- * Processor for Prefixed JDA platform specific code.
- *
- * @param <S> The sender type.
+ * Simple validator that always returns true.
  */
-final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+class SlashSenderValidator implements SenderValidator<SlashSender> {
 
-    public PrefixedSubCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final Method method,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SenderValidator<S> senderValidator
-    ) {
-        super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderValidator);
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public Set<Class<? extends SlashSender>> getAllowedSenders() {
+        return ImmutableSet.of(SlashSender.class);
     }
 
+    @Override
+    public boolean validate(
+            @NotNull final MessageRegistry<SlashSender> messageRegistry,
+            @NotNull final SubCommand<SlashSender> subCommand,
+            @NotNull final SlashSender sender
+    ) {
+        return true;
+    }
 }
