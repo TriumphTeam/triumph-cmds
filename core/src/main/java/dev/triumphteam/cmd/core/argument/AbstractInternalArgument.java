@@ -29,13 +29,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 /**
- * Command argument.
- * Which is divided into {@link StringArgument} and {@link LimitlessArgument}.
+ * Command internalArgument.
+ * Which is divided into {@link StringInternalArgument} and {@link LimitlessInternalArgument}.
  *
  * @param <S> The sender type.
  * @param <T> The Argument type.
  */
-public abstract class AbstractArgument<S, T> implements Argument<S, T> {
+public abstract class AbstractInternalArgument<S, T> implements InternalArgument<S, T> {
 
     private final String name;
     private final String description;
@@ -43,7 +43,7 @@ public abstract class AbstractArgument<S, T> implements Argument<S, T> {
     private final int position;
     private final boolean optional;
 
-    public AbstractArgument(
+    public AbstractInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final Class<?> type,
@@ -58,11 +58,11 @@ public abstract class AbstractArgument<S, T> implements Argument<S, T> {
     }
 
     /**
-     * Gets the name of the argument.
+     * Gets the name of the internalArgument.
      * This will be either the parameter name or <code>arg1</code>, <code>arg2</code>, etc.
-     * Needs to be compiled with compiler argument <code>-parameters</code> to show actual names.
+     * Needs to be compiled with compiler internalArgument <code>-parameters</code> to show actual names.
      *
-     * @return The argument name.
+     * @return The internalArgument name.
      */
     @NotNull
     @Override
@@ -81,10 +81,10 @@ public abstract class AbstractArgument<S, T> implements Argument<S, T> {
     }
 
     /**
-     * The argument type.
-     * Holds the class type of the argument.
+     * The internalArgument type.
+     * Holds the class type of the internalArgument.
      *
-     * @return The argument type.
+     * @return The internalArgument type.
      */
     @NotNull
     @Override
@@ -93,9 +93,9 @@ public abstract class AbstractArgument<S, T> implements Argument<S, T> {
     }
 
     /**
-     * If argument is optional or not.
+     * If internalArgument is optional or not.
      *
-     * @return Whether the argument is optional.
+     * @return Whether the internalArgument is optional.
      */
     @Override
     public boolean isOptional() {
@@ -106,8 +106,8 @@ public abstract class AbstractArgument<S, T> implements Argument<S, T> {
     public boolean equals(@Nullable final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final AbstractArgument<?, ?> argument = (AbstractArgument<?, ?>) o;
-        return optional == argument.optional && name.equals(argument.name) && type.equals(argument.type);
+        final AbstractInternalArgument<?, ?> internalArgument = (AbstractInternalArgument<?, ?>) o;
+        return optional == internalArgument.optional && name.equals(internalArgument.name) && type.equals(internalArgument.type);
     }
 
     @Override

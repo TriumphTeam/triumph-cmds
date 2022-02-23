@@ -26,43 +26,49 @@ package dev.triumphteam.cmd.core.argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Normal {@link StringArgument}.
- * Basically the main implementation.
- * Uses an {@link ArgumentResolver} from the {@link ArgumentRegistry}.
- * Allows you to register many other simple argument types.
+ * Collection argument, a {@link LimitlessInternalArgument} but returns a {@link List} instead.
+ * Currently, only supports {@link List} and {@link Set}.
  *
  * @param <S> The sender type.
  */
-public final class ResolverArgument<S> extends StringArgument<S> {
+public final class CollectionInternalArgument<S> extends LimitlessInternalArgument<S> {
 
-    private final ArgumentResolver<S> resolver;
+    private final InternalArgument<S, String> internalArgument;
+    private final Class<?> collectionType;
 
-    public ResolverArgument(
+    public CollectionInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
-            @NotNull final Class<?> type,
-            @NotNull final ArgumentResolver<S> resolver,
+            @NotNull final InternalArgument<S, String> internalArgument,
+            @NotNull final Class<?> collectionType,
             final int position,
             final boolean optional
     ) {
-        super(name, description, type, position, optional);
-        this.resolver = resolver;
+        super(name, description, String.class, position, optional);
+        this.internalArgument = internalArgument;
+        this.collectionType = collectionType;
     }
 
     /**
      * Resolves the argument type.
      *
      * @param sender The sender to resolve to.
-     * @param value  The {@link String} argument value.
-     * @return An Object value of the correct type, based on the result from the {@link ArgumentResolver}.
+     * @param value  The arguments {@link List}.
+     * @return A {@link java.util.Collection} type as the resolved value.
      */
-    @Nullable
+    @NotNull
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final String value) {
-        return resolver.resolve(sender, value);
+    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
+        final Stream<Object> stream = value.stream().map(arg -> internalArgument.resolve(sender, arg));
+        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
+        return stream.collect(Collectors.toList());
     }
 
     @Override
@@ -70,20 +76,19 @@ public final class ResolverArgument<S> extends StringArgument<S> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final ResolverArgument<?> that = (ResolverArgument<?>) o;
-        return resolver.equals(that.resolver);
+        final CollectionInternalArgument<?> that = (CollectionInternalArgument<?>) o;
+        return collectionType.equals(that.collectionType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), resolver);
+        return Objects.hash(super.hashCode(), collectionType);
     }
 
     @Override
     public @NotNull String toString() {
-        return "ResolverArgument{" +
-                "resolver=" + resolver +
+        return "CollectionArgument{" +
+                "collectionType=" + collectionType +
                 ", super=" + super.toString() + "}";
     }
-
 }

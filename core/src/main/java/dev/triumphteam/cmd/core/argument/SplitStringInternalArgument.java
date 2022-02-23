@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,30 +25,50 @@ package dev.triumphteam.cmd.core.argument;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * A limitless argument is an argument type that won't check for argument size.
- * For example: Lists, Arrays, etc.
+ * Splitting argument takes a string and splits it into a collection.
  *
  * @param <S> The sender type.
  */
-public abstract class LimitlessArgument<S> extends AbstractArgument<S, List<String>> {
+public final class SplitStringInternalArgument<S> extends StringInternalArgument<S> {
 
-    public LimitlessArgument(
+    private final String regex;
+    private final InternalArgument<S, String> internalArgument;
+    private final Class<?> collectionType;
+
+    public SplitStringInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
-            @NotNull final Class<?> type,
+            @NotNull final String regex,
+            @NotNull final InternalArgument<S, String> internalArgument,
+            @NotNull final Class<?> collectionType,
             final int position,
-            final boolean isOptional
+            final boolean optional
     ) {
-        super(name, description, type, position, isOptional);
+        super(name, description, String.class, position, optional);
+        this.regex = regex;
+        this.internalArgument = internalArgument;
+        this.collectionType = collectionType;
     }
 
+    /**
+     * Takes a string and splits it into a collection.
+     *
+     * @param sender The sender to resolve to.
+     * @param value  The argument value.
+     * @return A collection of the split strings.
+     */
     @NotNull
     @Override
-    public String toString() {
-        return "LimitlessArgument{super=" + super.toString() + "}";
+    public Object resolve(@NotNull final S sender, @NotNull final String value) {
+        final Stream<Object> stream = Arrays.stream(value.split(regex)).map(arg -> internalArgument.resolve(sender, arg));
+        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
+        return stream.collect(Collectors.toList());
     }
 
 }

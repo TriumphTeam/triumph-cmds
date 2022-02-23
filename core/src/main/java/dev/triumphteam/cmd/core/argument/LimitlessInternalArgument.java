@@ -25,28 +25,30 @@ package dev.triumphteam.cmd.core.argument;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
- * Differently from the {@link LimitlessArgument}, this argument will always be just one string as the arg value.
- * And will return one single value as the resolved value.
+ * A limitless internalArgument is an internalArgument type that won't check for internalArgument size.
+ * For example: Lists, Arrays, etc.
  *
  * @param <S> The sender type.
  */
-public abstract class StringArgument<S> extends AbstractArgument<S, String> {
+public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, List<String>> {
 
-    public StringArgument(
+    public LimitlessInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final Class<?> type,
             final int position,
-            final boolean optional
+            final boolean isOptional
     ) {
-        super(name, description, type, position, optional);
+        super(name, description, type, position, isOptional);
     }
 
     @NotNull
     @Override
     public String toString() {
-        return "StringArgument{super=" + super.toString() + "}";
+        return "LimitlessArgument{super=" + super.toString() + "}";
     }
 
 }

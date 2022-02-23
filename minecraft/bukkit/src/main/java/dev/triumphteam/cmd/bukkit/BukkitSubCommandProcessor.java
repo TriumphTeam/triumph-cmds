@@ -93,9 +93,9 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
                 new Requirement<>(
                         sender -> sender.hasPermission(annotatedPermission),
                         BukkitMessageKey.NO_PERMISSION,
-                        (command, subCommand) -> new NoPermissionMessageContext(command, subCommand, annotatedPermission)
+                        (command, subCommand) -> new NoPermissionMessageContext(command, subCommand, annotatedPermission),
+                        false
                 )
         );
     }
-
 }

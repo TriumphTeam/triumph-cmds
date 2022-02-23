@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
-import dev.triumphteam.cmd.core.argument.Argument;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
@@ -64,9 +64,9 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         if (isNamedArguments()) {
             final String[] split = arg.split(":");
 
-            final Argument<S, ?> argument = getArgument(split[0]);
-            if (argument == null) {
-                final List<Argument<S, ?>> usedArguments = args
+            final InternalArgument<S, ?> internalArgument = getArgument(split[0]);
+            if (internalArgument == null) {
+                final List<InternalArgument<S, ?>> usedInternalArguments = args
                         .stream()
                         .map(it -> getArgument(it.split(":")[0]))
                         .filter(Objects::nonNull)
@@ -74,7 +74,7 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
                 return getArguments()
                         .stream()
-                        .filter(it -> !usedArguments.contains(it))
+                        .filter(it -> !usedInternalArguments.contains(it))
                         .map(it -> it.getName() + ":")
                         .filter(it -> it.toLowerCase().startsWith(arg))
                         .collect(Collectors.toList());
@@ -83,11 +83,11 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
             final String typed = split.length > 1 ? split[1] : "";
 
             return suggestions
-                    .get(argument.getPosition())
+                    .get(internalArgument.getPosition())
                     .getSuggestions(sender, context)
                     .stream()
                     .filter(it -> it.toLowerCase().startsWith(typed))
-                    .map(it -> argument.getName() + ":" + it)
+                    .map(it -> internalArgument.getName() + ":" + it)
                     .collect(Collectors.toList());
         }
 

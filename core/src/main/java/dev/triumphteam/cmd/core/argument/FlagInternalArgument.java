@@ -44,12 +44,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Flag argument, a {@link LimitlessArgument} but returns a {@link ParseResult} instead.
- * Which contains a {@link Flags} object and the left over to be passed to another {@link LimitlessArgument}.
+ * Flag argument, a {@link LimitlessInternalArgument} but returns a {@link ParseResult} instead.
+ * Which contains a {@link Flags} object and the left over to be passed to another {@link LimitlessInternalArgument}.
  *
  * @param <S> The sender type.
  */
-public final class FlagArgument<S> extends LimitlessArgument<S> {
+public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> {
 
     private final String commandName;
     private final String subCommandName;
@@ -57,7 +57,7 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
     private final FlagGroup<S> flagGroup;
     private final MessageRegistry<S> messageRegistry;
 
-    public FlagArgument(
+    public FlagInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final String commandName,
@@ -116,7 +116,7 @@ public final class FlagArgument<S> extends LimitlessArgument<S> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final FlagArgument<?> that = (FlagArgument<?>) o;
+        final FlagInternalArgument<?> that = (FlagInternalArgument<?>) o;
         return flagGroup.equals(that.flagGroup);
     }
 

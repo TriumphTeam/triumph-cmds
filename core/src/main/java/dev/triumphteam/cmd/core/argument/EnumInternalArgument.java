@@ -26,62 +26,73 @@ package dev.triumphteam.cmd.core.argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 
+import static dev.triumphteam.cmd.core.util.EnumUtils.getEnumConstants;
+import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
+
 /**
- * Joined string argument, a {@link LimitlessArgument}.
- * Returns a single {@link String} that was joined from a {@link List} of arguments.
+ * An argument type for {@link Enum}s.
+ * This is needed instead of the normal {@link ResolverInternalArgument} because of different types of enums, which requires the class.
  *
  * @param <S> The sender type.
  */
-public final class JoinedStringArgument<S> extends LimitlessArgument<S> {
+public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
 
-    private final CharSequence delimiter;
+    private final Class<? extends Enum<?>> enumType;
 
-    public JoinedStringArgument(
+    public EnumInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
-            @NotNull final CharSequence delimiter,
+            @NotNull final Class<? extends Enum<?>> type,
             final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, position, optional);
-        this.delimiter = delimiter;
+        super(name, description, type, position, optional);
+        this.enumType = type;
+
+        // Populates on creation to reduce runtime of first run for certain enums, like Bukkit's Material.
+        populateCache(type);
+    }
+
+    public Class<? extends Enum<?>> getEnumType() {
+        return enumType;
     }
 
     /**
      * Resolves the argument type.
      *
      * @param sender The sender to resolve to.
-     * @param value  The arguments {@link List}.
-     * @return A single {@link String} with the joined {@link List}.
+     * @param value  The {@link String} argument value.
+     * @return An {@link Enum} value of the correct type.
      */
-    @NotNull
+    @Nullable
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
-        return String.join(delimiter, value);
+    public Object resolve(@NotNull final S sender, @NotNull final String value) {
+        final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
+        if (reference == null) return null;
+        return reference.get();
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final JoinedStringArgument<?> that = (JoinedStringArgument<?>) o;
-        return delimiter.equals(that.delimiter);
+        final EnumInternalArgument<?> that = (EnumInternalArgument<?>) o;
+        return enumType.equals(that.enumType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), delimiter);
+        return Objects.hash(super.hashCode(), enumType);
     }
 
     @Override
     public @NotNull String toString() {
-        return "JoinedStringArgument{" +
-                "delimiter=" + delimiter +
+        return "EnumArgument{" +
+                "enumType=" + enumType +
                 ", super=" + super.toString() + "}";
     }
-
 }

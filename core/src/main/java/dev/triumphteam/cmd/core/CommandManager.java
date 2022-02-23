@@ -25,6 +25,8 @@ package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
+import dev.triumphteam.cmd.core.argument.named.Argument;
+import dev.triumphteam.cmd.core.key.RegistryKey;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageResolver;
@@ -96,13 +98,17 @@ public abstract class CommandManager<DS, S> {
     }
 
     /**
-     * Registers a custom argument.
+     * Registers a custom internalArgument.
      *
-     * @param clazz    The class of the argument to be registered.
-     * @param resolver The {@link ArgumentResolver} with the argument resolution.
+     * @param clazz    The class of the internalArgument to be registered.
+     * @param resolver The {@link ArgumentResolver} with the internalArgument resolution.
      */
     public final void registerArgument(@NotNull final Class<?> clazz, @NotNull final ArgumentResolver<S> resolver) {
         argumentRegistry.register(clazz, resolver);
+    }
+
+    public final void registerNamedArguments(@NotNull final RegistryKey key, @NotNull final Argument @NotNull ... arguments) {
+
     }
 
     /**

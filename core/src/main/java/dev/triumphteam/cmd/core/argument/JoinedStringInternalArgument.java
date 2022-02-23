@@ -28,32 +28,26 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
- * Collection argument, a {@link LimitlessArgument} but returns a {@link List} instead.
- * Currently, only supports {@link List} and {@link Set}.
+ * Joined string argument, a {@link LimitlessInternalArgument}.
+ * Returns a single {@link String} that was joined from a {@link List} of arguments.
  *
  * @param <S> The sender type.
  */
-public final class CollectionArgument<S> extends LimitlessArgument<S> {
+public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgument<S> {
 
-    private final Argument<S, String> argument;
-    private final Class<?> collectionType;
+    private final CharSequence delimiter;
 
-    public CollectionArgument(
+    public JoinedStringInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
-            @NotNull final Argument<S, String> argument,
-            @NotNull final Class<?> collectionType,
+            @NotNull final CharSequence delimiter,
             final int position,
             final boolean optional
     ) {
         super(name, description, String.class, position, optional);
-        this.argument = argument;
-        this.collectionType = collectionType;
+        this.delimiter = delimiter;
     }
 
     /**
@@ -61,14 +55,12 @@ public final class CollectionArgument<S> extends LimitlessArgument<S> {
      *
      * @param sender The sender to resolve to.
      * @param value  The arguments {@link List}.
-     * @return A {@link java.util.Collection} type as the resolved value.
+     * @return A single {@link String} with the joined {@link List}.
      */
     @NotNull
     @Override
     public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
-        final Stream<Object> stream = value.stream().map(arg -> argument.resolve(sender, arg));
-        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
-        return stream.collect(Collectors.toList());
+        return String.join(delimiter, value);
     }
 
     @Override
@@ -76,19 +68,20 @@ public final class CollectionArgument<S> extends LimitlessArgument<S> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final CollectionArgument<?> that = (CollectionArgument<?>) o;
-        return collectionType.equals(that.collectionType);
+        final JoinedStringInternalArgument<?> that = (JoinedStringInternalArgument<?>) o;
+        return delimiter.equals(that.delimiter);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), collectionType);
+        return Objects.hash(super.hashCode(), delimiter);
     }
 
     @Override
     public @NotNull String toString() {
-        return "CollectionArgument{" +
-                "collectionType=" + collectionType +
+        return "JoinedStringArgument{" +
+                "delimiter=" + delimiter +
                 ", super=" + super.toString() + "}";
     }
+
 }

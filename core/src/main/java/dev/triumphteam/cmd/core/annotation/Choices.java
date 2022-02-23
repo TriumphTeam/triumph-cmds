@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * Argument must be nullable in Kotlin.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
+@Target(ElementType.METHOD)
 public @interface Choices {
 
     /**

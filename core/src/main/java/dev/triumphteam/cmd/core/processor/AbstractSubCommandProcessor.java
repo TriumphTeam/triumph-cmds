@@ -37,17 +37,17 @@ import dev.triumphteam.cmd.core.annotation.NamedArguments;
 import dev.triumphteam.cmd.core.annotation.Optional;
 import dev.triumphteam.cmd.core.annotation.Requirements;
 import dev.triumphteam.cmd.core.annotation.Split;
-import dev.triumphteam.cmd.core.argument.Argument;
+import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
+import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
+import dev.triumphteam.cmd.core.argument.FlagInternalArgument;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.CollectionArgument;
-import dev.triumphteam.cmd.core.argument.EnumArgument;
-import dev.triumphteam.cmd.core.argument.FlagArgument;
-import dev.triumphteam.cmd.core.argument.JoinedStringArgument;
-import dev.triumphteam.cmd.core.argument.LimitlessArgument;
-import dev.triumphteam.cmd.core.argument.ResolverArgument;
-import dev.triumphteam.cmd.core.argument.SplitStringArgument;
-import dev.triumphteam.cmd.core.argument.StringArgument;
+import dev.triumphteam.cmd.core.argument.JoinedStringInternalArgument;
+import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
+import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.flag.Flags;
 import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
@@ -109,7 +109,7 @@ public abstract class AbstractSubCommandProcessor<S> {
     private Class<? extends S> senderType;
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
-    private final List<Argument<S, ?>> arguments = new ArrayList<>();
+    private final List<InternalArgument<S, ?>> internalArguments = new ArrayList<>();
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
 
     private final ArgumentRegistry<S> argumentRegistry;
@@ -151,7 +151,7 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Allows for customizing the argument parsing, for example <code>@Value</code> and <code>@Completion</code> annotations.
+     * Allows for customizing the internalArgument parsing, for example <code>@Value</code> and <code>@Completion</code> annotations.
      *
      * @param method The method to search from.
      */
@@ -314,12 +314,12 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @return The arguments list.
      */
     @NotNull
-    public List<Argument<S, ?>> getArguments() {
-        return arguments;
+    public List<InternalArgument<S, ?>> getArguments() {
+        return internalArguments;
     }
 
     /**
-     * Creates and adds the argument to the arguments list.
+     * Creates and adds the internalArgument to the arguments list.
      *
      * @param parameter The current parameter to get data from.
      */
@@ -329,7 +329,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         final String argumentDescription = getArgumentDescription(parameter, position);
         final boolean optional = isNamedArguments || parameter.isAnnotationPresent(Optional.class);
 
-        // Handles collection argument.
+        // Handles collection internalArgument.
         // TODO: Add more collection types.
         if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
             final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
@@ -341,32 +341,32 @@ public abstract class AbstractSubCommandProcessor<S> {
 
             final Type genericType = types[0];
             final Type collectionType = genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType;
-            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, argumentName, argumentDescription, position, optional);
+            final InternalArgument<S, String> internalArgument = createSimpleArgument((Class<?>) collectionType, argumentName, argumentDescription, position, optional);
 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
-                addArgument(new SplitStringArgument<>(argumentName, argumentDescription, splitAnnotation.value(), argument, type, position, optional));
+                addArgument(new SplitStringInternalArgument<>(argumentName, argumentDescription, splitAnnotation.value(), internalArgument, type, position, optional));
                 return;
             }
 
-            addArgument(new CollectionArgument<>(argumentName, argumentDescription, argument, type, position, optional));
+            addArgument(new CollectionInternalArgument<>(argumentName, argumentDescription, internalArgument, type, position, optional));
             return;
         }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(new JoinedStringArgument<>(argumentName, argumentDescription, joinAnnotation.value(), position, optional));
+            addArgument(new JoinedStringInternalArgument<>(argumentName, argumentDescription, joinAnnotation.value(), position, optional));
             return;
         }
 
         // Handler for flags.
         if (type == Flags.class) {
             if (flagGroup.isEmpty()) {
-                throw createException("Flags argument detected but no flag annotation declared");
+                throw createException("Flags internalArgument detected but no flag annotation declared");
             }
 
-            addArgument(new FlagArgument<>(argumentName, argumentDescription, parentName, name, flagGroup, messageRegistry, position, optional));
+            addArgument(new FlagInternalArgument<>(argumentName, argumentDescription, parentName, name, flagGroup, messageRegistry, position, optional));
             return;
         }
 
@@ -374,11 +374,11 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Gets the argument name, either from the parameter or from the annotation.
+     * Gets the internalArgument name, either from the parameter or from the annotation.
      * If the parameter is not annotated, turn the name from Camel Case to "lower-hyphen".
      *
      * @param parameter The parameter to get data from.
-     * @return The final argument name.
+     * @return The final internalArgument name.
      */
     @NotNull
     private String getArgName(@NotNull final Parameter parameter) {
@@ -390,11 +390,11 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Gets the argument description.
+     * Gets the internalArgument description.
      *
      * @param parameter The parameter to get data from.
-     * @param index     The index of the argument.
-     * @return The final argument description.
+     * @param index     The index of the internalArgument.
+     * @return The final internalArgument description.
      */
     @NotNull
     private String getArgumentDescription(@NotNull final Parameter parameter, final int index) {
@@ -415,9 +415,9 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param parameterName       The Name to use for this Argument.
      * @param argumentDescription the Description to use for this Argument.
      * @param optional            whether this Argument is optional.
-     * @return The created {@link Argument}.
+     * @return The created {@link InternalArgument}.
      */
-    private Argument<S, String> createSimpleArgument(
+    private InternalArgument<S, String> createSimpleArgument(
             @NotNull final Class<?> type,
             @NotNull final String parameterName,
             @NotNull final String argumentDescription,
@@ -430,16 +430,16 @@ public abstract class AbstractSubCommandProcessor<S> {
             // Handler for using any Enum.
             if (Enum.class.isAssignableFrom(type)) {
                 //noinspection unchecked
-                return new EnumArgument<>(parameterName, argumentDescription, (Class<? extends Enum<?>>) type, position, optional);
+                return new EnumInternalArgument<>(parameterName, argumentDescription, (Class<? extends Enum<?>>) type, position, optional);
             }
 
-            throw createException("No argument of type \"" + type.getName() + "\" registered");
+            throw createException("No internalArgument of type \"" + type.getName() + "\" registered");
         }
-        return new ResolverArgument<>(parameterName, argumentDescription, type, resolver, position, optional);
+        return new ResolverInternalArgument<>(parameterName, argumentDescription, type, resolver, position, optional);
     }
 
     /**
-     * Adds a required argument to the list.
+     * Adds a required internalArgument to the list.
      *
      * @param requirement The requirement to add.
      */
@@ -448,12 +448,12 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Utility to add the argument to the list.
+     * Utility to add the internalArgument to the list.
      *
-     * @param argument The created argument.
+     * @param internalArgument The created internalArgument.
      */
-    private void addArgument(@NotNull final Argument<S, ?> argument) {
-        arguments.add(argument);
+    private void addArgument(@NotNull final InternalArgument<S, ?> internalArgument) {
+        internalArguments.add(internalArgument);
     }
 
     /**
@@ -502,18 +502,18 @@ public abstract class AbstractSubCommandProcessor<S> {
             if (longFlag.isEmpty()) longFlag = null;
 
             final Class<?> argumentType = flagAnnotation.argument();
-            StringArgument<S> argument = null;
+            StringInternalArgument<S> internalArgument = null;
             if (argumentType != void.class) {
                 if (Enum.class.isAssignableFrom(argumentType)) {
                     //noinspection unchecked
-                    argument = new EnumArgument<>(argumentType.getName(), "", (Class<? extends Enum<?>>) argumentType, 0, false);
+                    internalArgument = new EnumInternalArgument<>(argumentType.getName(), "", (Class<? extends Enum<?>>) argumentType, 0, false);
                 } else {
                     final ArgumentResolver<S> resolver = argumentRegistry.getResolver(argumentType);
                     if (resolver == null) {
-                        throw createException("@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argumentType.getName() + "\"");
+                        throw createException("@" + Flag.class.getSimpleName() + "'s internalArgument contains unregistered type \"" + argumentType.getName() + "\"");
                     }
 
-                    argument = new ResolverArgument<>(argumentType.getName(), "", argumentType, resolver, 0, false);
+                    internalArgument = new ResolverInternalArgument<>(argumentType.getName(), "", argumentType, resolver, 0, false);
                 }
             }
 
@@ -521,7 +521,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                     new FlagOptions<>(
                             flag,
                             longFlag,
-                            argument,
+                            internalArgument,
                             flagAnnotation.optionalArg(),
                             flagAnnotation.required()
                     )
@@ -585,7 +585,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return A list of BiConsumers with checks.
      */
-    protected List<BiConsumer<Boolean, Argument<S, ?>>> getArgValidations() {
+    protected List<BiConsumer<Boolean, InternalArgument<S, ?>>> getArgValidations() {
         return Arrays.asList(validateOptionals(), validateLimitless());
     }
 
@@ -594,11 +594,11 @@ public abstract class AbstractSubCommandProcessor<S> {
      * For example a limitless arguments and optional arguments are only allowed at the end of the command.
      */
     private void validateArguments() {
-        final List<BiConsumer<Boolean, Argument<S, ?>>> validations = getArgValidations();
-        final Iterator<Argument<S, ?>> iterator = arguments.iterator();
+        final List<BiConsumer<Boolean, InternalArgument<S, ?>>> validations = getArgValidations();
+        final Iterator<InternalArgument<S, ?>> iterator = internalArguments.iterator();
         while (iterator.hasNext()) {
-            final Argument<S, ?> argument = iterator.next();
-            validations.forEach(consumer -> consumer.accept(iterator.hasNext(), argument));
+            final InternalArgument<S, ?> internalArgument = iterator.next();
+            validations.forEach(consumer -> consumer.accept(iterator.hasNext(), internalArgument));
         }
     }
 
@@ -607,10 +607,10 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return Returns a BiConsumer with a is optional check.
      */
-    protected BiConsumer<Boolean, Argument<S, ?>> validateOptionals() {
-        return (hasNext, argument) -> {
-            if (hasNext && argument.isOptional() && !isNamedArguments) {
-                throw createException("Optional argument is only allowed as the last argument");
+    protected BiConsumer<Boolean, InternalArgument<S, ?>> validateOptionals() {
+        return (hasNext, internalArgument) -> {
+            if (hasNext && internalArgument.isOptional() && !isNamedArguments) {
+                throw createException("Optional internalArgument is only allowed as the last internalArgument");
             }
         };
     }
@@ -620,10 +620,10 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return Returns a BiConsumer with an instance of check.
      */
-    protected BiConsumer<Boolean, Argument<S, ?>> validateLimitless() {
-        return (hasNext, argument) -> {
-            if (hasNext && argument instanceof LimitlessArgument) {
-                throw createException("Limitless argument is only allowed as the last argument");
+    protected BiConsumer<Boolean, InternalArgument<S, ?>> validateLimitless() {
+        return (hasNext, internalArgument) -> {
+            if (hasNext && internalArgument instanceof LimitlessInternalArgument) {
+                throw createException("Limitless internalArgument is only allowed as the last internalArgument");
             }
         };
     }

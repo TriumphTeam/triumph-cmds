@@ -26,38 +26,30 @@ package dev.triumphteam.cmd.core.argument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.ref.WeakReference;
 import java.util.Objects;
 
-import static dev.triumphteam.cmd.core.util.EnumUtils.getEnumConstants;
-import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
-
 /**
- * An argument type for {@link Enum}s.
- * This is needed instead of the normal {@link ResolverArgument} because of different types of enums, which requires the class.
+ * Normal {@link StringInternalArgument}.
+ * Basically the main implementation.
+ * Uses an {@link ArgumentResolver} from the {@link ArgumentRegistry}.
+ * Allows you to register many other simple argument types.
  *
  * @param <S> The sender type.
  */
-public final class EnumArgument<S> extends StringArgument<S> {
+public final class ResolverInternalArgument<S> extends StringInternalArgument<S> {
 
-    private final Class<? extends Enum<?>> enumType;
+    private final ArgumentResolver<S> resolver;
 
-    public EnumArgument(
+    public ResolverInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
-            @NotNull final Class<? extends Enum<?>> type,
+            @NotNull final Class<?> type,
+            @NotNull final ArgumentResolver<S> resolver,
             final int position,
             final boolean optional
     ) {
         super(name, description, type, position, optional);
-        this.enumType = type;
-
-        // Populates on creation to reduce runtime of first run for certain enums, like Bukkit's Material.
-        populateCache(type);
-    }
-
-    public Class<? extends Enum<?>> getEnumType() {
-        return enumType;
+        this.resolver = resolver;
     }
 
     /**
@@ -65,34 +57,33 @@ public final class EnumArgument<S> extends StringArgument<S> {
      *
      * @param sender The sender to resolve to.
      * @param value  The {@link String} argument value.
-     * @return An {@link Enum} value of the correct type.
+     * @return An Object value of the correct type, based on the result from the {@link ArgumentResolver}.
      */
     @Nullable
     @Override
     public Object resolve(@NotNull final S sender, @NotNull final String value) {
-        final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
-        if (reference == null) return null;
-        return reference.get();
+        return resolver.resolve(sender, value);
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@Nullable final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final EnumArgument<?> that = (EnumArgument<?>) o;
-        return enumType.equals(that.enumType);
+        final ResolverInternalArgument<?> that = (ResolverInternalArgument<?>) o;
+        return resolver.equals(that.resolver);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), enumType);
+        return Objects.hash(super.hashCode(), resolver);
     }
 
     @Override
     public @NotNull String toString() {
-        return "EnumArgument{" +
-                "enumType=" + enumType +
+        return "ResolverArgument{" +
+                "resolver=" + resolver +
                 ", super=" + super.toString() + "}";
     }
+
 }

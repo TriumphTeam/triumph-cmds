@@ -21,64 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument;
+package dev.triumphteam.cmd.core.argument.named;
 
+import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Command argument.
+ * The argument registry holds simple types of all common argument types.
+ * Also allows for registration of custom ones.
+ * Each platform will introduce their own new ones by default.
  *
  * @param <S> The sender type.
- * @param <T> The Argument type.
  */
-public interface Argument<S, T> {
+public final class ArgumentRegistry<S> {
+
+    private final Map<Class<?>, ArgumentResolver<S>> arguments = new HashMap<>();
+
+    @SuppressWarnings("UnstableApiUsage")
+    public ArgumentRegistry() {
+
+    }
 
     /**
-     * Gets the name of the argument.
-     * This will be either the parameter name or <code>arg1</code>, <code>arg2</code>, etc.
-     * Needs to be compiled with compiler argument <code>-parameters</code> to show actual names.
+     * Registers a new argument type.
      *
-     * @return The argument name.
+     * @param clazz    The {@link Class} type the argument should be.
+     * @param argument The {@link ArgumentResolver} with the resolution of the argument.
      */
-    @NotNull
-    String getName();
-
-    // TODO: 1/31/2022
-    int getPosition();
+    public void register(@NotNull final Class<?> clazz, final ArgumentResolver<S> argument) {
+        arguments.put(clazz, argument);
+    }
 
     /**
-     * The description of this Argument.
-     * Holds the description.
+     * Gets an argument resolver from the Map.
      *
-     * @return The description of this Argument.
-     */
-    String getDescription();
-
-    /**
-     * The argument type.
-     * Holds the class type of the argument.
-     *
-     * @return The argument type.
-     */
-    @NotNull
-    Class<?> getType();
-
-    /**
-     * If argument is optional or not.
-     *
-     * @return Whether the argument is optional.
-     */
-    boolean isOptional();
-
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The argument value.
-     * @return An object with the resolved value.
+     * @param clazz The {@link Class} type the argument.
+     * @return An {@link ArgumentResolver} or null if it doesn't exist.
      */
     @Nullable
-    Object resolve(@NotNull final S sender, @NotNull final T value);
+    public ArgumentResolver<S> getResolver(@NotNull final Class<?> clazz) {
+        return arguments.get(clazz);
+    }
 
 }

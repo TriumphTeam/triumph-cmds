@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.Argument;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -80,7 +80,7 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
     }
 
     @Override
-    protected List<BiConsumer<Boolean, Argument<S, ?>>> getArgValidations() {
+    protected List<BiConsumer<Boolean, InternalArgument<S, ?>>> getArgValidations() {
         return Collections.singletonList(validateLimitless());
     }
 
