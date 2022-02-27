@@ -63,7 +63,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     private final String name;
     private final List<String> alias;
     private final boolean isDefault;
-    private final boolean isNamedArguments;
 
     private final Class<? extends S> senderType;
 
@@ -90,7 +89,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         this.requirements = processor.getRequirements();
         this.messageRegistry = processor.getMessageRegistry();
         this.isDefault = processor.isDefault();
-        this.isNamedArguments = processor.isNamedArguments();
         this.senderValidator = processor.getSenderValidator();
 
         this.senderType = processor.getSenderType();
@@ -111,11 +109,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     @Override
     public boolean isDefault() {
         return isDefault;
-    }
-
-    @Override
-    public boolean isNamedArguments() {
-        return isNamedArguments;
     }
 
     // TODO: 2/5/2022 comments

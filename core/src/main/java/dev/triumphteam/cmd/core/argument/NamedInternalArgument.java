@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S> {
@@ -32,9 +33,6 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
     public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
         final Map<String, String> parsedArgs = NamedArgumentParser.parse(String.join(" ", value));
 
-        System.out.println("Raw string: " + String.join(" ", value));
-        System.out.println("Parsed args: " + parsedArgs);
-
         final Map<String, Object> mapped = parsedArgs.entrySet()
                 .stream()
                 .map(entry -> {
@@ -42,7 +40,7 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
                     final InternalArgument<S, ?> argument = arguments.get(key);
                     if (argument == null) return null;
                     final Object resolved = resolveArgument(sender, argument, entry.getValue());
-                    return Maps.immutableEntry(key, resolved);
+                    return Maps.immutableEntry(key, Optional.ofNullable(resolved));
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

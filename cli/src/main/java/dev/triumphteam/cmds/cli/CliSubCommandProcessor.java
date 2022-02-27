@@ -21,40 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed;
+package dev.triumphteam.cmds.cli;
 
-import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.SubCommand;
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
+import java.lang.reflect.Method;
 
-/**
- * Simple mapper than returns itself.
- */
-class PrefixedSenderValidator implements SenderValidator<PrefixedSender> {
+final class CliSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public Set<Class<? extends PrefixedSender>> getAllowedSenders() {
-        return ImmutableSet.of(PrefixedSender.class);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean validate(
-            @NotNull final MessageRegistry<PrefixedSender> messageRegistry,
-            @NotNull final SubCommand<PrefixedSender> subCommand,
-            @NotNull final PrefixedSender sender
+    public CliSubCommandProcessor(
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final String parentName,
+            @NotNull final Method method,
+            @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
+            @NotNull final RequirementRegistry<S> requirementRegistry,
+            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        return true;
+        super(baseCommand, parentName, method, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderValidator);
     }
 }
