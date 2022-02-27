@@ -26,7 +26,8 @@ package dev.triumphteam.cmd.core;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.named.Argument;
-import dev.triumphteam.cmd.core.key.RegistryKey;
+import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageResolver;
@@ -38,6 +39,9 @@ import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Base command manager for all platforms.
  *
@@ -47,6 +51,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class CommandManager<DS, S> {
 
     private final ArgumentRegistry<S> argumentRegistry = new ArgumentRegistry<>();
+    private final NamedArgumentRegistry<S> namedArgumentRegistry = new NamedArgumentRegistry<>();
     private final RequirementRegistry<S> requirementRegistry = new RequirementRegistry<>();
     private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
 
@@ -107,8 +112,13 @@ public abstract class CommandManager<DS, S> {
         argumentRegistry.register(clazz, resolver);
     }
 
-    public final void registerNamedArguments(@NotNull final RegistryKey key, @NotNull final Argument @NotNull ... arguments) {
+    // TODO: Comments
+    public final void registerNamedArguments(@NotNull final ArgumentKey key, @NotNull final Argument @NotNull ... arguments) {
+        registerNamedArguments(key, Arrays.asList(arguments));
+    }
 
+    public final void registerNamedArguments(@NotNull final ArgumentKey key, @NotNull final List<@NotNull Argument> arguments) {
+        namedArgumentRegistry.register(key, arguments);
     }
 
     /**
@@ -144,6 +154,11 @@ public abstract class CommandManager<DS, S> {
      */
     protected ArgumentRegistry<S> getArgumentRegistry() {
         return argumentRegistry;
+    }
+
+    // TODO: Comments
+    protected NamedArgumentRegistry<S> getNamedArgumentRegistry() {
+        return namedArgumentRegistry;
     }
 
     /**

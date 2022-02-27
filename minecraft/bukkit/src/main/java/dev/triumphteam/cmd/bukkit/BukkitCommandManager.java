@@ -123,6 +123,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(
                 baseCommand,
                 getArgumentRegistry(),
+                getNamedArgumentRegistry(),
                 getRequirementRegistry(),
                 getMessageRegistry(),
                 getSenderMapper(),

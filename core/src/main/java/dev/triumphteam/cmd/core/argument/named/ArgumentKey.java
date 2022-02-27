@@ -21,17 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.argument.named;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import dev.triumphteam.cmd.core.key.RegistryKey;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface NamedArguments {
+public class ArgumentKey extends RegistryKey {
 
-    String value();
+    private ArgumentKey(@NotNull final String key) {
+        super(key);
+    }
 
+    @NotNull
+    @Contract("_ -> new")
+    public static ArgumentKey of(@NotNull final String key) {
+        return new ArgumentKey(key);
+    }
 }

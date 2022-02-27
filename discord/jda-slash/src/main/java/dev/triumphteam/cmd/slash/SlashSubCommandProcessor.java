@@ -24,8 +24,9 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
@@ -69,12 +70,13 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
             @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final ChoiceRegistry choiceRegistry,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderValidator);
+        super(baseCommand, parentName, method, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderValidator);
         this.choiceRegistry = choiceRegistry;
         this.choices = extractChoices(method, baseCommand.getClass());
     }

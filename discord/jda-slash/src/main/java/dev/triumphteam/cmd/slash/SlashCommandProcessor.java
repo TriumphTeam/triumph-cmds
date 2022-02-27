@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
@@ -56,13 +57,14 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<SlashSende
     public SlashCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final ChoiceRegistry suggestionRegistry,
             @NotNull final SenderMapper<SlashSender, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
+        super(baseCommand, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
         this.choiceRegistry = suggestionRegistry;
         extractPrivilege();
     }

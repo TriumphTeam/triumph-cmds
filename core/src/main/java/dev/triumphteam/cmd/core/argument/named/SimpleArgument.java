@@ -15,4 +15,21 @@ public final class SimpleArgument implements Argument {
         this.description = argumentBuilder.getDescription();
     }
 
+    @NotNull
+    @Override
+    public Class<?> getType() {
+        return type;
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @NotNull
+    @Override
+    public String getDescription() {
+        return description;
+    }
 }

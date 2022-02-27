@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
@@ -46,12 +47,13 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<Prefixe
     public PrefixedCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, argumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
+        super(baseCommand, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
         prefix = extractPrefix();
     }
 

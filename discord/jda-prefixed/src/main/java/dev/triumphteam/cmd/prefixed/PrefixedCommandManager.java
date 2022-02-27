@@ -209,6 +209,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
         final PrefixedCommandProcessor<S> processor = new PrefixedCommandProcessor<>(
                 baseCommand,
                 getArgumentRegistry(),
+                getNamedArgumentRegistry(),
                 getRequirementRegistry(),
                 getMessageRegistry(),
                 getSenderMapper(),

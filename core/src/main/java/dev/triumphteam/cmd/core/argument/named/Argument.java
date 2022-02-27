@@ -28,4 +28,12 @@ public interface Argument {
         return new ArgumentBuilder(type);
     }
 
+    @NotNull
+    Class<?> getType();
+
+    @NotNull
+    String getName();
+
+    @NotNull
+    String getDescription();
 }

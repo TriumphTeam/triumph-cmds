@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
@@ -53,12 +54,13 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
             @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final SuggestionRegistry<S> suggestionRegistry,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderValidator);
+        super(baseCommand, parentName, method, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderValidator);
         if (getName() == null) return;
         suggestions.addAll(SuggestionRegistry.extractSuggestions(suggestionRegistry, method, baseCommand.getClass()));
         checkPermission(getMethod());

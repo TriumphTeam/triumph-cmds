@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.processor;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.Maps;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotation.ArgName;
@@ -37,17 +38,22 @@ import dev.triumphteam.cmd.core.annotation.NamedArguments;
 import dev.triumphteam.cmd.core.annotation.Optional;
 import dev.triumphteam.cmd.core.annotation.Requirements;
 import dev.triumphteam.cmd.core.annotation.Split;
+import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
 import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
 import dev.triumphteam.cmd.core.argument.FlagInternalArgument;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.JoinedStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.argument.NamedInternalArgument;
 import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.argument.named.Argument;
+import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.named.Arguments;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.flag.Flags;
 import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
@@ -77,6 +83,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -113,6 +120,7 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
 
     private final ArgumentRegistry<S> argumentRegistry;
+    private final NamedArgumentRegistry<S> namedArgumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final SenderValidator<S> senderValidator;
@@ -122,6 +130,7 @@ public abstract class AbstractSubCommandProcessor<S> {
             @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final SenderValidator<S> senderValidator
@@ -132,6 +141,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.method = method;
 
         this.argumentRegistry = argumentRegistry;
+        this.namedArgumentRegistry = namedArgumentRegistry;
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
         this.senderValidator = senderValidator;
@@ -370,7 +380,45 @@ public abstract class AbstractSubCommandProcessor<S> {
             return;
         }
 
+        // Handler for named arguments
+        if (type == Arguments.class) {
+            final NamedArguments namedArguments = method.getAnnotation(NamedArguments.class);
+            if (namedArguments == null) {
+                throw createException("TODO");
+            }
+
+            addArgument(
+                    new NamedInternalArgument<>(
+                            argumentName,
+                            argumentDescription,
+                            collectNamedArgs(namedArguments.value()),
+                            position,
+                            optional
+                    )
+            );
+            return;
+        }
+
         addArgument(createSimpleArgument(type, argumentName, argumentDescription, position, optional));
+    }
+
+    private Map<String, InternalArgument<S, ?>> collectNamedArgs(final String key) {
+        final List<Argument> arguments = namedArgumentRegistry.getResolver(ArgumentKey.of(key));
+        if (arguments == null || arguments.isEmpty()) {
+            throw createException("No registered named arguments found for key \"" + key + "\"");
+        }
+
+        // TODO: Handle list
+        return arguments.stream().map(argument -> Maps.immutableEntry(
+                argument.getName(),
+                createSimpleArgument(
+                        argument.getType(),
+                        argument.getName(),
+                        argument.getDescription(),
+                        0,
+                        true
+                )
+        )).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**

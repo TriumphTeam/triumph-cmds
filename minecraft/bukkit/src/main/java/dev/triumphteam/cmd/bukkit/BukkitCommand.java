@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -55,6 +56,7 @@ import static java.util.Collections.emptyList;
 public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command {
 
     private final ArgumentRegistry<S> argumentRegistry;
+    private final NamedArgumentRegistry<S> namedArgumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final SuggestionRegistry<S> suggestionRegistry;
@@ -78,6 +80,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         this.description = processor.getDescription();
         this.argumentRegistry = processor.getArgumentRegistry();
+        this.namedArgumentRegistry = processor.getNamedArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
         this.suggestionRegistry = processor.getSuggestionRegistry();
@@ -103,6 +106,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
                     getName(),
                     method,
                     argumentRegistry,
+                    namedArgumentRegistry,
                     requirementRegistry,
                     messageRegistry,
                     suggestionRegistry,

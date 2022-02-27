@@ -6,17 +6,19 @@ public final class ArgumentBuilder {
 
     private final Class<?> type;
     private String name;
-    private String description;
+    private String description = "Description!";
 
     public ArgumentBuilder(@NotNull final Class<?> type) {
         this.type = type;
     }
 
     public ArgumentBuilder name(@NotNull final String name) {
+        this.name = name;
         return this;
     }
 
     public ArgumentBuilder description(@NotNull final String description) {
+        this.description = description;
         return this;
     }
 

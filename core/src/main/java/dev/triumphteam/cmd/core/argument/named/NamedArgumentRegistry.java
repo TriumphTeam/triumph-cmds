@@ -23,48 +23,24 @@
  */
 package dev.triumphteam.cmd.core.argument.named;
 
-import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * The argument registry holds simple types of all common argument types.
- * Also allows for registration of custom ones.
- * Each platform will introduce their own new ones by default.
- *
- * @param <S> The sender type.
- */
-public final class ArgumentRegistry<S> {
+public final class NamedArgumentRegistry<S> {
 
-    private final Map<Class<?>, ArgumentResolver<S>> arguments = new HashMap<>();
+    private final Map<ArgumentKey, List<Argument>> namedArguments = new HashMap<>();
 
-    @SuppressWarnings("UnstableApiUsage")
-    public ArgumentRegistry() {
-
+    public void register(@NotNull final ArgumentKey key, @NotNull final List<Argument> arguments) {
+        namedArguments.put(key, arguments);
     }
 
-    /**
-     * Registers a new argument type.
-     *
-     * @param clazz    The {@link Class} type the argument should be.
-     * @param argument The {@link ArgumentResolver} with the resolution of the argument.
-     */
-    public void register(@NotNull final Class<?> clazz, final ArgumentResolver<S> argument) {
-        arguments.put(clazz, argument);
-    }
-
-    /**
-     * Gets an argument resolver from the Map.
-     *
-     * @param clazz The {@link Class} type the argument.
-     * @return An {@link ArgumentResolver} or null if it doesn't exist.
-     */
     @Nullable
-    public ArgumentResolver<S> getResolver(@NotNull final Class<?> clazz) {
-        return arguments.get(clazz);
+    public List<Argument> getResolver(@NotNull final ArgumentKey key) {
+        return namedArguments.get(key);
     }
 
 }

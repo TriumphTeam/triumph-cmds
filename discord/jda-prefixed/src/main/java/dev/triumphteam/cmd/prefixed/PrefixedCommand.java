@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
@@ -55,6 +56,7 @@ final class PrefixedCommand<S> implements Command {
     private final List<String> alias;
 
     private final ArgumentRegistry<S> argumentRegistry;
+    private final NamedArgumentRegistry<S> namedArgumentRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final RequirementRegistry<S> requirementRegistry;
 
@@ -72,6 +74,7 @@ final class PrefixedCommand<S> implements Command {
         this.name = processor.getName();
         this.alias = processor.getAlias();
         this.argumentRegistry = processor.getArgumentRegistry();
+        this.namedArgumentRegistry = processor.getNamedArgumentRegistry();
         this.messageRegistry = processor.getMessageRegistry();
         this.requirementRegistry = processor.getRequirementRegistry();
         this.senderMapper = processor.getSenderMapper();
@@ -92,6 +95,7 @@ final class PrefixedCommand<S> implements Command {
                     name,
                     method,
                     argumentRegistry,
+                    namedArgumentRegistry,
                     requirementRegistry,
                     messageRegistry,
                     senderValidator

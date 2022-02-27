@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
@@ -57,6 +58,7 @@ public abstract class AbstractCommandProcessor<SD, S> {
 
     private final BaseCommand baseCommand;
     private final ArgumentRegistry<S> argumentRegistry;
+    private final NamedArgumentRegistry<S> namedArgumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final SenderMapper<SD, S> senderMapper;
@@ -65,6 +67,7 @@ public abstract class AbstractCommandProcessor<SD, S> {
     protected AbstractCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final ArgumentRegistry<S> argumentRegistry,
+            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
             @NotNull final RequirementRegistry<S> requirementRegistry,
             @NotNull final MessageRegistry<S> messageRegistry,
             @NotNull final SenderMapper<SD, S> senderMapper,
@@ -72,6 +75,7 @@ public abstract class AbstractCommandProcessor<SD, S> {
     ) {
         this.baseCommand = baseCommand;
         this.argumentRegistry = argumentRegistry;
+        this.namedArgumentRegistry = namedArgumentRegistry;
         this.requirementRegistry = requirementRegistry;
         this.messageRegistry = messageRegistry;
         this.senderMapper = senderMapper;
@@ -120,6 +124,12 @@ public abstract class AbstractCommandProcessor<SD, S> {
     @NotNull
     public ArgumentRegistry<S> getArgumentRegistry() {
         return argumentRegistry;
+    }
+
+    // TODO: Comments
+    @NotNull
+    public NamedArgumentRegistry<S> getNamedArgumentRegistry() {
+        return namedArgumentRegistry;
     }
 
     /**
