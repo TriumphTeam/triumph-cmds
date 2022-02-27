@@ -111,7 +111,6 @@ public abstract class AbstractSubCommandProcessor<S> {
 
     private boolean isDefault = false;
     private final boolean isAsync;
-    private final boolean isNamedArguments;
 
     private Class<? extends S> senderType;
 
@@ -147,7 +146,6 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.senderValidator = senderValidator;
 
         this.isAsync = method.isAnnotationPresent(Async.class);
-        this.isNamedArguments = method.isAnnotationPresent(NamedArguments.class);
 
         extractSubCommandNames();
         if (name == null) return;
@@ -231,11 +229,6 @@ public abstract class AbstractSubCommandProcessor<S> {
      */
     public boolean isAsync() {
         return isAsync;
-    }
-
-    // TODO: 1/30/2022
-    public boolean isNamedArguments() {
-        return isNamedArguments;
     }
 
     /**
@@ -337,7 +330,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         final Class<?> type = parameter.getType();
         final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(parameter, position);
-        final boolean optional = isNamedArguments || parameter.isAnnotationPresent(Optional.class);
+        final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
         // Handles collection internalArgument.
         // TODO: Add more collection types.
@@ -653,11 +646,11 @@ public abstract class AbstractSubCommandProcessor<S> {
     /**
      * Validation function for optionals.
      *
-     * @return Returns a BiConsumer with a is optional check.
+     * @return Returns a BiConsumer with an is optional check.
      */
     protected BiConsumer<Boolean, InternalArgument<S, ?>> validateOptionals() {
         return (hasNext, internalArgument) -> {
-            if (hasNext && internalArgument.isOptional() && !isNamedArguments) {
+            if (hasNext && internalArgument.isOptional()) {
                 throw createException("Optional internalArgument is only allowed as the last internalArgument");
             }
         };

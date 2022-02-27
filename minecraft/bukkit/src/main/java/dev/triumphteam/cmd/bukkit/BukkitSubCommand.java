@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
-import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
@@ -33,7 +32,6 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -60,36 +58,6 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         final String arg = args.get(index).toLowerCase();
 
         final SuggestionContext context = new SuggestionContext(args, getParentName(), getName());
-
-        if (isNamedArguments()) {
-            final String[] split = arg.split(":");
-
-            final InternalArgument<S, ?> internalArgument = getArgument(split[0]);
-            if (internalArgument == null) {
-                final List<InternalArgument<S, ?>> usedInternalArguments = args
-                        .stream()
-                        .map(it -> getArgument(it.split(":")[0]))
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-
-                return getArguments()
-                        .stream()
-                        .filter(it -> !usedInternalArguments.contains(it))
-                        .map(it -> it.getName() + ":")
-                        .filter(it -> it.toLowerCase().startsWith(arg))
-                        .collect(Collectors.toList());
-            }
-
-            final String typed = split.length > 1 ? split[1] : "";
-
-            return suggestions
-                    .get(internalArgument.getPosition())
-                    .getSuggestions(sender, context)
-                    .stream()
-                    .filter(it -> it.toLowerCase().startsWith(typed))
-                    .map(it -> internalArgument.getName() + ":" + it)
-                    .collect(Collectors.toList());
-        }
 
         return suggestions
                 .get(index)

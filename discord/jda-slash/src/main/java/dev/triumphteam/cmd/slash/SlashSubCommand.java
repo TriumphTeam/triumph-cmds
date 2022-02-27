@@ -52,11 +52,6 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
         this.choices = processor.getChoices();
     }
 
-    @Override
-    public boolean isNamedArguments() {
-        return true;
-    }
-
     public String getDescription() {
         return description;
     }

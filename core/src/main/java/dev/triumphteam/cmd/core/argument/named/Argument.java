@@ -9,15 +9,15 @@ public interface Argument {
     }
 
     static ArgumentBuilder forInt() {
-        return new ArgumentBuilder(int.class);
+        return new ArgumentBuilder(Integer.class);
     }
 
     static ArgumentBuilder forFloat() {
-        return new ArgumentBuilder(float.class);
+        return new ArgumentBuilder(Float.class);
     }
 
     static ArgumentBuilder forDouble() {
-        return new ArgumentBuilder(double.class);
+        return new ArgumentBuilder(Double.class);
     }
 
     static ArgumentBuilder forBoolean() {

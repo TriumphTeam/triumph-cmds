@@ -21,40 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.prefixed;
+package dev.triumphteam.cmds.cli;
 
-import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.SubCommand;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
+import dev.triumphteam.cmd.core.AbstractSubCommand;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
+public final class CliSubCommand<S> extends AbstractSubCommand<S> {
 
-/**
- * Simple mapper than returns itself.
- */
-class PrefixedSenderValidator implements SenderValidator<PrefixedSender> {
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    public Set<Class<? extends PrefixedSender>> getAllowedSenders() {
-        return ImmutableSet.of(PrefixedSender.class);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean validate(
-            @NotNull final MessageRegistry<PrefixedSender> messageRegistry,
-            @NotNull final SubCommand<PrefixedSender> subCommand,
-            @NotNull final PrefixedSender sender
+    public CliSubCommand(
+            @NotNull final CliSubCommandProcessor<S> processor,
+            @NotNull final String parentName,
+            @NotNull final ExecutionProvider executionProvider
     ) {
-        return true;
+        super(processor, parentName, executionProvider);
     }
 }
