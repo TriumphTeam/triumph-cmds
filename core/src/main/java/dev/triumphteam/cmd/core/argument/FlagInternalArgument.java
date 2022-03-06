@@ -36,6 +36,7 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.InvalidFlagArgumentContext;
 import dev.triumphteam.cmd.core.message.context.MissingFlagArgumentContext;
 import dev.triumphteam.cmd.core.message.context.MissingFlagContext;
+import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +68,7 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
             final int position,
             final boolean isOptional
     ) {
-        super(name, description, Flags.class, position, isOptional);
+        super(name, description, Flags.class, new EmptySuggestion<>(), position, isOptional);
         this.commandName = commandName;
         this.subCommandName = subCommandName;
 

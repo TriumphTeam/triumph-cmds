@@ -3,6 +3,7 @@ package dev.triumphteam.cmd.core.argument;
 import dev.triumphteam.cmd.core.argument.named.Arguments;
 import dev.triumphteam.cmd.core.argument.named.NamedArgumentParser;
 import dev.triumphteam.cmd.core.argument.named.NamedArgumentResult;
+import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +22,7 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
             final int position,
             final boolean isOptional
     ) {
-        super(name, description, Arguments.class, position, isOptional);
+        super(name, description, Arguments.class, new EmptySuggestion<>(), position, isOptional);
         this.arguments = arguments;
     }
 

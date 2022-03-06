@@ -24,21 +24,38 @@
 package dev.triumphteam.cmd.core.suggestion;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Marks the platform manager as able to handle suggestions.
- * Examples: <code>JDA slash commands</code> and <code>Bukkit commands</code>.
+ * Registry used for registering new suggestions for all commands to use.
  *
- * @param <S> The type the sender.
+ * @param <S> The sender type.
  */
-public interface SuggestiblePlatform<S> {
+public final class SuggestionRegistry<S> {
+
+    private final Map<SuggestionKey, SuggestionResolver<S>> suggestions = new HashMap<>();
 
     /**
-     * Registers an argument suggestion resolver.
+     * Registers a new {@link SuggestionResolver} for the specific Key.
      *
-     * @param key                The key to register the resolver under.
-     * @param suggestionResolver The resolver to register.
+     * @param key      The suggestion key.
+     * @param resolver The action to get the suggestions.
      */
-    void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver);
+    public void register(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> resolver) {
+        suggestions.put(key, resolver);
+    }
 
+    /**
+     * Gets the {@link SuggestionResolver} for the specific Key.
+     *
+     * @param key The specific key.
+     * @return A saved {@link SuggestionResolver}.
+     */
+    @Nullable
+    public SuggestionResolver<S> getSuggestionResolver(@NotNull final SuggestionKey key) {
+        return suggestions.get(key);
+    }
 }

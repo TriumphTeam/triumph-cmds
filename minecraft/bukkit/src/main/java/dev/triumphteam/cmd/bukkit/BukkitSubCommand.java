@@ -25,10 +25,8 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -38,8 +36,8 @@ import static java.util.Collections.emptyList;
 
 public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
-    private final List<Requirement<CommandSender, ?>> defaultRequirements;
     private final List<Suggestion<S>> suggestions;
+    private final String permission;
 
     public BukkitSubCommand(
             @NotNull final BukkitSubCommandProcessor<S> processor,
@@ -48,8 +46,8 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
     ) {
         super(processor, parentName, executionProvider);
 
-        this.defaultRequirements = processor.getDefaultRequirements();
         this.suggestions = processor.getSuggestions();
+        this.permission = processor.getPermission();
     }
 
     public List<String> getSuggestions(@NotNull final S sender, @NotNull final List<String> args) {
@@ -71,15 +69,9 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         return !suggestions.isEmpty();
     }
 
-    public boolean meetsDefaultRequirements(@NotNull final CommandSender defaultSender, @NotNull final S sender) {
-        for (final Requirement<CommandSender, ?> requirement : defaultRequirements) {
-            if (!requirement.isMet(defaultSender)) {
-                requirement.sendMessage(getMessageRegistry(), sender, getParentName(), getName());
-                return false;
-            }
-        }
-
-        return true;
+    // TODO: Comments
+    public String getPermission() {
+        return permission;
     }
 
 }

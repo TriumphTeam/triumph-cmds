@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,10 +38,11 @@ public abstract class StringInternalArgument<S> extends AbstractInternalArgument
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final Class<?> type,
+            @NotNull final Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
-        super(name, description, type, position, optional);
+        super(name, description, type, suggestion, position, optional);
     }
 
     @NotNull

@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,10 +44,11 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final CharSequence delimiter,
+            @NotNull final Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, position, optional);
+        super(name, description, String.class, suggestion, position, optional);
         this.delimiter = delimiter;
     }
 

@@ -23,9 +23,12 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -42,19 +45,27 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     private final Class<?> type;
     private final int position;
     private final boolean optional;
+    private final Suggestion<S> suggestion;
 
     public AbstractInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final Class<?> type,
+            @NotNull final Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
         this.name = name;
         this.description = description;
         this.type = type;
+        this.suggestion = suggestion;
         this.position = position;
         this.optional = optional;
+    }
+
+    @Override
+    public List<String> suggestions(@NotNull final S sender, final @NotNull SuggestionContext context) {
+        return suggestion.getSuggestions(sender, context);
     }
 
     /**

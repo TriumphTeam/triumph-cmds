@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,10 +47,11 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
             @NotNull final String name,
             @NotNull final String description,
             @NotNull final Class<? extends Enum<?>> type,
+            @NotNull final Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
-        super(name, description, type, position, optional);
+        super(name, description, type, suggestion, position, optional);
         this.enumType = type;
 
         // Populates on creation to reduce runtime of first run for certain enums, like Bukkit's Material.

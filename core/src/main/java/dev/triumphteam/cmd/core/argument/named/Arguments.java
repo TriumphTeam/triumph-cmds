@@ -9,7 +9,6 @@ public interface Arguments {
     /**
      * Gets an argument by name.
      * The argument will be an empty {@link Optional} if it does not exist or if the value is invalid.
-     * TODO: Validate value in the future.
      *
      * @param name The name of the argument.
      * @param type The class of the type of the argument.

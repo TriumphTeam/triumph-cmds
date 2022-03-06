@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -47,10 +48,11 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
             @NotNull final String regex,
             @NotNull final InternalArgument<S, String> internalArgument,
             @NotNull final Class<?> collectionType,
+            @NotNull final Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, position, optional);
+        super(name, description, String.class, suggestion, position, optional);
         this.regex = regex;
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;

@@ -23,8 +23,11 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Command argument.
@@ -80,5 +83,8 @@ public interface InternalArgument<S, T> {
      */
     @Nullable
     Object resolve(@NotNull final S sender, @NotNull final T value);
+
+    // TODO: Comments
+    List<String> suggestions(@NotNull final S sender, @NotNull final SuggestionContext context);
 
 }

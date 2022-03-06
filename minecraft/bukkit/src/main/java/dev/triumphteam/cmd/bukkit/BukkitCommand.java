@@ -23,6 +23,8 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
+import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
@@ -149,7 +151,15 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             return true;
         }
 
-        if (!subCommand.meetsDefaultRequirements(sender, mappedSender)) return true;
+        final String permission = subCommand.getPermission();
+        if (!permission.isEmpty() && !sender.hasPermission(permission)) {
+            messageRegistry.sendMessage(
+                    BukkitMessageKey.NO_PERMISSION,
+                    mappedSender,
+                    new NoPermissionMessageContext(getName(), subCommand.getName(), permission)
+            );
+            return true;
+        }
 
         final List<String> commandArgs =
                 Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);

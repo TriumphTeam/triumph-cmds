@@ -37,6 +37,9 @@ import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -54,6 +57,7 @@ public abstract class CommandManager<DS, S> {
     private final NamedArgumentRegistry<S> namedArgumentRegistry = new NamedArgumentRegistry<>();
     private final RequirementRegistry<S> requirementRegistry = new RequirementRegistry<>();
     private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
+    private final SuggestionRegistry<S> suggestionRegistry = new SuggestionRegistry<>();
 
     private final SenderMapper<DS, S> senderMapper;
     private final SenderValidator<S> senderValidator;
@@ -110,6 +114,11 @@ public abstract class CommandManager<DS, S> {
      */
     public final void registerArgument(@NotNull final Class<?> clazz, @NotNull final ArgumentResolver<S> resolver) {
         argumentRegistry.register(clazz, resolver);
+    }
+
+    // TODO: Comments
+    public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver) {
+        suggestionRegistry.register(key, suggestionResolver);
     }
 
     // TODO: Comments
