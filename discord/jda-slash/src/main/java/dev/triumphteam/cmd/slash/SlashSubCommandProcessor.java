@@ -24,13 +24,10 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.annotation.Choices;
 import dev.triumphteam.cmd.slash.choices.Choice;
@@ -48,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -69,14 +67,11 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final ChoiceRegistry choiceRegistry,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, method, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderValidator);
+        super(baseCommand, parentName, method, registries, senderValidator);
         this.choiceRegistry = choiceRegistry;
         this.choices = extractChoices(method, baseCommand.getClass());
     }

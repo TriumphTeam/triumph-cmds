@@ -29,13 +29,11 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
@@ -55,11 +53,10 @@ import static java.util.Collections.emptyList;
 
 public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command {
 
-    private final ArgumentRegistry<S> argumentRegistry;
-    private final NamedArgumentRegistry<S> namedArgumentRegistry;
-    private final MessageRegistry<S> messageRegistry;
-    private final RequirementRegistry<S> requirementRegistry;
     private final SuggestionRegistry<S> suggestionRegistry;
+    private final MessageRegistry<S> messageRegistry;
+
+    private final Map<Class<? extends Registry>, Registry> registries;
 
     private final SenderMapper<CommandSender, S> senderMapper;
     private final SenderValidator<S> senderValidator;
@@ -70,6 +67,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
     private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     public BukkitCommand(
             @NotNull final BukkitCommandProcessor<S> processor,
             @NotNull final ExecutionProvider syncExecutionProvider,
@@ -79,11 +77,9 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         setAliases(processor.getAlias());
 
         this.description = processor.getDescription();
-        this.argumentRegistry = processor.getArgumentRegistry();
-        this.namedArgumentRegistry = processor.getNamedArgumentRegistry();
-        this.messageRegistry = processor.getMessageRegistry();
-        this.requirementRegistry = processor.getRequirementRegistry();
-        this.suggestionRegistry = processor.getSuggestionRegistry();
+        this.registries = processor.getRegistries();
+        this.suggestionRegistry = (SuggestionRegistry<S>) registries.get(SuggestionRegistry.class);
+        this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
         this.senderMapper = processor.getSenderMapper();
         this.senderValidator = processor.getSenderValidator();
 
@@ -105,11 +101,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
                     baseCommand,
                     getName(),
                     method,
-                    argumentRegistry,
-                    namedArgumentRegistry,
-                    requirementRegistry,
-                    messageRegistry,
-                    suggestionRegistry,
+                    registries,
                     senderValidator
             );
 
@@ -180,7 +172,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final String arg = args[0].toLowerCase();
 
-        if (args.length == 1 && (subCommand == null || !subCommand.hasSuggestions())) {
+        if (args.length == 1 && subCommand == null) {
             return subCommands
                     .keySet()
                     .stream()

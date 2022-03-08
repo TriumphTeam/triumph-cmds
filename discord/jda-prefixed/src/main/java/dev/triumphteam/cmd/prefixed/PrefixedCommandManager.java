@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
@@ -66,6 +67,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
     private static final Pattern CHANNEL_MENTION_PATTERN = Pattern.compile("<#(?<id>\\d+)>");
     private static final Pattern USER_TAG_PATTERN = Pattern.compile(".{3,32}#\\d{4}");
 
+    private final MessageRegistry<S> messageRegistry;
+
     private final Set<String> prefixes = new HashSet<>();
     private final Set<Pattern> prefixesRegexes = new HashSet<>();
     private final Map<String, PrefixedCommandExecutor<S>> globalCommands = new HashMap<>();
@@ -85,7 +88,9 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
         super(senderMapper, senderValidator);
         this.globalPrefix = globalPrefix;
 
-        jda.addEventListener(new PrefixedCommandListener<>(this, getMessageRegistry(), senderMapper));
+        //noinspection unchecked
+        this.messageRegistry = getRegistry(MessageRegistry.class);
+        jda.addEventListener(new PrefixedCommandListener<S>(this, messageRegistry, senderMapper));
     }
 
     /**
@@ -208,10 +213,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
     private void addCommand(@Nullable final Guild guild, @NotNull final BaseCommand baseCommand) {
         final PrefixedCommandProcessor<S> processor = new PrefixedCommandProcessor<>(
                 baseCommand,
-                getArgumentRegistry(),
-                getNamedArgumentRegistry(),
-                getRequirementRegistry(),
-                getMessageRegistry(),
+                getRegistries(),
                 getSenderMapper(),
                 getSenderValidator()
         );
@@ -233,7 +235,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
         if (guild == null) {
             final PrefixedCommandExecutor<S> commandExecutor = globalCommands.computeIfAbsent(
                     prefix,
-                    ignored -> new PrefixedCommandExecutor<>(getMessageRegistry(), syncExecutionProvider, asyncExecutionProvider)
+                    ignored -> new PrefixedCommandExecutor<>(messageRegistry, syncExecutionProvider, asyncExecutionProvider)
             );
 
             for (final String alias : processor.getAlias()) {
@@ -250,7 +252,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
                 .computeIfAbsent(
                         prefix,
                         ignored -> new PrefixedCommandExecutor<>(
-                                getMessageRegistry(),
+                                messageRegistry,
                                 syncExecutionProvider,
                                 asyncExecutionProvider
                         )

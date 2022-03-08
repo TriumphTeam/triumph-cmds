@@ -24,43 +24,23 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S> {
+import java.util.Map;
 
-    private final SuggestionRegistry<S> suggestionRegistry;
+public final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S> {
 
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderMapper<CommandSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator,
-            @NotNull final SuggestionRegistry<S> suggestionRegistry
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
-        this.suggestionRegistry = suggestionRegistry;
+        super(baseCommand, registries, senderMapper, senderValidator);
     }
-
-    /**
-     * Gets the suggestion registry.
-     *
-     * @return The suggestion registry.
-     */
-    @NotNull
-    public SuggestionRegistry<S> getSuggestionRegistry() {
-        return suggestionRegistry;
-    }
-
 }

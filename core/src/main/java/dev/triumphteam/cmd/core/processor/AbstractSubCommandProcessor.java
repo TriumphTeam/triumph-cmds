@@ -64,6 +64,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
@@ -137,15 +138,12 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final MessageRegistry<S> messageRegistry;
     private final SenderValidator<S> senderValidator;
 
+    @SuppressWarnings("unchecked")
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final SuggestionRegistry<S> suggestionRegistry,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderValidator<S> senderValidator
     ) {
         this.baseCommand = baseCommand;
@@ -153,11 +151,11 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         this.method = method;
 
-        this.suggestionRegistry = suggestionRegistry;
-        this.argumentRegistry = argumentRegistry;
-        this.namedArgumentRegistry = namedArgumentRegistry;
-        this.requirementRegistry = requirementRegistry;
-        this.messageRegistry = messageRegistry;
+        this.suggestionRegistry = (SuggestionRegistry<S>) registries.get(SuggestionRegistry.class);
+        this.argumentRegistry = (ArgumentRegistry<S>) registries.get(ArgumentRegistry.class);
+        this.namedArgumentRegistry = (NamedArgumentRegistry<S>) registries.get(NamedArgumentRegistry.class);
+        this.requirementRegistry = (RequirementRegistry<S>) registries.get(RequirementRegistry.class);
+        this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
         this.senderValidator = senderValidator;
 
         this.isAsync = method.isAnnotationPresent(Async.class);
@@ -466,16 +464,22 @@ public abstract class AbstractSubCommandProcessor<S> {
         }
 
         // TODO: Handle list
-        return arguments.stream().map(argument -> Maps.immutableEntry(
-                argument.getName(),
-                createSimpleArgument(
-                        argument.getType(),
-                        argument.getName(),
-                        argument.getDescription(),
-                        0,
-                        true
-                )
-        )).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return arguments.stream().map(argument -> {
+            final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(argument.getSuggestion());
+            final Suggestion<S> suggestion = resolver == null ? new EmptySuggestion<>() : new SimpleSuggestion<>(resolver);
+
+            return Maps.immutableEntry(
+                    argument.getName(),
+                    createSimpleArgument(
+                            argument.getType(),
+                            argument.getName(),
+                            argument.getDescription(),
+                            suggestion,
+                            0,
+                            true
+                    )
+            );
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**
@@ -631,6 +635,8 @@ public abstract class AbstractSubCommandProcessor<S> {
                             argumentType.getName(),
                             "",
                             (Class<? extends Enum<?>>) argumentType,
+                            // TODO: fix
+                            new EmptySuggestion<>(),
                             0,
                             false
                     );
@@ -640,7 +646,16 @@ public abstract class AbstractSubCommandProcessor<S> {
                         throw createException("@" + Flag.class.getSimpleName() + "'s internalArgument contains unregistered type \"" + argumentType.getName() + "\"");
                     }
 
-                    internalArgument = new ResolverInternalArgument<>(argumentType.getName(), "", argumentType, resolver, 0, false);
+                    internalArgument = new ResolverInternalArgument<>(
+                            argumentType.getName(),
+                            "",
+                            argumentType,
+                            resolver,
+                            // TODO: fix
+                            new EmptySuggestion<>(),
+                            0,
+                            false
+                    );
                 }
             }
 

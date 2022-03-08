@@ -21,53 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.suggestion;
+package dev.triumphteam.cmd.core.registry;
 
-import dev.triumphteam.cmd.core.registry.RegistryKey;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 /**
- * Key used to identify the {@link } in the {@link }.
+ * Registry key, for more organized way of registering and getting things from the registries.
  */
-public final class SuggestionKey extends RegistryKey {
+public abstract class RegistryKey {
 
-    // Holds all registered keys, default and custom ones
-    private static final Set<SuggestionKey> REGISTERED_KEYS = new HashSet<>();
+    private final String key;
 
-    private SuggestionKey(@NotNull final String key) {
-        super(key);
-        REGISTERED_KEYS.add(this);
+    public RegistryKey(@NotNull final String key) {
+        this.key = key;
     }
 
     /**
-     * Factory method for creating a {@link SuggestionKey}.
+     * Gets the key value.
      *
-     * @param key The value of the key, normally separated by <code>.</code>.
-     * @return A new {@link SuggestionKey}.
+     * @return The key value.
      */
     @NotNull
-    @Contract("_ -> new")
-    public static SuggestionKey of(@NotNull final String key) {
-        return new SuggestionKey(key);
+    public String getKey() {
+        return key;
     }
 
-    /**
-     * Gets an immutable {@link Set} with all the registered keys.
-     *
-     * @return The keys {@link Set}.
-     */
-    @NotNull
-    public static Set<SuggestionKey> getRegisteredKeys() {
-        return Collections.unmodifiableSet(REGISTERED_KEYS);
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final RegistryKey that = (RegistryKey) o;
+        return key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
     }
 
     @Override
     public String toString() {
-        return "SuggestionKey{super=" + super.toString() + "}";
+        return "RegistryKey{" +
+                "key='" + key + '\'' +
+                '}';
     }
+
 }

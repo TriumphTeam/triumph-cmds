@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
@@ -55,10 +56,7 @@ final class PrefixedCommand<S> implements Command {
     private final String name;
     private final List<String> alias;
 
-    private final ArgumentRegistry<S> argumentRegistry;
-    private final NamedArgumentRegistry<S> namedArgumentRegistry;
-    private final MessageRegistry<S> messageRegistry;
-    private final RequirementRegistry<S> requirementRegistry;
+    private final Map<Class<? extends Registry>, Registry> registries;
 
     private final SenderMapper<PrefixedSender, S> senderMapper;
     private final SenderValidator<S> senderValidator;
@@ -73,10 +71,7 @@ final class PrefixedCommand<S> implements Command {
     ) {
         this.name = processor.getName();
         this.alias = processor.getAlias();
-        this.argumentRegistry = processor.getArgumentRegistry();
-        this.namedArgumentRegistry = processor.getNamedArgumentRegistry();
-        this.messageRegistry = processor.getMessageRegistry();
-        this.requirementRegistry = processor.getRequirementRegistry();
+        this.registries = processor.getRegistries();
         this.senderMapper = processor.getSenderMapper();
         this.senderValidator = processor.getSenderValidator();
 
@@ -94,10 +89,7 @@ final class PrefixedCommand<S> implements Command {
                     baseCommand,
                     name,
                     method,
-                    argumentRegistry,
-                    namedArgumentRegistry,
-                    requirementRegistry,
-                    messageRegistry,
+                    registries,
                     senderValidator
             );
 

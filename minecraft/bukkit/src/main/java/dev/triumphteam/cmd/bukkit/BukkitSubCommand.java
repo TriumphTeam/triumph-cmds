@@ -24,19 +24,17 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
 public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
-    private final List<Suggestion<S>> suggestions;
     private final String permission;
 
     public BukkitSubCommand(
@@ -46,32 +44,20 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
     ) {
         super(processor, parentName, executionProvider);
 
-        this.suggestions = processor.getSuggestions();
         this.permission = processor.getPermission();
     }
 
     public List<String> getSuggestions(@NotNull final S sender, @NotNull final List<String> args) {
         final int index = args.size() - 1;
-        if (index < 0 || index >= suggestions.size()) return emptyList();
-        final String arg = args.get(index).toLowerCase();
+        final InternalArgument<S, ?> internalArgument = getArgument(index);
+        if (internalArgument == null) return emptyList();
 
         final SuggestionContext context = new SuggestionContext(args, getParentName(), getName());
-
-        return suggestions
-                .get(index)
-                .getSuggestions(sender, context)
-                .stream()
-                .filter(it -> it.toLowerCase().startsWith(arg))
-                .collect(Collectors.toList());
-    }
-
-    public boolean hasSuggestions() {
-        return !suggestions.isEmpty();
+        return internalArgument.suggestions(sender, context);
     }
 
     // TODO: Comments
     public String getPermission() {
         return permission;
     }
-
 }

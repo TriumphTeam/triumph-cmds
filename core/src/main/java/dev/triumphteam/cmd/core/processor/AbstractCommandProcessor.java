@@ -26,11 +26,8 @@ package dev.triumphteam.cmd.core.processor;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Description;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Abstracts most of the "extracting" from command annotations, allows for extending.
@@ -57,27 +55,18 @@ public abstract class AbstractCommandProcessor<SD, S> {
     private final List<String> alias = new ArrayList<>();
 
     private final BaseCommand baseCommand;
-    private final ArgumentRegistry<S> argumentRegistry;
-    private final NamedArgumentRegistry<S> namedArgumentRegistry;
-    private final RequirementRegistry<S> requirementRegistry;
-    private final MessageRegistry<S> messageRegistry;
+    private final Map<Class<? extends Registry>, Registry> registries;
     private final SenderMapper<SD, S> senderMapper;
     private final SenderValidator<S> senderValidator;
 
     protected AbstractCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderMapper<SD, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator
     ) {
         this.baseCommand = baseCommand;
-        this.argumentRegistry = argumentRegistry;
-        this.namedArgumentRegistry = namedArgumentRegistry;
-        this.requirementRegistry = requirementRegistry;
-        this.messageRegistry = messageRegistry;
+        this.registries = registries;
         this.senderMapper = senderMapper;
         this.senderValidator = senderValidator;
 
@@ -116,40 +105,9 @@ public abstract class AbstractCommandProcessor<SD, S> {
         return baseCommand;
     }
 
-    /**
-     * Gets the {@link ArgumentRegistry}.
-     *
-     * @return The {@link ArgumentRegistry}.
-     */
-    @NotNull
-    public ArgumentRegistry<S> getArgumentRegistry() {
-        return argumentRegistry;
-    }
-
     // TODO: Comments
-    @NotNull
-    public NamedArgumentRegistry<S> getNamedArgumentRegistry() {
-        return namedArgumentRegistry;
-    }
-
-    /**
-     * Gets the {@link RequirementRegistry}.
-     *
-     * @return The {@link RequirementRegistry}.
-     */
-    @NotNull
-    public RequirementRegistry<S> getRequirementRegistry() {
-        return requirementRegistry;
-    }
-
-    /**
-     * Gets the {@link MessageRegistry}.
-     *
-     * @return The {@link MessageRegistry}.
-     */
-    @NotNull
-    public MessageRegistry<S> getMessageRegistry() {
-        return messageRegistry;
+    public Map<Class<? extends Registry>, Registry> getRegistries() {
+        return registries;
     }
 
     /**

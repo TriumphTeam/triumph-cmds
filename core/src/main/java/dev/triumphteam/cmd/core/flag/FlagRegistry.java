@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.suggestion;
+package dev.triumphteam.cmd.core.flag;
 
 import dev.triumphteam.cmd.core.registry.Registry;
-import org.jetbrains.annotations.Contract;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,9 +37,9 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public final class SuggestionRegistry<S> implements Registry {
+public final class FlagRegistry<S> implements Registry {
 
-    private final Map<SuggestionKey, SuggestionResolver<S>> suggestions = new HashMap<>();
+    private final Map<dev.triumphteam.cmd.core.suggestion.SuggestionKey, SuggestionResolver<S>> suggestions = new HashMap<>();
 
     /**
      * Registers a new {@link SuggestionResolver} for the specific Key.
@@ -46,7 +47,7 @@ public final class SuggestionRegistry<S> implements Registry {
      * @param key      The suggestion key.
      * @param resolver The action to get the suggestions.
      */
-    public void register(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> resolver) {
+    public void register(@NotNull final dev.triumphteam.cmd.core.suggestion.SuggestionKey key, @NotNull final SuggestionResolver<S> resolver) {
         suggestions.put(key, resolver);
     }
 
@@ -57,9 +58,7 @@ public final class SuggestionRegistry<S> implements Registry {
      * @return A saved {@link SuggestionResolver}.
      */
     @Nullable
-    @Contract("null -> null")
-    public SuggestionResolver<S> getSuggestionResolver(@Nullable final SuggestionKey key) {
-        if (key == null) return null;
+    public SuggestionResolver<S> getSuggestionResolver(@NotNull final SuggestionKey key) {
         return suggestions.get(key);
     }
 }

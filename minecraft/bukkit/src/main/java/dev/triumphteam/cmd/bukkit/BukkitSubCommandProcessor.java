@@ -25,47 +25,29 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    // TODO: Move this
-    private final List<Suggestion<S>> suggestions = new ArrayList<>();
     private String permission = "";
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final SuggestionRegistry<S> suggestionRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, method, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderValidator);
+        super(baseCommand, parentName, method, registries, senderValidator);
         if (getName() == null) return;
-        suggestions.addAll(SuggestionRegistry.extractSuggestions(suggestionRegistry, method, baseCommand.getClass()));
         checkPermission(getMethod());
-    }
-
-    @NotNull
-    public List<Suggestion<S>> getSuggestions() {
-        return suggestions;
     }
 
     @NotNull

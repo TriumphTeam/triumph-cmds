@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.message;
 
 import dev.triumphteam.cmd.core.message.context.MessageContext;
+import dev.triumphteam.cmd.core.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -34,7 +35,7 @@ import java.util.Map;
  *
  * @param <S> Sender type.
  */
-public final class MessageRegistry<S> {
+public final class MessageRegistry<S> implements Registry {
 
     private final Map<ContextualKey<?>, MessageResolver<S, ? extends MessageContext>> messages = new HashMap<>();
 

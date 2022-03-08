@@ -24,27 +24,23 @@
 package dev.triumphteam.cmds.cli;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmds.cli.sender.CliSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public final class CliCommandProcessor<S> extends AbstractCommandProcessor<CliSender, S> {
 
     public CliCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderMapper<CliSender, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
+        super(baseCommand, registries, senderMapper, senderValidator);
     }
 }

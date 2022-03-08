@@ -204,6 +204,18 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         return foundArgs.get(0);
     }
 
+    @Nullable
+    protected InternalArgument<S, ?> getArgument(final int index) {
+        final int size = internalArguments.size();
+        if (index >= size) {
+            final InternalArgument<S, ?> last = internalArguments.get(size - 1);
+            if (last instanceof LimitlessInternalArgument) return last;
+            return null;
+        }
+
+        return internalArguments.get(index);
+    }
+
     // TODO: 2/1/2022 Comments
     public List<@Nullable String> mapArguments(@NotNull final Map<String, String> args) {
         final List<String> arguments = getArguments().stream().map(InternalArgument::getName).collect(Collectors.toList());

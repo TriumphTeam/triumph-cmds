@@ -21,51 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.key;
+package dev.triumphteam.cmd.core.flag;
 
+import dev.triumphteam.cmd.core.registry.RegistryKey;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * Registry key, for more organized way of registering and getting things from the registries.
- */
-public abstract class RegistryKey {
+public final class FlagKey extends RegistryKey {
 
-    private final String key;
+    // Holds all registered keys, default and custom ones
+    private static final Set<FlagKey> REGISTERED_KEYS = new HashSet<>();
 
-    public RegistryKey(@NotNull final String key) {
-        this.key = key;
+    private FlagKey(@NotNull final String key) {
+        super(key);
+        REGISTERED_KEYS.add(this);
     }
 
     /**
-     * Gets the key value.
+     * Factory method for creating a {@link FlagKey}.
      *
-     * @return The key value.
+     * @param key The value of the key, normally separated by <code>.</code>.
+     * @return A new {@link FlagKey}.
      */
     @NotNull
-    public String getKey() {
-        return key;
+    @Contract("_ -> new")
+    public static FlagKey of(@NotNull final String key) {
+        return new FlagKey(key);
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final RegistryKey that = (RegistryKey) o;
-        return key.equals(that.key);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(key);
+    /**
+     * Gets an immutable {@link Set} with all the registered keys.
+     *
+     * @return The keys {@link Set}.
+     */
+    @NotNull
+    public static Set<FlagKey> getRegisteredKeys() {
+        return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
     public String toString() {
-        return "RegistryKey{" +
-                "key='" + key + '\'' +
-                '}';
+        return "FlagKey{super=" + super.toString() + "}";
     }
-
 }

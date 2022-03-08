@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
@@ -51,10 +52,8 @@ public final class CliCommand<S> implements Command {
 
     private final String name;
 
-    private final ArgumentRegistry<S> argumentRegistry;
-    private final NamedArgumentRegistry<S> namedArgumentRegistry;
+    private final Map<Class<? extends Registry>, Registry> registries;
     private final MessageRegistry<S> messageRegistry;
-    private final RequirementRegistry<S> requirementRegistry;
 
     private final SenderMapper<CliSender, S> senderMapper;
     private final SenderValidator<S> senderValidator;
@@ -65,6 +64,7 @@ public final class CliCommand<S> implements Command {
     private final Map<String, CliSubCommand<S>> subCommands = new HashMap<>();
     private final Map<String, CliSubCommand<S>> subCommandAliases = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     public CliCommand(
             @NotNull final CliCommandProcessor<S> processor,
             @NotNull final ExecutionProvider syncExecutionProvider,
@@ -72,13 +72,10 @@ public final class CliCommand<S> implements Command {
     ) {
         this.name = processor.getName();
 
-        this.argumentRegistry = processor.getArgumentRegistry();
-        this.namedArgumentRegistry = processor.getNamedArgumentRegistry();
-        this.messageRegistry = processor.getMessageRegistry();
-        this.requirementRegistry = processor.getRequirementRegistry();
         this.senderMapper = processor.getSenderMapper();
         this.senderValidator = processor.getSenderValidator();
-
+        this.registries = processor.getRegistries();
+        this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
         this.syncExecutionProvider = syncExecutionProvider;
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
@@ -97,10 +94,7 @@ public final class CliCommand<S> implements Command {
                     baseCommand,
                     name,
                     method,
-                    argumentRegistry,
-                    namedArgumentRegistry,
-                    requirementRegistry,
-                    messageRegistry,
+                    registries,
                     senderValidator
             );
 

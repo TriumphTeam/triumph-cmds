@@ -24,11 +24,8 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.jda.annotation.Privileges;
@@ -41,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Processor for Slash JDA platform specific code.
@@ -56,16 +54,13 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<SlashSende
 
     public SlashCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final NamedArgumentRegistry<S> namedArgumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final ChoiceRegistry suggestionRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
+            @NotNull final ChoiceRegistry choiceRegistry,
             @NotNull final SenderMapper<SlashSender, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, argumentRegistry, namedArgumentRegistry, requirementRegistry, messageRegistry, senderMapper, senderValidator);
-        this.choiceRegistry = suggestionRegistry;
+        super(baseCommand, registries, senderMapper, senderValidator);
+        this.choiceRegistry = choiceRegistry;
         extractPrivilege();
     }
 

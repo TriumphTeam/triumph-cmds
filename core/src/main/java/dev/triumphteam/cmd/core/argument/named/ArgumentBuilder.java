@@ -1,14 +1,17 @@
 package dev.triumphteam.cmd.core.argument.named;
 
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class ArgumentBuilder {
 
     private final Class<?> type;
     private String name;
     private String description = "Description!";
+    private SuggestionKey suggestionKey;
 
     public ArgumentBuilder(@NotNull final Class<?> type) {
         this.type = type;
@@ -40,9 +43,12 @@ public final class ArgumentBuilder {
         return this;
     }
 
-    /*public ArgumentBuilder suggestion(@NotNull final String soontm) {
+    @NotNull
+    @Contract("_ -> this")
+    public ArgumentBuilder suggestion(@NotNull final SuggestionKey suggestionKey) {
+        this.suggestionKey = suggestionKey;
         return this;
-    }*/
+    }
 
     /**
      * Builds the argument.
@@ -71,5 +77,10 @@ public final class ArgumentBuilder {
     @NotNull
     String getDescription() {
         return description;
+    }
+
+    @Nullable
+    SuggestionKey getSuggestionKey() {
+        return suggestionKey;
     }
 }

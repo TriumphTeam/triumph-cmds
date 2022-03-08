@@ -244,10 +244,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
     ) {
         final SlashCommandProcessor<S> processor = new SlashCommandProcessor<>(
                 baseCommand,
-                getArgumentRegistry(),
-                getNamedArgumentRegistry(),
-                getRequirementRegistry(),
-                getMessageRegistry(),
+                getRegistries(),
                 choiceRegistry,
                 getSenderMapper(),
                 getSenderValidator()

@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
@@ -62,10 +63,7 @@ final class SlashCommand<S> implements Command {
     private final List<Long> enabledRoles;
     private final List<Long> disabledRoles;
 
-    private final ArgumentRegistry<S> argumentRegistry;
-    private final NamedArgumentRegistry<S> namedArgumentRegistry;
-    private final MessageRegistry<S> messageRegistry;
-    private final RequirementRegistry<S> requirementRegistry;
+    private final Map<Class<? extends Registry>, Registry> registries;
     private final ChoiceRegistry choiceRegistry;
 
     private final SenderValidator<S> senderValidator;
@@ -84,10 +82,7 @@ final class SlashCommand<S> implements Command {
     ) {
         this.name = processor.getName();
         this.description = processor.getDescription();
-        this.argumentRegistry = processor.getArgumentRegistry();
-        this.namedArgumentRegistry = processor.getNamedArgumentRegistry();
-        this.messageRegistry = processor.getMessageRegistry();
-        this.requirementRegistry = processor.getRequirementRegistry();
+        this.registries = processor.getRegistries();
         this.choiceRegistry = processor.getChoiceRegistry();
         this.senderValidator = processor.getSenderValidator();
 
@@ -118,10 +113,7 @@ final class SlashCommand<S> implements Command {
                     baseCommand,
                     name,
                     method,
-                    argumentRegistry,
-                    namedArgumentRegistry,
-                    requirementRegistry,
-                    messageRegistry,
+                    registries,
                     choiceRegistry,
                     senderValidator
             );

@@ -78,10 +78,7 @@ public final class CliCommandManager<S> extends CommandManager<CliSender, S> {
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
         final CliCommandProcessor<S> processor = new CliCommandProcessor<>(
                 baseCommand,
-                getArgumentRegistry(),
-                getNamedArgumentRegistry(),
-                getRequirementRegistry(),
-                getMessageRegistry(),
+                getRegistries(),
                 getSenderMapper(),
                 getSenderValidator()
         );

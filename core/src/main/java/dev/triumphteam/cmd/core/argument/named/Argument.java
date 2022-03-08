@@ -1,6 +1,8 @@
 package dev.triumphteam.cmd.core.argument.named;
 
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface Argument {
 
@@ -58,6 +60,7 @@ public interface Argument {
         return new ArgumentBuilder(type);
     }
 
+    // TODO: Comments
     @NotNull
     Class<?> getType();
 
@@ -66,4 +69,7 @@ public interface Argument {
 
     @NotNull
     String getDescription();
+
+    @Nullable
+    SuggestionKey getSuggestion();
 }

@@ -27,6 +27,7 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
+import dev.triumphteam.cmd.core.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +41,7 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public final class ArgumentRegistry<S> {
+public final class ArgumentRegistry<S> implements Registry {
 
     private final Map<Class<?>, ArgumentResolver<S>> arguments = new HashMap<>();
 
