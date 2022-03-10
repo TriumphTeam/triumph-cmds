@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public final class SimpleSuggestion<S> implements Suggestion<S> {
 
@@ -39,8 +40,13 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
 
     @NotNull
     @Override
-    public List<String> getSuggestions(@NotNull final S sender, @NotNull final SuggestionContext context) {
-        return resolver.resolve(sender, context);
+    public List<String> getSuggestions(@NotNull final S sender, @NotNull final String current, @NotNull final SuggestionContext context) {
+        return resolver
+                .resolve(sender, context)
+                .stream()
+                .map(String::toLowerCase)
+                .filter(it -> it.startsWith(current))
+                .collect(Collectors.toList());
     }
 
     @Override

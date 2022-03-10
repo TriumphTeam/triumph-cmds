@@ -64,8 +64,13 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     }
 
     @Override
-    public List<String> suggestions(@NotNull final S sender, final @NotNull SuggestionContext context) {
-        return suggestion.getSuggestions(sender, context);
+    public List<String> suggestions(
+            @NotNull final S sender,
+            @NotNull final List<String> trimmed,
+            final @NotNull SuggestionContext context
+    ) {
+        final String current = trimmed.get(0);
+        return suggestion.getSuggestions(sender, current, context);
     }
 
     /**
@@ -111,6 +116,10 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     @Override
     public boolean isOptional() {
         return optional;
+    }
+
+    protected Suggestion<S> getSuggestion() {
+        return suggestion;
     }
 
     @Override

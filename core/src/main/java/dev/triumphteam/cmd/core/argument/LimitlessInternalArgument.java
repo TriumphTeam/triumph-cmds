@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -45,6 +46,16 @@ public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgum
             final boolean isOptional
     ) {
         super(name, description, type, suggestion, position, isOptional);
+    }
+
+    @Override
+    public List<String> suggestions(
+            @NotNull final S sender,
+            @NotNull final List<String> trimmed,
+            @NotNull final SuggestionContext context
+    ) {
+        final String last = trimmed.get(trimmed.size() - 1);
+        return getSuggestion().getSuggestions(sender, last, context);
     }
 
     @NotNull

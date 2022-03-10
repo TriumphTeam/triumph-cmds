@@ -85,6 +85,10 @@ public interface InternalArgument<S, T> {
     Object resolve(@NotNull final S sender, @NotNull final T value);
 
     // TODO: Comments
-    List<String> suggestions(@NotNull final S sender, @NotNull final SuggestionContext context);
+    List<String> suggestions(
+            @NotNull final S sender,
+            @NotNull final List<String> trimmed,
+            @NotNull final SuggestionContext context
+    );
 
 }

@@ -33,7 +33,7 @@ public final class EmptySuggestion<S> implements Suggestion<S> {
 
     @NotNull
     @Override
-    public List<String> getSuggestions(@NotNull final S sender, @NotNull final SuggestionContext context) {
+    public List<String> getSuggestions(@NotNull final S sender, @NotNull final String current, @NotNull final SuggestionContext context) {
         return emptyList();
     }
 

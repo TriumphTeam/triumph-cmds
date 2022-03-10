@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
@@ -52,8 +53,15 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         final InternalArgument<S, ?> internalArgument = getArgument(index);
         if (internalArgument == null) return emptyList();
 
+        final List<String> trimmed;
+        if (internalArgument instanceof LimitlessInternalArgument) {
+            trimmed = args.subList(getArguments().size() - 1, args.size());
+        } else {
+            trimmed = args.subList(index, args.size());
+        }
+
         final SuggestionContext context = new SuggestionContext(args, getParentName(), getName());
-        return internalArgument.suggestions(sender, context);
+        return internalArgument.suggestions(sender, trimmed, context);
     }
 
     // TODO: Comments

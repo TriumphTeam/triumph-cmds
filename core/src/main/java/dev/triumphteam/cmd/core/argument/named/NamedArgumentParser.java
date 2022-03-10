@@ -2,7 +2,7 @@ package dev.triumphteam.cmd.core.argument.named;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.PrimitiveIterator;
 
@@ -16,7 +16,7 @@ public final class NamedArgumentParser {
     public static Map<String, String> parse(@NotNull final String literal) {
         final PrimitiveIterator.OfInt iterator = literal.chars().iterator();
 
-        final Map<String, String> args = new HashMap<>();
+        final Map<String, String> args = new LinkedHashMap<>();
         final StringBuilder builder = new StringBuilder();
 
         // Control variables

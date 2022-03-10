@@ -138,6 +138,8 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final MessageRegistry<S> messageRegistry;
     private final SenderValidator<S> senderValidator;
 
+    private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
+
     @SuppressWarnings("unchecked")
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -348,16 +350,8 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         // Handles collection internalArgument.
         // TODO: Add more collection types.
-        if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
-            final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
-            final Type[] types = parameterizedType.getActualTypeArguments();
-
-            if (types.length != 1) {
-                throw createException("Unsupported collection type \"" + type + "\"");
-            }
-
-            final Type genericType = types[0];
-            final Type collectionType = genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType;
+        if (COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
+            final Type collectionType = getGenericType(parameter);
             final InternalArgument<S, String> internalArgument = createSimpleArgument(
                     (Class<?>) collectionType,
                     argumentName,
@@ -467,6 +461,8 @@ public abstract class AbstractSubCommandProcessor<S> {
         return arguments.stream().map(argument -> {
             final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(argument.getSuggestion());
             final Suggestion<S> suggestion = resolver == null ? new EmptySuggestion<>() : new SimpleSuggestion<>(resolver);
+            System.out.println("Suggestion:");
+            System.out.println(suggestion);
 
             return Maps.immutableEntry(
                     argument.getName(),
@@ -819,13 +815,14 @@ public abstract class AbstractSubCommandProcessor<S> {
         final Parameter[] parameters = method.getParameters();
         for (int i = 1; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
-            final Class<?> type = parameter.getType();
 
             final dev.triumphteam.cmd.core.annotation.Suggestion suggestion = parameter.getAnnotation(dev.triumphteam.cmd.core.annotation.Suggestion.class);
             final String suggestionKey = suggestion == null ? "" : suggestion.value();
 
             final int addIndex = i - 1;
             if (suggestionKey.isEmpty() || suggestionKey.equals("enum")) {
+                final Class<?> type = getGenericType(parameter);
+
                 if (Enum.class.isAssignableFrom(type)) {
                     setOrAddSuggestion(addIndex, new EnumSuggestion<>((Class<? extends Enum<?>>) type));
                     continue;
@@ -872,4 +869,20 @@ public abstract class AbstractSubCommandProcessor<S> {
         return singletonList(suggestion);
     }
 
+    private Class<?> getGenericType(@NotNull final Parameter parameter) {
+        final Class<?> type = parameter.getType();
+        if (COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
+            final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+            final Type[] types = parameterizedType.getActualTypeArguments();
+
+            if (types.length != 1) {
+                throw createException("Unsupported collection type \"" + type + "\"");
+            }
+
+            final Type genericType =  types[0];
+            return (Class<?>) (genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType);
+        }
+
+        return type;
+    }
 }
