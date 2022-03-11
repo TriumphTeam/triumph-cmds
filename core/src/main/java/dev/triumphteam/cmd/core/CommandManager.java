@@ -128,6 +128,11 @@ public abstract class CommandManager<DS, S> {
     }
 
     // TODO: Comments
+    public void registerSuggestion(@NotNull final Class<?> type, @NotNull final SuggestionResolver<S> suggestionResolver) {
+        getRegistry(SuggestionRegistry.class).register(type, suggestionResolver);
+    }
+
+    // TODO: Comments
     public final void registerNamedArguments(@NotNull final ArgumentKey key, @NotNull final Argument @NotNull ... arguments) {
         registerNamedArguments(key, Arrays.asList(arguments));
     }

@@ -152,6 +152,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.parentName = parentName;
 
         this.method = method;
+        System.out.println(Arrays.toString(method.getParameters()));
 
         this.suggestionRegistry = (SuggestionRegistry<S>) registries.get(SuggestionRegistry.class);
         this.argumentRegistry = (ArgumentRegistry<S>) registries.get(ArgumentRegistry.class);
@@ -351,9 +352,9 @@ public abstract class AbstractSubCommandProcessor<S> {
         // Handles collection internalArgument.
         // TODO: Add more collection types.
         if (COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
-            final Type collectionType = getGenericType(parameter);
+            final Class<?> collectionType = getGenericType(parameter);
             final InternalArgument<S, String> internalArgument = createSimpleArgument(
-                    (Class<?>) collectionType,
+                    collectionType,
                     argumentName,
                     argumentDescription,
                     suggestionList.get(position),
@@ -825,6 +826,12 @@ public abstract class AbstractSubCommandProcessor<S> {
 
                 if (Enum.class.isAssignableFrom(type)) {
                     setOrAddSuggestion(addIndex, new EnumSuggestion<>((Class<? extends Enum<?>>) type));
+                    continue;
+                }
+
+                final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(type);
+                if (resolver != null) {
+                    setOrAddSuggestion(addIndex, new SimpleSuggestion<>(resolver));
                     continue;
                 }
 

@@ -39,6 +39,7 @@ import java.util.Map;
 public final class SuggestionRegistry<S> implements Registry {
 
     private final Map<SuggestionKey, SuggestionResolver<S>> suggestions = new HashMap<>();
+    private final Map<Class<?>, SuggestionResolver<S>> typeSuggestions = new HashMap<>();
 
     /**
      * Registers a new {@link SuggestionResolver} for the specific Key.
@@ -48,6 +49,16 @@ public final class SuggestionRegistry<S> implements Registry {
      */
     public void register(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> resolver) {
         suggestions.put(key, resolver);
+    }
+
+    /**
+     * Registers a new {@link SuggestionResolver} for the specific Key.
+     *
+     * @param type     The type to suggest for.
+     * @param resolver The action to get the suggestions.
+     */
+    public void register(@NotNull final Class<?> type, @NotNull final SuggestionResolver<S> resolver) {
+        typeSuggestions.put(type, resolver);
     }
 
     /**
@@ -61,5 +72,16 @@ public final class SuggestionRegistry<S> implements Registry {
     public SuggestionResolver<S> getSuggestionResolver(@Nullable final SuggestionKey key) {
         if (key == null) return null;
         return suggestions.get(key);
+    }
+
+    /**
+     * Gets the {@link SuggestionResolver} for the specific type.
+     *
+     * @param type The specific type.
+     * @return A saved {@link SuggestionResolver}.
+     */
+    @Nullable
+    public SuggestionResolver<S> getSuggestionResolver(@NotNull final Class<?> type) {
+        return typeSuggestions.get(type);
     }
 }

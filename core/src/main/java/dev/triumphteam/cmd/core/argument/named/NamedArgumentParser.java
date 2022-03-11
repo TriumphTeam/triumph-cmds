@@ -21,7 +21,6 @@ public final class NamedArgumentParser {
 
         // Control variables
         boolean escape = false;
-        boolean quotes = false;
         String argument = "";
 
         while (iterator.hasNext()) {
@@ -30,23 +29,12 @@ public final class NamedArgumentParser {
             // Handles opening and closing of quotes for arg value
             if (current == QUOTE && !argument.isEmpty()) {
                 // In case of escaping ignore
-                if (escape && quotes) {
+                if (escape) {
                     builder.appendCodePoint(QUOTE);
                     escape = false;
                     continue;
                 }
 
-                // Close the quote
-                if (quotes) {
-                    quotes = false;
-                    args.put(argument, builder.toString());
-                    builder.setLength(0);
-                    argument = "";
-                    continue;
-                }
-
-                // Open the quote
-                quotes = true;
                 continue;
             }
 
@@ -65,12 +53,6 @@ public final class NamedArgumentParser {
 
             // Handling for spaces
             if (current == SPACE) {
-                // If space is inside quotes, add to builder
-                if (quotes) {
-                    builder.appendCodePoint(SPACE);
-                    continue;
-                }
-
                 // If no argument is found, discard values
                 if (argument.isEmpty()) {
                     builder.setLength(0);

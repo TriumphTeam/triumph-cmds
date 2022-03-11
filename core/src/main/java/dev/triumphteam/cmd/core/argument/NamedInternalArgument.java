@@ -8,6 +8,7 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,32 +58,35 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
         final String current = trimmed.get(trimmed.size() - 1);
         final List<String> notUsed = arguments.keySet()
                 .stream()
-                .filter(it -> {
-                    final String value = parsedArgs.get(it);
-                    return value == null || value.isEmpty();
-                })
+                .filter(it -> parsedArgs.get(it) == null)
                 .filter(it -> it.startsWith(current))
                 .map(it -> it + ":")
                 .collect(Collectors.toList());
 
-        System.out.println(notUsed);
+
+        if (notUsed.size() > 1) return notUsed;
+
+        // Anything down here is actually terrible, someone with a better brain please fix lmao
+        final String argName;
         if (notUsed.size() == 1) {
-            final String raw = notUsed.get(0);
-            final String argName = raw.replace(":", "");
-            final InternalArgument<S, ?> argument = arguments.get(argName);
-            if (argument != null) {
-                System.out.println("Before send " + current + " - " + current.replace(raw, ""));
-                final String send = !current.contains(raw) ? "" : current.replace(raw, "");
-                System.out.println(send);
-                return argument.suggestions(
-                                sender,
-                                Collections.singletonList(send),
-                                context
-                        )
-                        .stream()
-                        .map(it -> argName + ":" + it)
-                        .collect(Collectors.toList());
-            }
+            argName = notUsed.get(0).replace(":", "");
+        } else {
+            final List<String> parsed = new ArrayList<>(parsedArgs.keySet());
+            if (parsed.size() == 0) return Collections.emptyList();
+            argName = parsed.get(parsed.size() - 1);
+        }
+
+        final InternalArgument<S, ?> argument = arguments.get(argName);
+        if (argument != null) {
+            final String raw = argName + ":";
+            return argument.suggestions(
+                            sender,
+                            Collections.singletonList(!current.contains(raw) ? "" : current.replace(raw, "")),
+                            context
+                    )
+                    .stream()
+                    .map(it -> argName + ":" + it)
+                    .collect(Collectors.toList());
         }
 
         return notUsed;

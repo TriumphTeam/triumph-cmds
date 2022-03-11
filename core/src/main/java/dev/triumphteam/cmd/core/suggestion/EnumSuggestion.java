@@ -53,8 +53,7 @@ public final class EnumSuggestion<S> implements Suggestion<S> {
                     return constant.name();
                 })
                 .filter(Objects::nonNull)
-                .map(String::toLowerCase)
-                .filter(it -> it.startsWith(current))
+                .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
                 .collect(Collectors.toList());
     }
 

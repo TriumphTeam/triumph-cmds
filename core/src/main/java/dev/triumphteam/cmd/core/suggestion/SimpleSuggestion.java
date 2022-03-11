@@ -44,8 +44,7 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
         return resolver
                 .resolve(sender, context)
                 .stream()
-                .map(String::toLowerCase)
-                .filter(it -> it.startsWith(current))
+                .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
                 .collect(Collectors.toList());
     }
 

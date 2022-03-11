@@ -7,7 +7,7 @@ junit = "5.8.2"
 assertj = "3.22.0"
 
 # Minecraft
-spigot = "1.18.1-R0.1-SNAPSHOT"
+spigot = "1.18.2-R0.1-SNAPSHOT"
 
 # Discord
 jda = "5.0.0-alpha.5"

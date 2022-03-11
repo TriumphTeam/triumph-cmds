@@ -49,6 +49,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
 
@@ -168,6 +169,8 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         manager.registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(arg));
         manager.registerArgument(Player.class, (sender, arg) -> Bukkit.getPlayer(arg));
         manager.registerArgument(World.class, (sender, arg) -> Bukkit.getWorld(arg));
+
+        manager.registerSuggestion(Player.class, (sender, context) -> Bukkit.getOnlinePlayers().stream().map(Player::getDisplayName).collect(Collectors.toList()));
     }
 
     /**
