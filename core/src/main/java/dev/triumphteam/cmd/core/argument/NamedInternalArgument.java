@@ -27,7 +27,6 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
             final boolean isOptional
     ) {
         super(name, description, Arguments.class, new EmptySuggestion<>(), position, isOptional);
-        System.out.println(arguments);
         this.arguments = arguments;
     }
 

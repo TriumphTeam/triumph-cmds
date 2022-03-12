@@ -41,7 +41,6 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
     @NotNull
     @Override
     public List<String> getSuggestions(@NotNull final S sender, @NotNull final String current, @NotNull final SuggestionContext context) {
-        System.out.println("Huh?: " + resolver.resolve(sender, context));
         return resolver
                 .resolve(sender, context)
                 .stream()

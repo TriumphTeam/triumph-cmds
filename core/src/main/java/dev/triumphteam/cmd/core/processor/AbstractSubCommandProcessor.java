@@ -154,7 +154,6 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.parentName = parentName;
 
         this.method = method;
-        System.out.println(Arrays.toString(method.getParameters()));
 
         this.suggestionRegistry = (SuggestionRegistry<S>) registries.get(SuggestionRegistry.class);
         this.argumentRegistry = (ArgumentRegistry<S>) registries.get(ArgumentRegistry.class);
@@ -491,8 +490,6 @@ public abstract class AbstractSubCommandProcessor<S> {
                 );
             }
 
-            System.out.println("Not list");
-            System.out.println(suggestion);
             return Maps.immutableEntry(
                     argument.getName(),
                     createSimpleArgument(
