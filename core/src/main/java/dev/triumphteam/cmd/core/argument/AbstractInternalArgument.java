@@ -70,6 +70,8 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
             final @NotNull SuggestionContext context
     ) {
         final String current = trimmed.get(0);
+        System.out.println("Trimmed: " + current);
+        System.out.println("Sugg: " + suggestion.getSuggestions(sender, current, context));
         return suggestion.getSuggestions(sender, current, context);
     }
 
@@ -135,14 +137,15 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
         return Objects.hash(name, type, optional);
     }
 
-    @NotNull
     @Override
     public String toString() {
-        return "Argument{" +
+        return "AbstractInternalArgument{" +
                 "name='" + name + '\'' +
+                ", description='" + description + '\'' +
                 ", type=" + type +
-                ", isOptional=" + optional +
+                ", position=" + position +
+                ", optional=" + optional +
+                ", suggestion=" + suggestion +
                 '}';
     }
-
 }

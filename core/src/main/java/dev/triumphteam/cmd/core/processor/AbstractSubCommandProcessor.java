@@ -54,6 +54,7 @@ import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.argument.named.Argument;
 import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
 import dev.triumphteam.cmd.core.argument.named.Arguments;
+import dev.triumphteam.cmd.core.argument.named.ListArgument;
 import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.flag.Flags;
@@ -358,8 +359,8 @@ public abstract class AbstractSubCommandProcessor<S> {
                     argumentName,
                     argumentDescription,
                     suggestionList.get(position),
-                    position,
-                    optional
+                    0,
+                    true
             );
 
             if (parameter.isAnnotationPresent(Split.class)) {
@@ -460,11 +461,42 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         // TODO: Handle list
         return arguments.stream().map(argument -> {
+            System.out.println(argument.getSuggestion());
+            // TODO: Handle enum and shit
             final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(argument.getSuggestion());
+            System.out.println(resolver);
             final Suggestion<S> suggestion = resolver == null ? new EmptySuggestion<>() : new SimpleSuggestion<>(resolver);
-            System.out.println("Suggestion:");
             System.out.println(suggestion);
+            if (argument instanceof ListArgument) {
+                System.out.println("is list");
+                final ListArgument listArgument = (ListArgument) argument;
 
+                final InternalArgument<S, String> internalArgument = createSimpleArgument(
+                        listArgument.getType(),
+                        listArgument.getName(),
+                        listArgument.getDescription(),
+                        new EmptySuggestion<>(),
+                        0,
+                        true
+                );
+
+                return Maps.immutableEntry(
+                        listArgument.getName(),
+                        new SplitStringInternalArgument<>(
+                                listArgument.getName(),
+                                listArgument.getDescription(),
+                                listArgument.getSeparator(),
+                                internalArgument,
+                                listArgument.getType(),
+                                suggestion,
+                                0,
+                                true
+                        )
+                );
+            }
+
+            System.out.println("Not list");
+            System.out.println(suggestion);
             return Maps.immutableEntry(
                     argument.getName(),
                     createSimpleArgument(
@@ -541,7 +573,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                         parameterName,
                         argumentDescription,
                         (Class<? extends Enum<?>>) type,
-                        suggestionList.get(position),
+                        suggestion,
                         position,
                         optional
                 );
@@ -554,7 +586,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                 argumentDescription,
                 type,
                 resolver,
-                suggestionList.get(position),
+                suggestion,
                 position,
                 optional
         );
@@ -886,7 +918,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                 throw createException("Unsupported collection type \"" + type + "\"");
             }
 
-            final Type genericType =  types[0];
+            final Type genericType = types[0];
             return (Class<?>) (genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType);
         }
 

@@ -2,7 +2,9 @@ package dev.triumphteam.cmd.core.argument.named;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface Arguments {
 
@@ -17,4 +19,8 @@ public interface Arguments {
      */
     @NotNull <T> Optional<T> get(@NotNull final String name, @NotNull final Class<T> type);
 
+
+    @NotNull <T> Optional<List<T>> getAsList(@NotNull final String name, @NotNull final Class<T> type);
+
+    @NotNull <T> Optional<Set<T>> getAsSet(@NotNull final String name, @NotNull final Class<T> type);
 }

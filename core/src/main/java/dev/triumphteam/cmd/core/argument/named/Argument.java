@@ -4,6 +4,9 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Set;
+
 public interface Argument {
 
     /**
@@ -58,6 +61,14 @@ public interface Argument {
      */
     static ArgumentBuilder forType(@NotNull final Class<?> type) {
         return new ArgumentBuilder(type);
+    }
+
+    static ListArgumentBuilder listOf(@NotNull final Class<?> type) {
+        return new ListArgumentBuilder(List.class, type);
+    }
+
+    static ListArgumentBuilder setOf(@NotNull final Class<?> type) {
+        return new ListArgumentBuilder(Set.class, type);
     }
 
     // TODO: Comments

@@ -31,5 +31,4 @@ public interface Suggestion<S> {
 
     @NotNull
     List<String> getSuggestions(@NotNull final S sender, @NotNull final String current, @NotNull final SuggestionContext context);
-
 }
