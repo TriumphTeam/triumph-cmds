@@ -32,10 +32,6 @@ import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.suggestion.SuggestiblePlatform;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -53,13 +49,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> implements SuggestiblePlatform<S> {
+public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
 
     private final Plugin plugin;
 
     private final Map<String, BukkitCommand<S>> commands = new HashMap<>();
-    private final SuggestionRegistry<S> suggestionRegistry = new SuggestionRegistry<>();
 
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider;
@@ -122,12 +118,9 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
         final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(
                 baseCommand,
-                getArgumentRegistry(),
-                getRequirementRegistry(),
-                getMessageRegistry(),
+                getRegistries(),
                 getSenderMapper(),
-                getSenderValidator(),
-                suggestionRegistry
+                getSenderValidator()
         );
 
         final String name = processor.getName();
@@ -155,11 +148,6 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         // TODO add a remove functionality
     }
 
-    @Override
-    public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver) {
-        suggestionRegistry.register(key, suggestionResolver);
-    }
-
     /**
      * Sets up all the default values for the Bukkit implementation.
      *
@@ -181,6 +169,8 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         manager.registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(arg));
         manager.registerArgument(Player.class, (sender, arg) -> Bukkit.getPlayer(arg));
         manager.registerArgument(World.class, (sender, arg) -> Bukkit.getWorld(arg));
+
+        manager.registerSuggestion(Player.class, (sender, context) -> Bukkit.getOnlinePlayers().stream().map(Player::getDisplayName).collect(Collectors.toList()));
     }
 
     /**

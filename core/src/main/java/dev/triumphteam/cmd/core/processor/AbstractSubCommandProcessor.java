@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.processor;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.Maps;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotation.ArgName;
@@ -37,17 +38,24 @@ import dev.triumphteam.cmd.core.annotation.NamedArguments;
 import dev.triumphteam.cmd.core.annotation.Optional;
 import dev.triumphteam.cmd.core.annotation.Requirements;
 import dev.triumphteam.cmd.core.annotation.Split;
-import dev.triumphteam.cmd.core.argument.Argument;
+import dev.triumphteam.cmd.core.annotation.Suggestions;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.CollectionArgument;
-import dev.triumphteam.cmd.core.argument.EnumArgument;
-import dev.triumphteam.cmd.core.argument.FlagArgument;
-import dev.triumphteam.cmd.core.argument.JoinedStringArgument;
-import dev.triumphteam.cmd.core.argument.LimitlessArgument;
-import dev.triumphteam.cmd.core.argument.ResolverArgument;
-import dev.triumphteam.cmd.core.argument.SplitStringArgument;
-import dev.triumphteam.cmd.core.argument.StringArgument;
+import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
+import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
+import dev.triumphteam.cmd.core.argument.FlagInternalArgument;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.argument.JoinedStringInternalArgument;
+import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.argument.NamedInternalArgument;
+import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
+import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.argument.named.Argument;
+import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.named.Arguments;
+import dev.triumphteam.cmd.core.argument.named.ListArgument;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.flag.Flags;
 import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
@@ -57,11 +65,19 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
+import dev.triumphteam.cmd.core.suggestion.EnumSuggestion;
+import dev.triumphteam.cmd.core.suggestion.SimpleSuggestion;
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,9 +93,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 /**
  * Abstracts most of the "extracting" from sub command annotations, allows for extending.
@@ -104,40 +124,45 @@ public abstract class AbstractSubCommandProcessor<S> {
 
     private boolean isDefault = false;
     private final boolean isAsync;
-    private final boolean isNamedArguments;
 
     private Class<? extends S> senderType;
 
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
-    private final List<Argument<S, ?>> arguments = new ArrayList<>();
+    private final List<Suggestion<S>> suggestionList = new ArrayList<>();
+    private final List<InternalArgument<S, ?>> internalArguments = new ArrayList<>();
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
 
+    private final SuggestionRegistry<S> suggestionRegistry;
     private final ArgumentRegistry<S> argumentRegistry;
+    private final NamedArgumentRegistry<S> namedArgumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final SenderValidator<S> senderValidator;
 
+    private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
+
+    @SuppressWarnings("unchecked")
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderValidator<S> senderValidator
     ) {
         this.baseCommand = baseCommand;
         this.parentName = parentName;
 
         this.method = method;
+        System.out.println(Arrays.toString(method.getParameters()));
 
-        this.argumentRegistry = argumentRegistry;
-        this.requirementRegistry = requirementRegistry;
-        this.messageRegistry = messageRegistry;
+        this.suggestionRegistry = (SuggestionRegistry<S>) registries.get(SuggestionRegistry.class);
+        this.argumentRegistry = (ArgumentRegistry<S>) registries.get(ArgumentRegistry.class);
+        this.namedArgumentRegistry = (NamedArgumentRegistry<S>) registries.get(NamedArgumentRegistry.class);
+        this.requirementRegistry = (RequirementRegistry<S>) registries.get(RequirementRegistry.class);
+        this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
         this.senderValidator = senderValidator;
 
         this.isAsync = method.isAnnotationPresent(Async.class);
-        this.isNamedArguments = method.isAnnotationPresent(NamedArguments.class);
 
         extractSubCommandNames();
         if (name == null) return;
@@ -146,12 +171,13 @@ public abstract class AbstractSubCommandProcessor<S> {
         extractRequirements();
         extractDescription();
         extractArgDescriptions();
+        extractSuggestions();
         extractArguments(method);
         validateArguments();
     }
 
     /**
-     * Allows for customizing the argument parsing, for example <code>@Value</code> and <code>@Completion</code> annotations.
+     * Allows for customizing the internalArgument parsing, for example <code>@Value</code> and <code>@Completion</code> annotations.
      *
      * @param method The method to search from.
      */
@@ -221,11 +247,6 @@ public abstract class AbstractSubCommandProcessor<S> {
      */
     public boolean isAsync() {
         return isAsync;
-    }
-
-    // TODO: 1/30/2022
-    public boolean isNamedArguments() {
-        return isNamedArguments;
     }
 
     /**
@@ -314,12 +335,12 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @return The arguments list.
      */
     @NotNull
-    public List<Argument<S, ?>> getArguments() {
-        return arguments;
+    public List<InternalArgument<S, ?>> getArguments() {
+        return internalArguments;
     }
 
     /**
-     * Creates and adds the argument to the arguments list.
+     * Creates and adds the internalArgument to the arguments list.
      *
      * @param parameter The current parameter to get data from.
      */
@@ -327,58 +348,175 @@ public abstract class AbstractSubCommandProcessor<S> {
         final Class<?> type = parameter.getType();
         final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(parameter, position);
-        final boolean optional = isNamedArguments || parameter.isAnnotationPresent(Optional.class);
+        final boolean optional = parameter.isAnnotationPresent(Optional.class);
 
-        // Handles collection argument.
+        // Handles collection internalArgument.
         // TODO: Add more collection types.
-        if (List.class.isAssignableFrom(type) || Set.class.isAssignableFrom(type)) {
-            final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
-            final Type[] types = parameterizedType.getActualTypeArguments();
-
-            if (types.length != 1) {
-                throw createException("Unsupported collection type \"" + type + "\"");
-            }
-
-            final Type genericType = types[0];
-            final Type collectionType = genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType;
-            final Argument<S, String> argument = createSimpleArgument((Class<?>) collectionType, argumentName, argumentDescription, position, optional);
+        if (COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
+            final Class<?> collectionType = getGenericType(parameter);
+            final InternalArgument<S, String> internalArgument = createSimpleArgument(
+                    collectionType,
+                    argumentName,
+                    argumentDescription,
+                    suggestionList.get(position),
+                    0,
+                    true
+            );
 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
-                addArgument(new SplitStringArgument<>(argumentName, argumentDescription, splitAnnotation.value(), argument, type, position, optional));
+                addArgument(
+                        new SplitStringInternalArgument<>(
+                                argumentName,
+                                argumentDescription,
+                                splitAnnotation.value(),
+                                internalArgument,
+                                type,
+                                suggestionList.get(position),
+                                position,
+                                optional
+                        )
+                );
                 return;
             }
 
-            addArgument(new CollectionArgument<>(argumentName, argumentDescription, argument, type, position, optional));
+            addArgument(
+                    new CollectionInternalArgument<>(
+                            argumentName,
+                            argumentDescription,
+                            internalArgument,
+                            type,
+                            suggestionList.get(position),
+                            position,
+                            optional
+                    )
+            );
             return;
         }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(new JoinedStringArgument<>(argumentName, argumentDescription, joinAnnotation.value(), position, optional));
+            addArgument(
+                    new JoinedStringInternalArgument<>(
+                            argumentName,
+                            argumentDescription,
+                            joinAnnotation.value(),
+                            suggestionList.get(position),
+                            position,
+                            optional
+                    )
+            );
             return;
         }
 
         // Handler for flags.
         if (type == Flags.class) {
             if (flagGroup.isEmpty()) {
-                throw createException("Flags argument detected but no flag annotation declared");
+                throw createException("Flags internalArgument detected but no flag annotation declared");
             }
 
-            addArgument(new FlagArgument<>(argumentName, argumentDescription, parentName, name, flagGroup, messageRegistry, position, optional));
+            addArgument(
+                    new FlagInternalArgument<>(
+                            argumentName,
+                            argumentDescription,
+                            parentName,
+                            name,
+                            flagGroup,
+                            messageRegistry,
+                            position,
+                            optional
+                    )
+            );
             return;
         }
 
-        addArgument(createSimpleArgument(type, argumentName, argumentDescription, position, optional));
+        // Handler for named arguments
+        if (type == Arguments.class) {
+            final NamedArguments namedArguments = method.getAnnotation(NamedArguments.class);
+            if (namedArguments == null) {
+                throw createException("TODO");
+            }
+
+            addArgument(
+                    new NamedInternalArgument<>(
+                            argumentName,
+                            argumentDescription,
+                            collectNamedArgs(namedArguments.value()),
+                            position,
+                            optional
+                    )
+            );
+            return;
+        }
+
+        addArgument(createSimpleArgument(type, argumentName, argumentDescription, suggestionList.get(position), position, optional));
+    }
+
+    private Map<String, InternalArgument<S, ?>> collectNamedArgs(final String key) {
+        final List<Argument> arguments = namedArgumentRegistry.getResolver(ArgumentKey.of(key));
+        if (arguments == null || arguments.isEmpty()) {
+            throw createException("No registered named arguments found for key \"" + key + "\"");
+        }
+
+        // TODO: Handle list
+        return arguments.stream().map(argument -> {
+            System.out.println(argument.getSuggestion());
+            // TODO: Handle enum and shit
+            final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(argument.getSuggestion());
+            System.out.println(resolver);
+            final Suggestion<S> suggestion = resolver == null ? new EmptySuggestion<>() : new SimpleSuggestion<>(resolver);
+            System.out.println(suggestion);
+            if (argument instanceof ListArgument) {
+                System.out.println("is list");
+                final ListArgument listArgument = (ListArgument) argument;
+
+                final InternalArgument<S, String> internalArgument = createSimpleArgument(
+                        listArgument.getType(),
+                        listArgument.getName(),
+                        listArgument.getDescription(),
+                        new EmptySuggestion<>(),
+                        0,
+                        true
+                );
+
+                return Maps.immutableEntry(
+                        listArgument.getName(),
+                        new SplitStringInternalArgument<>(
+                                listArgument.getName(),
+                                listArgument.getDescription(),
+                                listArgument.getSeparator(),
+                                internalArgument,
+                                listArgument.getType(),
+                                suggestion,
+                                0,
+                                true
+                        )
+                );
+            }
+
+            System.out.println("Not list");
+            System.out.println(suggestion);
+            return Maps.immutableEntry(
+                    argument.getName(),
+                    createSimpleArgument(
+                            argument.getType(),
+                            argument.getName(),
+                            argument.getDescription(),
+                            suggestion,
+                            0,
+                            true
+                    )
+            );
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**
-     * Gets the argument name, either from the parameter or from the annotation.
+     * Gets the internalArgument name, either from the parameter or from the annotation.
      * If the parameter is not annotated, turn the name from Camel Case to "lower-hyphen".
      *
      * @param parameter The parameter to get data from.
-     * @return The final argument name.
+     * @return The final internalArgument name.
      */
     @NotNull
     private String getArgName(@NotNull final Parameter parameter) {
@@ -390,11 +528,11 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Gets the argument description.
+     * Gets the internalArgument description.
      *
      * @param parameter The parameter to get data from.
-     * @param index     The index of the argument.
-     * @return The final argument description.
+     * @param index     The index of the internalArgument.
+     * @return The final internalArgument description.
      */
     @NotNull
     private String getArgumentDescription(@NotNull final Parameter parameter, final int index) {
@@ -415,12 +553,13 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param parameterName       The Name to use for this Argument.
      * @param argumentDescription the Description to use for this Argument.
      * @param optional            whether this Argument is optional.
-     * @return The created {@link Argument}.
+     * @return The created {@link InternalArgument}.
      */
-    private Argument<S, String> createSimpleArgument(
+    private InternalArgument<S, String> createSimpleArgument(
             @NotNull final Class<?> type,
             @NotNull final String parameterName,
             @NotNull final String argumentDescription,
+            @NotNull final Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -430,16 +569,31 @@ public abstract class AbstractSubCommandProcessor<S> {
             // Handler for using any Enum.
             if (Enum.class.isAssignableFrom(type)) {
                 //noinspection unchecked
-                return new EnumArgument<>(parameterName, argumentDescription, (Class<? extends Enum<?>>) type, position, optional);
+                return new EnumInternalArgument<>(
+                        parameterName,
+                        argumentDescription,
+                        (Class<? extends Enum<?>>) type,
+                        suggestion,
+                        position,
+                        optional
+                );
             }
 
-            throw createException("No argument of type \"" + type.getName() + "\" registered");
+            throw createException("No internalArgument of type \"" + type.getName() + "\" registered");
         }
-        return new ResolverArgument<>(parameterName, argumentDescription, type, resolver, position, optional);
+        return new ResolverInternalArgument<>(
+                parameterName,
+                argumentDescription,
+                type,
+                resolver,
+                suggestion,
+                position,
+                optional
+        );
     }
 
     /**
-     * Adds a required argument to the list.
+     * Adds a required internalArgument to the list.
      *
      * @param requirement The requirement to add.
      */
@@ -448,12 +602,12 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Utility to add the argument to the list.
+     * Utility to add the internalArgument to the list.
      *
-     * @param argument The created argument.
+     * @param internalArgument The created internalArgument.
      */
-    private void addArgument(@NotNull final Argument<S, ?> argument) {
-        arguments.add(argument);
+    private void addArgument(@NotNull final InternalArgument<S, ?> internalArgument) {
+        internalArguments.add(internalArgument);
     }
 
     /**
@@ -502,18 +656,35 @@ public abstract class AbstractSubCommandProcessor<S> {
             if (longFlag.isEmpty()) longFlag = null;
 
             final Class<?> argumentType = flagAnnotation.argument();
-            StringArgument<S> argument = null;
+            StringInternalArgument<S> internalArgument = null;
             if (argumentType != void.class) {
                 if (Enum.class.isAssignableFrom(argumentType)) {
                     //noinspection unchecked
-                    argument = new EnumArgument<>(argumentType.getName(), "", (Class<? extends Enum<?>>) argumentType, 0, false);
+                    internalArgument = new EnumInternalArgument<>(
+                            argumentType.getName(),
+                            "",
+                            (Class<? extends Enum<?>>) argumentType,
+                            // TODO: fix
+                            new EmptySuggestion<>(),
+                            0,
+                            false
+                    );
                 } else {
                     final ArgumentResolver<S> resolver = argumentRegistry.getResolver(argumentType);
                     if (resolver == null) {
-                        throw createException("@" + Flag.class.getSimpleName() + "'s argument contains unregistered type \"" + argumentType.getName() + "\"");
+                        throw createException("@" + Flag.class.getSimpleName() + "'s internalArgument contains unregistered type \"" + argumentType.getName() + "\"");
                     }
 
-                    argument = new ResolverArgument<>(argumentType.getName(), "", argumentType, resolver, 0, false);
+                    internalArgument = new ResolverInternalArgument<>(
+                            argumentType.getName(),
+                            "",
+                            argumentType,
+                            resolver,
+                            // TODO: fix
+                            new EmptySuggestion<>(),
+                            0,
+                            false
+                    );
                 }
             }
 
@@ -521,7 +692,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                     new FlagOptions<>(
                             flag,
                             longFlag,
-                            argument,
+                            internalArgument,
                             flagAnnotation.optionalArg(),
                             flagAnnotation.required()
                     )
@@ -585,7 +756,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return A list of BiConsumers with checks.
      */
-    protected List<BiConsumer<Boolean, Argument<S, ?>>> getArgValidations() {
+    protected List<BiConsumer<Boolean, InternalArgument<S, ?>>> getArgValidations() {
         return Arrays.asList(validateOptionals(), validateLimitless());
     }
 
@@ -594,23 +765,23 @@ public abstract class AbstractSubCommandProcessor<S> {
      * For example a limitless arguments and optional arguments are only allowed at the end of the command.
      */
     private void validateArguments() {
-        final List<BiConsumer<Boolean, Argument<S, ?>>> validations = getArgValidations();
-        final Iterator<Argument<S, ?>> iterator = arguments.iterator();
+        final List<BiConsumer<Boolean, InternalArgument<S, ?>>> validations = getArgValidations();
+        final Iterator<InternalArgument<S, ?>> iterator = internalArguments.iterator();
         while (iterator.hasNext()) {
-            final Argument<S, ?> argument = iterator.next();
-            validations.forEach(consumer -> consumer.accept(iterator.hasNext(), argument));
+            final InternalArgument<S, ?> internalArgument = iterator.next();
+            validations.forEach(consumer -> consumer.accept(iterator.hasNext(), internalArgument));
         }
     }
 
     /**
      * Validation function for optionals.
      *
-     * @return Returns a BiConsumer with a is optional check.
+     * @return Returns a BiConsumer with an is optional check.
      */
-    protected BiConsumer<Boolean, Argument<S, ?>> validateOptionals() {
-        return (hasNext, argument) -> {
-            if (hasNext && argument.isOptional() && !isNamedArguments) {
-                throw createException("Optional argument is only allowed as the last argument");
+    protected BiConsumer<Boolean, InternalArgument<S, ?>> validateOptionals() {
+        return (hasNext, internalArgument) -> {
+            if (hasNext && internalArgument.isOptional()) {
+                throw createException("Optional internalArgument is only allowed as the last internalArgument");
             }
         };
     }
@@ -620,10 +791,10 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return Returns a BiConsumer with an instance of check.
      */
-    protected BiConsumer<Boolean, Argument<S, ?>> validateLimitless() {
-        return (hasNext, argument) -> {
-            if (hasNext && argument instanceof LimitlessArgument) {
-                throw createException("Limitless argument is only allowed as the last argument");
+    protected BiConsumer<Boolean, InternalArgument<S, ?>> validateLimitless() {
+        return (hasNext, internalArgument) -> {
+            if (hasNext && internalArgument instanceof LimitlessInternalArgument) {
+                throw createException("Limitless internalArgument is only allowed as the last internalArgument");
             }
         };
     }
@@ -646,4 +817,111 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.argDescriptions.addAll(Arrays.asList(argDescriptions.value()));
     }
 
+    /**
+     * Extract all suggestions from the method and parameters.
+     */
+    public void extractSuggestions() {
+        for (final dev.triumphteam.cmd.core.annotation.Suggestion suggestion : getSuggestionsFromAnnotations()) {
+            final String key = suggestion.value();
+            if (key.isEmpty()) {
+                suggestionList.add(new EmptySuggestion<>());
+                continue;
+            }
+
+            final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(SuggestionKey.of(key));
+
+            if (resolver == null) {
+                throw createException("Cannot find the suggestion key `" + key + "`");
+            }
+
+            suggestionList.add(new SimpleSuggestion<>(resolver));
+        }
+
+        extractSuggestionFromParams();
+    }
+
+    /**
+     * Extract all suggestions from the parameters.
+     * Adds the suggestions to the passed list.
+     */
+    private void extractSuggestionFromParams() {
+        final Parameter[] parameters = method.getParameters();
+        for (int i = 1; i < parameters.length; i++) {
+            final Parameter parameter = parameters[i];
+
+            final dev.triumphteam.cmd.core.annotation.Suggestion suggestion = parameter.getAnnotation(dev.triumphteam.cmd.core.annotation.Suggestion.class);
+            final String suggestionKey = suggestion == null ? "" : suggestion.value();
+
+            final int addIndex = i - 1;
+            if (suggestionKey.isEmpty() || suggestionKey.equals("enum")) {
+                final Class<?> type = getGenericType(parameter);
+
+                if (Enum.class.isAssignableFrom(type)) {
+                    setOrAddSuggestion(addIndex, new EnumSuggestion<>((Class<? extends Enum<?>>) type));
+                    continue;
+                }
+
+                final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(type);
+                if (resolver != null) {
+                    setOrAddSuggestion(addIndex, new SimpleSuggestion<>(resolver));
+                    continue;
+                }
+
+                setOrAddSuggestion(addIndex, null);
+                continue;
+            }
+
+            final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(SuggestionKey.of(suggestionKey));
+            if (resolver == null) {
+                throw createException("Cannot find the suggestion key `" + suggestionKey + "`");
+            }
+            setOrAddSuggestion(addIndex, new SimpleSuggestion<>(resolver));
+        }
+    }
+
+    /**
+     * Adds a suggestion or overrides an existing one.
+     *
+     * @param index      The index of the suggestion.
+     * @param suggestion The suggestion.
+     */
+    private void setOrAddSuggestion(final int index, @Nullable final Suggestion<S> suggestion) {
+        if (index >= suggestionList.size()) {
+            if (suggestion == null) {
+                suggestionList.add(new EmptySuggestion<>());
+                return;
+            }
+            suggestionList.add(suggestion);
+            return;
+        }
+
+        if (suggestion == null) return;
+        suggestionList.set(index, suggestion);
+    }
+
+    private List<dev.triumphteam.cmd.core.annotation.Suggestion> getSuggestionsFromAnnotations() {
+        final Suggestions requirements = method.getAnnotation(Suggestions.class);
+        if (requirements != null) return Arrays.asList(requirements.value());
+
+        final dev.triumphteam.cmd.core.annotation.Suggestion suggestion = method.getAnnotation(dev.triumphteam.cmd.core.annotation.Suggestion.class);
+        if (suggestion == null) return emptyList();
+        return singletonList(suggestion);
+    }
+
+    private Class<?> getGenericType(@NotNull final Parameter parameter) {
+        final Class<?> type = parameter.getType();
+        if (COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
+            final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+            final Type[] types = parameterizedType.getActualTypeArguments();
+
+            if (types.length != 1) {
+                throw createException("Unsupported collection type \"" + type + "\"");
+            }
+
+            final Type genericType = types[0];
+            return (Class<?>) (genericType instanceof WildcardType ? ((WildcardType) genericType).getUpperBounds()[0] : genericType);
+        }
+
+        return type;
+    }
 }

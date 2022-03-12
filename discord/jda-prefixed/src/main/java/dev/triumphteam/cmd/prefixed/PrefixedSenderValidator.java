@@ -46,6 +46,9 @@ class PrefixedSenderValidator implements SenderValidator<PrefixedSender> {
         return ImmutableSet.of(PrefixedSender.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean validate(
             @NotNull final MessageRegistry<PrefixedSender> messageRegistry,

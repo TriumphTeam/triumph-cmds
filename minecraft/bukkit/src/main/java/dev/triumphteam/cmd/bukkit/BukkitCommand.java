@@ -23,17 +23,17 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import com.google.common.collect.Maps;
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
+import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
@@ -47,17 +47,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
 public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command {
 
-    private final ArgumentRegistry<S> argumentRegistry;
-    private final MessageRegistry<S> messageRegistry;
-    private final RequirementRegistry<S> requirementRegistry;
     private final SuggestionRegistry<S> suggestionRegistry;
+    private final MessageRegistry<S> messageRegistry;
+
+    private final Map<Class<? extends Registry>, Registry> registries;
 
     private final SenderMapper<CommandSender, S> senderMapper;
     private final SenderValidator<S> senderValidator;
@@ -68,6 +67,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
     private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     public BukkitCommand(
             @NotNull final BukkitCommandProcessor<S> processor,
             @NotNull final ExecutionProvider syncExecutionProvider,
@@ -77,10 +77,9 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         setAliases(processor.getAlias());
 
         this.description = processor.getDescription();
-        this.argumentRegistry = processor.getArgumentRegistry();
-        this.messageRegistry = processor.getMessageRegistry();
-        this.requirementRegistry = processor.getRequirementRegistry();
-        this.suggestionRegistry = processor.getSuggestionRegistry();
+        this.registries = processor.getRegistries();
+        this.suggestionRegistry = (SuggestionRegistry<S>) registries.get(SuggestionRegistry.class);
+        this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
         this.senderMapper = processor.getSenderMapper();
         this.senderValidator = processor.getSenderValidator();
 
@@ -102,10 +101,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
                     baseCommand,
                     getName(),
                     method,
-                    argumentRegistry,
-                    requirementRegistry,
-                    messageRegistry,
-                    suggestionRegistry,
+                    registries,
                     senderValidator
             );
 
@@ -147,24 +143,18 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             return true;
         }
 
-        if (!subCommand.meetsDefaultRequirements(sender, mappedSender)) return true;
-
-        List<String> commandArgs = Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
-        if (subCommand.isNamedArguments()) {
-            // TODO: 2/1/2022 - This needs a special parser instead of just splitting the args
-            final Map<String, String> commandMap = Arrays.stream(args)
-                    .map(it -> {
-                        final String[] split = it.split(":");
-                        if (split.length != 2) {
-                            return null;
-                        }
-                        return Maps.immutableEntry(split[0], split[1]);
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-            commandArgs = subCommand.mapArguments(commandMap);
+        final String permission = subCommand.getPermission();
+        if (!permission.isEmpty() && !sender.hasPermission(permission)) {
+            messageRegistry.sendMessage(
+                    BukkitMessageKey.NO_PERMISSION,
+                    mappedSender,
+                    new NoPermissionMessageContext(getName(), subCommand.getName(), permission)
+            );
+            return true;
         }
+
+        final List<String> commandArgs =
+                Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
 
         subCommand.execute(mappedSender, commandArgs);
         return true;
@@ -182,7 +172,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final String arg = args[0].toLowerCase();
 
-        if (args.length == 1 && (subCommand == null || !subCommand.hasSuggestions())) {
+        if (args.length == 1 && subCommand == null) {
             return subCommands
                     .keySet()
                     .stream()

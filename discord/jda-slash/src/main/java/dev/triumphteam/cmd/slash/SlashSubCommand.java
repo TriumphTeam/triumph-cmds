@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
-import dev.triumphteam.cmd.core.argument.Argument;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.slash.choices.Choice;
 import dev.triumphteam.cmd.slash.choices.EmptyChoice;
@@ -52,27 +52,22 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
         this.choices = processor.getChoices();
     }
 
-    @Override
-    public boolean isNamedArguments() {
-        return true;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public List<OptionData> getJdaOptions() {
         final List<OptionData> options = new ArrayList<>();
-        final List<Argument<S, ?>> arguments = getArguments();
+        final List<InternalArgument<S, ?>> internalArguments = getArguments();
 
-        for (int i = 0; i < arguments.size(); i++) {
-            final Argument<S, ?> argument = arguments.get(i);
+        for (int i = 0; i < internalArguments.size(); i++) {
+            final InternalArgument<S, ?> internalArgument = internalArguments.get(i);
 
             final OptionData option = new OptionData(
-                    JdaOptionUtil.fromType(argument.getType()),
-                    argument.getName(),
-                    argument.getDescription(),
-                    !argument.isOptional()
+                    JdaOptionUtil.fromType(internalArgument.getType()),
+                    internalArgument.getName(),
+                    internalArgument.getDescription(),
+                    !internalArgument.isOptional()
             );
 
             options.add(option);

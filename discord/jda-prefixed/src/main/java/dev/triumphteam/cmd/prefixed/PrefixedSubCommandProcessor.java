@@ -24,14 +24,13 @@
 package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Processor for Prefixed JDA platform specific code.
@@ -44,12 +43,10 @@ final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final ArgumentRegistry<S> argumentRegistry,
-            @NotNull final RequirementRegistry<S> requirementRegistry,
-            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, method, argumentRegistry, requirementRegistry, messageRegistry, senderValidator);
+        super(baseCommand, parentName, method, registries, senderValidator);
     }
 
 }

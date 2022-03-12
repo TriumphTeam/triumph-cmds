@@ -25,16 +25,28 @@ package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
+import dev.triumphteam.cmd.core.argument.named.Argument;
+import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageResolver;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
+import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Base command manager for all platforms.
@@ -42,11 +54,10 @@ import org.jetbrains.annotations.NotNull;
  * @param <DS> The default sender type.
  * @param <S>  The sender type.
  */
+@SuppressWarnings("unchecked")
 public abstract class CommandManager<DS, S> {
 
-    private final ArgumentRegistry<S> argumentRegistry = new ArgumentRegistry<>();
-    private final RequirementRegistry<S> requirementRegistry = new RequirementRegistry<>();
-    private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
+    private final Map<Class<? extends Registry>, Registry> registries = new HashMap<>();
 
     private final SenderMapper<DS, S> senderMapper;
     private final SenderValidator<S> senderValidator;
@@ -57,6 +68,12 @@ public abstract class CommandManager<DS, S> {
     ) {
         this.senderMapper = senderMapper;
         this.senderValidator = senderValidator;
+
+        addRegistry(new ArgumentRegistry<>());
+        addRegistry(new NamedArgumentRegistry<>());
+        addRegistry(new RequirementRegistry<>());
+        addRegistry(new MessageRegistry<>());
+        addRegistry(new SuggestionRegistry<>());
     }
 
     /**
@@ -96,13 +113,32 @@ public abstract class CommandManager<DS, S> {
     }
 
     /**
-     * Registers a custom argument.
+     * Registers a custom internalArgument.
      *
-     * @param clazz    The class of the argument to be registered.
-     * @param resolver The {@link ArgumentResolver} with the argument resolution.
+     * @param clazz    The class of the internalArgument to be registered.
+     * @param resolver The {@link ArgumentResolver} with the internalArgument resolution.
      */
     public final void registerArgument(@NotNull final Class<?> clazz, @NotNull final ArgumentResolver<S> resolver) {
-        argumentRegistry.register(clazz, resolver);
+        getRegistry(ArgumentRegistry.class).register(clazz, resolver);
+    }
+
+    // TODO: Comments
+    public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver) {
+        getRegistry(SuggestionRegistry.class).register(key, suggestionResolver);
+    }
+
+    // TODO: Comments
+    public void registerSuggestion(@NotNull final Class<?> type, @NotNull final SuggestionResolver<S> suggestionResolver) {
+        getRegistry(SuggestionRegistry.class).register(type, suggestionResolver);
+    }
+
+    // TODO: Comments
+    public final void registerNamedArguments(@NotNull final ArgumentKey key, @NotNull final Argument @NotNull ... arguments) {
+        registerNamedArguments(key, Arrays.asList(arguments));
+    }
+
+    public final void registerNamedArguments(@NotNull final ArgumentKey key, @NotNull final List<@NotNull Argument> arguments) {
+        getRegistry(NamedArgumentRegistry.class).register(key, arguments);
     }
 
     /**
@@ -115,7 +151,7 @@ public abstract class CommandManager<DS, S> {
             @NotNull final ContextualKey<C> key,
             @NotNull final MessageResolver<S, C> resolver
     ) {
-        messageRegistry.register(key, resolver);
+        getRegistry(MessageRegistry.class).register(key, resolver);
     }
 
     /**
@@ -128,34 +164,15 @@ public abstract class CommandManager<DS, S> {
             @NotNull final RequirementKey key,
             @NotNull final RequirementResolver<S> resolver
     ) {
-        requirementRegistry.register(key, resolver);
+        getRegistry(RequirementRegistry.class).register(key, resolver);
     }
 
-    /**
-     * Gets the {@link ArgumentRegistry}.
-     *
-     * @return The {@link ArgumentRegistry}.
-     */
-    protected ArgumentRegistry<S> getArgumentRegistry() {
-        return argumentRegistry;
+    protected Map<Class<? extends Registry>, Registry> getRegistries() {
+        return registries;
     }
 
-    /**
-     * Gets the {@link RequirementRegistry}.
-     *
-     * @return The {@link RequirementRegistry}.
-     */
-    protected RequirementRegistry<S> getRequirementRegistry() {
-        return requirementRegistry;
-    }
-
-    /**
-     * Gets the {@link MessageRegistry}.
-     *
-     * @return The {@link MessageRegistry}.
-     */
-    protected MessageRegistry<S> getMessageRegistry() {
-        return messageRegistry;
+    protected <R extends Registry> R getRegistry(@NotNull final Class<R> registryClass) {
+        return (R) registries.get(registryClass);
     }
 
     // TODO: 2/4/2022 comments
@@ -165,5 +182,9 @@ public abstract class CommandManager<DS, S> {
 
     protected SenderValidator<S> getSenderValidator() {
         return senderValidator;
+    }
+
+    protected void addRegistry(@NotNull final Registry registry) {
+        registries.put(registry.getClass(), registry);
     }
 }

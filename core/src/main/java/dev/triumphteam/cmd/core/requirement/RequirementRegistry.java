@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
+import dev.triumphteam.cmd.core.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +35,7 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public final class RequirementRegistry<S> {
+public final class RequirementRegistry<S> implements Registry {
 
     private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
 

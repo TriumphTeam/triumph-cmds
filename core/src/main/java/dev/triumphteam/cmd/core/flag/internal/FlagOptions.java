@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.flag.internal;
 
-import dev.triumphteam.cmd.core.argument.StringArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +40,7 @@ public final class FlagOptions<S> {
 
     // TODO: 9/16/2021 Check if flag description is needed.
 
-    private final StringArgument<S> argument;
+    private final StringInternalArgument<S> argument;
     private final Class<?> argumentType;
     private final boolean optionalArg;
     private final boolean required;
@@ -48,7 +48,7 @@ public final class FlagOptions<S> {
     public FlagOptions(
             @Nullable final String flag,
             @Nullable final String longFlag,
-            @Nullable final StringArgument<S> argument,
+            @Nullable final StringInternalArgument<S> argument,
             final boolean optionalArg,
             final boolean required
     ) {

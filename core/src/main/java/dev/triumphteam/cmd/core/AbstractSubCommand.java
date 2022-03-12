@@ -24,11 +24,11 @@
 package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.argument.Argument;
-import dev.triumphteam.cmd.core.argument.LimitlessArgument;
-import dev.triumphteam.cmd.core.argument.StringArgument;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
@@ -63,11 +63,10 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     private final String name;
     private final List<String> alias;
     private final boolean isDefault;
-    private final boolean isNamedArguments;
 
     private final Class<? extends S> senderType;
 
-    private final List<Argument<S, ?>> arguments;
+    private final List<InternalArgument<S, ?>> internalArguments;
     private final Set<Requirement<S, ?>> requirements;
 
     private final MessageRegistry<S> messageRegistry;
@@ -86,11 +85,10 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         this.method = processor.getMethod();
         this.name = processor.getName();
         this.alias = processor.getAlias();
-        this.arguments = processor.getArguments();
+        this.internalArguments = processor.getArguments();
         this.requirements = processor.getRequirements();
         this.messageRegistry = processor.getMessageRegistry();
         this.isDefault = processor.isDefault();
-        this.isNamedArguments = processor.isNamedArguments();
         this.senderValidator = processor.getSenderValidator();
 
         this.senderType = processor.getSenderType();
@@ -99,7 +97,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
 
         this.executionProvider = executionProvider;
 
-        this.containsLimitless = arguments.stream().anyMatch(LimitlessArgument.class::isInstance);
+        this.containsLimitless = internalArguments.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
     }
 
     /**
@@ -111,11 +109,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     @Override
     public boolean isDefault() {
         return isDefault;
-    }
-
-    @Override
-    public boolean isNamedArguments() {
-        return isNamedArguments;
     }
 
     // TODO: 2/5/2022 comments
@@ -197,23 +190,35 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @return The arguments of the sub command.
      */
     @NotNull
-    protected List<Argument<S, ?>> getArguments() {
-        return arguments;
+    protected List<InternalArgument<S, ?>> getArguments() {
+        return internalArguments;
     }
 
     @Nullable
-    protected Argument<S, ?> getArgument(@NotNull final String name) {
-        final List<Argument<S, ?>> foundArgs = arguments.stream()
-                .filter(argument -> argument.getName().toLowerCase().startsWith(name))
+    protected InternalArgument<S, ?> getArgument(@NotNull final String name) {
+        final List<InternalArgument<S, ?>> foundArgs = internalArguments.stream()
+                .filter(internalArgument -> internalArgument.getName().toLowerCase().startsWith(name))
                 .collect(Collectors.toList());
 
         if (foundArgs.size() != 1) return null;
         return foundArgs.get(0);
     }
 
+    @Nullable
+    protected InternalArgument<S, ?> getArgument(final int index) {
+        final int size = internalArguments.size();
+        if (index >= size) {
+            final InternalArgument<S, ?> last = internalArguments.get(size - 1);
+            if (last instanceof LimitlessInternalArgument) return last;
+            return null;
+        }
+
+        return internalArguments.get(index);
+    }
+
     // TODO: 2/1/2022 Comments
     public List<@Nullable String> mapArguments(@NotNull final Map<String, String> args) {
-        final List<String> arguments = getArguments().stream().map(Argument::getName).collect(Collectors.toList());
+        final List<String> arguments = getArguments().stream().map(InternalArgument::getName).collect(Collectors.toList());
         return arguments.stream().map(it -> {
             final String value = args.get(it);
             return value == null ? "" : value;
@@ -226,7 +231,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @param sender          The sender of the command.
      * @param invokeArguments A list with the arguments that'll be used on the `invoke` of the command method.
      * @param commandArgs     The command arguments type.
-     * @return False if any argument fails to pass.
+     * @return False if any internalArgument fails to pass.
      */
     @SuppressWarnings("unchecked")
     private boolean validateAndCollectArguments(
@@ -234,11 +239,11 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
             @NotNull final List<Object> invokeArguments,
             @NotNull final List<String> commandArgs
     ) {
-        for (int i = 0; i < arguments.size(); i++) {
-            final Argument<S, ?> argument = arguments.get(i);
+        for (int i = 0; i < internalArguments.size(); i++) {
+            final InternalArgument<S, ?> internalArgument = internalArguments.get(i);
 
-            if (argument instanceof LimitlessArgument) {
-                final LimitlessArgument<S> limitlessArgument = (LimitlessArgument<S>) argument;
+            if (internalArgument instanceof LimitlessInternalArgument) {
+                final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
                 final List<String> leftOvers = leftOvers(commandArgs, i);
 
                 final Object result = limitlessArgument.resolve(sender, leftOvers);
@@ -251,15 +256,15 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
                 return true;
             }
 
-            if (!(argument instanceof StringArgument)) {
-                throw new CommandExecutionException("Found unsupported argument", parentName, name);
+            if (!(internalArgument instanceof StringInternalArgument)) {
+                throw new CommandExecutionException("Found unsupported internalArgument", parentName, name);
             }
 
-            final StringArgument<S> stringArgument = (StringArgument<S>) argument;
+            final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
             final String arg = valueOrNull(commandArgs, i);
 
             if (arg == null || arg.isEmpty()) {
-                if (argument.isOptional()) {
+                if (internalArgument.isOptional()) {
                     invokeArguments.add(null);
                     continue;
                 }
@@ -273,7 +278,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
-                        new InvalidArgumentContext(parentName, name, arg, argument.getName(), argument.getType())
+                        new InvalidArgumentContext(parentName, name, arg, internalArgument.getName(), internalArgument.getType())
                 );
                 return false;
             }
@@ -302,11 +307,11 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     }
 
     /**
-     * Gets an argument value or null.
+     * Gets an internalArgument value or null.
      *
      * @param list  The list to check from.
-     * @param index The current index of the argument.
-     * @return The argument name or null.
+     * @param index The current index of the internalArgument.
+     * @return The internalArgument name or null.
      */
     @Nullable
     private String valueOrNull(@NotNull final List<String> list, final int index) {
@@ -336,7 +341,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
                 ", name='" + name + '\'' +
                 ", alias=" + alias +
                 ", isDefault=" + isDefault +
-                ", arguments=" + arguments +
+                ", arguments=" + internalArguments +
                 ", requirements=" + requirements +
                 ", messageRegistry=" + messageRegistry +
                 ", containsLimitlessArgument=" + containsLimitless +
