@@ -109,6 +109,7 @@ import static java.util.Collections.singletonList;
  *
  * @param <S> The sender type.
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractSubCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
@@ -461,21 +462,16 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         // TODO: Handle list
         return arguments.stream().map(argument -> {
-            System.out.println(argument.getSuggestion());
-            // TODO: Handle enum and shit
-            final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(argument.getSuggestion());
-            System.out.println(resolver);
-            final Suggestion<S> suggestion = resolver == null ? new EmptySuggestion<>() : new SimpleSuggestion<>(resolver);
-            System.out.println(suggestion);
+            final Suggestion<S> suggestion = createSuggestion(argument.getSuggestion(), argument.getType());
+
             if (argument instanceof ListArgument) {
-                System.out.println("is list");
                 final ListArgument listArgument = (ListArgument) argument;
 
                 final InternalArgument<S, String> internalArgument = createSimpleArgument(
                         listArgument.getType(),
                         listArgument.getName(),
                         listArgument.getDescription(),
-                        new EmptySuggestion<>(),
+                        suggestion,
                         0,
                         true
                 );
@@ -850,33 +846,34 @@ public abstract class AbstractSubCommandProcessor<S> {
             final Parameter parameter = parameters[i];
 
             final dev.triumphteam.cmd.core.annotation.Suggestion suggestion = parameter.getAnnotation(dev.triumphteam.cmd.core.annotation.Suggestion.class);
-            final String suggestionKey = suggestion == null ? "" : suggestion.value();
+            final SuggestionKey suggestionKey = suggestion == null ? null : SuggestionKey.of(suggestion.value());
 
+            final Class<?> type = getGenericType(parameter);
             final int addIndex = i - 1;
-            if (suggestionKey.isEmpty() || suggestionKey.equals("enum")) {
-                final Class<?> type = getGenericType(parameter);
-
-                if (Enum.class.isAssignableFrom(type)) {
-                    setOrAddSuggestion(addIndex, new EnumSuggestion<>((Class<? extends Enum<?>>) type));
-                    continue;
-                }
-
-                final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(type);
-                if (resolver != null) {
-                    setOrAddSuggestion(addIndex, new SimpleSuggestion<>(resolver));
-                    continue;
-                }
-
-                setOrAddSuggestion(addIndex, null);
-                continue;
-            }
-
-            final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(SuggestionKey.of(suggestionKey));
-            if (resolver == null) {
-                throw createException("Cannot find the suggestion key `" + suggestionKey + "`");
-            }
-            setOrAddSuggestion(addIndex, new SimpleSuggestion<>(resolver));
+            setOrAddSuggestion(addIndex, createSuggestion(suggestionKey, type));
         }
+    }
+
+    @Nullable
+    private Suggestion<S> createSuggestion(@Nullable final SuggestionKey suggestionKey, @NotNull final Class<?> type) {
+        if (suggestionKey == null) {
+            if (Enum.class.isAssignableFrom(type)) {
+                return new EnumSuggestion<>((Class<? extends Enum<?>>) type);
+            }
+
+            final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(type);
+            if (resolver != null) {
+                return new SimpleSuggestion<>(resolver);
+            }
+
+            return null;
+        }
+
+        final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(suggestionKey);
+        if (resolver == null) {
+            throw createException("Cannot find the suggestion key `" + suggestionKey + "`");
+        }
+        return new SimpleSuggestion<>(resolver);
     }
 
     /**

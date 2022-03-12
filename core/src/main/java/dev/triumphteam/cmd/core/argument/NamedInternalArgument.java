@@ -55,9 +55,8 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
             @NotNull final SuggestionContext context
     ) {
         final Map<String, String> parsedArgs = NamedArgumentParser.parse(String.join(" ", trimmed));
-        System.out.println("Parsed: " + parsedArgs);
         final String current = trimmed.get(trimmed.size() - 1);
-        System.out.println("Current: " + current);
+
         final List<String> notUsed = arguments.keySet()
                 .stream()
                 .filter(it -> parsedArgs.get(it) == null)
@@ -65,7 +64,6 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
                 .map(it -> it + ":")
                 .collect(Collectors.toList());
 
-        System.out.println("NotUsed: " + notUsed);
         if (notUsed.size() > 1) return notUsed;
 
         // Anything down here is actually terrible, someone with a better brain please fix lmao
@@ -78,18 +76,19 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
             argName = parsed.get(parsed.size() - 1);
         }
 
-        System.out.println("ArgName: " + argName);
-
         final InternalArgument<S, ?> argument = arguments.get(argName);
-        System.out.println("Arg: " + argument);
+
         if (argument != null) {
             final String raw = argName + ":";
-            System.out.println("Raw: " + raw);
-            return argument.suggestions(
-                            sender,
-                            Collections.singletonList(!current.contains(raw) ? "" : current.replace(raw, "")),
-                            context
-                    )
+            final List<String> parsed = argument.suggestions(
+                    sender,
+                    Collections.singletonList(!current.contains(raw) ? "" : current.replace(raw, "")),
+                    context
+            );
+
+            if (parsed.isEmpty()) return Collections.singletonList(raw);
+
+            return parsed
                     .stream()
                     .map(it -> argName + ":" + it)
                     .collect(Collectors.toList());

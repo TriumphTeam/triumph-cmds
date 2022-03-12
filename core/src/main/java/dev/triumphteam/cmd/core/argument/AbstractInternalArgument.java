@@ -69,10 +69,7 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
             @NotNull final List<String> trimmed,
             final @NotNull SuggestionContext context
     ) {
-        final String current = trimmed.get(0);
-        System.out.println("Trimmed: " + current);
-        System.out.println("Sugg: " + suggestion.getSuggestions(sender, current, context));
-        return suggestion.getSuggestions(sender, current, context);
+        return suggestion.getSuggestions(sender, trimmed.get(0), context);
     }
 
     /**
