@@ -25,14 +25,18 @@ package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.flag.Flags;
 import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
+import dev.triumphteam.cmd.core.flag.internal.FlagOptions;
 import dev.triumphteam.cmd.core.flag.internal.FlagParser;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
+import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Flag argument, a {@link LimitlessInternalArgument} but returns {@link Flags} instead.
@@ -67,6 +71,45 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
     @Override
     public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
         return flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
+    }
+
+    @Override
+    public List<String> suggestions(
+            @NotNull final S sender,
+            final @NotNull List<String> trimmed,
+            final @NotNull SuggestionContext context
+    ) {
+        final int size = trimmed.size();
+        final String current = trimmed.get(size - 1);
+
+        if (size > 1) {
+
+        }
+
+        final Map<String, FlagOptions<S>> flags = flagGroup.getFlags();
+        final Map<String, FlagOptions<S>> longFlags = flagGroup.getLongFlags();
+
+        if (flags.isEmpty()) {
+            return longFlags.keySet()
+                    .stream()
+                    .map(it -> "--" + it)
+                    .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        if (current.startsWith("--")) {
+            return longFlags.keySet()
+                    .stream()
+                    .map(it -> "--" + it)
+                    .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        return flags.keySet()
+                .stream()
+                .map(it -> "-" + it)
+                .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     @Override

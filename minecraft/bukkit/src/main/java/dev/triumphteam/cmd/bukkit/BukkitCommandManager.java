@@ -134,6 +134,15 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             oldCommand.unregister(commandMap);
         }
 
+        // TODO: DRY
+        processor.getAlias().forEach(it -> {
+            final org.bukkit.command.Command old = commandMap.getCommand(name);
+            if (old instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) old).getPlugin() == plugin) {
+                bukkitCommands.remove(name);
+                old.unregister(commandMap);
+            }
+        });
+
         final BukkitCommand<S> command = commands.computeIfAbsent(name, ignored -> {
             final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, syncExecutionProvider, asyncExecutionProvider);
             commandMap.register(name, plugin.getName(), newCommand);

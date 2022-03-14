@@ -39,6 +39,14 @@ public final class FlagGroup<S> {
     private final Map<String, FlagOptions<S>> flags = new HashMap<>();
     private final Map<String, FlagOptions<S>> longFlags = new HashMap<>();
 
+    public Map<String, FlagOptions<S>> getFlags() {
+        return flags;
+    }
+
+    public Map<String, FlagOptions<S>> getLongFlags() {
+        return longFlags;
+    }
+
     /**
      * Adds a new flag to the group.
      *
