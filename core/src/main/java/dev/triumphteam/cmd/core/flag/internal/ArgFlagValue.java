@@ -21,11 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.flag.internal.result;
+package dev.triumphteam.cmd.core.flag.internal;
 
-/**
- * This parse result system is better because limits the data returned by the parser.
- * However, it's not a good system.
- * It gets a bit annoying for having all types of things to return.
- */
-public interface ParseResult {}
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+class ArgFlagValue<S> implements FlagValue {
+
+    private final String value;
+    private final StringInternalArgument<S> argument;
+
+    public ArgFlagValue(@NotNull final String value, @NotNull final StringInternalArgument<S> argument) {
+        this.value = value;
+        this.argument = argument;
+    }
+
+    @Nullable
+    public Object getValue(@NotNull final S sender, @NotNull final Class<?> type) {
+        if (!type.equals(argument.getType())) return null;
+        return argument.resolve(sender, value);
+    }
+
+    @NotNull
+    public String getAsString() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return "ArgFlagValue{" +
+                "value='" + value + '\'' +
+                ", argument=" + argument +
+                '}';
+    }
+}

@@ -36,5 +36,4 @@ public @interface Description {
 
     @NotNull
     String value();
-
 }

@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core.flag;
 
 import dev.triumphteam.cmd.core.registry.Registry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,33 +31,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Registry used for registering new suggestions for all commands to use.
- *
- * @param <S> The sender type.
- */
 public final class FlagRegistry<S> implements Registry {
 
-    private final Map<dev.triumphteam.cmd.core.suggestion.SuggestionKey, SuggestionResolver<S>> suggestions = new HashMap<>();
+    private final Map<FlagKey, SuggestionResolver<S>> suggestions = new HashMap<>();
 
-    /**
-     * Registers a new {@link SuggestionResolver} for the specific Key.
-     *
-     * @param key      The suggestion key.
-     * @param resolver The action to get the suggestions.
-     */
-    public void register(@NotNull final dev.triumphteam.cmd.core.suggestion.SuggestionKey key, @NotNull final SuggestionResolver<S> resolver) {
+
+    public void register(@NotNull final FlagKey key, @NotNull final SuggestionResolver<S> resolver) {
         suggestions.put(key, resolver);
     }
 
-    /**
-     * Gets the {@link SuggestionResolver} for the specific Key.
-     *
-     * @param key The specific key.
-     * @return A saved {@link SuggestionResolver}.
-     */
     @Nullable
-    public SuggestionResolver<S> getSuggestionResolver(@NotNull final SuggestionKey key) {
+    public SuggestionResolver<S> getSuggestionResolver(@NotNull final FlagKey key) {
         return suggestions.get(key);
     }
 }

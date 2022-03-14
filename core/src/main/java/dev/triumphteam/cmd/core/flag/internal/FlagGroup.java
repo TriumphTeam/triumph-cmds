@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,9 +26,7 @@ package dev.triumphteam.cmd.core.flag.internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,7 +38,6 @@ public final class FlagGroup<S> {
 
     private final Map<String, FlagOptions<S>> flags = new HashMap<>();
     private final Map<String, FlagOptions<S>> longFlags = new HashMap<>();
-    private final List<String> requiredFlags = new ArrayList<>();
 
     /**
      * Adds a new flag to the group.
@@ -53,10 +50,6 @@ public final class FlagGroup<S> {
         final String longFlag = flagOptions.getLongFlag();
         if (longFlag != null) {
             longFlags.put(longFlag, flagOptions);
-        }
-
-        if (flagOptions.isRequired()) {
-            requiredFlags.add(flagOptions.getKey());
         }
 
         flags.put(key, flagOptions);
@@ -72,31 +65,17 @@ public final class FlagGroup<S> {
     }
 
     /**
-     * Gets a list with all the required flags.
-     *
-     * @return A list of requried flags.
-     */
-    @NotNull
-    public List<String> getRequiredFlags() {
-        return requiredFlags;
-    }
-
-    /**
      * Gets the flag that matches the current token.
      *
      * @param token    The current token, a flag name or not.
-     * @param longFlag Whether it's a long flag or a normal one.
      * @return The flag if found or null if not a valid flag.
      */
     @Nullable
-    public FlagOptions<S> getMatchingFlag(@NotNull final String token, final boolean longFlag) {
+    public FlagOptions<S> getMatchingFlag(@NotNull final String token) {
         final String stripped = stripLeadingHyphens(token);
 
-        if (longFlag) {
-            return longFlags.get(stripped);
-        }
-
-        return flags.get(stripped);
+        final FlagOptions<S> flag = flags.get(stripped);
+        return flag != null ? flag : longFlags.get(stripped);
     }
 
     /**
@@ -111,5 +90,4 @@ public final class FlagGroup<S> {
         if (token.startsWith("-")) return token.substring(1);
         return token;
     }
-
 }

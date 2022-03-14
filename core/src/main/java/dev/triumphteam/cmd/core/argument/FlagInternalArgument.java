@@ -23,19 +23,9 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.flag.Flags;
 import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
 import dev.triumphteam.cmd.core.flag.internal.FlagParser;
-import dev.triumphteam.cmd.core.flag.internal.result.InvalidFlagArgumentResult;
-import dev.triumphteam.cmd.core.flag.internal.result.ParseResult;
-import dev.triumphteam.cmd.core.flag.internal.result.RequiredArgResult;
-import dev.triumphteam.cmd.core.flag.internal.result.RequiredFlagsResult;
-import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.message.context.InvalidFlagArgumentContext;
-import dev.triumphteam.cmd.core.message.context.MissingFlagArgumentContext;
-import dev.triumphteam.cmd.core.message.context.MissingFlagContext;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,35 +35,25 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Flag argument, a {@link LimitlessInternalArgument} but returns a {@link ParseResult} instead.
+ * Flag argument, a {@link LimitlessInternalArgument} but returns {@link Flags} instead.
  * Which contains a {@link Flags} object and the left over to be passed to another {@link LimitlessInternalArgument}.
  *
  * @param <S> The sender type.
  */
 public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> {
-
-    private final String commandName;
-    private final String subCommandName;
-
     private final FlagGroup<S> flagGroup;
-    private final MessageRegistry<S> messageRegistry;
+    private final FlagParser<S> flagParser;
 
     public FlagInternalArgument(
             @NotNull final String name,
             @NotNull final String description,
-            @NotNull final String commandName,
-            @NotNull final String subCommandName,
             @NotNull final FlagGroup<S> flagGroup,
-            @NotNull final MessageRegistry<S> messageRegistry,
             final int position,
             final boolean isOptional
     ) {
         super(name, description, Flags.class, new EmptySuggestion<>(), position, isOptional);
-        this.commandName = commandName;
-        this.subCommandName = subCommandName;
-
         this.flagGroup = flagGroup;
-        this.messageRegistry = messageRegistry;
+        this.flagParser = new FlagParser<>(flagGroup);
     }
 
     /**
@@ -81,35 +61,12 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
      *
      * @param sender The sender to resolve to.
      * @param value  The arguments {@link List}.
-     * @return A {@link ParseResult} which contains the flags and leftovers.
+     * @return A {@link Flags} which contains the flags and leftovers.
      */
-    @Nullable
+    @NotNull
     @Override
     public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
-        final List<String> args = value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value;
-
-        final ParseResult result = FlagParser.parse(flagGroup, sender, args);
-        if (result instanceof RequiredFlagsResult) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG, sender, new MissingFlagContext(commandName, subCommandName, (RequiredFlagsResult) result));
-            return null;
-        }
-
-        if (result instanceof RequiredArgResult) {
-            messageRegistry.sendMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, sender, new MissingFlagArgumentContext(commandName, subCommandName, (RequiredArgResult) result));
-            return null;
-        }
-
-        if (result instanceof InvalidFlagArgumentResult) {
-            messageRegistry.sendMessage(MessageKey.INVALID_FLAG_ARGUMENT, sender, new InvalidFlagArgumentContext(commandName, subCommandName, (InvalidFlagArgumentResult) result));
-            return null;
-        }
-
-        // Should never happen
-        if (!(result instanceof Flags)) {
-            throw new CommandExecutionException("Error occurred while parsing command flags", commandName, subCommandName);
-        }
-
-        return result;
+        return flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
     }
 
     @Override
@@ -132,5 +89,4 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
                 "flagGroup=" + flagGroup +
                 ", super=" + super.toString() + "}";
     }
-
 }

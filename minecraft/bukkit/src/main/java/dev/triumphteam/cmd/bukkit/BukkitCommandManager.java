@@ -158,9 +158,6 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.sendMessage("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`."));
-        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG, (sender, context) -> sender.sendMessage("Command is missing required flags."));
-        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, (sender, context) -> sender.sendMessage("Command is missing required flags argument."));
-        manager.registerMessage(MessageKey.INVALID_FLAG_ARGUMENT, (sender, context) -> sender.sendMessage("Invalid flag argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`."));
 
         manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`."));
         manager.registerMessage(BukkitMessageKey.PLAYER_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by players."));
@@ -170,7 +167,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         manager.registerArgument(Player.class, (sender, arg) -> Bukkit.getPlayer(arg));
         manager.registerArgument(World.class, (sender, arg) -> Bukkit.getWorld(arg));
 
-        manager.registerSuggestion(Player.class, (sender, context) -> Bukkit.getOnlinePlayers().stream().map(Player::getDisplayName).collect(Collectors.toList()));
+        manager.registerSuggestion(Player.class, (sender, context) -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
     }
 
     /**

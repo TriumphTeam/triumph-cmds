@@ -36,5 +36,4 @@ public @interface ArgDescriptions {
 
     @NotNull
     String[] value();
-
 }

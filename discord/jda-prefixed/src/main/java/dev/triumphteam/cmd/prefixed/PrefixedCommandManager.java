@@ -315,9 +315,6 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.getMessage().reply("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").queue());
-        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG, (sender, context) -> sender.getMessage().reply("Command is missing required flags.").queue());
-        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, (sender, context) -> sender.getMessage().reply("Command is missing required flags argument.").queue());
-        manager.registerMessage(MessageKey.INVALID_FLAG_ARGUMENT, (sender, context) -> sender.getMessage().reply("Invalid flag argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").queue());
 
         manager.registerArgument(User.class, (sender, arg) -> {
             final JDA jda = sender.getJDA();

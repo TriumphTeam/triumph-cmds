@@ -53,5 +53,4 @@ public @interface SubCommand {
      */
     @NotNull
     String[] alias() default {};
-
 }

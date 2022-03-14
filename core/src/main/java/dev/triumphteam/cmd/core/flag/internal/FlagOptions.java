@@ -39,27 +39,16 @@ public final class FlagOptions<S> {
     private final String longFlag;
 
     // TODO: 9/16/2021 Check if flag description is needed.
-
     private final StringInternalArgument<S> argument;
-    private final Class<?> argumentType;
-    private final boolean optionalArg;
-    private final boolean required;
 
     public FlagOptions(
             @Nullable final String flag,
             @Nullable final String longFlag,
-            @Nullable final StringInternalArgument<S> argument,
-            final boolean optionalArg,
-            final boolean required
+            @Nullable final StringInternalArgument<S> argument
     ) {
         this.flag = flag;
         this.longFlag = longFlag;
-        this.optionalArg = optionalArg;
-        this.required = required;
         this.argument = argument;
-
-        if (argument != null) argumentType = argument.getType();
-        else argumentType = null;
     }
 
     /**
@@ -82,23 +71,9 @@ public final class FlagOptions<S> {
         return longFlag;
     }
 
-    /**
-     * Gets the argument type.
-     *
-     * @return The type of the argument.
-     */
-    @Nullable
-    public Class<?> getArgumentType() {
-        return argumentType;
-    }
-
-    /**
-     * Whether the flag is required.
-     *
-     * @return If the flag is required.
-     */
-    public boolean isRequired() {
-        return required;
+    // TODO: Comments
+    public StringInternalArgument<S> getArgument() {
+        return argument;
     }
 
     /**
@@ -121,30 +96,7 @@ public final class FlagOptions<S> {
      *
      * @return Whether it has an argument.
      */
-    boolean hasArgument() {
+    public boolean hasArgument() {
         return argument != null;
     }
-
-    /**
-     * Checks if the flag requires argument or if it's optional.
-     *
-     * @return Whether the argument is optional.
-     */
-    boolean requiresArg() {
-        return !optionalArg;
-    }
-
-    /**
-     * Resolves the argument of the flag.
-     *
-     * @param sender The sender to resolve to.
-     * @param token  The current token, aka the argument typed.
-     * @return The argument object with its correct type or null.
-     */
-    @Nullable
-    public Object resolveArgument(@NotNull S sender, @NotNull final String token) {
-        if (argument == null) return null;
-        return argument.resolve(sender, token);
-    }
-
 }

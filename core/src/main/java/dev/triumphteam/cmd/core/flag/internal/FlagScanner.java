@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Simple util scanner for easier looping through the tokens.
  */
-final class FlagScanner {
+public final class FlagScanner {
 
     private final List<String> tokens;
     private int pointer = -1;
@@ -63,9 +63,11 @@ final class FlagScanner {
     /**
      * Points the pointer to the next token.
      */
-    public void next() {
+    @NotNull
+    public String next() {
         if (pointer < tokens.size()) pointer++;
         setToken(tokens.get(pointer));
+        return peek();
     }
 
     /**

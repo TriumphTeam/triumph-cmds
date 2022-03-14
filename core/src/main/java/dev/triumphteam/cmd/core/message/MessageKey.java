@@ -25,10 +25,7 @@ package dev.triumphteam.cmd.core.message;
 
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.message.context.InvalidFlagArgumentContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.message.context.MissingFlagArgumentContext;
-import dev.triumphteam.cmd.core.message.context.MissingFlagContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,10 +41,6 @@ public class MessageKey<C extends MessageContext> extends ContextualKey<C> {
     public static final MessageKey<DefaultMessageContext> TOO_MANY_ARGUMENTS = of("too.many.arguments", DefaultMessageContext.class);
     public static final MessageKey<DefaultMessageContext> NOT_ENOUGH_ARGUMENTS = of("not.enough.arguments", DefaultMessageContext.class);
     public static final MessageKey<InvalidArgumentContext> INVALID_ARGUMENT = of("invalid.argument", InvalidArgumentContext.class);
-    // Flag related
-    public static final MessageKey<MissingFlagContext> MISSING_REQUIRED_FLAG = of("missing.required.flag", MissingFlagContext.class);
-    public static final MessageKey<MissingFlagArgumentContext> MISSING_REQUIRED_FLAG_ARGUMENT = of("missing.required.flag.argument", MissingFlagArgumentContext.class);
-    public static final MessageKey<InvalidFlagArgumentContext> INVALID_FLAG_ARGUMENT = of("invalid.flag.argument", InvalidFlagArgumentContext.class);
 
     protected MessageKey(@NotNull final String key, @NotNull final Class<C> type) {
         super(key, type);

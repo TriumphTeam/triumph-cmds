@@ -21,45 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.message.context;
+package dev.triumphteam.cmd.core.flag.internal;
 
-import dev.triumphteam.cmd.core.flag.internal.result.RequiredArgResult;
-import org.jetbrains.annotations.NotNull;
+public final class EmptyFlagValue implements FlagValue {
 
-/**
- * Context for when user types a flag without argument and the argument is required.
- */
-public final class MissingFlagArgumentContext extends AbstractMessageContext {
-
-    private final RequiredArgResult result;
-
-    public MissingFlagArgumentContext(
-            @NotNull final String command,
-            @NotNull final String subCommand,
-            @NotNull final RequiredArgResult result
-    ) {
-        super(command, subCommand);
-        this.result = result;
-    }
-
-    /**
-     * Gets that flag in which a required argument is missing.
-     *
-     * @return The flag name.
-     */
-    @NotNull
-    public String getFlag() {
-        return result.getFlag();
-    }
-
-    /**
-     * Gets the argument type of the missing argument.
-     *
-     * @return The argument type.
-     */
-    @NotNull
-    public Class<?> getArgumentType() {
-        return result.getArgumentType();
-    }
-
+    public static final EmptyFlagValue INSTANCE = new EmptyFlagValue();
 }

@@ -67,19 +67,7 @@ public @interface Flag {
     @NotNull
     Class<?> argument() default void.class;
 
-    /**
-     * Whether the argument is optional or not.
-     * Will be set to false if no argument is set.
-     *
-     * @return Whether the argument is optional.
-     */
-    boolean optionalArg() default false;
-
-    /**
-     * Makes the flag be required, so users must use this flag.
-     *
-     * @return Whether the flag is required.
-     */
-    boolean required() default false;
-
+    // TODO: Comments
+    @NotNull
+    String suggestion() default "";
 }

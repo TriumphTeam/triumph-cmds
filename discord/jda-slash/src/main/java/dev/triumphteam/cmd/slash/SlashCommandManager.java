@@ -305,9 +305,6 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.reply("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").setEphemeral(true).queue());
-        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG, (sender, context) -> sender.reply("Command is missing required flags.").setEphemeral(true).queue());
-        manager.registerMessage(MessageKey.MISSING_REQUIRED_FLAG_ARGUMENT, (sender, context) -> sender.reply("Command is missing required flags argument.").setEphemeral(true).queue());
-        manager.registerMessage(MessageKey.INVALID_FLAG_ARGUMENT, (sender, context) -> sender.reply("Invalid flag argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").setEphemeral(true).queue());
 
         manager.registerArgument(Member.class, (sender, arg) -> {
             final Guild guild = sender.getGuild();

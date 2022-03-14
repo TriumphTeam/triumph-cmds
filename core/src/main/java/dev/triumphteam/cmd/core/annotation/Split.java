@@ -46,5 +46,4 @@ public @interface Split {
      */
     @NotNull
     String value() default ",";
-
 }

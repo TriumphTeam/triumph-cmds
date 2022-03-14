@@ -44,5 +44,4 @@ public @interface CommandFlags {
      */
     @NotNull
     Flag[] value();
-
 }

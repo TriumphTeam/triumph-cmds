@@ -29,26 +29,5 @@ import dev.triumphteam.cmd.core.flag.Flags
  * Checks if the flag key is present or not using operator function.
  * Useful for simple flags like `-l`.
  * Where you just want to check if the flag was added or not.
- * For flag with values recommended [getValueOrNull].
  */
 public operator fun Flags.contains(flag: String): Boolean = this.hasFlag(flag)
-
-/**
- * Gets the flag value in a not nullable way, using reified types.
- * However, it'll throw exception if the flag isn't present.
- * Recommended use for required flags with required argument.
- */
-public inline fun <reified T> Flags.getValue(flag: String): T {
-    return this.getValue(flag, T::class.java)
-}
-
-/**
- * Gets the flag value in a nullable way, using reified types.
- */
-public inline fun <reified T> Flags.getValueOrNull(flag: String): T? = this.getValueOrNull(flag, T::class.java)
-
-/**
- * Gets the flag value in a not nullable way since a default value will be given, using reified types.
- */
-public inline fun <reified T : Any> Flags.getValueOrDefault(flag: String, default: T): T =
-    this.getValueOrDefault(flag, T::class.java, default)

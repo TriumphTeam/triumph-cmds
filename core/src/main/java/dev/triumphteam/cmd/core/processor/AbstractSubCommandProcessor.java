@@ -420,10 +420,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                     new FlagInternalArgument<>(
                             argumentName,
                             argumentDescription,
-                            parentName,
-                            name,
                             flagGroup,
-                            messageRegistry,
                             position,
                             optional
                     )
@@ -685,9 +682,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                     new FlagOptions<>(
                             flag,
                             longFlag,
-                            internalArgument,
-                            flagAnnotation.optionalArg(),
-                            flagAnnotation.required()
+                            internalArgument
                     )
             );
         }

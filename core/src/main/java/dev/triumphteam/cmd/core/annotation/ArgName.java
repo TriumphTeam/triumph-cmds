@@ -41,5 +41,4 @@ public @interface ArgName {
      * @return The name of the argument
      */
     String value();
-
 }

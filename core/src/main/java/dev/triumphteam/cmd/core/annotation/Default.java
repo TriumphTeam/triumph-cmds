@@ -47,5 +47,4 @@ public @interface Default {
      */
     @NotNull
     String[] alias() default {};
-
 }
