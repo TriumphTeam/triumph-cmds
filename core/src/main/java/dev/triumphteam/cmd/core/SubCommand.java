@@ -44,6 +44,8 @@ public interface SubCommand<S> {
     @NotNull
     Class<? extends S> getSenderType();
 
+    boolean hasArguments();
+
     /**
      * Checks if the sub command is default.
      * Can also just check if the name is {@link Default#DEFAULT_CMD_NAME}.

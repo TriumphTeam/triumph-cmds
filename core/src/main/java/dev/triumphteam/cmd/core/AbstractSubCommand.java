@@ -74,6 +74,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
 
     private final SenderValidator<S> senderValidator;
 
+    private final boolean hasArguments;
     private final boolean containsLimitless;
 
     public AbstractSubCommand(
@@ -97,6 +98,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
 
         this.executionProvider = executionProvider;
 
+        this.hasArguments = !internalArguments.isEmpty();
         this.containsLimitless = internalArguments.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
     }
 
@@ -138,6 +140,11 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean hasArguments() {
+        return hasArguments;
     }
 
     /**
@@ -207,6 +214,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     @Nullable
     protected InternalArgument<S, ?> getArgument(final int index) {
         final int size = internalArguments.size();
+        if (size == 0) return null;
         if (index >= size) {
             final InternalArgument<S, ?> last = internalArguments.get(size - 1);
             if (last instanceof LimitlessInternalArgument) return last;

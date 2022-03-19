@@ -172,7 +172,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final String arg = args[0].toLowerCase();
 
-        if (args.length == 1 && subCommand == null) {
+        if (args.length == 1 && (subCommand == null || !subCommand.hasArguments())) {
             return subCommands
                     .keySet()
                     .stream()
