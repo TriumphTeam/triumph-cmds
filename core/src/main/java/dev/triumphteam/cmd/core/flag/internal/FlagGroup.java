@@ -26,7 +26,9 @@ package dev.triumphteam.cmd.core.flag.internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +40,8 @@ public final class FlagGroup<S> {
 
     private final Map<String, FlagOptions<S>> flags = new HashMap<>();
     private final Map<String, FlagOptions<S>> longFlags = new HashMap<>();
+
+    private final List<String> allFlags = new ArrayList<>();
 
     public Map<String, FlagOptions<S>> getFlags() {
         return flags;
@@ -57,10 +61,16 @@ public final class FlagGroup<S> {
 
         final String longFlag = flagOptions.getLongFlag();
         if (longFlag != null) {
+            allFlags.add("--" + longFlag);
             longFlags.put(longFlag, flagOptions);
         }
 
+        allFlags.add("-" + key);
         flags.put(key, flagOptions);
+    }
+
+    public List<String> getAllFlags() {
+        return allFlags;
     }
 
     /**
@@ -75,7 +85,7 @@ public final class FlagGroup<S> {
     /**
      * Gets the flag that matches the current token.
      *
-     * @param token    The current token, a flag name or not.
+     * @param token The current token, a flag name or not.
      * @return The flag if found or null if not a valid flag.
      */
     @Nullable

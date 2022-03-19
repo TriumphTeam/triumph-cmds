@@ -646,6 +646,10 @@ public abstract class AbstractSubCommandProcessor<S> {
             if (longFlag.isEmpty()) longFlag = null;
 
             final Class<?> argumentType = flagAnnotation.argument();
+
+            final SuggestionKey suggestionKey = flagAnnotation.suggestion().isEmpty() ? null : SuggestionKey.of(flagAnnotation.suggestion());
+            final Suggestion<S> suggestion = createSuggestion(suggestionKey, flagAnnotation.argument());
+
             StringInternalArgument<S> internalArgument = null;
             if (argumentType != void.class) {
                 if (Enum.class.isAssignableFrom(argumentType)) {
@@ -654,8 +658,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                             argumentType.getName(),
                             "",
                             (Class<? extends Enum<?>>) argumentType,
-                            // TODO: fix
-                            new EmptySuggestion<>(),
+                            suggestion,
                             0,
                             false
                     );
@@ -670,8 +673,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                             "",
                             argumentType,
                             resolver,
-                            // TODO: fix
-                            new EmptySuggestion<>(),
+                            suggestion,
                             0,
                             false
                     );
@@ -846,7 +848,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         }
     }
 
-    @Nullable
+    @NotNull
     private Suggestion<S> createSuggestion(@Nullable final SuggestionKey suggestionKey, @NotNull final Class<?> type) {
         if (suggestionKey == null) {
             if (Enum.class.isAssignableFrom(type)) {
@@ -858,7 +860,7 @@ public abstract class AbstractSubCommandProcessor<S> {
                 return new SimpleSuggestion<>(resolver);
             }
 
-            return null;
+            return new EmptySuggestion<>();
         }
 
         final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(suggestionKey);

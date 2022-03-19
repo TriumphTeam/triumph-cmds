@@ -32,7 +32,9 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
  * @param <S> The sender type.
  */
 public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> {
+
     private final FlagGroup<S> flagGroup;
     private final FlagParser<S> flagParser;
 
@@ -82,32 +85,64 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
         final int size = trimmed.size();
         final String current = trimmed.get(size - 1);
 
-        if (size > 1) {
+        // TODO: Show flags before long flags.
+        final List<String> flags = flagGroup.getAllFlags();
 
+        // Parses all the arguments to get the flags that have been used
+        final List<Map.Entry<FlagOptions<S>, String>> parsed = new ArrayList<>(flagParser.parseFlags(trimmed).entrySet());
+        final List<String> used = new ArrayList<>();
+
+        // Due to long flags and normal flags being together, loop through them to collect the used ones
+        // Could have been done with stream but too complex for my brain right now
+        for (final Map.Entry<FlagOptions<S>, String> entry : parsed) {
+            final FlagOptions<S> options = entry.getKey();
+            final String flag = options.getFlag();
+            final String longFlag = options.getLongFlag();
+
+            if (flag != null) used.add("-" + flag);
+            if (longFlag != null) used.add("--" + longFlag);
         }
 
-        final Map<String, FlagOptions<S>> flags = flagGroup.getFlags();
-        final Map<String, FlagOptions<S>> longFlags = flagGroup.getLongFlags();
+        // If something was parsed we enter to check for arguments
+        if (!parsed.isEmpty()) {
+            // Get the last used flag
+            final Map.Entry<FlagOptions<S>, String> last = parsed.get(parsed.size() - 1);
+            final FlagOptions<S> flagOptions = last.getKey();
 
-        if (flags.isEmpty()) {
-            return longFlags.keySet()
-                    .stream()
-                    .map(it -> "--" + it)
-                    .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
-                    .collect(Collectors.toList());
+            // Checking for arguments that doesn't use `=`
+            if (!current.contains("=")) {
+                // If there isn't more than 1 arguments typed, then there is no argument present without using `=`
+                if (size > 1) {
+                    // If the flag has arguments and the previous arg was a flag we get its suggestion
+                    if (flagOptions.hasArgument() && flags.contains(trimmed.get(size - 2))) {
+                        return flagOptions.getArgument().suggestions(sender, Collections.singletonList(current), context);
+                    }
+                }
+            } else {
+                // Split the arg into flag and arg
+                final String[] split = current.split("=");
+                // Only `=` present, no flag or arg
+                if (split.length == 0) return Collections.emptyList();
+
+                final String flag = split[0];
+                final String arg = split.length != 2 ? "" : split[1];
+
+                // If the flag has arguments we get suggestions and append the flag and `=` to the suggestion
+                if (flagOptions.hasArgument()) {
+                    return flagOptions
+                            .getArgument()
+                            .suggestions(sender, Collections.singletonList(arg), context)
+                            .stream()
+                            .map(it -> flag + "=" + it)
+                            .collect(Collectors.toList());
+                }
+            }
         }
 
-        if (current.startsWith("--")) {
-            return longFlags.keySet()
-                    .stream()
-                    .map(it -> "--" + it)
-                    .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
-                    .collect(Collectors.toList());
-        }
-
-        return flags.keySet()
+        // Return the flags that haven't been used yet
+        return flags
                 .stream()
-                .map(it -> "-" + it)
+                .filter(it -> !used.contains(it))
                 .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
                 .collect(Collectors.toList());
     }

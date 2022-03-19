@@ -23,9 +23,14 @@
  */
 package dev.triumphteam.cmd.core.flag.internal;
 
+import com.google.common.collect.Maps;
+import dev.triumphteam.cmd.core.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Basic flag parser.
@@ -45,23 +50,33 @@ public final class FlagParser<S> {
         this.flagGroup = flagGroup;
     }
 
-    public FlagsResult<S> parse(@NotNull final S sender, @NotNull final List<String> toParse) {
+    public Map<FlagOptions<S>, String> parseFlags(@NotNull final List<String> toParse) {
+        return parseInternal(toParse).getKey();
+    }
+
+    public Flags parse(@NotNull final S sender, @NotNull final List<String> toParse) {
+        final Map.Entry<Map<FlagOptions<S>, String>, List<String>> parsed = parseInternal(toParse);
+        return new FlagsResult<>(sender, parsed.getKey(), parsed.getValue());
+    }
+
+    private Map.Entry<Map<FlagOptions<S>, String>, List<String>> parseInternal(@NotNull final List<String> toParse) {
         final FlagScanner tokens = new FlagScanner(toParse);
 
-        final FlagsResult<S> flagsResult = new FlagsResult<>(sender);
+        final Map<FlagOptions<S>, String> flags = new LinkedHashMap<>();
+        final List<String> args = new ArrayList<>();
 
         while (tokens.hasNext()) {
             final String token = tokens.next();
 
             // If escaping the flag then just, skip
             if (token.startsWith(ESCAPE)) {
-                flagsResult.addArg(token);
+                args.add(token);
                 continue;
             }
 
             // Checks if it's a flag, if not then skip
             if ((!token.startsWith(LONG) || LONG.equals(token)) && (!token.startsWith(SHORT) || SHORT.equals(token))) {
-                flagsResult.addArg(token);
+                args.add(token);
                 continue;
             }
 
@@ -71,7 +86,7 @@ public final class FlagParser<S> {
                 final FlagOptions<S> flag = flagGroup.getMatchingFlag(token);
                 // No valid flag with the name, skip
                 if (flag == null) {
-                    flagsResult.addArg(token);
+                    args.add(token);
                     continue;
                 }
 
@@ -79,17 +94,17 @@ public final class FlagParser<S> {
                 if (flag.hasArgument()) {
                     // If an argument is needed and no more tokens present, then just append empty as value
                     if (!tokens.hasNext()) {
-                        flagsResult.addFlag(flag, "");
+                        flags.put(flag, "");
                         continue;
                     }
 
                     // Value found so append
-                    flagsResult.addFlag(flag, tokens.next());
+                    flags.put(flag, tokens.next());
                     continue;
                 }
 
                 // No argument needed just add flag
-                flagsResult.addFlag(flag);
+                flags.put(flag, null);
                 continue;
             }
 
@@ -100,20 +115,20 @@ public final class FlagParser<S> {
             final FlagOptions<S> flag = flagGroup.getMatchingFlag(flagToken);
             // No valid flag with the name, skip
             if (flag == null) {
-                flagsResult.addArg(token);
+                args.add(token);
                 continue;
             }
 
             // Flag with equals should always have argument, so we ignore if it doesn't
             if (!flag.hasArgument()) {
-                flagsResult.addArg(token);
+                args.add(token);
                 continue;
             }
 
             // Add flag normally
-            flagsResult.addFlag(flag, argToken);
+            flags.put(flag, argToken);
         }
 
-        return flagsResult;
+        return Maps.immutableEntry(flags, args);
     }
 }
