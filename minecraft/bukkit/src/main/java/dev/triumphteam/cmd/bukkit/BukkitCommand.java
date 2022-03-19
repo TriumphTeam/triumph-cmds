@@ -174,16 +174,24 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         if (args.length == 1 && (subCommand == null || !subCommand.hasArguments())) {
             return subCommands
-                    .keySet()
+                    .entrySet()
                     .stream()
-                    .filter(it -> !it.equals(Default.DEFAULT_CMD_NAME))
-                    .filter(it -> it.toLowerCase().startsWith(arg))
-                    // TODO: 1/29/2022 - Add a way to filter out commands that are not visible to the sender
+                    .filter(it -> !it.getValue().isDefault())
+                    .filter(it -> it.getKey().startsWith(arg))
+                    .filter(it -> {
+                        final String permission = it.getValue().getPermission();
+                        if (permission.isEmpty()) return true;
+                        return sender.hasPermission(permission);
+                    })
+                    .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
         }
 
         if (subCommandExists(arg)) subCommand = getSubCommand(arg);
         if (subCommand == null) return emptyList();
+
+        final String permission = subCommand.getPermission();
+        if (!permission.isEmpty() && !sender.hasPermission(permission)) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
 
