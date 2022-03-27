@@ -138,7 +138,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final S mappedSender = senderMapper.map(sender);
 
-        if (subCommand == null) {
+        if (subCommand == null || (args.length > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(getName(), subCommandName));
             return true;
         }
