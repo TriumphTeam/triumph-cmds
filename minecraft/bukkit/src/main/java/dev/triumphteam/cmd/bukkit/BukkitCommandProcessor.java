@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
@@ -31,16 +32,40 @@ import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
-public final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S> {
+final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderMapper<CommandSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            @NotNull final SenderValidator<S> senderValidator,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
-        super(baseCommand, registries, senderMapper, senderValidator);
+        super(baseCommand, registries, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
+    }
+
+    @NotNull
+    @Override
+    protected BukkitSubCommandProcessor<S> createProcessor(@NotNull final Method method) {
+        return new BukkitSubCommandProcessor<>(
+                getBaseCommand(),
+                getName(),
+                method,
+                getRegistries(),
+                getSenderValidator()
+        );
+    }
+
+    @NotNull
+    @Override
+    protected BukkitSubCommand<S> createSubCommand(
+            @NotNull final BukkitSubCommandProcessor<S> processor,
+            @NotNull final ExecutionProvider executionProvider
+    ) {
+        return new BukkitSubCommand<>(processor, getName(), executionProvider);
     }
 }

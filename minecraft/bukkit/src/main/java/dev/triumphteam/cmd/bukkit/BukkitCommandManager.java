@@ -120,51 +120,39 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
                 baseCommand,
                 getRegistries(),
                 getSenderMapper(),
-                getSenderValidator()
+                getSenderValidator(),
+                syncExecutionProvider,
+                asyncExecutionProvider
         );
 
-        final String name = processor.getName();
+        final BukkitCommand<S> command = commands.computeIfAbsent(processor.getName(), ignored -> createAndRegisterCommand(processor.getName(), processor));
+        // Adding sub commands.
+        command.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
 
-        final org.bukkit.command.Command oldCommand = commandMap.getCommand(name);
-
-        // From ACF (https://github.com/aikar/commands)
-        // To allow commands to be registered on the plugin.yml
-        if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
-            bukkitCommands.remove(name);
-            oldCommand.unregister(commandMap);
-        }
-
-        // TODO: DRY
         processor.getAlias().forEach(it -> {
-            final org.bukkit.command.Command old = commandMap.getCommand(it);
-            if (old instanceof PluginIdentifiableCommand) {
-                final PluginIdentifiableCommand pluginCommand = (PluginIdentifiableCommand) old;
-                final Plugin oldPlugin = pluginCommand.getPlugin();
-                if (oldPlugin == plugin) {
-                    bukkitCommands.remove(name);
-                    old.unregister(commandMap);
-                } else {
-                    // Renames the old command, so it's no longer the main one but still accessible
-                    final String renamed = oldPlugin.getName().toLowerCase() + ":" + name;
-                    bukkitCommands.remove(name);
-                    bukkitCommands.put(renamed, old);
-                    old.setName(renamed);
-                }
-            }
+            final BukkitCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> createAndRegisterCommand(it, processor));
+            // Adding sub commands.
+            aliasCommand.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
         });
-
-        final BukkitCommand<S> command = commands.computeIfAbsent(name, ignored -> {
-            final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, syncExecutionProvider, asyncExecutionProvider);
-            commandMap.register(name, plugin.getName(), newCommand);
-            return newCommand;
-        });
-
-        command.addSubCommands(baseCommand);
     }
 
     @Override
     public void unregisterCommand(@NotNull final BaseCommand command) {
         // TODO add a remove functionality
+    }
+
+    private BukkitCommand<S> createAndRegisterCommand(@NotNull final String name, @NotNull final BukkitCommandProcessor<S> processor) {
+        // From ACF (https://github.com/aikar/commands)
+        // To allow commands to be registered on the plugin.yml
+        final org.bukkit.command.Command oldCommand = commandMap.getCommand(name);
+        if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
+            bukkitCommands.remove(name);
+            oldCommand.unregister(commandMap);
+        }
+
+        final BukkitCommand<S> newCommand = new BukkitCommand<>(name, processor);
+        commandMap.register(plugin.getName(), newCommand);
+        return newCommand;
     }
 
     /**

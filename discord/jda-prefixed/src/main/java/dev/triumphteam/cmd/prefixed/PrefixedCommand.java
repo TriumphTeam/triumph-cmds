@@ -23,23 +23,17 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.registry.Registry;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +43,7 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-final class PrefixedCommand<S> implements Command {
+final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
 
     private final Map<String, PrefixedSubCommand<S>> subCommands = new HashMap<>();
 
@@ -79,30 +73,13 @@ final class PrefixedCommand<S> implements Command {
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void addSubCommands(@NotNull final BaseCommand baseCommand) {
-        for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
-            final PrefixedSubCommandProcessor<S> processor = new PrefixedSubCommandProcessor<>(
-                    baseCommand,
-                    name,
-                    method,
-                    registries,
-                    senderValidator
-            );
-
-            final String subCommandName = processor.getName();
-            if (subCommandName == null) continue;
-
-            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-
-            final PrefixedSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, s -> new PrefixedSubCommand<>(processor, name, executionProvider));
-            for (final String alias : processor.getAlias()) {
-                subCommands.putIfAbsent(alias, subCommand);
-            }
-        }
+    public void addSubCommands(
+            @NotNull final Map<String, PrefixedSubCommand<S>> subCommands,
+            @NotNull final Map<String, PrefixedSubCommand<S>> subCommandAliases
+    ) {
+        this.subCommands.putAll(subCommands);
+        this.subCommands.putAll(subCommandAliases);
     }
 
     /**

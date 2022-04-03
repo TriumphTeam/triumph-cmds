@@ -24,16 +24,22 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +51,7 @@ import java.util.Map;
  *
  * @param <S> Sender type
  */
-public abstract class AbstractCommandProcessor<SD, S> {
+public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, P extends AbstractSubCommandProcessor<S>> {
 
     private final Class<?> annotatedClass;
 
@@ -53,27 +59,57 @@ public abstract class AbstractCommandProcessor<SD, S> {
     // TODO: 11/28/2021 Add better default description
     private String description = "No description provided.";
     private final List<String> alias = new ArrayList<>();
+    private final Map<String, SC> subCommands = new HashMap<>();
+    private final Map<String, SC> subCommandsAlias = new HashMap<>();
 
     private final BaseCommand baseCommand;
     private final Map<Class<? extends Registry>, Registry> registries;
     private final SenderMapper<SD, S> senderMapper;
     private final SenderValidator<S> senderValidator;
 
+    private final ExecutionProvider syncExecutionProvider;
+    private final ExecutionProvider asyncExecutionProvider;
+
     protected AbstractCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final Map<Class<? extends Registry>, Registry> registries,
             @NotNull final SenderMapper<SD, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            @NotNull final SenderValidator<S> senderValidator,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
         this.baseCommand = baseCommand;
         this.registries = registries;
         this.senderMapper = senderMapper;
         this.senderValidator = senderValidator;
+        this.syncExecutionProvider = syncExecutionProvider;
+        this.asyncExecutionProvider = asyncExecutionProvider;
 
         this.annotatedClass = extractAnnotationClass();
         extractCommandNames();
         extractDescription();
+        collectSubCommands();
     }
+
+    private void collectSubCommands() {
+        for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
+            if (Modifier.isPrivate(method.getModifiers())) continue;
+
+            final P processor = createProcessor(method);
+            final String subCommandName = processor.getName();
+            if (subCommandName == null) continue;
+
+            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
+            final SC subCommand = subCommands.computeIfAbsent(subCommandName, it -> createSubCommand(processor, executionProvider));
+            processor.getAlias().forEach(alias -> subCommandsAlias.putIfAbsent(alias, subCommand));
+        }
+    }
+
+    @NotNull
+    protected abstract P createProcessor(@NotNull final Method method);
+
+    @Nullable
+    protected abstract SC createSubCommand(@NotNull final P processor, @NotNull final ExecutionProvider executionProvider);
 
     /**
      * Used for the child processors to get the command name.
@@ -124,6 +160,22 @@ public abstract class AbstractCommandProcessor<SD, S> {
     @NotNull
     public SenderValidator<S> getSenderValidator() {
         return senderValidator;
+    }
+
+    public Map<String, SC> getSubCommands() {
+        return subCommands;
+    }
+
+    public Map<String, SC> getSubCommandsAlias() {
+        return subCommandsAlias;
+    }
+
+    public ExecutionProvider getSyncExecutionProvider() {
+        return syncExecutionProvider;
+    }
+
+    public ExecutionProvider getAsyncExecutionProvider() {
+        return asyncExecutionProvider;
     }
 
     /**

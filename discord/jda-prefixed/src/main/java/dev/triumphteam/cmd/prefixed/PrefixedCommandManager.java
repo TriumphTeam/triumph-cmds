@@ -215,7 +215,9 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
                 baseCommand,
                 getRegistries(),
                 getSenderMapper(),
-                getSenderValidator()
+                getSenderValidator(),
+                syncExecutionProvider,
+                asyncExecutionProvider
         );
 
         String prefix = processor.getPrefix();

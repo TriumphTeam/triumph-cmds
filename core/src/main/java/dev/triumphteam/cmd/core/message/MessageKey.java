@@ -59,6 +59,4 @@ public class MessageKey<C extends MessageContext> extends ContextualKey<C> {
     public static <C extends MessageContext> MessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
         return new MessageKey<>(key, type);
     }
-
-
 }

@@ -25,24 +25,18 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -51,83 +45,44 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
-public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command {
+public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command<S, BukkitSubCommand<S>> {
 
-    private final SuggestionRegistry<S> suggestionRegistry;
     private final MessageRegistry<S> messageRegistry;
 
     private final Map<Class<? extends Registry>, Registry> registries;
 
     private final SenderMapper<CommandSender, S> senderMapper;
-    private final SenderValidator<S> senderValidator;
-
-    private final ExecutionProvider syncExecutionProvider;
-    private final ExecutionProvider asyncExecutionProvider;
 
     private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
     private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public BukkitCommand(
-            @NotNull final BukkitCommandProcessor<S> processor,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
-    ) {
-        super(processor.getName());
-        setAliases(processor.getAlias());
+    public BukkitCommand(@NotNull final String name, @NotNull final BukkitCommandProcessor<S> processor) {
+        super(name);
 
         this.description = processor.getDescription();
         this.registries = processor.getRegistries();
-        this.suggestionRegistry = (SuggestionRegistry<S>) registries.get(SuggestionRegistry.class);
         this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
         this.senderMapper = processor.getSenderMapper();
-        this.senderValidator = processor.getSenderValidator();
-
-        this.syncExecutionProvider = syncExecutionProvider;
-        this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
     /**
-     * adds SubCommands from the Command.
-     *
-     * @param baseCommand The {@link BaseCommand} to get the sub commands from.
+     * {@inheritDoc}
      */
     @Override
-    public void addSubCommands(@NotNull final BaseCommand baseCommand) {
-        for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
-            if (Modifier.isPrivate(method.getModifiers())) continue;
-
-            final BukkitSubCommandProcessor<S> processor = new BukkitSubCommandProcessor<>(
-                    baseCommand,
-                    getName(),
-                    method,
-                    registries,
-                    senderValidator
-            );
-
-            final String subCommandName = processor.getName();
-            if (subCommandName == null) continue;
-
-            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-            final BukkitSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, it -> new BukkitSubCommand<>(processor, getName(), executionProvider));
-            processor.getAlias().forEach(alias -> subCommandAliases.putIfAbsent(alias, subCommand));
-        }
-    }
-
-    /**
-     * Execute a Command.
-     *
-     * @param sender       the Sender of this Command
-     * @param commandLabel the CommandLabel for the Command
-     * @param args         the Arguments that were passed to the Command on execution
-     * @return true.
-     */
-    @Override
-    public boolean execute(
-            @NotNull final CommandSender sender,
-            @NotNull final String commandLabel,
-            @NotNull final String[] args
+    public void addSubCommands(
+            @NotNull final Map<String, BukkitSubCommand<S>> subCommands,
+            @NotNull final Map<String, BukkitSubCommand<S>> subCommandAliases
     ) {
+        this.subCommands.putAll(subCommands);
+        this.subCommandAliases.putAll(subCommandAliases);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean execute(@NotNull final CommandSender sender, @NotNull final String commandLabel, @NotNull final String[] args) {
         BukkitSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
@@ -145,16 +100,11 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final String permission = subCommand.getPermission();
         if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-            messageRegistry.sendMessage(
-                    BukkitMessageKey.NO_PERMISSION,
-                    mappedSender,
-                    new NoPermissionMessageContext(getName(), subCommand.getName(), permission)
-            );
+            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
             return true;
         }
 
-        final List<String> commandArgs =
-                Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
+        final List<String> commandArgs = Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
 
         subCommand.execute(mappedSender, commandArgs);
         return true;
@@ -162,29 +112,18 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
     @NotNull
     @Override
-    public List<String> tabComplete(
-            @NotNull final CommandSender sender,
-            @NotNull final String alias,
-            @NotNull final String[] args
-    ) throws IllegalArgumentException {
+    public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String alias, @NotNull final String[] args) throws IllegalArgumentException {
         if (args.length == 0) return emptyList();
         BukkitSubCommand<S> subCommand = getDefaultSubCommand();
 
         final String arg = args[0].toLowerCase();
 
         if (args.length == 1 && (subCommand == null || !subCommand.hasArguments())) {
-            return subCommands
-                    .entrySet()
-                    .stream()
-                    .filter(it -> !it.getValue().isDefault())
-                    .filter(it -> it.getKey().startsWith(arg))
-                    .filter(it -> {
-                        final String permission = it.getValue().getPermission();
-                        if (permission.isEmpty()) return true;
-                        return sender.hasPermission(permission);
-                    })
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+            return subCommands.entrySet().stream().filter(it -> !it.getValue().isDefault()).filter(it -> it.getKey().startsWith(arg)).filter(it -> {
+                final String permission = it.getValue().getPermission();
+                if (permission.isEmpty()) return true;
+                return sender.hasPermission(permission);
+            }).map(Map.Entry::getKey).collect(Collectors.toList());
         }
 
         if (subCommandExists(arg)) subCommand = getSubCommand(arg);
