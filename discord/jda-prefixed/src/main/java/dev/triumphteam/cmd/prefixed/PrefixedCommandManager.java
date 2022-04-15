@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,7 +31,7 @@ import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
@@ -67,7 +67,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
     private static final Pattern CHANNEL_MENTION_PATTERN = Pattern.compile("<#(?<id>\\d+)>");
     private static final Pattern USER_TAG_PATTERN = Pattern.compile(".{3,32}#\\d{4}");
 
-    private final MessageRegistry<S> messageRegistry;
+    private final RegistryContainer<S> registryContainer = new RegistryContainer<>();
 
     private final Set<String> prefixes = new HashSet<>();
     private final Set<Pattern> prefixesRegexes = new HashSet<>();
@@ -88,9 +88,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
         super(senderMapper, senderValidator);
         this.globalPrefix = globalPrefix;
 
-        //noinspection unchecked
-        this.messageRegistry = getRegistry(MessageRegistry.class);
-        jda.addEventListener(new PrefixedCommandListener<S>(this, messageRegistry, senderMapper));
+        jda.addEventListener(new PrefixedCommandListener<>(this, registryContainer, senderMapper));
     }
 
     /**
@@ -204,6 +202,12 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
         // TODO: 11/23/2021 Add unregistering commands and also guild commands
     }
 
+    @NotNull
+    @Override
+    protected RegistryContainer<S> getRegistryContainer() {
+        return registryContainer;
+    }
+
     /**
      * Adds a command to the manager.
      *
@@ -213,7 +217,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
     private void addCommand(@Nullable final Guild guild, @NotNull final BaseCommand baseCommand) {
         final PrefixedCommandProcessor<S> processor = new PrefixedCommandProcessor<>(
                 baseCommand,
-                getRegistries(),
+                registryContainer,
                 getSenderMapper(),
                 getSenderValidator(),
                 syncExecutionProvider,
@@ -237,7 +241,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
         if (guild == null) {
             final PrefixedCommandExecutor<S> commandExecutor = globalCommands.computeIfAbsent(
                     prefix,
-                    ignored -> new PrefixedCommandExecutor<>(messageRegistry, syncExecutionProvider, asyncExecutionProvider)
+                    ignored -> new PrefixedCommandExecutor<>(registryContainer.getMessageRegistry(), syncExecutionProvider, asyncExecutionProvider)
             );
 
             for (final String alias : processor.getAlias()) {
@@ -254,7 +258,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
                 .computeIfAbsent(
                         prefix,
                         ignored -> new PrefixedCommandExecutor<>(
-                                messageRegistry,
+                                registryContainer.getMessageRegistry(),
                                 syncExecutionProvider,
                                 asyncExecutionProvider
                         )

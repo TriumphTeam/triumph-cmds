@@ -8,7 +8,6 @@ rootProject.name = "triumph-cmd"
 listOf(
     "core",
     "kotlin-extras",
-    "suggestions",
     // "cli"
 ).forEach(::includeProject)
 
@@ -16,7 +15,7 @@ listOf(
     "minecraft/bukkit",
     "discord/jda-common",
     "discord/jda-prefixed",
-    // "discord/jda-slash",
+    "discord/jda-slash",
 ).forEach {
     val (folder, name) = it.split('/')
     includeProject(name, folder)

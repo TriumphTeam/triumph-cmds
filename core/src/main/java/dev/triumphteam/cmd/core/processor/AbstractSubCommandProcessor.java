@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -65,7 +65,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
@@ -142,12 +142,11 @@ public abstract class AbstractSubCommandProcessor<S> {
 
     private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
-    @SuppressWarnings("unchecked")
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final Map<Class<? extends Registry>, Registry> registries,
+            @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderValidator<S> senderValidator
     ) {
         this.baseCommand = baseCommand;
@@ -155,11 +154,11 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         this.method = method;
 
-        this.suggestionRegistry = (SuggestionRegistry<S>) registries.get(SuggestionRegistry.class);
-        this.argumentRegistry = (ArgumentRegistry<S>) registries.get(ArgumentRegistry.class);
-        this.namedArgumentRegistry = (NamedArgumentRegistry<S>) registries.get(NamedArgumentRegistry.class);
-        this.requirementRegistry = (RequirementRegistry<S>) registries.get(RequirementRegistry.class);
-        this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
+        this.suggestionRegistry = registryContainer.getSuggestionRegistry();
+        this.argumentRegistry = registryContainer.getArgumentRegistry();
+        this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
+        this.requirementRegistry = registryContainer.getRequirementRegistry();
+        this.messageRegistry = registryContainer.getMessageRegistry();
         this.senderValidator = senderValidator;
 
         this.isAsync = method.isAnnotationPresent(Async.class);

@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,30 +23,23 @@
  */
 package dev.triumphteam.cmd.core;
 
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.named.Argument;
 import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.message.ContextualKey;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageResolver;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Base command manager for all platforms.
@@ -57,8 +50,6 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public abstract class CommandManager<DS, S> {
 
-    private final Map<Class<? extends Registry>, Registry> registries = new HashMap<>();
-
     private final SenderMapper<DS, S> senderMapper;
     private final SenderValidator<S> senderValidator;
 
@@ -68,12 +59,6 @@ public abstract class CommandManager<DS, S> {
     ) {
         this.senderMapper = senderMapper;
         this.senderValidator = senderValidator;
-
-        addRegistry(new ArgumentRegistry<>());
-        addRegistry(new NamedArgumentRegistry<>());
-        addRegistry(new RequirementRegistry<>());
-        addRegistry(new MessageRegistry<>());
-        addRegistry(new SuggestionRegistry<>());
     }
 
     /**
@@ -119,17 +104,17 @@ public abstract class CommandManager<DS, S> {
      * @param resolver The {@link ArgumentResolver} with the internalArgument resolution.
      */
     public final void registerArgument(@NotNull final Class<?> clazz, @NotNull final ArgumentResolver<S> resolver) {
-        getRegistry(ArgumentRegistry.class).register(clazz, resolver);
+        getRegistryContainer().getArgumentRegistry().register(clazz, resolver);
     }
 
     // TODO: Comments
     public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver) {
-        getRegistry(SuggestionRegistry.class).register(key, suggestionResolver);
+        getRegistryContainer().getSuggestionRegistry().register(key, suggestionResolver);
     }
 
     // TODO: Comments
     public void registerSuggestion(@NotNull final Class<?> type, @NotNull final SuggestionResolver<S> suggestionResolver) {
-        getRegistry(SuggestionRegistry.class).register(type, suggestionResolver);
+        getRegistryContainer().getSuggestionRegistry().register(type, suggestionResolver);
     }
 
     // TODO: Comments
@@ -138,7 +123,7 @@ public abstract class CommandManager<DS, S> {
     }
 
     public final void registerNamedArguments(@NotNull final ArgumentKey key, @NotNull final List<@NotNull Argument> arguments) {
-        getRegistry(NamedArgumentRegistry.class).register(key, arguments);
+        getRegistryContainer().getNamedArgumentRegistry().register(key, arguments);
     }
 
     /**
@@ -151,7 +136,7 @@ public abstract class CommandManager<DS, S> {
             @NotNull final ContextualKey<C> key,
             @NotNull final MessageResolver<S, C> resolver
     ) {
-        getRegistry(MessageRegistry.class).register(key, resolver);
+        getRegistryContainer().getMessageRegistry().register(key, resolver);
     }
 
     /**
@@ -164,16 +149,12 @@ public abstract class CommandManager<DS, S> {
             @NotNull final RequirementKey key,
             @NotNull final RequirementResolver<S> resolver
     ) {
-        getRegistry(RequirementRegistry.class).register(key, resolver);
+        getRegistryContainer().getRequirementRegistry().register(key, resolver);
     }
 
-    protected Map<Class<? extends Registry>, Registry> getRegistries() {
-        return registries;
-    }
-
-    protected <R extends Registry> R getRegistry(@NotNull final Class<R> registryClass) {
-        return (R) registries.get(registryClass);
-    }
+    // TODO: Comments
+    @NotNull
+    protected abstract RegistryContainer<S> getRegistryContainer();
 
     // TODO: 2/4/2022 comments
     protected SenderMapper<DS, S> getSenderMapper() {
@@ -182,9 +163,5 @@ public abstract class CommandManager<DS, S> {
 
     protected SenderValidator<S> getSenderValidator() {
         return senderValidator;
-    }
-
-    protected void addRegistry(@NotNull final Registry registry) {
-        registries.put(registry.getClass(), registry);
     }
 }

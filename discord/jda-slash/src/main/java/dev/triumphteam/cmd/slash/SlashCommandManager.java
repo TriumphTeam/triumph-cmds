@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,9 +30,9 @@ import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.choices.ChoiceKey;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
@@ -68,9 +68,10 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
 
     private final JDA jda;
 
+    private final SlashRegistryContainer<S> registryContainer = new SlashRegistryContainer<>();
+
     private final Map<String, SlashCommand<S>> globalCommands = new HashMap<>();
     private final Map<Long, Map<String, SlashCommand<S>>> guildCommands = new HashMap<>();
-    private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
 
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
@@ -184,7 +185,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
     }
 
     public void registerChoices(@NotNull final ChoiceKey key, @NotNull final Supplier<List<String>> choiceSupplier) {
-        choiceRegistry.register(key, choiceSupplier);
+        registryContainer.getChoiceRegistry().register(key, choiceSupplier);
     }
 
     @Override
@@ -230,6 +231,12 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
                         ).queue()));
     }
 
+    @NotNull
+    @Override
+    protected RegistryContainer<S> getRegistryContainer() {
+        return registryContainer;
+    }
+
     /**
      * Adds a command to the manager.
      *
@@ -244,10 +251,11 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
     ) {
         final SlashCommandProcessor<S> processor = new SlashCommandProcessor<>(
                 baseCommand,
-                getRegistries(),
-                choiceRegistry,
+                registryContainer,
                 getSenderMapper(),
-                getSenderValidator()
+                getSenderValidator(),
+                syncExecutionProvider,
+                asyncExecutionProvider
         );
 
         final String name = processor.getName();
@@ -268,7 +276,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
                     .computeIfAbsent(name, ignored -> new SlashCommand<>(processor, finalEnabledRoles, finalDisabledRoles, syncExecutionProvider, asyncExecutionProvider));
         }
 
-        command.addSubCommands(baseCommand);
+        command.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
     }
 
     /**

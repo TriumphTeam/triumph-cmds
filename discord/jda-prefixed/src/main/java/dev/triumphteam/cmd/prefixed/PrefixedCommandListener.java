@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.prefixed;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.entities.Guild;
@@ -54,11 +55,11 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
 
     public PrefixedCommandListener(
             @NotNull final PrefixedCommandManager<S> commandManager,
-            @NotNull final MessageRegistry<S> messageRegistry,
+            @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderMapper<PrefixedSender, S> senderMapper
     ) {
         this.commandManager = commandManager;
-        this.messageRegistry = messageRegistry;
+        this.messageRegistry = registryContainer.getMessageRegistry();
         this.senderMapper = senderMapper;
     }
 

@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,7 +29,7 @@ import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +63,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
     private final Map<String, SC> subCommandsAlias = new HashMap<>();
 
     private final BaseCommand baseCommand;
-    private final Map<Class<? extends Registry>, Registry> registries;
+    private final RegistryContainer<S> registryContainer;
     private final SenderMapper<SD, S> senderMapper;
     private final SenderValidator<S> senderValidator;
 
@@ -72,14 +72,14 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
 
     protected AbstractCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final Map<Class<? extends Registry>, Registry> registries,
+            @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderMapper<SD, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
         this.baseCommand = baseCommand;
-        this.registries = registries;
+        this.registryContainer = registryContainer;
         this.senderMapper = senderMapper;
         this.senderValidator = senderValidator;
         this.syncExecutionProvider = syncExecutionProvider;
@@ -142,8 +142,8 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
     }
 
     // TODO: Comments
-    public Map<Class<? extends Registry>, Registry> getRegistries() {
-        return registries;
+    public RegistryContainer<S> getRegistryContainer() {
+        return registryContainer;
     }
 
     /**

@@ -1,6 +1,6 @@
 ![Header](http://mattstudios.me/images/mfthread.png)
 # Matt's Framework (MF)
-**MF** is a command annotation framework for Spigot plugins based on [ACF](https://github.com/aikar/commands/).
+**MF** is a command annotation framework for Spigot plugins.
 This framework is meant to be simpler to use and more customizable.
 With this, your parameters are the command's arguments!
 

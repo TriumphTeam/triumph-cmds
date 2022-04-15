@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,8 +24,8 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.registry.Registry;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.jda.annotation.Privileges;
@@ -33,19 +33,21 @@ import dev.triumphteam.cmd.jda.annotation.Roles;
 import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Processor for Slash JDA platform specific code.
  *
  * @param <S> The sender type.
  */
-final class SlashCommandProcessor<S> extends AbstractCommandProcessor<SlashSender, S> {
+final class SlashCommandProcessor<S>
+        extends AbstractCommandProcessor<SlashSender, S, SlashSubCommand<S>, SlashSubCommandProcessor<S>> {
 
     private final ChoiceRegistry choiceRegistry;
 
@@ -54,13 +56,14 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<SlashSende
 
     public SlashCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final Map<Class<? extends Registry>, Registry> registries,
-            @NotNull final ChoiceRegistry choiceRegistry,
+            @NotNull final SlashRegistryContainer<S> registryContainer,
             @NotNull final SenderMapper<SlashSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            @NotNull final SenderValidator<S> senderValidator,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
-        super(baseCommand, registries, senderMapper, senderValidator);
-        this.choiceRegistry = choiceRegistry;
+        super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
+        this.choiceRegistry = registryContainer.getChoiceRegistry();
         extractPrivilege();
     }
 
@@ -126,5 +129,26 @@ final class SlashCommandProcessor<S> extends AbstractCommandProcessor<SlashSende
         final Roles roles = klass.getAnnotation(Roles.class);
         if (roles != null) return Collections.singletonList(roles);
         return Collections.emptyList();
+    }
+
+    @NotNull
+    @Override
+    protected SlashSubCommandProcessor<S> createProcessor(@NotNull final Method method) {
+        return new SlashSubCommandProcessor<>(
+                getBaseCommand(),
+                getName(),
+                method,
+                getRegistryContainer(),
+                getSenderValidator()
+        );
+    }
+
+    @Nullable
+    @Override
+    protected SlashSubCommand<S> createSubCommand(
+            @NotNull final SlashSubCommandProcessor<S> processor,
+            @NotNull final ExecutionProvider executionProvider
+    ) {
+        return new SlashSubCommand<>(processor, getName(), executionProvider);
     }
 }

@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,16 +23,11 @@
  */
 package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.registry.Registry;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -41,8 +36,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * @param <S> The sender type.
  */
-final class SlashCommand<S> implements Command {
+final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
 
     private final Map<String, SlashSubCommand<S>> subCommands = new HashMap<>();
 
@@ -63,7 +56,7 @@ final class SlashCommand<S> implements Command {
     private final List<Long> enabledRoles;
     private final List<Long> disabledRoles;
 
-    private final Map<Class<? extends Registry>, Registry> registries;
+    private final RegistryContainer<S> registryContainer;
     private final ChoiceRegistry choiceRegistry;
 
     private final SenderValidator<S> senderValidator;
@@ -82,7 +75,7 @@ final class SlashCommand<S> implements Command {
     ) {
         this.name = processor.getName();
         this.description = processor.getDescription();
-        this.registries = processor.getRegistries();
+        this.registryContainer = processor.getRegistryContainer();
         this.choiceRegistry = processor.getChoiceRegistry();
         this.senderValidator = processor.getSenderValidator();
 
@@ -105,39 +98,11 @@ final class SlashCommand<S> implements Command {
      * {@inheritDoc}
      */
     @Override
-    public void addSubCommands(@NotNull final BaseCommand baseCommand) {
-        for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
-            if (Modifier.isPrivate(method.getModifiers())) continue;
-
-            final SlashSubCommandProcessor<S> processor = new SlashSubCommandProcessor<>(
-                    baseCommand,
-                    name,
-                    method,
-                    registries,
-                    choiceRegistry,
-                    senderValidator
-            );
-
-            final String subCommandName = processor.getName();
-            if (subCommandName == null) continue;
-
-            // TODO: 11/27/2021 Remove repeating code for throwing the exception.
-            if (isDefault) {
-                throw new CommandRegistrationException("Default commands cannot be registered with subcommands", baseCommand.getClass());
-            }
-
-            if (processor.isDefault()) {
-                if (subCommands.size() > 0) {
-                    throw new CommandRegistrationException("Default commands cannot be registered with subcommands", baseCommand.getClass());
-                }
-
-                isDefault = true;
-            }
-
-            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-
-            subCommands.putIfAbsent(subCommandName, new SlashSubCommand<>(processor, name, executionProvider));
-        }
+    public void addSubCommands(
+            @NotNull final Map<String, SlashSubCommand<S>> subCommands,
+            @NotNull final Map<String, SlashSubCommand<S>> subCommandAliases
+    ) {
+        this.subCommands.putAll(subCommands);
     }
 
     /**
@@ -199,5 +164,4 @@ final class SlashCommand<S> implements Command {
     private SlashSubCommand<S> getSubCommand(@NotNull final String key) {
         return subCommands.get(key);
     }
-
 }

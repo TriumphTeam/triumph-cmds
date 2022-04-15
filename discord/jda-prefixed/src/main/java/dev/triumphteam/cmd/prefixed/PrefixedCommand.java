@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,7 +27,7 @@ import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
@@ -50,7 +50,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
     private final String name;
     private final List<String> alias;
 
-    private final Map<Class<? extends Registry>, Registry> registries;
+    private final RegistryContainer<S> registryContainer;
 
     private final SenderMapper<PrefixedSender, S> senderMapper;
     private final SenderValidator<S> senderValidator;
@@ -65,7 +65,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
     ) {
         this.name = processor.getName();
         this.alias = processor.getAlias();
-        this.registries = processor.getRegistries();
+        this.registryContainer = processor.getRegistryContainer();
         this.senderMapper = processor.getSenderMapper();
         this.senderValidator = processor.getSenderValidator();
 

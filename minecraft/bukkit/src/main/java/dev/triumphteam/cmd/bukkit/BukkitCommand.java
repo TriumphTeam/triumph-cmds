@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,7 +31,7 @@ import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -49,8 +49,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
     private final MessageRegistry<S> messageRegistry;
 
-    private final Map<Class<? extends Registry>, Registry> registries;
-
     private final SenderMapper<CommandSender, S> senderMapper;
 
     private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
@@ -61,8 +59,8 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         super(name);
 
         this.description = processor.getDescription();
-        this.registries = processor.getRegistries();
-        this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
+        RegistryContainer<S> registryContainer = processor.getRegistryContainer();
+        this.messageRegistry = registryContainer.getMessageRegistry();
         this.senderMapper = processor.getSenderMapper();
     }
 

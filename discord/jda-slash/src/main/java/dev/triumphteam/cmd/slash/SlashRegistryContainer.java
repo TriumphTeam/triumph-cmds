@@ -21,17 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.implementation.factory
+package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.BaseCommand
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry
-import dev.triumphteam.cmd.core.implementation.TestSender
-import dev.triumphteam.cmd.core.message.MessageRegistry
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
+import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
+import org.jetbrains.annotations.NotNull;
 
-class TestCommandProcessor(
-    baseCommand: BaseCommand,
-    argumentRegistry: ArgumentRegistry<TestSender>,
-    requirementRegistry: RequirementRegistry<TestSender>,
-    messageRegistry: MessageRegistry<TestSender>
-)// : AbstractCommandProcessor<TestSender, TestSender>(baseCommand, argumentRegistry, requirementRegistry, messageRegistry)
+// TODO: Comments
+public class SlashRegistryContainer<S> extends RegistryContainer<S> {
+
+    private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
+
+    @NotNull
+    public ChoiceRegistry getChoiceRegistry() {
+        return choiceRegistry;
+    }
+}

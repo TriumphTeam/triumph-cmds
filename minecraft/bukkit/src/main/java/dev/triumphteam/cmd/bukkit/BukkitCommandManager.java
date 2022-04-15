@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,6 +30,7 @@ import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.bukkit.Bukkit;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
 
     private final Plugin plugin;
+    private final RegistryContainer<S> registryContainer = new RegistryContainer<>();
 
     private final Map<String, BukkitCommand<S>> commands = new HashMap<>();
 
@@ -118,7 +120,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
         final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(
                 baseCommand,
-                getRegistries(),
+                registryContainer,
                 getSenderMapper(),
                 getSenderValidator(),
                 syncExecutionProvider,
@@ -139,6 +141,12 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     @Override
     public void unregisterCommand(@NotNull final BaseCommand command) {
         // TODO add a remove functionality
+    }
+
+    @NotNull
+    @Override
+    protected RegistryContainer<S> getRegistryContainer() {
+        return registryContainer;
     }
 
     private BukkitCommand<S> createAndRegisterCommand(@NotNull final String name, @NotNull final BukkitCommandProcessor<S> processor) {

@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,7 +27,7 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.annotation.Choices;
 import dev.triumphteam.cmd.slash.choices.Choice;
@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -67,12 +66,16 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final Map<Class<? extends Registry>, Registry> registries,
-            @NotNull final ChoiceRegistry choiceRegistry,
+            @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, method, registries, senderValidator);
-        this.choiceRegistry = choiceRegistry;
+        super(baseCommand, parentName, method, registryContainer, senderValidator);
+        if (registryContainer instanceof SlashRegistryContainer) {
+            this.choiceRegistry = ((SlashRegistryContainer<S>) registryContainer).getChoiceRegistry();
+        } else {
+            // Should never happen
+            throw new AssertionError("Slash command was given the wrong registry container.");
+        }
         this.choices = extractChoices(method, baseCommand.getClass());
     }
 
@@ -129,6 +132,7 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
             final int addIndex = i - 1;
             if (choiceKey.isEmpty() || choiceKey.equals("enum")) {
                 if (Enum.class.isAssignableFrom(type)) {
+                    //noinspection unchecked
                     setOrAdd(choiceList, addIndex, new EnumChoice((Class<? extends Enum<?>>) type));
                     continue;
                 }
