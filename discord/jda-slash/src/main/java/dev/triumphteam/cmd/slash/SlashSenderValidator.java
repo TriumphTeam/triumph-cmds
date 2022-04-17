@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  * Simple validator that always returns true.
  */
-class SlashSenderValidator implements SenderValidator<SlashSender> {
+final class SlashSenderValidator implements SenderValidator<SlashSender> {
 
     /**
      * {@inheritDoc}

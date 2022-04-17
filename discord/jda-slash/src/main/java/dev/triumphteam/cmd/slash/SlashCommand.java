@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.Command;
+import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
@@ -102,6 +103,12 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
             @NotNull final Map<String, SlashSubCommand<S>> subCommands,
             @NotNull final Map<String, SlashSubCommand<S>> subCommandAliases
     ) {
+        final SubCommand<S> subCommand = subCommands.get(Default.DEFAULT_CMD_NAME);
+        if (subCommand != null) {
+            if (subCommands.size() > 1) throw new CommandRegistrationException("ASSS");
+            isDefault = true;
+        }
+
         this.subCommands.putAll(subCommands);
     }
 
@@ -137,7 +144,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
         final List<SubcommandData> subData = subCommands
                 .entrySet()
                 .stream()
-                .map(entry -> new SubcommandData(entry.getKey(), entry.getValue().getDescription()).addOptions(entry.getValue().getJdaOptions()))
+                .map(entry -> new SubcommandData(entry.getKey().toLowerCase(), entry.getValue().getDescription()).addOptions(entry.getValue().getJdaOptions()))
                 .collect(Collectors.toList());
 
         commandData.addSubcommands(subData);

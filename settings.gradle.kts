@@ -40,5 +40,3 @@ fun include(name: String, block: ProjectDescriptor.() -> Unit) {
     include(name)
     project(":$name").apply(block)
 }
-
-enableFeaturePreview("VERSION_CATALOGS")

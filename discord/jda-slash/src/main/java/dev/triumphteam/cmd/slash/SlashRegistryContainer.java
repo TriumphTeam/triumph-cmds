@@ -28,7 +28,7 @@ import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import org.jetbrains.annotations.NotNull;
 
 // TODO: Comments
-public class SlashRegistryContainer<S> extends RegistryContainer<S> {
+final class SlashRegistryContainer<S> extends RegistryContainer<S> {
 
     private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
 

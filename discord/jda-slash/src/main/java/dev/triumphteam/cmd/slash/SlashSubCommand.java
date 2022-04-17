@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
+final class SlashSubCommand<S> extends AbstractSubCommand<S> {
 
     private final String description;
     private final List<Choice> choices;
@@ -69,7 +69,7 @@ public final class SlashSubCommand<S> extends AbstractSubCommand<S> {
                     internalArgument.getDescription(),
                     !internalArgument.isOptional()
             );
-
+            option.setAutoComplete(true);
             options.add(option);
 
             final Choice suggestion = getChoice(i);
