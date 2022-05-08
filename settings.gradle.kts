@@ -13,6 +13,7 @@ listOf(
 
 listOf(
     "minecraft/bukkit",
+    "minecraft/sponge",
     "discord/jda-common",
     "discord/jda-prefixed",
     "discord/jda-slash",
