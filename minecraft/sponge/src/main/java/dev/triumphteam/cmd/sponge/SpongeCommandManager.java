@@ -8,7 +8,12 @@ import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.util.HashMap;
@@ -26,7 +31,7 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
     private final ExecutionProvider asyncExecutionProvider;
 
 
-    public SpongeCommandManager(
+    private SpongeCommandManager(
             @NotNull final PluginContainer plugin,
             @NotNull SenderMapper<CommandCause, S> senderMapper,
             @NotNull SenderValidator<S> senderValidator
@@ -34,6 +39,8 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
         super(senderMapper, senderValidator);
         this.plugin = plugin;
         this.asyncExecutionProvider = new SpongeAsyncExecutionProvider(plugin);
+
+        Sponge.eventManager().registerListeners(plugin,this);
     }
 
     @Override
@@ -46,7 +53,13 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
                 syncExecutionProvider,
                 asyncExecutionProvider
         );
+        final SpongeCommand<S> command = commands.computeIfAbsent(processor.getName(), ignored -> new SpongeCommand<>(processor));
+        command.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
 
+        processor.getAlias().forEach(it -> {
+            final SpongeCommand<S> aliasCommand = commands.computeIfAbsent(processor.getName(),ignored -> new SpongeCommand<>(processor));
+            aliasCommand.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
+        });
     }
 
     @Override
@@ -57,5 +70,10 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
     @Override
     protected @NotNull RegistryContainer<S> getRegistryContainer() {
         return registryContainer;
+    }
+
+    @Listener(order = Order.LAST)
+    public void onCommandRegister(RegisterCommandEvent<Command.Raw> event) {
+        commands.forEach((str,raw) -> event.register(plugin,raw,str));
     }
 }

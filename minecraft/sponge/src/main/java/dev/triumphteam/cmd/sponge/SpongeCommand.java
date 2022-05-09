@@ -90,7 +90,6 @@ public final class SpongeCommand<S> implements Command.Raw, dev.triumphteam.cmd.
         final S mappedSender = senderMapper.map(cause);
 
         if (subCommand == null || (args.length > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
-            //TODO Utilize MessageKey.UNKNOWN_COMMAND
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(cause.identifier(), subCommandName));
             return CommandResult.success();
         }
