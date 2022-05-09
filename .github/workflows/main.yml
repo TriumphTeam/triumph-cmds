@@ -2,7 +2,6 @@ name: Qodana
 on:
   pull_request:
     types: [opened, reopened]
-    fail-threshold: 1
   push:
     branches:
       - main
