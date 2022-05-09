@@ -25,9 +25,13 @@ package dev.triumphteam.cmd.sponge;
 
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.sponge.message.NoPermissionMessageContext;
+import dev.triumphteam.cmd.sponge.message.SpongeMessageKey;
 import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
@@ -87,12 +91,14 @@ public final class SpongeCommand<S> implements Command.Raw, dev.triumphteam.cmd.
 
         if (subCommand == null || (args.length > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
             //TODO Utilize MessageKey.UNKNOWN_COMMAND
-            return CommandResult.error(Component.text("Unknown Command"));
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(cause.identifier(), subCommandName));
+            return CommandResult.success();
         }
 
         final String permission = subCommand.getPermission();
         if (!permission.isEmpty() && !cause.hasPermission(permission)) {
-            return CommandResult.error(Component.text("No Permission"));
+            messageRegistry.sendMessage(SpongeMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(cause.identifier(), subCommand.getName(), permission));
+            return CommandResult.success();
         }
 
         final List<String> commandArgs = Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
