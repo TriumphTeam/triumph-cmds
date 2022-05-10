@@ -27,9 +27,14 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.sponge.message.SpongeMessageKey;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
@@ -53,7 +58,6 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider;
 
-
     private SpongeCommandManager(
             @NotNull final PluginContainer plugin,
             @NotNull SenderMapper<CommandCause, S> senderMapper,
@@ -64,6 +68,45 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
         this.asyncExecutionProvider = new SpongeAsyncExecutionProvider(plugin);
 
         Sponge.eventManager().registerListeners(plugin,this);
+    }
+/*
+    /**
+     * Creates a new instance of the {@link SpongeCommandManager}.
+     * This factory adds all the defaults based on the default sender {@link CommandCause}.
+     *
+     * @param plugin The {@link PluginContainer} instance created.
+     * @return A new instance of the {@link SpongeCommandManager}.
+     */
+    /*
+    @NotNull
+    @Contract("_ -> new")
+    public static SpongeCommandManager<CommandCause> create(@NotNull final PluginContainer plugin) {
+        final SpongeCommandManager<CommandCause> commandManager = new SpongeCommandManager<>(
+                plugin,
+                SenderMapper.defaultMapper(),
+                new SpongeSenderValidator()
+        );
+        setUpDefaults(commandManager);
+        return commandManager;
+    }
+*/
+    /**
+     * Creates a new instance of the {@link SpongeCommandManager}.
+     * This factory is used for adding custom senders.
+     *
+     * @param plugin          The {@link PluginContainer} instance created.
+     * @param senderMapper    The {@link SenderMapper} used to map the {@link CommandCause} to the {@link S} type.
+     * @param senderValidator The {@link SenderValidator} used to validate the {@link S} type.
+     * @return A new instance of the {@link SpongeCommandManager}.
+     */
+    @NotNull
+    @Contract("_, _, _ -> new")
+    public static <S> SpongeCommandManager<S> create(
+            @NotNull final PluginContainer plugin,
+            @NotNull final SenderMapper<CommandCause, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
+    ) {
+        return new SpongeCommandManager<>(plugin, senderMapper, senderValidator);
     }
 
     @Override
@@ -93,6 +136,22 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
     @Override
     protected @NotNull RegistryContainer<S> getRegistryContainer() {
         return registryContainer;
+    }
+
+    /**
+     * Sets up all the default values for the Bukkit implementation.
+     *
+     * @param manager The {@link SpongeCommandManager} instance to set up.
+     */
+    private static void setUpDefaults(@NotNull final SpongeCommandManager<CommandCause> manager) {
+        manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.sendMessage(Identity.nil(), Component.text("Unknown command: `" + context.getCommand() + "`.")));
+        manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.sendMessage(Identity.nil(), Component.text("Invalid usage.")));
+        manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage(Identity.nil(), Component.text("Invalid usage.")));
+        manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.sendMessage(Identity.nil(), Component.text("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.")));
+
+        manager.registerMessage(SpongeMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage(Identity.nil(), Component.text("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`.")));
+        manager.registerMessage(SpongeMessageKey.PLAYER_ONLY, (sender, context) -> sender.sendMessage(Identity.nil(), Component.text("This command can only be used by players.")));
+        manager.registerMessage(SpongeMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage(Identity.nil(), Component.text("This command can only be used by the console.")));
     }
 
     @Listener(order = Order.LAST)

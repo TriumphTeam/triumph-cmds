@@ -28,10 +28,16 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.plugin.PluginContainer;
 
+/**
+ * {@inheritDoc}
+ */
 public final class SpongeAsyncExecutionProvider implements ExecutionProvider {
 
     private final PluginContainer plugin;
 
+    /**
+     * {@inheritDoc}
+     */
     public SpongeAsyncExecutionProvider(@NotNull final PluginContainer plugin) { this.plugin = plugin; }
 
     /**

@@ -34,5 +34,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Permission {
+    /**
+     * @return Permission with nodes separated by periods "."
+     */
     String value();
 }
