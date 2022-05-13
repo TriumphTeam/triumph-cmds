@@ -67,7 +67,6 @@ public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
         super(senderMapper, senderValidator);
         this.plugin = plugin;
         this.asyncExecutionProvider = new SpongeAsyncExecutionProvider(plugin);
-        System.out.println("CommandManager Called");
         Sponge.eventManager().registerListeners(plugin,this);
     }
 
@@ -157,7 +156,6 @@ public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
 
     @Listener(order = Order.LAST)
     public void onCommandRegister(RegisterCommandEvent<Command.Raw> event) {
-        System.out.println("Registering commands..");
         commands.forEach((str,raw) -> event.register(plugin,raw,str));
     }
 }
