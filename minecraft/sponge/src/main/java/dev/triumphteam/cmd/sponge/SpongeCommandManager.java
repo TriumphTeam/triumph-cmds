@@ -42,12 +42,13 @@ import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class SpongeCommandManager<S> extends CommandManager<CommandCause, S> {
+public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
 
     private final PluginContainer plugin;
 
@@ -60,16 +61,16 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
 
     private SpongeCommandManager(
             @NotNull final PluginContainer plugin,
-            @NotNull SenderMapper<CommandCause, S> senderMapper,
-            @NotNull SenderValidator<S> senderValidator
+            @NotNull final SenderMapper<Subject, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
         super(senderMapper, senderValidator);
         this.plugin = plugin;
         this.asyncExecutionProvider = new SpongeAsyncExecutionProvider(plugin);
-
+        System.out.println("CommandManager Called");
         Sponge.eventManager().registerListeners(plugin,this);
     }
-/*
+
     /**
      * Creates a new instance of the {@link SpongeCommandManager}.
      * This factory adds all the defaults based on the default sender {@link CommandCause}.
@@ -77,19 +78,19 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
      * @param plugin The {@link PluginContainer} instance created.
      * @return A new instance of the {@link SpongeCommandManager}.
      */
-    /*
+
     @NotNull
     @Contract("_ -> new")
-    public static SpongeCommandManager<CommandCause> create(@NotNull final PluginContainer plugin) {
-        final SpongeCommandManager<CommandCause> commandManager = new SpongeCommandManager<>(
+    public static SpongeCommandManager<Subject> create(@NotNull final PluginContainer plugin) {
+        final SpongeCommandManager<Subject> commandManager = new SpongeCommandManager<>(
                 plugin,
                 SenderMapper.defaultMapper(),
                 new SpongeSenderValidator()
         );
-        setUpDefaults(commandManager);
+        //setUpDefaults(commandManager);
         return commandManager;
     }
-*/
+
     /**
      * Creates a new instance of the {@link SpongeCommandManager}.
      * This factory is used for adding custom senders.
@@ -103,7 +104,7 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
     @Contract("_, _, _ -> new")
     public static <S> SpongeCommandManager<S> create(
             @NotNull final PluginContainer plugin,
-            @NotNull final SenderMapper<CommandCause, S> senderMapper,
+            @NotNull final SenderMapper<Subject, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator
     ) {
         return new SpongeCommandManager<>(plugin, senderMapper, senderValidator);
@@ -156,6 +157,7 @@ public final class SpongeCommandManager<S> extends CommandManager<CommandCause, 
 
     @Listener(order = Order.LAST)
     public void onCommandRegister(RegisterCommandEvent<Command.Raw> event) {
+        System.out.println("Registering commands..");
         commands.forEach((str,raw) -> event.register(plugin,raw,str));
     }
 }

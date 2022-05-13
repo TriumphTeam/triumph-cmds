@@ -30,15 +30,15 @@ import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.service.permission.Subject;
 
 import java.lang.reflect.Method;
 
-final class SpongeCommandProcessor<S> extends AbstractCommandProcessor<CommandCause, S, SpongeSubCommand<S>, SpongeSubCommandProcessor<S>> {
+final class SpongeCommandProcessor<S> extends AbstractCommandProcessor<Subject, S, SpongeSubCommand<S>, SpongeSubCommandProcessor<S>> {
     public SpongeCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderMapper<CommandCause, S> senderMapper,
+            @NotNull final SenderMapper<Subject, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider

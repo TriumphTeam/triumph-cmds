@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.sponge.message.SpongeMessageKey;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.SystemSubject;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.service.permission.Subject;
 
@@ -42,7 +43,7 @@ class SpongeSenderValidator implements SenderValidator<Subject> {
     @NotNull
     @Override
     public Set<Class<? extends Subject>> getAllowedSenders() {
-        return ImmutableSet.of(ServerPlayer.class, SystemSubject.class);
+        return ImmutableSet.of(ServerPlayer.class, SystemSubject.class, CommandCause.class);
     }
 
     @Override

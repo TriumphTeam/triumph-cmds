@@ -42,6 +42,7 @@ import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.ArgumentReader;
+import org.spongepowered.api.service.permission.Subject;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,7 +53,7 @@ public final class SpongeCommand<S> implements Command.Raw, dev.triumphteam.cmd.
 
     private final MessageRegistry<S> messageRegistry;
 
-    private final SenderMapper<CommandCause, S> senderMapper;
+    private final SenderMapper<Subject, S> senderMapper;
 
     private final Map<String, SpongeSubCommand<S>> subCommands = new HashMap<>();
     private final Map<String, SpongeSubCommand<S>> subCommandAliases = new HashMap<>();

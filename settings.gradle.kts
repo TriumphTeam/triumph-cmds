@@ -14,6 +14,7 @@ listOf(
 listOf(
     "minecraft/bukkit",
     "minecraft/sponge",
+    "minecraft/spongeTest",
     "discord/jda-common",
     "discord/jda-prefixed",
     "discord/jda-slash",
@@ -22,7 +23,7 @@ listOf(
     includeProject(name, folder)
 }
 
-include("test-module")
+include("Spawn-Protection")
 
 fun includeProject(name: String) {
     include(name) {
