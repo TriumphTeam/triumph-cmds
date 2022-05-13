@@ -14,7 +14,6 @@ listOf(
 listOf(
     "minecraft/bukkit",
     "minecraft/sponge",
-    "minecraft/spongeTest",
     "discord/jda-common",
     "discord/jda-prefixed",
     "discord/jda-slash",
