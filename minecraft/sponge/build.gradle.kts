@@ -11,6 +11,6 @@ repositories {
 }
 
 dependencies {
-    api(project(":triumph-cmd-core"))
+    api(project(":triumph-cmd-mc-common"))
     compileOnly("org.spongepowered:spongeapi:8.0.0")
 }

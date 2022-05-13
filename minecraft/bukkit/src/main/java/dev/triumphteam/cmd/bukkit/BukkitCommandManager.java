@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
@@ -33,6 +32,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.minecraft.message.MinecraftMessageKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -174,9 +174,9 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.sendMessage("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`."));
 
-        manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`."));
-        manager.registerMessage(BukkitMessageKey.PLAYER_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by players."));
-        manager.registerMessage(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by the console."));
+        manager.registerMessage(MinecraftMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`."));
+        manager.registerMessage(MinecraftMessageKey.PLAYER_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by players."));
+        manager.registerMessage(MinecraftMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by the console."));
 
         manager.registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(arg));
         manager.registerArgument(Player.class, (sender, arg) -> Bukkit.getPlayer(arg));

@@ -23,12 +23,12 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.minecraft.annotation.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;

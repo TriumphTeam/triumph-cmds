@@ -31,7 +31,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.sponge.message.SpongeMessageKey;
+import dev.triumphteam.cmd.minecraft.message.MinecraftMessageKey;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
@@ -153,9 +153,9 @@ public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("Invalid usage.")));
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("Invalid usage.")));
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.")));
-        manager.registerMessage(SpongeMessageKey.NO_PERMISSION, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`.")));
-        manager.registerMessage(SpongeMessageKey.PLAYER_ONLY, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("This command can only be used by players.")));
-        manager.registerMessage(SpongeMessageKey.CONSOLE_ONLY, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("This command can only be used by the console.")));
+        manager.registerMessage(MinecraftMessageKey.NO_PERMISSION, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`.")));
+        manager.registerMessage(MinecraftMessageKey.PLAYER_ONLY, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("This command can only be used by players.")));
+        manager.registerMessage(MinecraftMessageKey.CONSOLE_ONLY, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("This command can only be used by the console.")));
     }
 
     private Audience getAudience(Subject subject) {

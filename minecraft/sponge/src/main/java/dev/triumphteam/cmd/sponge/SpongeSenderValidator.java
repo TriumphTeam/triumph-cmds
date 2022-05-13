@@ -28,7 +28,7 @@ import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.sponge.message.SpongeMessageKey;
+import dev.triumphteam.cmd.minecraft.message.MinecraftMessageKey;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.SystemSubject;
 import org.spongepowered.api.command.CommandCause;
@@ -56,7 +56,7 @@ class SpongeSenderValidator implements SenderValidator<Subject> {
 
         if(ServerPlayer.class.isAssignableFrom(senderClass) && !(sender instanceof ServerPlayer)) {
             messageRegistry.sendMessage(
-                    SpongeMessageKey.PLAYER_ONLY,
+                    MinecraftMessageKey.PLAYER_ONLY,
                     sender,
                     new DefaultMessageContext(subCommand.getParentName(), subCommand.getName())
             );
@@ -65,7 +65,7 @@ class SpongeSenderValidator implements SenderValidator<Subject> {
 
         if (SystemSubject.class.isAssignableFrom(senderClass) && !(sender instanceof SystemSubject)) {
             messageRegistry.sendMessage(
-                    SpongeMessageKey.CONSOLE_ONLY,
+                    MinecraftMessageKey.CONSOLE_ONLY,
                     sender,
                     new DefaultMessageContext(subCommand.getParentName(), subCommand.getName())
             );

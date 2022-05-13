@@ -21,18 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.annotation;
+package dev.triumphteam.cmd.minecraft.message;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import dev.triumphteam.cmd.core.message.context.AbstractMessageContext;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Annotate a method using this Annotation to add a required permission
+ * {@inheritDoc}
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Permission {
-    String value();
+public final class NoPermissionMessageContext extends AbstractMessageContext {
+
+    private final String permission;
+
+    /**
+     * {@inheritDoc}
+     */
+    public NoPermissionMessageContext(
+            @NotNull final String command,
+            @NotNull final String subCommand,
+            @NotNull final String permission
+    ) {
+        super(command, subCommand);
+        this.permission = permission;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getPermission() {
+        return permission;
+    }
+
 }

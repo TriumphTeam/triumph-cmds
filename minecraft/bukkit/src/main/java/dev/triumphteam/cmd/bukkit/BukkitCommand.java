@@ -23,8 +23,6 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
@@ -33,6 +31,8 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.minecraft.message.MinecraftMessageKey;
+import dev.triumphteam.cmd.minecraft.message.NoPermissionMessageContext;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -98,7 +98,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final String permission = subCommand.getPermission();
         if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
+            messageRegistry.sendMessage(MinecraftMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
             return true;
         }
 

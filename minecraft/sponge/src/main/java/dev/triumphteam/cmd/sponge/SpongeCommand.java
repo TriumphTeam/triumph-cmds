@@ -30,8 +30,8 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.sponge.message.NoPermissionMessageContext;
-import dev.triumphteam.cmd.sponge.message.SpongeMessageKey;
+import dev.triumphteam.cmd.minecraft.message.MinecraftMessageKey;
+import dev.triumphteam.cmd.minecraft.message.NoPermissionMessageContext;
 import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
@@ -97,7 +97,7 @@ public final class SpongeCommand<S> implements Command.Raw, dev.triumphteam.cmd.
 
         final String permission = subCommand.getPermission();
         if (!permission.isEmpty() && !cause.hasPermission(permission)) {
-            messageRegistry.sendMessage(SpongeMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(cause.identifier(), subCommand.getName(), permission));
+            messageRegistry.sendMessage(MinecraftMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(cause.identifier(), subCommand.getName(), permission));
             return CommandResult.success();
         }
 
