@@ -47,6 +47,7 @@ import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
@@ -56,6 +57,7 @@ public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
     private final RegistryContainer<S> registryContainer = new RegistryContainer<>();
 
     private final Map<String, SpongeCommand<S>> commands = new HashMap<>();
+    private final Map<String, List<String>> commandAliases = new HashMap<>();
 
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider;
@@ -127,6 +129,8 @@ public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
             final SpongeCommand<S> aliasCommand = commands.computeIfAbsent(processor.getName(),ignored -> new SpongeCommand<>(processor));
             aliasCommand.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
         });
+
+        commandAliases.put(processor.getName(), processor.getAlias());
     }
 
     @Override
@@ -160,6 +164,6 @@ public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
 
     @Listener(order = Order.LAST)
     public void onCommandRegister(RegisterCommandEvent<Command.Raw> event) {
-        commands.forEach((str,raw) -> event.register(plugin,raw,str));
+        commands.forEach((str,raw) -> event.register(plugin,raw,str, commandAliases.get(str).toArray(new String[0])));
     }
 }
