@@ -37,18 +37,25 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.world.WorldType;
+import org.spongepowered.api.world.WorldTypes;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
 
@@ -156,6 +163,12 @@ public final class SpongeCommandManager<S> extends CommandManager<Subject, S> {
         manager.registerMessage(MinecraftMessageKey.NO_PERMISSION, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`.")));
         manager.registerMessage(MinecraftMessageKey.PLAYER_ONLY, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("This command can only be used by players.")));
         manager.registerMessage(MinecraftMessageKey.CONSOLE_ONLY, (sender, context) -> manager.getAudience(sender).sendMessage(Identity.nil(), Component.text("This command can only be used by the console.")));
+
+        manager.registerArgument(ItemType.class, ((sender, arg) -> ItemTypes.registry().findValue(ResourceKey.resolve(arg)).orElse(null)));
+        manager.registerArgument(ServerPlayer.class, ((sender, arg) -> Sponge.server().player(arg).orElse(null)));
+        manager.registerArgument(WorldType.class, ((sender, arg) -> WorldTypes.registry().findValue(ResourceKey.resolve(arg)).orElse(null)));
+
+        manager.registerSuggestion(ServerPlayer.class, ((sender, context) -> Sponge.server().onlinePlayers().stream().map(ServerPlayer::name).collect(Collectors.toList())));
     }
 
     private Audience getAudience(Subject subject) {
