@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -66,5 +67,11 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
         }
 
         this.permission = annotatedPermission;
+
+        if (permission.register()) {
+            Bukkit.getPluginManager().addPermission(
+                    new org.bukkit.permissions.Permission(annotatedPermission, permission.description(), permission.def())
+            );
+        }
     }
 }

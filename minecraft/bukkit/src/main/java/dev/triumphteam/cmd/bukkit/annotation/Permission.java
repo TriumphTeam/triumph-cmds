@@ -23,6 +23,8 @@
  */
 package dev.triumphteam.cmd.bukkit.annotation;
 
+import org.bukkit.permissions.PermissionDefault;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,5 +36,29 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Permission {
+
+    /**
+     * The permission
+     */
     String value();
+
+    /**
+     * Represents the possible default values for permissions
+     * @see PermissionDefault
+     */
+    PermissionDefault def() default PermissionDefault.OP;
+
+    /**
+     * A brief description of the permission
+     * @see org.bukkit.permissions.Permission#getDescription()
+     */
+    String description() default "";
+
+    /**
+     * Whether the permission should be registered
+     * <br>
+     * Set it to {@code false} when you want to register the permission trough plugin.yml
+     */
+    boolean register() default true;
+
 }
