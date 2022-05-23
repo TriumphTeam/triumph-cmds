@@ -23,13 +23,10 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -47,7 +44,7 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
         if (getName() == null) return;
-        checkPermission(getMethod());
+        this.permission = new CommandPermission(method, getBaseCommand()).registerAndGetPermission();
     }
 
     @NotNull
@@ -55,23 +52,4 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
         return permission;
     }
 
-    // TODO: 2/4/2022 comments
-    private void checkPermission(@NotNull final Method method) {
-        final Permission permission = method.getAnnotation(Permission.class);
-        if (permission == null) return;
-
-        final String annotatedPermission = permission.value();
-
-        if (annotatedPermission.isEmpty()) {
-            throw new SubCommandRegistrationException("Permission cannot be empty", method, getBaseCommand().getClass());
-        }
-
-        this.permission = annotatedPermission;
-
-        if (permission.register()) {
-            Bukkit.getPluginManager().addPermission(
-                    new org.bukkit.permissions.Permission(annotatedPermission, permission.description(), permission.def())
-            );
-        }
-    }
 }
