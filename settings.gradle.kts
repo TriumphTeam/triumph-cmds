@@ -14,6 +14,7 @@ listOf(
 listOf(
     "minecraft/bukkit",
     "minecraft/sponge",
+    "minecraft/mc-common",
     "discord/jda-common",
     "discord/jda-prefixed",
     "discord/jda-slash",
@@ -21,8 +22,6 @@ listOf(
     val (folder, name) = it.split('/')
     includeProject(name, folder)
 }
-
-include("Spawn-Protection")
 
 fun includeProject(name: String) {
     include(name) {

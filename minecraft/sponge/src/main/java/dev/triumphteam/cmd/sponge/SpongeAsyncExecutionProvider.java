@@ -44,7 +44,7 @@ public final class SpongeAsyncExecutionProvider implements ExecutionProvider {
      * {@inheritDoc}
      */
     @Override
-    public void execute(@NotNull Runnable command) {
+    public void execute(@NotNull final Runnable command) {
         Sponge.asyncScheduler().executor(plugin).submit(command);
     }
 }

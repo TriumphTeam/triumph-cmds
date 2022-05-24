@@ -4,10 +4,7 @@ plugins {
 }
 
 repositories {
-    maven {
-        name = "Sponge"
-        url = uri("https://repo.spongepowered.org/maven")
-    }
+    maven("https://repo.spongepowered.org/maven")
 }
 
 dependencies {
