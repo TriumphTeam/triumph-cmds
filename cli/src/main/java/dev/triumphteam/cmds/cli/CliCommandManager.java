@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmds.cli.sender.CliSender;
@@ -42,6 +43,8 @@ import java.util.Scanner;
 public final class CliCommandManager<S> extends CommandManager<CliSender, S> {
 
     private final Map<String, CliCommand<S>> commands = new HashMap<>();
+
+    private final RegistryContainer<S> registryContainer = new RegistryContainer<>();
 
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
@@ -78,9 +81,11 @@ public final class CliCommandManager<S> extends CommandManager<CliSender, S> {
     public void registerCommand(@NotNull final BaseCommand baseCommand) {
         final CliCommandProcessor<S> processor = new CliCommandProcessor<>(
                 baseCommand,
-                getRegistries(),
+                getRegistryContainer(),
                 getSenderMapper(),
-                getSenderValidator()
+                getSenderValidator(),
+                syncExecutionProvider,
+                asyncExecutionProvider
         );
 
         final String name = processor.getName();
@@ -91,6 +96,14 @@ public final class CliCommandManager<S> extends CommandManager<CliSender, S> {
         );
 
         command.addSubCommands(baseCommand);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected @NotNull RegistryContainer<S> getRegistryContainer() {
+        return registryContainer;
     }
 
     @Override

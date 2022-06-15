@@ -25,12 +25,11 @@ package dev.triumphteam.cmds.cli;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 final class CliSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
@@ -38,7 +37,7 @@ final class CliSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
-            @NotNull final Map<Class<? extends Registry>, Registry> registries,
+            @NotNull final RegistryContainer<S> registries,
             @NotNull final SenderValidator<S> senderValidator
     ) {
         super(baseCommand, parentName, method, registries, senderValidator);

@@ -24,23 +24,50 @@
 package dev.triumphteam.cmds.cli;
 
 import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmds.cli.sender.CliSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
+import java.lang.reflect.Method;
 
-public final class CliCommandProcessor<S> extends AbstractCommandProcessor<CliSender, S> {
+public final class CliCommandProcessor<S> extends AbstractCommandProcessor<CliSender, S, CliSubCommand<S>, CliSubCommandProcessor<S>> {
 
     public CliCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final Map<Class<? extends Registry>, Registry> registries,
+            @NotNull final RegistryContainer<S> registries,
             @NotNull final SenderMapper<CliSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            @NotNull final SenderValidator<S> senderValidator,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
-        super(baseCommand, registries, senderMapper, senderValidator);
+        super(baseCommand, registries, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected CliSubCommandProcessor<S> createProcessor(@NotNull Method method) {
+        return new CliSubCommandProcessor<S>(
+                getBaseCommand(),
+                method.getName(),
+                method,
+                getRegistryContainer(),
+                getSenderValidator()
+        );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected CliSubCommand<S> createSubCommand(@NotNull CliSubCommandProcessor<S> processor, @NotNull ExecutionProvider executionProvider) {
+        return new CliSubCommand<S>(processor, getName(), executionProvider);
     }
 }

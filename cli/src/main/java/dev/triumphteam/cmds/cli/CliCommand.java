@@ -27,14 +27,11 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.registry.Registry;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmds.cli.sender.CliSender;
@@ -48,11 +45,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class CliCommand<S> implements Command {
+public final class CliCommand<S> implements Command<S, CliSubCommand<S>> {
 
     private final String name;
 
-    private final Map<Class<? extends Registry>, Registry> registries;
+    private final RegistryContainer<S> registries;
     private final MessageRegistry<S> messageRegistry;
 
     private final SenderMapper<CliSender, S> senderMapper;
@@ -74,8 +71,8 @@ public final class CliCommand<S> implements Command {
 
         this.senderMapper = processor.getSenderMapper();
         this.senderValidator = processor.getSenderValidator();
-        this.registries = processor.getRegistries();
-        this.messageRegistry = (MessageRegistry<S>) registries.get(MessageRegistry.class);
+        this.registries = processor.getRegistryContainer();
+        this.messageRegistry = registries.getMessageRegistry();
         this.syncExecutionProvider = syncExecutionProvider;
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
@@ -85,7 +82,6 @@ public final class CliCommand<S> implements Command {
      *
      * @param baseCommand The {@link BaseCommand} to get the sub commands from.
      */
-    @Override
     public void addSubCommands(@NotNull final BaseCommand baseCommand) {
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
             if (Modifier.isPrivate(method.getModifiers())) continue;
@@ -162,5 +158,14 @@ public final class CliCommand<S> implements Command {
      */
     private boolean subCommandExists(@NotNull final String key) {
         return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addSubCommands(@NotNull Map<String, CliSubCommand<S>> subCommands, @NotNull Map<String, CliSubCommand<S>> subCommandAliases) {
+        this.subCommands.putAll(subCommands);
+        this.subCommandAliases.putAll(subCommandAliases);
     }
 }
