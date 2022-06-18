@@ -115,20 +115,24 @@ public final class CliCommandManager<S> extends CommandManager<CliSender, S> {
         final Scanner scanner = new Scanner(System.in);
         while (true) {
             final String line = scanner.nextLine();
-            if (line.isEmpty()) continue;
-            final String[] args = line.split(" ");
-            if (args.length == 0) continue;
-            final String commandName = args[0];
-
-            final CliCommand<S> command = commands.get(commandName);
-            if (command == null) {
-                // TODO: Change this to a logger
-                System.out.println("Command not found");
-                continue;
-            }
-
-            command.execute(new CliCommandSender(), Arrays.copyOfRange(args, 1, args.length));
+            executeCommand(line);
         }
+    }
+
+    public void executeCommand(String line) {
+        if (line.isEmpty()) return;
+        final String[] args = line.split(" ");
+        if (args.length == 0) return;
+        final String commandName = args[0];
+
+        final CliCommand<S> command = commands.get(commandName);
+        if (command == null) {
+            // TODO: Change this to a logger
+            System.out.println("Command not found");
+            return;
+        }
+
+        command.execute(new CliCommandSender(), Arrays.copyOfRange(args, 1, args.length));
     }
 
     private static void setUpDefaults(@NotNull final CliCommandManager<CliSender> manager) {
