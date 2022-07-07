@@ -33,7 +33,7 @@ import java.lang.reflect.Method;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private String permission = "";
+    private CommandPermission permission;
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -44,11 +44,10 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
         if (getName() == null) return;
-        this.permission = new CommandPermission(method, getBaseCommand()).registerAndGetPermission();
+        this.permission = new CommandPermission(method, getBaseCommand());
     }
 
-    @NotNull
-    public String getPermission() {
+    public CommandPermission getPermission() {
         return permission;
     }
 

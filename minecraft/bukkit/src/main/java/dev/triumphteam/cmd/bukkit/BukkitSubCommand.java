@@ -36,7 +36,7 @@ import static java.util.Collections.emptyList;
 
 public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
-    private final String permission;
+    private final CommandPermission permission;
 
     public BukkitSubCommand(
             @NotNull final BukkitSubCommandProcessor<S> processor,
@@ -46,6 +46,7 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         super(processor, parentName, executionProvider);
 
         this.permission = processor.getPermission();
+        permission.register();
     }
 
     public List<String> getSuggestions(@NotNull final S sender, @NotNull final List<String> args) {
@@ -65,7 +66,8 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
     }
 
     // TODO: Comments
-    public String getPermission() {
+    @NotNull
+    public CommandPermission getPermission() {
         return permission;
     }
 }

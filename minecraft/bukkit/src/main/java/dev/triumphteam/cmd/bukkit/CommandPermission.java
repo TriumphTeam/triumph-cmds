@@ -5,12 +5,14 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
 public class CommandPermission {
 
     private Permission annotation;
+    private String node = "";
     private Method method;
     private BaseCommand baseCommand;
 
@@ -24,32 +26,38 @@ public class CommandPermission {
         this.annotation = annotation;
         this.method = method;
         this.baseCommand = baseCommand;
+        this.node = annotation.value();
     }
 
     /**
      * Register the {@link org.bukkit.permissions.Permission} to the server and return the node
-     * @return permission node
      */
-    @NotNull
-    public String registerAndGetPermission() {
+    public void register() {
         // The command method wasn't annotated with @Permission
         if (annotation == null) {
-            return "";
+            return;
         }
 
-        final String permission = annotation.value();
-
-        if (permission.isEmpty()) {
+        if (node.isEmpty()) {
             throw new SubCommandRegistrationException("Permission cannot be empty", method, baseCommand.getClass());
         }
 
         if (annotation.register()) {
             Bukkit.getPluginManager().addPermission(
-                    new org.bukkit.permissions.Permission(permission, annotation.description(), annotation.def())
+                    new org.bukkit.permissions.Permission(node, annotation.description(), annotation.def())
             );
         }
 
-        return permission;
+    }
+
+    @Nullable
+    public Permission getAnnotation() {
+        return annotation;
+    }
+
+    @NotNull
+    public String getNode() {
+        return node;
     }
 
 }
