@@ -58,6 +58,16 @@ public final class NamedArgumentResult implements Arguments {
     }
 
     @Override
+    public @NotNull Map<String, Object> getArguments() {
+        return values;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
+
+    @Override
     public String toString() {
         return "Arguments{" +
                 "values=" + values +
