@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument.named;
 
+import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public final class NamedArgumentResult implements Arguments {
 
     @Override
     public @NotNull Map<String, Object> getArguments() {
-        return values;
+        return ImmutableMap.copyOf(values);
     }
 
     @Override
