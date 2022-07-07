@@ -96,9 +96,10 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             return true;
         }
 
-        final String permission = subCommand.getPermission().getNode();
-        if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
+        final CommandPermission permission = subCommand.getPermission();
+        final String permissionNode = permission.getNode();
+        if (!permission.hasPermission(sender)) {
+            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permissionNode));
             return true;
         }
 
@@ -117,18 +118,16 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         final String arg = args[0].toLowerCase();
 
         if (args.length == 1 && (subCommand == null || !subCommand.hasArguments())) {
-            return subCommands.entrySet().stream().filter(it -> !it.getValue().isDefault()).filter(it -> it.getKey().startsWith(arg)).filter(it -> {
-                final String permission = it.getValue().getPermission().getNode();
-                if (permission.isEmpty()) return true;
-                return sender.hasPermission(permission);
-            }).map(Map.Entry::getKey).collect(Collectors.toList());
+            return subCommands.entrySet().stream()
+                    .filter(it -> !it.getValue().isDefault())
+                    .filter(it -> it.getKey().startsWith(arg))
+                    .filter(it -> it.getValue().getPermission().hasPermission(sender)).map(Map.Entry::getKey).collect(Collectors.toList());
         }
 
         if (subCommandExists(arg)) subCommand = getSubCommand(arg);
         if (subCommand == null) return emptyList();
 
-        final String permission = subCommand.getPermission().getNode();
-        if (!permission.isEmpty() && !sender.hasPermission(permission)) return emptyList();
+        if (!subCommand.getPermission().hasPermission(sender)) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
 

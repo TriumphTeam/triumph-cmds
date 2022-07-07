@@ -4,8 +4,8 @@ import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
@@ -50,14 +50,13 @@ public class CommandPermission {
 
     }
 
-    @Nullable
-    public Permission getAnnotation() {
-        return annotation;
-    }
-
     @NotNull
     public String getNode() {
         return node;
+    }
+
+    public boolean hasPermission(@NotNull final CommandSender sender) {
+        return sender.hasPermission(node);
     }
 
 }
