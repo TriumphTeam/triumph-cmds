@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
@@ -36,15 +37,27 @@ import java.lang.reflect.Method;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
+    private String permission;
+    private final String basePermission;
+
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderMapper<CommandSender, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator,
             @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            @NotNull final ExecutionProvider asyncExecutionProvider,
+            @NotNull final String basePermission
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
+        this.basePermission = basePermission;
+
+        final Permission annotation = baseCommand.getClass().getAnnotation(Permission.class);
+        if (annotation == null) {
+            return;
+        }
+
+        this.permission = annotation.value();
     }
 
     @NotNull
@@ -55,7 +68,8 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
                 getName(),
                 method,
                 getRegistryContainer(),
-                getSenderValidator()
+                getSenderValidator(),
+                (basePermission.isEmpty() ? "" : basePermission + ".") + (permission == null ? "" : permission)
         );
     }
 

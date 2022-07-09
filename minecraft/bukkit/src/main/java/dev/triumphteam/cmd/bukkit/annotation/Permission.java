@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * Annotate a method using this Annotation to add a required permission
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Permission {
 
     /**

@@ -9,14 +9,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
-public class CommandPermission {
+public final class CommandPermission {
 
     private Permission annotation;
     private String node = "";
     private Method method;
     private BaseCommand baseCommand;
 
-    public CommandPermission(@NotNull final Method method, @NotNull final BaseCommand baseCommand) {
+    public CommandPermission(
+            @NotNull final Method method,
+            @NotNull final BaseCommand baseCommand,
+            @NotNull final String basePermission
+    ) {
         final Permission annotation = method.getAnnotation(Permission.class);
 
         if (annotation == null) {
@@ -26,7 +30,7 @@ public class CommandPermission {
         this.annotation = annotation;
         this.method = method;
         this.baseCommand = baseCommand;
-        this.node = annotation.value();
+        this.node = (basePermission.isEmpty() ? "" : basePermission + ".") + annotation.value();
     }
 
     /**
