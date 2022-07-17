@@ -34,28 +34,14 @@ import java.lang.reflect.Method;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private CommandPermission permission;
-    private final String basePermission;
-
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator,
-            @NotNull final String basePermission
+            @NotNull final SenderValidator<S> senderValidator
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
-        this.basePermission = basePermission;
-
-        if (getName() == null) return;
-        this.permission = new CommandPermission(method, baseCommand, basePermission);
-        System.out.println(permission.getNode());
-    }
-
-    @Nullable
-    public CommandPermission getPermission() {
-        return permission;
     }
 
 }

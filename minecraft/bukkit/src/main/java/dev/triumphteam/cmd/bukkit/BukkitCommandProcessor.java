@@ -58,6 +58,16 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
         }
 
         this.permission = annotation.value();
+
+        // this is here to try and avoid the order of execution from the constructor of super class
+        this.getSubCommands().values().forEach(subcommand -> {
+            final CommandPermission cmdPermission = new CommandPermission(
+                    subcommand.getMethod(),
+                    subcommand.getBaseCommand(),
+                    (basePermission.isEmpty() ? "" : basePermission + ".") + (permission == null ? "" : permission));
+            cmdPermission.register();
+            subcommand.setPermission(cmdPermission);
+        });
     }
 
     @NotNull
@@ -68,8 +78,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
                 getName(),
                 method,
                 getRegistryContainer(),
-                getSenderValidator(),
-                (basePermission.isEmpty() ? "" : basePermission + ".") + (permission == null ? "" : permission)
+                getSenderValidator()
         );
     }
 
