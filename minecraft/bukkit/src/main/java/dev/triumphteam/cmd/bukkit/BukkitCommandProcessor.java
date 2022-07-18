@@ -37,8 +37,8 @@ import java.lang.reflect.Method;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
-    private String permission;
-    private final String basePermission;
+    private String basePermission;
+    private final String globalBasePermission;
 
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -47,24 +47,24 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final SenderValidator<S> senderValidator,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider,
-            @NotNull final String basePermission
+            @NotNull final String globalBasePermission
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
-        this.basePermission = basePermission;
+        this.globalBasePermission = globalBasePermission;
 
         final Permission annotation = baseCommand.getClass().getAnnotation(Permission.class);
         if (annotation == null) {
             return;
         }
 
-        this.permission = annotation.value();
+        this.basePermission = annotation.value();
 
         // this is here to try and avoid the order of execution from the constructor of super class
         this.getSubCommands().values().forEach(subcommand -> {
             final CommandPermission cmdPermission = new CommandPermission(
                     subcommand.getMethod(),
                     subcommand.getBaseCommand(),
-                    (basePermission.isEmpty() ? "" : basePermission + ".") + (permission == null ? "" : permission));
+                    (globalBasePermission.isEmpty() ? "" : globalBasePermission + ".") + (basePermission == null ? "" : basePermission));
             cmdPermission.register();
             subcommand.setPermission(cmdPermission);
         });
