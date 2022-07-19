@@ -103,24 +103,6 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     }
 
     /**
-     * Get the base command related to the sub command
-     * @return the base command
-     */
-    @NotNull
-    public BaseCommand getBaseCommand() {
-        return baseCommand;
-    }
-
-    /**
-     * Get the method that originates to the subcommand
-     * @return the method
-     */
-    @NotNull
-    public Method getMethod() {
-        return method;
-    }
-
-    /**
      * Checks if the sub command is default.
      * Can also just check if the name is {@link Default#DEFAULT_CMD_NAME}.
      *
