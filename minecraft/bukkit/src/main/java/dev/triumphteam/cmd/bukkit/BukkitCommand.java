@@ -64,16 +64,14 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         this.senderMapper = processor.getSenderMapper();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void addSubCommands(
-            @NotNull final Map<String, BukkitSubCommand<S>> subCommands,
-            @NotNull final Map<String, BukkitSubCommand<S>> subCommandAliases
-    ) {
-        this.subCommands.putAll(subCommands);
-        this.subCommandAliases.putAll(subCommandAliases);
+    public void addSubCommand(@NotNull final String name, @NotNull final BukkitSubCommand<S> subCommand) {
+        subCommands.putIfAbsent(name, subCommand);
+    }
+
+    @Override
+    public void addSubCommandAlias(@NotNull final String alias, @NotNull final BukkitSubCommand<S> subCommand) {
+        subCommandAliases.putIfAbsent(alias, subCommand);
     }
 
     /**
