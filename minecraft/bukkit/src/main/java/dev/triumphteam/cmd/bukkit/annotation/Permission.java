@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,25 +31,31 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotate a method using this Annotation to add a required permission
+ * Annotate a method using this Annotation to add a required permission.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Permission {
 
     /**
-     * The permission
+     * The permission.
+     *
+     * @return The permission's main node.
      */
     String value();
 
     /**
-     * Represents the possible default values for permissions
+     * Represents the possible default values for permissions.
+     *
+     * @return The permission's {@link PermissionDefault}.
      * @see PermissionDefault
      */
     PermissionDefault def() default PermissionDefault.OP;
 
     /**
-     * A brief description of the permission
+     * A brief description of the permission.
+     *
+     * @return The permission's description.
      * @see org.bukkit.permissions.Permission#getDescription()
      */
     String description() default "";
