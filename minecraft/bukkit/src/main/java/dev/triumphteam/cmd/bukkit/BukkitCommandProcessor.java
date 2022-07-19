@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,14 +31,14 @@ import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.bukkit.command.CommandSender;
+import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
-    private String basePermission;
-    private final String globalBasePermission;
+    private final CommandPermission basePermission;
 
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -50,24 +50,14 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final String globalBasePermission
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
-        this.globalBasePermission = globalBasePermission;
 
-        final Permission annotation = baseCommand.getClass().getAnnotation(Permission.class);
+        final Permission annotation = getAnnotatedClass().getAnnotation(Permission.class);
         if (annotation == null) {
+            this.basePermission = null;
             return;
         }
 
-        this.basePermission = annotation.value();
-
-        // this is here to try and avoid the order of execution from the constructor of super class
-        this.getSubCommands().values().forEach(subcommand -> {
-            final CommandPermission cmdPermission = new CommandPermission(
-                    subcommand.getMethod(),
-                    subcommand.getBaseCommand(),
-                    (globalBasePermission.isEmpty() ? "" : globalBasePermission + ".") + (basePermission == null ? "" : basePermission));
-            cmdPermission.register();
-            subcommand.setPermission(cmdPermission);
-        });
+        this.basePermission = createPermission(globalBasePermission, annotation.value(), annotation.description(), annotation.def());
     }
 
     @NotNull
@@ -78,7 +68,8 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
                 getName(),
                 method,
                 getRegistryContainer(),
-                getSenderValidator()
+                getSenderValidator(),
+                basePermission
         );
     }
 
@@ -89,5 +80,21 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final ExecutionProvider executionProvider
     ) {
         return new BukkitSubCommand<>(processor, getName(), executionProvider);
+    }
+
+    static CommandPermission createPermission(
+            @NotNull final String parentNode,
+            @NotNull final String node,
+            @NotNull final String description,
+            @NotNull final PermissionDefault permissionDefault
+    ) {
+        final StringBuilder permissionBuilder = new StringBuilder();
+        if (!parentNode.isEmpty()) {
+            permissionBuilder.append(parentNode);
+            if (!node.isEmpty()) permissionBuilder.append(".");
+        }
+        permissionBuilder.append(node);
+
+        return new CommandPermission(permissionBuilder.toString(), description, permissionDefault);
     }
 }

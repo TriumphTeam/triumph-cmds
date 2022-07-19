@@ -132,12 +132,12 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
         final BukkitCommand<S> command = commands.computeIfAbsent(processor.getName(), ignored -> createAndRegisterCommand(processor.getName(), processor));
         // Adding sub commands.
-        command.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
+        processor.addSubCommands(command);
 
         processor.getAlias().forEach(it -> {
             final BukkitCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> createAndRegisterCommand(it, processor));
             // Adding sub commands.
-            aliasCommand.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
+            processor.addSubCommands(aliasCommand);
         });
     }
 

@@ -53,12 +53,4 @@ public @interface Permission {
      * @see org.bukkit.permissions.Permission#getDescription()
      */
     String description() default "";
-
-    /**
-     * Whether the permission should be registered
-     * <br>
-     * Set it to {@code false} when you want to register the permission trough plugin.yml
-     */
-    boolean register() default true;
-
 }
