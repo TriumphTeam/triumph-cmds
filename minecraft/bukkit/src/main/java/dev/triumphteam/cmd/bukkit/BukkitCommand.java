@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -95,9 +95,8 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         }
 
         final CommandPermission permission = subCommand.getPermission();
-        final String permissionNode = permission.getNode();
-        if (!permission.hasPermission(sender)) {
-            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permissionNode));
+        if (permission != null && !permission.hasPermission(sender)) {
+            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission.getNode()));
             return true;
         }
 
@@ -119,13 +118,20 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             return subCommands.entrySet().stream()
                     .filter(it -> !it.getValue().isDefault())
                     .filter(it -> it.getKey().startsWith(arg))
-                    .filter(it -> it.getValue().getPermission().hasPermission(sender)).map(Map.Entry::getKey).collect(Collectors.toList());
+                    .filter(it -> {
+                        final CommandPermission permission = it.getValue().getPermission();
+                        if (permission == null) return false;
+                        return permission.hasPermission(sender);
+                    })
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
         }
 
         if (subCommandExists(arg)) subCommand = getSubCommand(arg);
         if (subCommand == null) return emptyList();
 
-        if (!subCommand.getPermission().hasPermission(sender)) return emptyList();
+        final CommandPermission permission = subCommand.getPermission();
+        if (permission != null && !permission.hasPermission(sender)) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
 
