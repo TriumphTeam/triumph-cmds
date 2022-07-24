@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
@@ -57,7 +58,8 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
                 basePermission == null ? "" : basePermission.getNode(),
                 annotation.value(),
                 annotation.description(),
-                annotation.def()
+                annotation.def(),
+                Arrays.asList(annotation.alias())
         );
     }
 

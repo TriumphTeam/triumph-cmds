@@ -30,20 +30,25 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public final class CommandPermission {
 
     private final String node;
     private final PermissionDefault permissionDefault;
     private final String description;
+    private final List<String> alias;
 
     public CommandPermission(
             @NotNull final String node,
             @NotNull final String description,
-            @NotNull final PermissionDefault permissionDefault
+            @NotNull final PermissionDefault permissionDefault,
+            @NotNull final List<String> alias
     ) {
         this.node = node;
         this.description = description;
         this.permissionDefault = permissionDefault;
+        this.alias = alias;
     }
 
     /**
@@ -63,7 +68,7 @@ public final class CommandPermission {
     }
 
     public boolean hasPermission(@NotNull final CommandSender sender) {
-        return sender.hasPermission(node);
+        return sender.hasPermission(node) || alias.stream().anyMatch(sender::hasPermission);
     }
 
 }
