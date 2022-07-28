@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,6 +31,8 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -54,8 +56,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
     private final String name;
     private final String description;
 
-    private final List<Long> enabledRoles;
-    private final List<Long> disabledRoles;
+    private final List<Permission> allow;
 
     private final RegistryContainer<S> registryContainer;
     private final ChoiceRegistry choiceRegistry;
@@ -69,8 +70,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
 
     public SlashCommand(
             @NotNull final SlashCommandProcessor<S> processor,
-            @NotNull final List<Long> enabledRoles,
-            @NotNull final List<Long> disabledRoles,
+            @NotNull final List<Permission> allow,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
@@ -80,20 +80,16 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
         this.choiceRegistry = processor.getChoiceRegistry();
         this.senderValidator = processor.getSenderValidator();
 
-        this.enabledRoles = enabledRoles;
-        this.disabledRoles = disabledRoles;
+        this.allow = allow;
 
         this.syncExecutionProvider = syncExecutionProvider;
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
-    public List<Long> getEnabledRoles() {
-        return enabledRoles;
+    public List<Permission> getAllowed() {
+        return allow;
     }
 
-    public List<Long> getDisabledRoles() {
-        return disabledRoles;
-    }
 
     /**
      * {@inheritDoc}
@@ -131,7 +127,13 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
     @NotNull
     public SlashCommandData asCommandData() {
         final SlashCommandData commandData = Commands.slash(name, description);
-        commandData.setDefaultEnabled(enabledRoles.isEmpty());
+        DefaultMemberPermissions dm;
+        if (allow.isEmpty())
+            dm = DefaultMemberPermissions.ENABLED;
+        else dm = DefaultMemberPermissions.enabledFor(allow);
+
+        commandData.setDefaultPermissions(dm);
+
 
         if (isDefault) {
             final SlashSubCommand<S> subCommand = getDefaultSubCommand();
@@ -148,6 +150,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
                 .collect(Collectors.toList());
 
         commandData.addSubcommands(subData);
+
         return commandData;
     }
 

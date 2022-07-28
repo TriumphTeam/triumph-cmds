@@ -32,6 +32,7 @@ import dev.triumphteam.cmd.jda.annotation.Privileges;
 import dev.triumphteam.cmd.jda.annotation.Roles;
 import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
+import net.dv8tion.jda.api.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,8 +52,7 @@ final class SlashCommandProcessor<S>
 
     private final ChoiceRegistry choiceRegistry;
 
-    private final List<Long> enabledRoles = new ArrayList<>();
-    private final List<Long> disabledRoles = new ArrayList<>();
+    private final List<Permission> enabledPermissions = new ArrayList<>();
 
     public SlashCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -64,28 +64,19 @@ final class SlashCommandProcessor<S>
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
         this.choiceRegistry = registryContainer.getChoiceRegistry();
-        extractPrivilege();
     }
 
     /**
-     * Gets the roles to which the command should be enabled to.
+     * Gets the permissions to which the command should be enabled to by default.
      *
-     * @return The enabled roles.
+     * @return The enabled permissions.
      */
     @NotNull
-    public List<Long> getEnabledRoles() {
-        return enabledRoles;
+    public List<Permission> getEnabledPermissions() {
+        return enabledPermissions;
     }
 
-    /**
-     * Gets the roles to which the command should be disabled to.
-     *
-     * @return The disabled roles.
-     */
-    @NotNull
-    public List<Long> getDisabledRoles() {
-        return disabledRoles;
-    }
+
 
     /**
      * Gets the choice registry.
@@ -97,24 +88,6 @@ final class SlashCommandProcessor<S>
         return choiceRegistry;
     }
 
-    /**
-     * Extracts the privilege data from the command.
-     */
-    private void extractPrivilege() {
-        final List<Roles> roles = getRolesFromAnnotations(getAnnotatedClass());
-        if (roles.isEmpty()) return;
-
-        for (final Roles role : roles) {
-            for (final long id : role.value()) {
-                if (role.disabled()) {
-                    disabledRoles.add(id);
-                    continue;
-                }
-
-                enabledRoles.add(id);
-            }
-        }
-    }
 
     /**
      * Gets the roles annotations from the class.

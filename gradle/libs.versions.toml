@@ -1,6 +1,6 @@
 [versions]
 # Code
-guava = "28.0-jre"
+guava = "31.1-jre"
 
 # Testing
 junit = "5.8.2"
@@ -10,7 +10,7 @@ assertj = "3.22.0"
 spigot = "1.18.2-R0.1-SNAPSHOT"
 
 # Discord
-jda = "5.0.0-alpha.9"
+jda = "5.0.0-alpha.17"
 
 
 [libraries]
