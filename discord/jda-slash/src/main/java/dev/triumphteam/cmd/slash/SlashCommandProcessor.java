@@ -64,6 +64,7 @@ final class SlashCommandProcessor<S>
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
         this.choiceRegistry = registryContainer.getChoiceRegistry();
+
     }
 
     /**
@@ -76,8 +77,6 @@ final class SlashCommandProcessor<S>
         return enabledPermissions;
     }
 
-
-
     /**
      * Gets the choice registry.
      *
@@ -87,7 +86,6 @@ final class SlashCommandProcessor<S>
     public ChoiceRegistry getChoiceRegistry() {
         return choiceRegistry;
     }
-
 
     /**
      * Gets the roles annotations from the class.
