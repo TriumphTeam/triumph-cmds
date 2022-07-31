@@ -4,10 +4,10 @@ plugins {
 }
 
 repositories {
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://repo.spongepowered.org/maven")
 }
 
 dependencies {
     api(project(":triumph-cmd-mc-common"))
-    compileOnly(libs.spigot)
+    compileOnly("org.spongepowered:spongeapi:8.0.0")
 }

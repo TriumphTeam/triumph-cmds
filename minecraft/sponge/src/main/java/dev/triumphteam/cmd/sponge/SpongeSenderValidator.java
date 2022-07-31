@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit;
+package dev.triumphteam.cmd.sponge;
 
 import com.google.common.collect.ImmutableSet;
 import dev.triumphteam.cmd.core.SubCommand;
@@ -29,36 +29,32 @@ import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.minecraft.message.MinecraftMessageKey;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.SystemSubject;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.service.permission.Subject;
 
 import java.util.Set;
 
-/**
- * Simple mapper than returns itself.
- */
-class BukkitSenderValidator implements SenderValidator<CommandSender> {
+class SpongeSenderValidator implements SenderValidator<Subject> {
 
-    /**
-     * {@inheritDoc}
-     */
+
     @NotNull
     @Override
-    public Set<Class<? extends CommandSender>> getAllowedSenders() {
-        return ImmutableSet.of(CommandSender.class, ConsoleCommandSender.class, Player.class);
+    public Set<Class<? extends Subject>> getAllowedSenders() {
+        return ImmutableSet.of(ServerPlayer.class, SystemSubject.class, CommandCause.class);
     }
 
     @Override
     public boolean validate(
-            final @NotNull MessageRegistry<CommandSender> messageRegistry,
-            final @NotNull SubCommand<CommandSender> subCommand,
-            final @NotNull CommandSender sender
+            @NotNull MessageRegistry<Subject> messageRegistry,
+            @NotNull SubCommand<Subject> subCommand,
+            @NotNull Subject sender
     ) {
-        final Class<? extends CommandSender> senderClass = subCommand.getSenderType();
+        final Class<? extends Subject> senderClass = subCommand.getSenderType();
 
-        if (Player.class.isAssignableFrom(senderClass) && !(sender instanceof Player)) {
+        if(ServerPlayer.class.isAssignableFrom(senderClass) && !(sender instanceof ServerPlayer)) {
             messageRegistry.sendMessage(
                     MinecraftMessageKey.PLAYER_ONLY,
                     sender,
@@ -67,7 +63,7 @@ class BukkitSenderValidator implements SenderValidator<CommandSender> {
             return false;
         }
 
-        if (ConsoleCommandSender.class.isAssignableFrom(senderClass) && !(sender instanceof ConsoleCommandSender)) {
+        if (SystemSubject.class.isAssignableFrom(senderClass) && !(sender instanceof SystemSubject)) {
             messageRegistry.sendMessage(
                     MinecraftMessageKey.CONSOLE_ONLY,
                     sender,

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.message;
+package dev.triumphteam.cmd.minecraft.message;
 
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
@@ -29,37 +29,37 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * {@link BukkitMessageKey} is used for easier registering of messages with different {@link MessageContext}.
+ * {@link MinecraftMessageKey} is used for easier registering of messages with different {@link MessageContext}.
  *
  * @param <C> A {@link MessageContext} type, this allows for better customization of the messages.
  */
-public final class BukkitMessageKey<C extends MessageContext> extends ContextualKey<C> {
+public final class MinecraftMessageKey<C extends MessageContext> extends ContextualKey<C> {
 
     // Default keys
-    public static final BukkitMessageKey<NoPermissionMessageContext> NO_PERMISSION = of("no.permission", NoPermissionMessageContext.class);
-    public static final BukkitMessageKey<MessageContext> PLAYER_ONLY = of("player.only", MessageContext.class);
-    public static final BukkitMessageKey<MessageContext> CONSOLE_ONLY = of("console.only", MessageContext.class);
+    public static final MinecraftMessageKey<NoPermissionMessageContext> NO_PERMISSION = of("no.permission", NoPermissionMessageContext.class);
+    public static final MinecraftMessageKey<MessageContext> PLAYER_ONLY = of("player.only", MessageContext.class);
+    public static final MinecraftMessageKey<MessageContext> CONSOLE_ONLY = of("console.only", MessageContext.class);
 
-    private BukkitMessageKey(@NotNull final String key, @NotNull final Class<C> type) {
+    private MinecraftMessageKey(@NotNull final String key, @NotNull final Class<C> type) {
         super(key, type);
     }
 
     /**
-     * Factory method for creating a {@link BukkitMessageKey}.
+     * Factory method for creating a {@link MinecraftMessageKey}.
      *
      * @param key  The value of the key, normally separated by <code>.</code>.
      * @param type The {@link MessageContext} type.
      * @param <C>  Generic {@link MessageContext} type.
-     * @return A new {@link BukkitMessageKey} for a specific {@link MessageContext}.
+     * @return A new {@link MinecraftMessageKey} for a specific {@link MessageContext}.
      */
     @NotNull
     @Contract("_, _ -> new")
-    private static <C extends MessageContext> BukkitMessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
-        return new BukkitMessageKey<>(key, type);
+    private static <C extends MessageContext> MinecraftMessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
+        return new MinecraftMessageKey<>(key, type);
     }
 
     @Override
     public String toString() {
-        return "BukkitMessageKey{super=" + super.toString() + "}";
+        return "MinecraftMessageKey{super=" + super.toString() + "}";
     }
 }

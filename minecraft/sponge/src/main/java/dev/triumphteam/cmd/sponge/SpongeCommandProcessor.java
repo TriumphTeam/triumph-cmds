@@ -21,50 +21,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit;
+package dev.triumphteam.cmd.sponge;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.minecraft.annotation.Permission;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.service.permission.Subject;
 
 import java.lang.reflect.Method;
 
-final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
-
-    private String permission = "";
-
-    public BukkitSubCommandProcessor(
+final class SpongeCommandProcessor<S> extends AbstractCommandProcessor<Subject, S, SpongeSubCommand<S>, SpongeSubCommandProcessor<S>> {
+    public SpongeCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final Method method,
             @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator
+            @NotNull final SenderMapper<Subject, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
-        super(baseCommand, parentName, method, registryContainer, senderValidator);
-        if (getName() == null) return;
-        checkPermission(getMethod());
+        super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
     }
 
-    @NotNull
-    public String getPermission() {
-        return permission;
+    @Override
+    protected @NotNull SpongeSubCommandProcessor<S> createProcessor(@NotNull final Method method) {
+        return new SpongeSubCommandProcessor<>(
+                getBaseCommand(),
+                getName(),
+                method,
+                getRegistryContainer(),
+                getSenderValidator()
+        );
     }
 
-    // TODO: 2/4/2022 comments
-    private void checkPermission(@NotNull final Method method) {
-        final Permission permission = method.getAnnotation(Permission.class);
-        if (permission == null) return;
-
-        final String annotatedPermission = permission.value();
-
-        if (annotatedPermission.isEmpty()) {
-            throw new SubCommandRegistrationException("Permission cannot be empty", method, getBaseCommand().getClass());
-        }
-
-        this.permission = annotatedPermission;
+    @Override
+    protected SpongeSubCommand<S> createSubCommand(
+            @NotNull SpongeSubCommandProcessor<S> processor,
+            @NotNull ExecutionProvider executionProvider
+    ) {
+        return new SpongeSubCommand<>(processor, getName(), executionProvider);
     }
 }

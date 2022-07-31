@@ -21,18 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.annotation;
+package dev.triumphteam.cmd.sponge;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.plugin.PluginContainer;
 
 /**
- * Annotate a method using this Annotation to add a required permission
+ * {@inheritDoc}
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Permission {
-    String value();
+public final class SpongeAsyncExecutionProvider implements ExecutionProvider {
+
+    private final PluginContainer plugin;
+
+    /**
+     * {@inheritDoc}
+     */
+    public SpongeAsyncExecutionProvider(@NotNull final PluginContainer plugin) { this.plugin = plugin; }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void execute(@NotNull final Runnable command) {
+        Sponge.asyncScheduler().executor(plugin).submit(command);
+    }
 }

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit;
+package dev.triumphteam.cmd.sponge;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
@@ -33,16 +33,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
-final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+public class SpongeSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
     private String permission = "";
 
-    public BukkitSubCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final Method method,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator
+    protected SpongeSubCommandProcessor(
+            @NotNull BaseCommand baseCommand,
+            @NotNull String parentName,
+            @NotNull Method method,
+            @NotNull RegistryContainer<S> registryContainer,
+            @NotNull SenderValidator<S> senderValidator
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
         if (getName() == null) return;

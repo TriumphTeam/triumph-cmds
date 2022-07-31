@@ -21,15 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit.message;
+package dev.triumphteam.cmd.minecraft.message;
 
 import dev.triumphteam.cmd.core.message.context.AbstractMessageContext;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * {@inheritDoc}
+ */
 public final class NoPermissionMessageContext extends AbstractMessageContext {
 
     private final String permission;
 
+    /**
+     * {@inheritDoc}
+     */
     public NoPermissionMessageContext(
             @NotNull final String command,
             @NotNull final String subCommand,
@@ -39,6 +45,9 @@ public final class NoPermissionMessageContext extends AbstractMessageContext {
         this.permission = permission;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getPermission() {
         return permission;
     }
