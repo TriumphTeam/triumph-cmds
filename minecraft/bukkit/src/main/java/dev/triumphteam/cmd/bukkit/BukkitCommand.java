@@ -54,7 +54,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
     private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
     public BukkitCommand(@NotNull final String name, @NotNull final BukkitCommandProcessor<S> processor) {
         super(name);
 
@@ -64,16 +63,14 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         this.senderMapper = processor.getSenderMapper();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void addSubCommands(
-            @NotNull final Map<String, BukkitSubCommand<S>> subCommands,
-            @NotNull final Map<String, BukkitSubCommand<S>> subCommandAliases
-    ) {
-        this.subCommands.putAll(subCommands);
-        this.subCommandAliases.putAll(subCommandAliases);
+    public void addSubCommand(@NotNull final String name, @NotNull final BukkitSubCommand<S> subCommand) {
+        subCommands.putIfAbsent(name, subCommand);
+    }
+
+    @Override
+    public void addSubCommandAlias(@NotNull final String alias, @NotNull final BukkitSubCommand<S> subCommand) {
+        subCommandAliases.putIfAbsent(alias, subCommand);
     }
 
     /**
@@ -96,9 +93,9 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             return true;
         }
 
-        final String permission = subCommand.getPermission();
-        if (!permission.isEmpty() && !sender.hasPermission(permission)) {
-            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
+        final CommandPermission permission = subCommand.getPermission();
+        if (permission != null && !permission.hasPermission(sender)) {
+            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission.getNode()));
             return true;
         }
 
@@ -117,18 +114,23 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         final String arg = args[0].toLowerCase();
 
         if (args.length == 1 && (subCommand == null || !subCommand.hasArguments())) {
-            return subCommands.entrySet().stream().filter(it -> !it.getValue().isDefault()).filter(it -> it.getKey().startsWith(arg)).filter(it -> {
-                final String permission = it.getValue().getPermission();
-                if (permission.isEmpty()) return true;
-                return sender.hasPermission(permission);
-            }).map(Map.Entry::getKey).collect(Collectors.toList());
+            return subCommands.entrySet().stream()
+                    .filter(it -> !it.getValue().isDefault())
+                    .filter(it -> it.getKey().startsWith(arg))
+                    .filter(it -> {
+                        final CommandPermission permission = it.getValue().getPermission();
+                        if (permission == null) return false;
+                        return permission.hasPermission(sender);
+                    })
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
         }
 
         if (subCommandExists(arg)) subCommand = getSubCommand(arg);
         if (subCommand == null) return emptyList();
 
-        final String permission = subCommand.getPermission();
-        if (!permission.isEmpty() && !sender.hasPermission(permission)) return emptyList();
+        final CommandPermission permission = subCommand.getPermission();
+        if (permission != null && !permission.hasPermission(sender)) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
 

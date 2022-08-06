@@ -74,12 +74,13 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
     }
 
     @Override
-    public void addSubCommands(
-            @NotNull final Map<String, PrefixedSubCommand<S>> subCommands,
-            @NotNull final Map<String, PrefixedSubCommand<S>> subCommandAliases
-    ) {
-        this.subCommands.putAll(subCommands);
-        this.subCommands.putAll(subCommandAliases);
+    public void addSubCommand(@NotNull final String name, @NotNull final PrefixedSubCommand<S> subCommand) {
+        this.subCommands.putIfAbsent(name, subCommand);
+    }
+
+    @Override
+    public void addSubCommandAlias(@NotNull final String alias, @NotNull final PrefixedSubCommand<S> subCommand) {
+        this.subCommands.putIfAbsent(alias, subCommand);
     }
 
     /**

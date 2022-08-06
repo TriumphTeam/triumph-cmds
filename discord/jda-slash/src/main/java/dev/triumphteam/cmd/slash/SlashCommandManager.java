@@ -239,7 +239,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
                     .computeIfAbsent(name, ignored -> new SlashCommand<>(processor, finalEnabledPermissions, syncExecutionProvider, asyncExecutionProvider));
         }
 
-        command.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
+        processor.addSubCommands(command);
     }
 
     /**

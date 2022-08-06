@@ -71,7 +71,7 @@ final class PrefixedCommandExecutor<S> {
             commands.putIfAbsent(alias, command);
         }
 
-        command.addSubCommands(processor.getSubCommands(), processor.getSubCommandsAlias());
+        processor.addSubCommands(command);
     }
 
     /**

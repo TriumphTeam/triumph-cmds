@@ -25,46 +25,44 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private String permission = "";
+    private final CommandPermission permission;
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
             @NotNull final Method method,
             @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator
+            @NotNull final SenderValidator<S> senderValidator,
+            @Nullable final CommandPermission basePermission
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
-        if (getName() == null) return;
-        checkPermission(getMethod());
-    }
 
-    @NotNull
-    public String getPermission() {
-        return permission;
-    }
-
-    // TODO: 2/4/2022 comments
-    private void checkPermission(@NotNull final Method method) {
-        final Permission permission = method.getAnnotation(Permission.class);
-        if (permission == null) return;
-
-        final String annotatedPermission = permission.value();
-
-        if (annotatedPermission.isEmpty()) {
-            throw new SubCommandRegistrationException("Permission cannot be empty", method, getBaseCommand().getClass());
+        final Permission annotation = method.getAnnotation(Permission.class);
+        if (annotation == null) {
+            this.permission = basePermission;
+            return;
         }
 
-        this.permission = annotatedPermission;
+        this.permission = BukkitCommandProcessor.createPermission(
+                basePermission == null ? "" : basePermission.getNode(),
+                annotation.value(),
+                annotation.description(),
+                annotation.def()
+        );
+    }
+
+    @Nullable
+    public CommandPermission getPermission() {
+        return permission;
     }
 }
