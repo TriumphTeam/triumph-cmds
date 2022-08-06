@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -133,6 +133,7 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final List<InternalArgument<S, ?>> internalArguments = new ArrayList<>();
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
 
+    private final RegistryContainer<S> registryContainer;
     private final SuggestionRegistry<S> suggestionRegistry;
     private final ArgumentRegistry<S> argumentRegistry;
     private final NamedArgumentRegistry<S> namedArgumentRegistry;
@@ -154,6 +155,7 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         this.method = method;
 
+        this.registryContainer = registryContainer;
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
         this.argumentRegistry = registryContainer.getArgumentRegistry();
         this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
@@ -286,6 +288,11 @@ public abstract class AbstractSubCommandProcessor<S> {
     @NotNull
     public MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
+    }
+
+    @NotNull
+    public RegistryContainer<S> getRegistryContainer() {
+        return registryContainer;
     }
 
     // TODO: 2/4/2022 comments
@@ -544,7 +551,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param optional            whether this Argument is optional.
      * @return The created {@link InternalArgument}.
      */
-    private InternalArgument<S, String> createSimpleArgument(
+    protected InternalArgument<S, String> createSimpleArgument(
             @NotNull final Class<?> type,
             @NotNull final String parameterName,
             @NotNull final String argumentDescription,
