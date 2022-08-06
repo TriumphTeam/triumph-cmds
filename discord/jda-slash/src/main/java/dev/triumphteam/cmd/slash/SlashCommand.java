@@ -91,21 +91,20 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void addSubCommands(
-            @NotNull final Map<String, SlashSubCommand<S>> subCommands,
-            @NotNull final Map<String, SlashSubCommand<S>> subCommandAliases
-    ) {
-        final SubCommand<S> subCommand = subCommands.get(Default.DEFAULT_CMD_NAME);
-        if (subCommand != null) {
-            if (subCommands.size() > 1) throw new CommandRegistrationException("ASSS");
+    public void addSubCommand(@NotNull final String name, @NotNull final SlashSubCommand<S> subCommand) {
+        final SubCommand<S> defaultCmd = subCommands.get(Default.DEFAULT_CMD_NAME);
+        if (defaultCmd != null) {
+            if (subCommands.size() > 1) throw new CommandRegistrationException("TODO");
             isDefault = true;
         }
 
-        this.subCommands.putAll(subCommands);
+        this.subCommands.putIfAbsent(name, subCommand);
+    }
+
+    @Override
+    public void addSubCommandAlias(@NotNull final String alias, @NotNull final SlashSubCommand<S> subCommand) {
+        // Doesn't support alias .. yet
     }
 
     /**

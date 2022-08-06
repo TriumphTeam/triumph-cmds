@@ -33,7 +33,6 @@ import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -88,10 +87,10 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
         this.annotatedClass = extractAnnotationClass();
         extractCommandNames();
         extractDescription();
-        collectSubCommands();
     }
 
-    private void collectSubCommands() {
+    // TODO: Comments
+    public void addSubCommands(@NotNull final dev.triumphteam.cmd.core.Command<S, SC> command) {
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
             if (Modifier.isPrivate(method.getModifiers())) continue;
 
@@ -100,15 +99,18 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
             if (subCommandName == null) continue;
 
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-            final SC subCommand = subCommands.computeIfAbsent(subCommandName, it -> createSubCommand(processor, executionProvider));
-            processor.getAlias().forEach(alias -> subCommandsAlias.putIfAbsent(alias, subCommand));
+
+            final SC subCommand = createSubCommand(processor, executionProvider);
+            command.addSubCommand(subCommandName, subCommand);
+
+            processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
         }
     }
 
     @NotNull
     protected abstract P createProcessor(@NotNull final Method method);
 
-    @Nullable
+    @NotNull
     protected abstract SC createSubCommand(@NotNull final P processor, @NotNull final ExecutionProvider executionProvider);
 
     /**
