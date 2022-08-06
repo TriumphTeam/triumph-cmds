@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,45 +30,56 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-public final class CommandPermission {
+/**
+ * Data holder for the command's permission.
+ * Including its default state and a description.
+ */
+final class CommandPermission {
 
     private final String node;
     private final PermissionDefault permissionDefault;
     private final String description;
-    private final List<String> alias;
 
     public CommandPermission(
             @NotNull final String node,
             @NotNull final String description,
-            @NotNull final PermissionDefault permissionDefault,
-            @NotNull final List<String> alias
+            @NotNull final PermissionDefault permissionDefault
     ) {
         this.node = node;
         this.description = description;
         this.permissionDefault = permissionDefault;
-        this.alias = alias;
     }
 
     /**
-     * Register the {@link Permission} to the server and return the node
+     * Register the {@link Permission} to the server.
      */
     public void register() {
         final PluginManager pluginManager = Bukkit.getPluginManager();
-        // Check if permission already registered
+        System.out.println(node);
+        // Don't register if already registered
         final Permission permission = pluginManager.getPermission(node);
         if (permission != null) return;
+
         pluginManager.addPermission(new Permission(node, description, permissionDefault));
     }
 
+    /**
+     * Gets the permission node.
+     *
+     * @return The permission node.
+     */
     @NotNull
     public String getNode() {
         return node;
     }
 
+    /**
+     * Checks if the {@link CommandSender} has the permission to run the command.
+     *
+     * @param sender The main command sender.
+     * @return Whether the sender has permission to run the command.
+     */
     public boolean hasPermission(@NotNull final CommandSender sender) {
-        return sender.hasPermission(node) || alias.stream().anyMatch(sender::hasPermission);
+        return sender.hasPermission(node);
     }
-
 }

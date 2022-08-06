@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.annotation.BasePermission;
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
@@ -35,8 +35,6 @@ import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
@@ -53,13 +51,18 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
 
-        final BasePermission annotation = getAnnotatedClass().getAnnotation(BasePermission.class);
+        final Permission annotation = getAnnotatedClass().getAnnotation(Permission.class);
         if (annotation == null) {
             this.basePermission = null;
             return;
         }
 
-        this.basePermission = createPermission(globalBasePermission, annotation.value(), annotation.description(), annotation.def(), Collections.emptyList());
+        this.basePermission = createPermission(
+                globalBasePermission,
+                annotation.value(),
+                annotation.description(),
+                annotation.def()
+        );
     }
 
     @NotNull
@@ -88,8 +91,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final String parentNode,
             @NotNull final String node,
             @NotNull final String description,
-            @NotNull final PermissionDefault permissionDefault,
-            @NotNull final List<String> alias
+            @NotNull final PermissionDefault permissionDefault
     ) {
         final StringBuilder permissionBuilder = new StringBuilder();
         if (!parentNode.isEmpty()) {
@@ -98,6 +100,6 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
         }
         permissionBuilder.append(node);
 
-        return new CommandPermission(permissionBuilder.toString(), description, permissionDefault, alias);
+        return new CommandPermission(permissionBuilder.toString(), description, permissionDefault);
     }
 }

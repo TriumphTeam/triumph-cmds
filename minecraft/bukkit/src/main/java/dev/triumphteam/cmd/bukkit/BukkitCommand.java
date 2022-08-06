@@ -54,7 +54,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
     private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
     public BukkitCommand(@NotNull final String name, @NotNull final BukkitCommandProcessor<S> processor) {
         super(name);
 

@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  * Annotate a method using this Annotation to add a required permission.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Permission {
 
     /**
@@ -43,13 +43,6 @@ public @interface Permission {
      * @return The permission's main node.
      */
     String value();
-
-    /**
-     * Alias for the permission.
-     *
-     * @return The permission's alias node.
-     */
-    String[] alias() default {};
 
     /**
      * Represents the possible default values for permissions.
