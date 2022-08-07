@@ -8,7 +8,6 @@ rootProject.name = "triumph-cmd"
 listOf(
     "core",
     "kotlin-extras",
-    // "cli"
 ).forEach(::includeProject)
 
 listOf(
