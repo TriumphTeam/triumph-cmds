@@ -23,12 +23,12 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
-import dev.triumphteam.cmd.core.AbstractSubCommand;
+import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 
-final class PrefixedSubCommand<S> extends AbstractSubCommand<S> {
+final class PrefixedSubCommand<S> extends SubCommand<S> {
 
     public PrefixedSubCommand(
             @NotNull final AbstractSubCommandProcessor<S> processor,

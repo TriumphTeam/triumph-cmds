@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.AbstractSubCommand;
+import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.slash.choices.Choice;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-final class SlashSubCommand<S> extends AbstractSubCommand<S> {
+final class SlashSubCommand<S> extends SubCommand<S> {
 
     private final String description;
     private final List<Choice> choices;

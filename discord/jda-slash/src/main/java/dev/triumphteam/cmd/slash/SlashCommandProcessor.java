@@ -34,7 +34,6 @@ import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.Permission;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -114,7 +113,7 @@ final class SlashCommandProcessor<S>
         );
     }
 
-    @Nullable
+    @NotNull
     @Override
     protected SlashSubCommand<S> createSubCommand(
             @NotNull final SlashSubCommandProcessor<S> processor,

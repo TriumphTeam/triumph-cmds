@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.core.AbstractSubCommand;
+import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
@@ -35,7 +35,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
-public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
+public final class BukkitSubCommand<S> extends SubCommand<S> {
 
     private final CommandPermission permission;
 

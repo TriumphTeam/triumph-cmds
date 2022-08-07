@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,15 +28,19 @@ import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +95,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
 
     // TODO: Comments
     public void addSubCommands(@NotNull final dev.triumphteam.cmd.core.Command<S, SC> command) {
+        final Class<? extends BaseCommand> baseCommandClass = baseCommand.getClass();
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
             if (Modifier.isPrivate(method.getModifiers())) continue;
 
@@ -104,6 +109,37 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
             command.addSubCommand(subCommandName, subCommand);
 
             processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
+        }
+
+        for (final Class<?> klass : baseCommandClass.getDeclaredClasses()) {
+            try {
+                final List<Constructor<?>> constructors = Arrays.asList(klass.getDeclaredConstructors());
+
+                if (constructors.size() != 1) {
+                    throw new SubCommandRegistrationException("TODO constructs", null, null);
+                }
+
+                final Constructor<?> constructor = constructors.get(0);
+
+                final Object instance;
+                if (!Modifier.isStatic(klass.getModifiers())) {
+                    if (constructor.getParameters().length != 1) {
+                        throw new SubCommandRegistrationException("TODO params", null, null);
+                    }
+
+                    instance = constructor.newInstance(baseCommand);
+                } else {
+                    if (constructor.getParameters().length != 0) {
+                        throw new SubCommandRegistrationException("TODO params", null, null);
+                    }
+
+                    instance = constructor.newInstance();
+                }
+
+                System.out.println(instance);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
