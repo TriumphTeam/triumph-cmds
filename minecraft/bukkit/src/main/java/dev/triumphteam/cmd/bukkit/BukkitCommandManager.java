@@ -48,8 +48,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
@@ -65,7 +64,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     private final CommandMap commandMap;
     private final Map<String, org.bukkit.command.Command> bukkitCommands;
 
-    private String[] basePermissions = {""};
+    private List<String> basePermissions = Collections.singletonList("");
 
     private BukkitCommandManager(
             @NotNull final Plugin plugin,
@@ -146,12 +145,12 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         // TODO add a remove functionality
     }
 
-    public void setBasePermissions(@NotNull final String[] basePermissions) {
+    public void setBasePermissions(@NotNull final List<String> basePermissions) {
         this.basePermissions = basePermissions;
     }
 
     @NotNull
-    public String[] getBasePermissions() {
+    public List<String> getBasePermissions() {
         return basePermissions;
     }
 

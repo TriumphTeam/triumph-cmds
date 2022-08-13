@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
@@ -48,7 +49,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final SenderValidator<S> senderValidator,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider,
-            @NotNull final String[] globalBasePermissions
+            @NotNull final List<String> globalBasePermissions
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
 
@@ -60,7 +61,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
 
         this.basePermissions = createPermissions(
                 globalBasePermissions,
-                annotation.value(),
+                Arrays.stream(annotation.value()).collect(Collectors.toList()),
                 annotation.description(),
                 annotation.def()
         );
@@ -89,8 +90,8 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
     }
 
     static List<CommandPermission> createPermissions(
-            @NotNull final String[] parentNode, // TODO determine usage?
-            @NotNull final String[] node,
+            @NotNull final List<String> parentNode,
+            @NotNull final List<String> node,
             @NotNull final String description,
             @NotNull final PermissionDefault permissionDefault
     ) {
