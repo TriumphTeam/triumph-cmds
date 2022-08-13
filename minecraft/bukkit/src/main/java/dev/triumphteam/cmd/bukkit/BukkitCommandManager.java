@@ -144,16 +144,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     public void unregisterCommand(@NotNull final BaseCommand command) {
         // TODO add a remove functionality
     }
-
-    public void setBasePermissions(@NotNull final List<String> basePermissions) {
-        this.basePermissions = basePermissions;
-    }
-
-    @NotNull
-    public List<String> getBasePermissions() {
-        return basePermissions;
-    }
-
+    
     @NotNull
     @Override
     protected RegistryContainer<S> getRegistryContainer() {
