@@ -65,7 +65,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     private final CommandMap commandMap;
     private final Map<String, org.bukkit.command.Command> bukkitCommands;
 
-    private String basePermission = "";
+    private String[] basePermission = {""};
 
     private BukkitCommandManager(
             @NotNull final Plugin plugin,
@@ -146,12 +146,12 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         // TODO add a remove functionality
     }
 
-    public void setBasePermission(@NotNull final String basePermission) {
+    public void setBasePermission(@NotNull final String[] basePermission) {
         this.basePermission = basePermission;
     }
 
     @NotNull
-    public String getBasePermission() {
+    public String[] getBasePermission() {
         return basePermission;
     }
 

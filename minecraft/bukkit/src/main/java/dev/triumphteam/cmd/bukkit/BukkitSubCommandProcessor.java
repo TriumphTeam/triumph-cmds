@@ -32,10 +32,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private final CommandPermission permission;
+    private ArrayList<CommandPermission> permissions = new ArrayList<>();
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -43,18 +45,18 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
             @NotNull final Method method,
             @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderValidator<S> senderValidator,
-            @Nullable final CommandPermission basePermission
+            @Nullable final ArrayList<CommandPermission> basePermissions
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
 
         final Permission annotation = method.getAnnotation(Permission.class);
         if (annotation == null) {
-            this.permission = basePermission;
+            this.permissions = basePermissions;
             return;
         }
-
-        this.permission = BukkitCommandProcessor.createPermission(
-                basePermission == null ? "" : basePermission.getNode(),
+        String[] permissionStrings = basePermissions.stream().map(CommandPermission::getNode).collect(Collectors.toList()).toArray(new String[0]);
+        permissions = BukkitCommandProcessor.createPermissions(
+                permissionStrings,
                 annotation.value(),
                 annotation.description(),
                 annotation.def()
@@ -62,7 +64,7 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
     }
 
     @Nullable
-    public CommandPermission getPermission() {
-        return permission;
+    public ArrayList<CommandPermission> getPermissions() {
+        return permissions;
     }
 }

@@ -35,10 +35,11 @@ import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.*;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
-    private final CommandPermission basePermission;
+    private final ArrayList<CommandPermission> basePermissions;
 
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -47,18 +48,18 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final SenderValidator<S> senderValidator,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider,
-            @NotNull final String globalBasePermission
+            @NotNull final String[] globalBasePermissions
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
 
         final Permission annotation = getAnnotatedClass().getAnnotation(Permission.class);
         if (annotation == null) {
-            this.basePermission = null;
+            this.basePermissions = null;
             return;
         }
 
-        this.basePermission = createPermission(
-                globalBasePermission,
+        this.basePermissions = createPermissions(
+                globalBasePermissions,
                 annotation.value(),
                 annotation.description(),
                 annotation.def()
@@ -74,7 +75,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
                 method,
                 getRegistryContainer(),
                 getSenderValidator(),
-                basePermission
+                basePermissions
         );
     }
 
@@ -87,19 +88,21 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
         return new BukkitSubCommand<>(processor, getName(), executionProvider);
     }
 
-    static CommandPermission createPermission(
-            @NotNull final String parentNode,
-            @NotNull final String node,
+    static ArrayList<CommandPermission> createPermissions(
+            @NotNull final String[] parentNode,
+            @NotNull final String[] node,
             @NotNull final String description,
             @NotNull final PermissionDefault permissionDefault
     ) {
-        final StringBuilder permissionBuilder = new StringBuilder();
-        if (!parentNode.isEmpty()) {
-            permissionBuilder.append(parentNode);
-            if (!node.isEmpty()) permissionBuilder.append(".");
-        }
-        permissionBuilder.append(node);
+        ArrayList<CommandPermission> permissions = new ArrayList<>();
 
-        return new CommandPermission(permissionBuilder.toString(), description, permissionDefault);
+        List<String> permissionsList = Arrays.asList(parentNode);
+        ListIterator<String> it = permissionsList.listIterator();
+        while(it.hasNext()) {
+            String permissionBuilder = it.next() + node[it.nextIndex()];
+            permissions.add(new CommandPermission(permissionBuilder, description, permissionDefault));
+        }
+
+        return permissions;
     }
 }
