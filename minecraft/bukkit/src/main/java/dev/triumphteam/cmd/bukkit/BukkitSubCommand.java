@@ -44,7 +44,10 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         super(processor, parentName, executionProvider);
         this.permissions = processor.getPermissions();
 
-        if (this.permissions != null) this.permissions.forEach(CommandPermission::register);
+        if (this.permissions != null) {
+            this.permissions.forEach(CommandPermission::register);
+            this.permissions.forEach(commandPermission -> System.out.println(commandPermission.getNode() + " for /" + parentName + " " + processor.getName()));
+        }
     }
 
     public List<String> getSuggestions(@NotNull final S sender, @NotNull final List<String> args) {
