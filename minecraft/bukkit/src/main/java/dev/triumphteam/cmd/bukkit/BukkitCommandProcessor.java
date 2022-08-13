@@ -89,7 +89,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
     }
 
     static ArrayList<CommandPermission> createPermissions(
-            @NotNull final String[] parentNode,
+            @NotNull final String[] parentNode, // TODO determine usage?
             @NotNull final String[] node,
             @NotNull final String description,
             @NotNull final PermissionDefault permissionDefault
