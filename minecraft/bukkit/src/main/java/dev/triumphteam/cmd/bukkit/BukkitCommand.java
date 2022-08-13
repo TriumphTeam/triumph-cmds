@@ -38,7 +38,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -170,13 +169,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     }
 
     private boolean hasPermission(@NotNull final List<CommandPermission> permissions, @NotNull final CommandSender sender) {
-        AtomicBoolean hasPermission = new AtomicBoolean(false);
-        permissions.forEach(permission -> {
-            if(sender.hasPermission(permission.getNode())) {
-                hasPermission.set(true);
-            }
-        });
-
-        return hasPermission.get();
+        return permissions.stream().anyMatch(p -> sender.hasPermission(p.getNode()));
     }
 }
