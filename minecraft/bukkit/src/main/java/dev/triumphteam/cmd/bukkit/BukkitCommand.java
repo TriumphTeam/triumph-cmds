@@ -168,6 +168,12 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
     }
 
+    /**
+     * Checks if a {@link CommandSender} has any of the permissions from a {@link List<CommandPermission>}
+     * @param permissions The list of permissions
+     * @param sender
+     * @return true if the sender has any of the permissions in the list
+     */
     private boolean hasPermission(@NotNull final List<CommandPermission> permissions, @NotNull final CommandSender sender) {
         return permissions.stream().anyMatch(p -> sender.hasPermission(p.getNode()));
     }
