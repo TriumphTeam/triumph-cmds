@@ -32,11 +32,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.List;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private final ArrayList<CommandPermission> permissions;
+    private final List<CommandPermission> permissions;
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -44,7 +44,7 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
             @NotNull final Method method,
             @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderValidator<S> senderValidator,
-            @Nullable final ArrayList<CommandPermission> basePermissions
+            @Nullable final List<CommandPermission> basePermissions
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
 
@@ -64,7 +64,7 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
     }
 
     @Nullable
-    public ArrayList<CommandPermission> getPermissions() {
+    public List<CommandPermission> getPermissions() {
         return permissions;
     }
 }

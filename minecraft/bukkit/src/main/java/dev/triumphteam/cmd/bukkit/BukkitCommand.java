@@ -91,7 +91,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             return true;
         }
 
-        final ArrayList<CommandPermission> permissions = subCommand.getPermissions();
+        final List<CommandPermission> permissions = subCommand.getPermissions();
         if (permissions != null && !hasPermission(permissions, sender)) {
             messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permissions.get(0).getNode()));
             return true;
@@ -116,7 +116,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
                     .filter(it -> !it.getValue().isDefault())
                     .filter(it -> it.getKey().startsWith(arg))
                     .filter(it -> {
-                        final ArrayList<CommandPermission> permissions = it.getValue().getPermissions();
+                        final List<CommandPermission> permissions = it.getValue().getPermissions();
                         if (permissions == null) return false;
                         return hasPermission(permissions, sender);
                     })
@@ -127,7 +127,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         if (subCommandExists(arg)) subCommand = getSubCommand(arg);
         if (subCommand == null) return emptyList();
 
-        final ArrayList<CommandPermission> permissions = subCommand.getPermissions();
+        final List<CommandPermission> permissions = subCommand.getPermissions();
         if (permissions != null && hasPermission(permissions, sender)) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
@@ -169,7 +169,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
     }
 
-    private boolean hasPermission(@NotNull final ArrayList<CommandPermission> permissions, @NotNull final CommandSender sender) {
+    private boolean hasPermission(@NotNull final List<CommandPermission> permissions, @NotNull final CommandSender sender) {
         AtomicBoolean hasPermission = new AtomicBoolean(false);
         permissions.forEach(permission -> {
             if(sender.hasPermission(permission.getNode())) {

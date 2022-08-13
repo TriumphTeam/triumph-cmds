@@ -39,7 +39,7 @@ import java.util.*;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
-    private final ArrayList<CommandPermission> basePermissions;
+    private final List<CommandPermission> basePermissions;
 
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -88,13 +88,13 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
         return new BukkitSubCommand<>(processor, getName(), executionProvider);
     }
 
-    static ArrayList<CommandPermission> createPermissions(
+    static List<CommandPermission> createPermissions(
             @NotNull final String[] parentNode, // TODO determine usage?
             @NotNull final String[] node,
             @NotNull final String description,
             @NotNull final PermissionDefault permissionDefault
     ) {
-        ArrayList<CommandPermission> permissions = new ArrayList<>();
+        List<CommandPermission> permissions = new ArrayList<>();
         for (String permission : node) {
             permissions.add(new CommandPermission(permission, description, permissionDefault));
         }

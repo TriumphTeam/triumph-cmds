@@ -31,14 +31,13 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
 
 public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
-    private final ArrayList<CommandPermission> permissions;
+    private final List<CommandPermission> permissions;
 
     public BukkitSubCommand(@NotNull final BukkitSubCommandProcessor<S> processor, @NotNull final String parentName, @NotNull final ExecutionProvider executionProvider) {
         super(processor, parentName, executionProvider);
@@ -67,7 +66,7 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
     // TODO: Comments
     @Nullable
-    public ArrayList<CommandPermission> getPermissions() {
+    public List<CommandPermission> getPermissions() {
         return permissions;
     }
 }
