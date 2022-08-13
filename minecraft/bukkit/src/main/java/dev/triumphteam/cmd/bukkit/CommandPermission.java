@@ -55,7 +55,6 @@ final class CommandPermission {
      */
     public void register() {
         final PluginManager pluginManager = Bukkit.getPluginManager();
-        System.out.println(node);
         // Don't register if already registered
         final Permission permission = pluginManager.getPermission(node);
         if (permission != null) return;

@@ -95,12 +95,8 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final PermissionDefault permissionDefault
     ) {
         ArrayList<CommandPermission> permissions = new ArrayList<>();
-
-        List<String> permissionsList = Arrays.asList(parentNode);
-        ListIterator<String> it = permissionsList.listIterator();
-        while(it.hasNext()) {
-            String permissionBuilder = it.next() + node[it.nextIndex()];
-            permissions.add(new CommandPermission(permissionBuilder, description, permissionDefault));
+        for (String permission : node) {
+            permissions.add(new CommandPermission(permission, description, permissionDefault));
         }
 
         return permissions;

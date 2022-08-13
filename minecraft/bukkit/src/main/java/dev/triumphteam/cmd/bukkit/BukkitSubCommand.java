@@ -46,7 +46,6 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
         if (this.permissions != null) {
             this.permissions.forEach(CommandPermission::register);
-            this.permissions.forEach(commandPermission -> System.out.println(commandPermission.getNode() + " for /" + parentName + " " + processor.getName()));
         }
     }
 

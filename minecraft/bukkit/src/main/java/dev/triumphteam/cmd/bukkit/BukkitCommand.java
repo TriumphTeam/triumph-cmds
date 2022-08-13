@@ -172,7 +172,9 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private boolean hasPermission(@NotNull final ArrayList<CommandPermission> permissions, @NotNull final CommandSender sender) {
         AtomicBoolean hasPermission = new AtomicBoolean(false);
         permissions.forEach(permission -> {
-            if(sender.hasPermission(permission.getNode())) hasPermission.set(true);
+            if(sender.hasPermission(permission.getNode())) {
+                hasPermission.set(true);
+            }
         });
 
         return hasPermission.get();

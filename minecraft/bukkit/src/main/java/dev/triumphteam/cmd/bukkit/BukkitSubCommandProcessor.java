@@ -33,11 +33,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private ArrayList<CommandPermission> permissions = new ArrayList<>();
+    private final ArrayList<CommandPermission> permissions;
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -54,7 +53,8 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
             this.permissions = basePermissions;
             return;
         }
-        String[] permissionStrings = basePermissions.stream().map(CommandPermission::getNode).collect(Collectors.toList()).toArray(new String[0]);
+        @Nullable String[] permissionStrings = new String[]{""};
+        if(basePermissions != null) permissionStrings = basePermissions.stream().map(CommandPermission::getNode).toArray(String[]::new);
         permissions = BukkitCommandProcessor.createPermissions(
                 permissionStrings,
                 annotation.value(),
