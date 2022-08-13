@@ -90,14 +90,20 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
     }
 
     static List<CommandPermission> createPermissions(
-            @NotNull final List<String> parentNode,
-            @NotNull final List<String> node,
+            @NotNull final List<String> parentNodes,
+            @NotNull final List<String> nodes,
             @NotNull final String description,
             @NotNull final PermissionDefault permissionDefault
     ) {
         List<CommandPermission> permissions = new ArrayList<>();
-        for (String permission : node) {
-            permissions.add(new CommandPermission(permission, description, permissionDefault));
+        if(!parentNodes.isEmpty()) {
+            for (String parentNode : parentNodes)
+                for (String node : nodes)
+                    permissions.add(new CommandPermission(parentNode + "." + node, description, permissionDefault));
+        } else {
+            for (String node : nodes) {
+                permissions.add(new CommandPermission(node, description, permissionDefault));
+            }
         }
 
         return permissions;
