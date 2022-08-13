@@ -65,7 +65,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     private final CommandMap commandMap;
     private final Map<String, org.bukkit.command.Command> bukkitCommands;
 
-    private String[] basePermission = {""};
+    private String[] basePermissions = {""};
 
     private BukkitCommandManager(
             @NotNull final Plugin plugin,
@@ -127,7 +127,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
                 getSenderValidator(),
                 syncExecutionProvider,
                 asyncExecutionProvider,
-                basePermission
+                basePermissions
         );
 
         final BukkitCommand<S> command = commands.computeIfAbsent(processor.getName(), ignored -> createAndRegisterCommand(processor.getName(), processor));
@@ -146,13 +146,13 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         // TODO add a remove functionality
     }
 
-    public void setBasePermission(@NotNull final String[] basePermission) {
-        this.basePermission = basePermission;
+    public void setBasePermissions(@NotNull final String[] basePermissions) {
+        this.basePermissions = basePermissions;
     }
 
     @NotNull
-    public String[] getBasePermission() {
-        return basePermission;
+    public String[] getBasePermissions() {
+        return basePermissions;
     }
 
     @NotNull
