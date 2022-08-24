@@ -49,7 +49,7 @@ final class PrefixedCommandSender implements PrefixedSender {
         this.message = message;
         this.user = message.getAuthor();
         this.member = message.getMember();
-        this.channel = message.getTextChannel();
+        this.channel = message.getChannel().asTextChannel();
         this.guild = message.getGuild();
         this.jda = message.getJDA();
     }
