@@ -36,6 +36,7 @@ import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +55,7 @@ import java.util.stream.Collectors;
  *
  * @param <S> The sender type.
  */
-public abstract class SubCommand<S> {
+public abstract class SubCommand<S> extends LimitlessInternalArgument<S> {
 
     private final BaseCommand baseCommand;
     private final Method method;
@@ -82,6 +83,7 @@ public abstract class SubCommand<S> {
             @NotNull final String parentName,
             @NotNull final ExecutionProvider executionProvider
     ) {
+        super(processor.getName(), processor.getDescription(), String.class, new EmptySuggestion<>(), 0, false);
         this.baseCommand = processor.getBaseCommand();
         this.method = processor.getMethod();
         this.name = processor.getName();

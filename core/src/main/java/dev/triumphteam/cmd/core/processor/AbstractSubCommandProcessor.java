@@ -201,7 +201,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The sub command name.
      */
-    @Nullable
+    @NotNull
     public String getName() {
         return name;
     }
