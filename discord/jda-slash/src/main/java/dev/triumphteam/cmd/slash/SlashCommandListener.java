@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,10 +28,12 @@ import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -49,6 +51,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
 
     private final SlashCommandManager<S> commandManager;
     private final SenderMapper<SlashSender, S> senderMapper;
+    private final AttachmentRegistry attachmentRegistry;
 
     public SlashCommandListener(
             @NotNull final SlashCommandManager<S> commandManager,
@@ -56,6 +59,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
     ) {
         this.commandManager = commandManager;
         this.senderMapper = senderMapper;
+        this.attachmentRegistry = commandManager.getRegistryContainer().getAttachmentRegistry();
     }
 
     /**
@@ -73,7 +77,6 @@ final class SlashCommandListener<S> extends ListenerAdapter {
             if (guild == null) return;
             command = commandManager.getCommand(guild, name);
         }
-
         if (command == null) return;
 
         final S sender = senderMapper.map(new SlashCommandSender(event));
@@ -82,8 +85,19 @@ final class SlashCommandListener<S> extends ListenerAdapter {
 
         final Map<String, String> args = event.getOptions()
                 .stream()
-                .map(it -> Maps.immutableEntry(it.getName(), it.getAsString()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .map(it -> {
+                    final OptionType type = it.getType();
+                    // Special case for attachments.
+                    if (type == OptionType.ATTACHMENT) {
+                        final Message.Attachment attachment = it.getAsAttachment();
+                        final String id = it.getAsString();
+
+                        attachmentRegistry.addAttachment(id, attachment);
+                        return Maps.immutableEntry(it.getName(), id);
+                    }
+
+                    return Maps.immutableEntry(it.getName(), it.getAsString());
+                }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         command.execute(sender, subCommandName != null ? subCommandName : Default.DEFAULT_CMD_NAME, args);
     }

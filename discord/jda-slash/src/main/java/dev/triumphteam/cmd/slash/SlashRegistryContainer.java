@@ -31,9 +31,15 @@ import org.jetbrains.annotations.NotNull;
 final class SlashRegistryContainer<S> extends RegistryContainer<S> {
 
     private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
+    private final AttachmentRegistry attachmentRegistry = new AttachmentRegistry();
 
     @NotNull
     public ChoiceRegistry getChoiceRegistry() {
         return choiceRegistry;
+    }
+
+    @NotNull
+    public AttachmentRegistry getAttachmentRegistry() {
+        return attachmentRegistry;
     }
 }

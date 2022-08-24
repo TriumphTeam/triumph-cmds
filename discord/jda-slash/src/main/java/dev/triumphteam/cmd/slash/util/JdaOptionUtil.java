@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.slash.util;
 
 import com.google.common.collect.ImmutableMap;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -56,6 +57,7 @@ public final class JdaOptionUtil {
         map.put(Member.class, OptionType.USER);
         map.put(TextChannel.class, OptionType.CHANNEL);
         map.put(MessageChannel.class, OptionType.CHANNEL);
+        map.put(Message.Attachment.class, OptionType.ATTACHMENT);
 
         OPTION_TYPE_MAP = ImmutableMap.copyOf(map);
     }
