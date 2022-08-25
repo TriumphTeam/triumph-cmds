@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.bukkit;
 
 import com.google.common.collect.ImmutableSet;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.core.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.sender.SenderValidator;

@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.subcommand.invoker.Invoker;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -121,22 +122,19 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
 
                 final Constructor<?> constructor = constructors.get(0);
 
-                final Object instance;
+                final boolean isStatic =  Modifier.isStatic(klass.getModifiers());
                 if (!Modifier.isStatic(klass.getModifiers())) {
                     if (constructor.getParameters().length != 1) {
                         throw new SubCommandRegistrationException("TODO params", null, null);
                     }
 
-                    instance = constructor.newInstance(baseCommand);
                 } else {
                     if (constructor.getParameters().length != 0) {
                         throw new SubCommandRegistrationException("TODO params", null, null);
                     }
-
-                    instance = constructor.newInstance();
                 }
 
-                System.out.println(instance);
+                System.out.println(invoker);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }

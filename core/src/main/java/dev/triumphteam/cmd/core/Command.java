@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core;
 
+import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import org.jetbrains.annotations.NotNull;
 
 /**

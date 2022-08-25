@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;

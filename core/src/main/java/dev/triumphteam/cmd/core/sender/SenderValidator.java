@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.sender;
 
-import dev.triumphteam.cmd.core.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 

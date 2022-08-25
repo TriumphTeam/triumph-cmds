@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.slash;
 
 import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
