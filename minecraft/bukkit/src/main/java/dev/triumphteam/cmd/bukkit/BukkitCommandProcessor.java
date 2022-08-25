@@ -51,7 +51,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
 
-        final Permission annotation = getAnnotatedClass().getAnnotation(Permission.class);
+        final Permission annotation = getBaseCommand().getClass().getAnnotation(Permission.class);
         if (annotation == null) {
             this.basePermission = null;
             return;

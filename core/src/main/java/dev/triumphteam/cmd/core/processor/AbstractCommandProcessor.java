@@ -52,8 +52,6 @@ import java.util.Map;
  */
 public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, P extends AbstractSubCommandProcessor<S>> {
 
-    private final Class<?> annotatedClass;
-
     private String name;
     // TODO: 11/28/2021 Add better default description
     private String description = "No description provided.";
@@ -84,7 +82,6 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
         this.syncExecutionProvider = syncExecutionProvider;
         this.asyncExecutionProvider = asyncExecutionProvider;
 
-        this.annotatedClass = extractAnnotationClass();
         extractCommandNames();
         extractDescription();
     }
@@ -191,30 +188,10 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
     }
 
     /**
-     * Gets the annotated class, used for the child processors to get the class with all the main annotations.
-     *
-     * @return The annotated class.
-     */
-    protected Class<?> getAnnotatedClass() {
-        return annotatedClass;
-    }
-
-    /**
-     * Gets the parent class or the current one, the one with all the main annotations.
-     *
-     * @return The class that has all the annotations.
-     */
-    private Class<?> extractAnnotationClass() {
-        final Class<? extends BaseCommand> commandClass = baseCommand.getClass();
-        final Class<?> parent = commandClass.getSuperclass();
-        return parent != BaseCommand.class ? parent : commandClass;
-    }
-
-    /**
      * Helper method for getting the command names from the command annotation.
      */
     private void extractCommandNames() {
-        final Command commandAnnotation = annotatedClass.getAnnotation(Command.class);
+        final Command commandAnnotation = baseCommand.getClass().getAnnotation(Command.class);
 
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
@@ -240,7 +217,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
      * Extracts the {@link Description} Annotation from the annotatedClass.
      */
     private void extractDescription() {
-        final Description description = annotatedClass.getAnnotation(Description.class);
+        final Description description = baseCommand.getClass().getAnnotation(Description.class);
         if (description == null) return;
         this.description = description.value();
     }
