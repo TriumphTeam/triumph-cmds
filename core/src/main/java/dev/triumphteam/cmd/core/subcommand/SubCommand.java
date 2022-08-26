@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
 public abstract class SubCommand<S> extends LimitlessInternalArgument<S> {
 
     private final BaseCommand baseCommand;
-    private final Method method;
+    private final Method method = null;
 
     private final String parentName;
     private final String name;
@@ -86,7 +86,7 @@ public abstract class SubCommand<S> extends LimitlessInternalArgument<S> {
     ) {
         super(processor.getName(), processor.getDescription(), String.class, new EmptySuggestion<>(), 0, false);
         this.baseCommand = processor.getBaseCommand();
-        this.method = processor.getMethod();
+        // this.method = processor.getAnnotatedElement();
         this.name = processor.getName();
         this.alias = processor.getAlias();
         this.internalArguments = processor.getArguments();
@@ -166,7 +166,7 @@ public abstract class SubCommand<S> extends LimitlessInternalArgument<S> {
         if (!meetRequirements(sender)) return;
 
         // Creates the invoking arguments list
-        final List<Object> invokeArguments = new ArrayList<>();
+        final List<java.lang.Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
         if (!validateAndCollectArguments(sender, invokeArguments, args)) {
@@ -241,7 +241,7 @@ public abstract class SubCommand<S> extends LimitlessInternalArgument<S> {
     @SuppressWarnings("unchecked")
     private boolean validateAndCollectArguments(
             @NotNull final S sender,
-            @NotNull final List<Object> invokeArguments,
+            @NotNull final List<java.lang.Object> invokeArguments,
             @NotNull final List<String> commandArgs
     ) {
         for (int i = 0; i < internalArguments.size(); i++) {
@@ -251,7 +251,7 @@ public abstract class SubCommand<S> extends LimitlessInternalArgument<S> {
                 final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
                 final List<String> leftOvers = leftOvers(commandArgs, i);
 
-                final Object result = limitlessArgument.resolve(sender, leftOvers);
+                final java.lang.Object result = limitlessArgument.resolve(sender, leftOvers);
 
                 if (result == null) {
                     return false;
@@ -278,7 +278,7 @@ public abstract class SubCommand<S> extends LimitlessInternalArgument<S> {
                 return false;
             }
 
-            final Object result = stringArgument.resolve(sender, arg);
+            final java.lang.Object result = stringArgument.resolve(sender, arg);
             if (result == null) {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,

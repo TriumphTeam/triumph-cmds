@@ -82,7 +82,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -115,7 +115,7 @@ public abstract class AbstractSubCommandProcessor<S> {
     private final BaseCommand baseCommand;
     private final String parentName;
 
-    private final Method method;
+    private final AnnotatedElement annotatedElement;
     // Name is nullable to detect if the method should or not be considered a sub command.
     private String name = null;
     // TODO: 11/28/2021 Add better default description
@@ -146,14 +146,14 @@ public abstract class AbstractSubCommandProcessor<S> {
     protected AbstractSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
-            @NotNull final Method method,
+            @NotNull final AnnotatedElement annotatedElement,
             @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderValidator<S> senderValidator
     ) {
         this.baseCommand = baseCommand;
         this.parentName = parentName;
 
-        this.method = method;
+        this.annotatedElement = annotatedElement;
 
         this.registryContainer = registryContainer;
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
@@ -163,7 +163,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         this.messageRegistry = registryContainer.getMessageRegistry();
         this.senderValidator = senderValidator;
 
-        this.isAsync = method.isAnnotationPresent(Async.class);
+        this.isAsync = annotatedElement.isAnnotationPresent(Async.class);
 
         extractSubCommandNames();
         if (name == null) return;
@@ -173,17 +173,17 @@ public abstract class AbstractSubCommandProcessor<S> {
         extractDescription();
         extractArgDescriptions();
         extractSuggestions();
-        extractArguments(method);
+        extractArguments(annotatedElement);
         validateArguments();
     }
 
     /**
      * Allows for customizing the internalArgument parsing, for example <code>@Value</code> and <code>@Completion</code> annotations.
      *
-     * @param method The method to search from.
+     * @param annotatedElement The method to search from.
      */
-    protected void extractArguments(@NotNull final Method method) {
-        final Parameter[] parameters = method.getParameters();
+    protected void extractArguments(@NotNull final AnnotatedElement annotatedElement) {
+        /*final Parameter[] parameters = annotatedElement.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
             if (i == 0) {
@@ -192,7 +192,7 @@ public abstract class AbstractSubCommandProcessor<S> {
             }
 
             createArgument(parameter, i - 1);
-        }
+        }*/
     }
 
     /**
@@ -201,7 +201,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The sub command name.
      */
-    @NotNull
+    @Nullable
     public String getName() {
         return name;
     }
@@ -260,14 +260,10 @@ public abstract class AbstractSubCommandProcessor<S> {
         return baseCommand;
     }
 
-    /**
-     * Gets the method.
-     *
-     * @return The method.
-     */
+    // TODO comments
     @NotNull
-    public Method getMethod() {
-        return method;
+    public AnnotatedElement getAnnotatedElement() {
+        return annotatedElement;
     }
 
     /**
@@ -310,7 +306,7 @@ public abstract class AbstractSubCommandProcessor<S> {
     @NotNull
     @Contract("_ -> new")
     protected SubCommandRegistrationException createException(@NotNull final String message) {
-        return new SubCommandRegistrationException(message, method, baseCommand.getClass());
+        return new SubCommandRegistrationException(message, annotatedElement, baseCommand.getClass());
     }
 
     /**
@@ -436,7 +432,7 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         // Handler for named arguments
         if (type == Arguments.class) {
-            final NamedArguments namedArguments = method.getAnnotation(NamedArguments.class);
+            final NamedArguments namedArguments = annotatedElement.getAnnotation(NamedArguments.class);
             if (namedArguments == null) {
                 throw createException("TODO");
             }
@@ -610,8 +606,8 @@ public abstract class AbstractSubCommandProcessor<S> {
      * Extracts the data from the method to retrieve the sub command name or the default name.
      */
     private void extractSubCommandNames() {
-        final Default defaultAnnotation = method.getAnnotation(Default.class);
-        final dev.triumphteam.cmd.core.annotation.SubCommand subCommandAnnotation = method.getAnnotation(dev.triumphteam.cmd.core.annotation.SubCommand.class);
+        final Default defaultAnnotation = annotatedElement.getAnnotation(Default.class);
+        final dev.triumphteam.cmd.core.annotation.SubCommand subCommandAnnotation = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotation.SubCommand.class);
 
         if (defaultAnnotation == null && subCommandAnnotation == null) {
             return;
@@ -626,10 +622,6 @@ public abstract class AbstractSubCommandProcessor<S> {
 
         name = subCommandAnnotation.value().toLowerCase();
         alias.addAll(Arrays.stream(subCommandAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
-
-        if (this.name.isEmpty()) {
-            throw createException("@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty");
-        }
     }
 
     /**
@@ -642,7 +634,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         for (final Flag flagAnnotation : flags) {
             String flag = flagAnnotation.flag();
             if (flag.isEmpty()) flag = null;
-            FlagValidator.validate(flag, method, baseCommand);
+            FlagValidator.validate(flag, annotatedElement, baseCommand);
 
             String longFlag = flagAnnotation.longFlag();
             if (longFlag.contains(" ")) {
@@ -702,10 +694,10 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @return The list of flags.
      */
     private List<Flag> getFlagsFromAnnotations() {
-        final CommandFlags flags = method.getAnnotation(CommandFlags.class);
+        final CommandFlags flags = annotatedElement.getAnnotation(CommandFlags.class);
         if (flags != null) return Arrays.asList(flags.value());
 
-        final Flag flag = method.getAnnotation(Flag.class);
+        final Flag flag = annotatedElement.getAnnotation(Flag.class);
         if (flag == null) return Collections.emptyList();
         return Collections.singletonList(flag);
     }
@@ -737,10 +729,10 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @return The list of requirements.
      */
     private List<dev.triumphteam.cmd.core.annotation.Requirement> getRequirementsFromAnnotations() {
-        final Requirements requirements = method.getAnnotation(Requirements.class);
+        final Requirements requirements = annotatedElement.getAnnotation(Requirements.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
-        final dev.triumphteam.cmd.core.annotation.Requirement requirement = method.getAnnotation(dev.triumphteam.cmd.core.annotation.Requirement.class);
+        final dev.triumphteam.cmd.core.annotation.Requirement requirement = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotation.Requirement.class);
         if (requirement == null) return Collections.emptyList();
         return Collections.singletonList(requirement);
     }
@@ -799,7 +791,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      * Extracts the {@link Description} Annotation from the Method.
      */
     private void extractDescription() {
-        final Description description = method.getAnnotation(Description.class);
+        final Description description = annotatedElement.getAnnotation(Description.class);
         if (description == null) return;
         this.description = description.value();
     }
@@ -808,7 +800,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      * Extracts the {@link ArgDescriptions} Annotation from the Method.
      */
     private void extractArgDescriptions() {
-        final ArgDescriptions argDescriptions = method.getAnnotation(ArgDescriptions.class);
+        final ArgDescriptions argDescriptions = annotatedElement.getAnnotation(ArgDescriptions.class);
         if (argDescriptions == null) return;
         this.argDescriptions.addAll(Arrays.asList(argDescriptions.value()));
     }
@@ -841,7 +833,8 @@ public abstract class AbstractSubCommandProcessor<S> {
      * Adds the suggestions to the passed list.
      */
     private void extractSuggestionFromParams() {
-        final Parameter[] parameters = method.getParameters();
+        // TODO SUGGESTIONS
+        /*final Parameter[] parameters = annotatedElement.getParameters();
         for (int i = 1; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
 
@@ -851,7 +844,7 @@ public abstract class AbstractSubCommandProcessor<S> {
             final Class<?> type = getGenericType(parameter);
             final int addIndex = i - 1;
             setOrAddSuggestion(addIndex, createSuggestion(suggestionKey, type));
-        }
+        }*/
     }
 
     @NotNull
@@ -897,10 +890,10 @@ public abstract class AbstractSubCommandProcessor<S> {
     }
 
     private List<dev.triumphteam.cmd.core.annotation.Suggestion> getSuggestionsFromAnnotations() {
-        final Suggestions requirements = method.getAnnotation(Suggestions.class);
+        final Suggestions requirements = annotatedElement.getAnnotation(Suggestions.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
-        final dev.triumphteam.cmd.core.annotation.Suggestion suggestion = method.getAnnotation(dev.triumphteam.cmd.core.annotation.Suggestion.class);
+        final dev.triumphteam.cmd.core.annotation.Suggestion suggestion = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotation.Suggestion.class);
         if (suggestion == null) return emptyList();
         return singletonList(suggestion);
     }

@@ -26,7 +26,7 @@ package dev.triumphteam.cmd.core.exceptions;
 import dev.triumphteam.cmd.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * Throws when sub command registration fails.
@@ -35,10 +35,10 @@ public final class SubCommandRegistrationException extends RuntimeException {
 
     public SubCommandRegistrationException(
             @NotNull final String message,
-            @NotNull final Method method,
+            @NotNull final AnnotatedElement element,
             @NotNull final Class<? extends BaseCommand> commandClass
     ) {
-        super(message + ". In Method \"" + method.getName() + "\" in Class \"" + commandClass.getName() + "\"");
+        super(message + ". In Method \"" + element + "\" in Class \"" + commandClass.getName() + "\"");
     }
 
 }

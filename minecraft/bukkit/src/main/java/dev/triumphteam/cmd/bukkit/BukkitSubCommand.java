@@ -67,4 +67,9 @@ public final class BukkitSubCommand<S> extends SubCommand<S> {
     public CommandPermission getPermission() {
         return permission;
     }
+
+    @Override
+    public @Nullable Object resolve(@NotNull final S sender, final @NotNull List<String> value) {
+        return null;
+    }
 }

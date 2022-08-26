@@ -31,7 +31,7 @@ import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
@@ -40,14 +40,14 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
-            @NotNull final Method method,
+            @NotNull final AnnotatedElement annotatedElement,
             @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderValidator<S> senderValidator,
             @Nullable final CommandPermission basePermission
     ) {
-        super(baseCommand, parentName, method, registryContainer, senderValidator);
+        super(baseCommand, parentName, annotatedElement, registryContainer, senderValidator);
 
-        final Permission annotation = method.getAnnotation(Permission.class);
+        final Permission annotation = annotatedElement.getAnnotation(Permission.class);
         if (annotation == null) {
             this.permission = basePermission;
             return;

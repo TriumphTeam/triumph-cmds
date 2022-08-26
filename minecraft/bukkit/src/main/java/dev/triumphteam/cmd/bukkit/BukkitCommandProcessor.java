@@ -34,7 +34,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
@@ -67,7 +67,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
 
     @NotNull
     @Override
-    protected BukkitSubCommandProcessor<S> createProcessor(@NotNull final Method method) {
+    protected BukkitSubCommandProcessor<S> createProcessor(@NotNull final AnnotatedElement method) {
         return new BukkitSubCommandProcessor<>(
                 getBaseCommand(),
                 getName(),

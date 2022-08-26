@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
@@ -33,11 +32,11 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.subcommand.invoker.Invoker;
+import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -97,12 +96,23 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
     // TODO: Comments
     public void addSubCommands(@NotNull final dev.triumphteam.cmd.core.Command<S, SC> command) {
         final Class<? extends BaseCommand> baseCommandClass = baseCommand.getClass();
+        // Method sub commands
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
+            // TODO: ALLOW PRIVATE
             if (Modifier.isPrivate(method.getModifiers())) continue;
 
             final P processor = createProcessor(method);
             final String subCommandName = processor.getName();
+            // Not a command
             if (subCommandName == null) continue;
+
+            if (subCommandName.isEmpty()) {
+                throw new SubCommandRegistrationException(
+                        "@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty",
+                        method,
+                        baseCommand.getClass()
+                );
+            }
 
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
 
@@ -112,37 +122,44 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
             processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
         }
 
+        // Classes sub commands
         for (final Class<?> klass : baseCommandClass.getDeclaredClasses()) {
-            try {
-                final List<Constructor<?>> constructors = Arrays.asList(klass.getDeclaredConstructors());
+            final List<Constructor<?>> constructors = Arrays.asList(klass.getDeclaredConstructors());
 
-                if (constructors.size() != 1) {
-                    throw new SubCommandRegistrationException("TODO constructs", null, null);
-                }
-
-                final Constructor<?> constructor = constructors.get(0);
-
-                final boolean isStatic =  Modifier.isStatic(klass.getModifiers());
-                if (!Modifier.isStatic(klass.getModifiers())) {
-                    if (constructor.getParameters().length != 1) {
-                        throw new SubCommandRegistrationException("TODO params", null, null);
-                    }
-
-                } else {
-                    if (constructor.getParameters().length != 0) {
-                        throw new SubCommandRegistrationException("TODO params", null, null);
-                    }
-                }
-
-                System.out.println(invoker);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+            if (constructors.size() != 1) {
+                throw new SubCommandRegistrationException("TODO constructs", null, null);
             }
+
+            final Constructor<?> constructor = constructors.get(0);
+
+            final boolean isStatic = Modifier.isStatic(klass.getModifiers());
+            final int argsSize = isStatic ? constructor.getParameterCount() : constructor.getParameterCount() - 1;
+
+            if (argsSize > 1) {
+                throw new SubCommandRegistrationException("TODO params", null, null);
+            }
+
+            final boolean hasArg = argsSize > 0;
+
+            final P processor = createProcessor(klass);
+            final String subCommandName = processor.getName();
+            // Not a command
+            if (subCommandName == null) continue;
+            // If the name is empty and there is no arguments
+            if (subCommandName.isEmpty() && !hasArg) {
+                throw new SubCommandRegistrationException(
+                        "@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty on a class unless it has an argument.",
+                        klass,
+                        baseCommand.getClass()
+                );
+            }
+
+            
         }
     }
 
     @NotNull
-    protected abstract P createProcessor(@NotNull final Method method);
+    protected abstract P createProcessor(@NotNull final AnnotatedElement method);
 
     @NotNull
     protected abstract SC createSubCommand(@NotNull final P processor, @NotNull final ExecutionProvider executionProvider);
