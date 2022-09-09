@@ -21,25 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.cli;
+package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
-final class CliSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S, S, SimpleSubCommand<S>, SimpleSubCommandProcessor<S>> {
 
-    public CliSubCommandProcessor(
+    public SimpleCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final Method method,
             @NotNull final RegistryContainer<S> registries,
-            @NotNull final SenderValidator<S> senderValidator
+            @NotNull final SenderMapper<S, S> senderMapper,
+            @NotNull final SenderValidator<S> senderValidator,
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
-        super(baseCommand, parentName, method, registries, senderValidator);
+        super(baseCommand, registries, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected SimpleSubCommandProcessor<S> createProcessor(@NotNull Method method) {
+        return new SimpleSubCommandProcessor<S>(
+                getBaseCommand(),
+                method.getName(),
+                method,
+                getRegistryContainer(),
+                getSenderValidator()
+        );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected SimpleSubCommand<S> createSubCommand(@NotNull SimpleSubCommandProcessor<S> processor, @NotNull ExecutionProvider executionProvider) {
+        return new SimpleSubCommand<S>(processor, getName(), executionProvider);
     }
 }

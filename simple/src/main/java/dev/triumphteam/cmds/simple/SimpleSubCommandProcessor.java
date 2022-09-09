@@ -21,53 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.cli;
+package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
+import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmds.cli.sender.CliSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
-public final class CliCommandProcessor<S> extends AbstractCommandProcessor<CliSender, S, CliSubCommand<S>, CliSubCommandProcessor<S>> {
+final class SimpleSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    public CliCommandProcessor(
+    public SimpleSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
+            @NotNull final String parentName,
+            @NotNull final Method method,
             @NotNull final RegistryContainer<S> registries,
-            @NotNull final SenderMapper<CliSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, registries, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    protected CliSubCommandProcessor<S> createProcessor(@NotNull Method method) {
-        return new CliSubCommandProcessor<S>(
-                getBaseCommand(),
-                method.getName(),
-                method,
-                getRegistryContainer(),
-                getSenderValidator()
-        );
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @NotNull
-    @Override
-    protected CliSubCommand<S> createSubCommand(@NotNull CliSubCommandProcessor<S> processor, @NotNull ExecutionProvider executionProvider) {
-        return new CliSubCommand<S>(processor, getName(), executionProvider);
+        super(baseCommand, parentName, method, registries, senderValidator);
     }
 }

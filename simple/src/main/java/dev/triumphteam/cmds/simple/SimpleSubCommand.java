@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.cli;
+package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import org.jetbrains.annotations.NotNull;
 
-public final class CliSubCommand<S> extends AbstractSubCommand<S> {
+public final class SimpleSubCommand<S> extends AbstractSubCommand<S> {
 
-    public CliSubCommand(
-            @NotNull final CliSubCommandProcessor<S> processor,
+    public SimpleSubCommand(
+            @NotNull final SimpleSubCommandProcessor<S> processor,
             @NotNull final String parentName,
             @NotNull final ExecutionProvider executionProvider
     ) {
