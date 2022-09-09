@@ -25,13 +25,13 @@ package dev.triumphteam.cmd.slash.sender;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -107,7 +107,7 @@ public interface SlashSender {
      * @return The reply action.
      */
     @NotNull
-    ReplyCallbackAction reply(@NotNull final Message message);
+    ReplyCallbackAction reply(@NotNull final MessageCreateData message);
 
     /**
      * Replies to the command with a message embed.

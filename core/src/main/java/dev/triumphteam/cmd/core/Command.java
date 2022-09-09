@@ -25,8 +25,6 @@ package dev.triumphteam.cmd.core;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 /**
  * Command interface which all platforms will implement.
  *
@@ -35,15 +33,8 @@ import java.util.Map;
  */
 public interface Command<S, SC extends SubCommand<S>> {
 
-    /**
-     * Adds the subcommands and its aliases to the sub command maps.
-     *
-     * @param subCommands       The sub command map.
-     * @param subCommandAliases The sub command aliases map.
-     */
-    void addSubCommands(
-            @NotNull final Map<String, SC> subCommands,
-            @NotNull final Map<String, SC> subCommandAliases
-    );
 
+    void addSubCommand(@NotNull final String name, @NotNull final SC subCommand);
+
+    void addSubCommandAlias(@NotNull final String alias, @NotNull final SC subCommand);
 }

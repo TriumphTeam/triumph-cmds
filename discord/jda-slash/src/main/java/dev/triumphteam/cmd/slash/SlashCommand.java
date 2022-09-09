@@ -24,13 +24,14 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -54,8 +55,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
     private final String name;
     private final String description;
 
-    private final List<Long> enabledRoles;
-    private final List<Long> disabledRoles;
+    private final List<Permission> allow;
 
     private final RegistryContainer<S> registryContainer;
     private final ChoiceRegistry choiceRegistry;
@@ -69,8 +69,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
 
     public SlashCommand(
             @NotNull final SlashCommandProcessor<S> processor,
-            @NotNull final List<Long> enabledRoles,
-            @NotNull final List<Long> disabledRoles,
+            @NotNull final List<Permission> allow,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
@@ -80,36 +79,39 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
         this.choiceRegistry = processor.getChoiceRegistry();
         this.senderValidator = processor.getSenderValidator();
 
-        this.enabledRoles = enabledRoles;
-        this.disabledRoles = disabledRoles;
+        this.allow = allow;
 
         this.syncExecutionProvider = syncExecutionProvider;
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
-    public List<Long> getEnabledRoles() {
-        return enabledRoles;
+    public List<Permission> getAllowed() {
+        return allow;
     }
 
-    public List<Long> getDisabledRoles() {
-        return disabledRoles;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void addSubCommands(
-            @NotNull final Map<String, SlashSubCommand<S>> subCommands,
-            @NotNull final Map<String, SlashSubCommand<S>> subCommandAliases
-    ) {
-        final SubCommand<S> subCommand = subCommands.get(Default.DEFAULT_CMD_NAME);
-        if (subCommand != null) {
-            if (subCommands.size() > 1) throw new CommandRegistrationException("ASSS");
+    public void addSubCommand(@NotNull final String name, @NotNull final SlashSubCommand<S> subCommand) {
+        if (name.equals(Default.DEFAULT_CMD_NAME)) {
+            if (!this.subCommands.isEmpty()) {
+                throw new CommandRegistrationException(String.format("Can not register default command for '%s' because it has subcommands", this.name));
+            }
+
+            this.subCommands.put(name, subCommand);
             isDefault = true;
+            return;
         }
 
-        this.subCommands.putAll(subCommands);
+        if (isDefault) {
+            throw new CommandRegistrationException(String.format("Can not register subcommand '%s' for command '%s' because it has a default command", name, this.name));
+        }
+
+        this.subCommands.putIfAbsent(name, subCommand);
+    }
+
+    @Override
+    public void addSubCommandAlias(@NotNull final String alias, @NotNull final SlashSubCommand<S> subCommand) {
+        // Doesn't support alias .. yet
     }
 
     /**
@@ -131,7 +133,9 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
     @NotNull
     public SlashCommandData asCommandData() {
         final SlashCommandData commandData = Commands.slash(name, description);
-        commandData.setDefaultEnabled(enabledRoles.isEmpty());
+        final DefaultMemberPermissions memberPermission = allow.isEmpty() ? DefaultMemberPermissions.ENABLED : DefaultMemberPermissions.enabledFor(allow);
+
+        commandData.setDefaultPermissions(memberPermission);
 
         if (isDefault) {
             final SlashSubCommand<S> subCommand = getDefaultSubCommand();
@@ -148,6 +152,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
                 .collect(Collectors.toList());
 
         commandData.addSubcommands(subData);
+
         return commandData;
     }
 

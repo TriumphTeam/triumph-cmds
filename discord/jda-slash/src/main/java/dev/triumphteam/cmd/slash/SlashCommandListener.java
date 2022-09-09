@@ -28,15 +28,13 @@ import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -49,6 +47,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
 
     private final SlashCommandManager<S> commandManager;
     private final SenderMapper<SlashSender, S> senderMapper;
+    private final AttachmentRegistry attachmentRegistry;
 
     public SlashCommandListener(
             @NotNull final SlashCommandManager<S> commandManager,
@@ -56,6 +55,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
     ) {
         this.commandManager = commandManager;
         this.senderMapper = senderMapper;
+        this.attachmentRegistry = commandManager.getRegistryContainer().getAttachmentRegistry();
     }
 
     /**
@@ -73,7 +73,6 @@ final class SlashCommandListener<S> extends ListenerAdapter {
             if (guild == null) return;
             command = commandManager.getCommand(guild, name);
         }
-
         if (command == null) return;
 
         final S sender = senderMapper.map(new SlashCommandSender(event));
@@ -82,15 +81,26 @@ final class SlashCommandListener<S> extends ListenerAdapter {
 
         final Map<String, String> args = event.getOptions()
                 .stream()
-                .map(it -> Maps.immutableEntry(it.getName(), it.getAsString()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .map(it -> {
+                    final OptionType type = it.getType();
+                    // Special case for attachments.
+                    if (type == OptionType.ATTACHMENT) {
+                        final Message.Attachment attachment = it.getAsAttachment();
+                        final String id = it.getAsString();
+
+                        attachmentRegistry.addAttachment(id, attachment);
+                        return Maps.immutableEntry(it.getName(), id);
+                    }
+
+                    return Maps.immutableEntry(it.getName(), it.getAsString());
+                }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         command.execute(sender, subCommandName != null ? subCommandName : Default.DEFAULT_CMD_NAME, args);
     }
 
-    private static final List<String> ass = Arrays.asList("Hello", "There", "Ass", "Fuck", "Hoy");
+    // private static final List<String> ass = Arrays.asList("Hello", "There", "Ass", "Fuck", "Hoy");
 
-    @Override
+    /*@Override
     public void onCommandAutoCompleteInteraction(@NotNull final CommandAutoCompleteInteractionEvent event) {
         final String name = event.getName();
         SlashCommand<S> command = commandManager.getCommand(name);
@@ -108,7 +118,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
                         .filter(it -> it.toLowerCase(Locale.ROOT).startsWith(event.getFocusedOption().getValue().toLowerCase(Locale.ROOT)))
                         .collect(Collectors.toList())
         ).queue();
-    }
+    }*/
 
     /**
      * Updates all the commands on ready.

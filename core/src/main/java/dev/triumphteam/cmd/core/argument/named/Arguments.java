@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.argument.named;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -46,4 +47,16 @@ public interface Arguments {
     @NotNull <T> Optional<List<T>> getAsList(@NotNull final String name, @NotNull final Class<T> type);
 
     @NotNull <T> Optional<Set<T>> getAsSet(@NotNull final String name, @NotNull final Class<T> type);
+
+    /**
+     * Get all arguments passed to this command
+     * @return a {@link Map} of all arguments
+     */
+    @NotNull Map<String, Object> getArguments();
+
+    /**
+     * Check if no arguments are passed
+     * @return true if no arguments have been passed in the command
+     */
+    boolean isEmpty();
 }

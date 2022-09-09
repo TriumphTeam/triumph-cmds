@@ -30,6 +30,7 @@ import dev.triumphteam.cmd.slash.choices.Choice;
 import dev.triumphteam.cmd.slash.choices.EmptyChoice;
 import dev.triumphteam.cmd.slash.util.JdaOptionUtil;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,13 +64,14 @@ final class SlashSubCommand<S> extends AbstractSubCommand<S> {
         for (int i = 0; i < internalArguments.size(); i++) {
             final InternalArgument<S, ?> internalArgument = internalArguments.get(i);
 
+            final OptionType type = JdaOptionUtil.fromType(internalArgument.getType());
             final OptionData option = new OptionData(
-                    JdaOptionUtil.fromType(internalArgument.getType()),
+                    type,
                     internalArgument.getName(),
                     internalArgument.getDescription(),
                     !internalArgument.isOptional()
             );
-            option.setAutoComplete(true);
+            // option.setAutoComplete(type.canSupportChoices());
             options.add(option);
 
             final Choice suggestion = getChoice(i);

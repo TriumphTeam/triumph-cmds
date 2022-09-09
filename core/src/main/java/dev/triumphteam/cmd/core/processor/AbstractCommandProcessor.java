@@ -33,7 +33,6 @@ import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -52,8 +51,6 @@ import java.util.Map;
  * @param <S> Sender type
  */
 public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, P extends AbstractSubCommandProcessor<S>> {
-
-    private final Class<?> annotatedClass;
 
     private String name;
     // TODO: 11/28/2021 Add better default description
@@ -85,13 +82,12 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
         this.syncExecutionProvider = syncExecutionProvider;
         this.asyncExecutionProvider = asyncExecutionProvider;
 
-        this.annotatedClass = extractAnnotationClass();
         extractCommandNames();
         extractDescription();
-        collectSubCommands();
     }
 
-    private void collectSubCommands() {
+    // TODO: Comments
+    public void addSubCommands(@NotNull final dev.triumphteam.cmd.core.Command<S, SC> command) {
         for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
             if (Modifier.isPrivate(method.getModifiers())) continue;
 
@@ -100,15 +96,18 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
             if (subCommandName == null) continue;
 
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-            final SC subCommand = subCommands.computeIfAbsent(subCommandName, it -> createSubCommand(processor, executionProvider));
-            processor.getAlias().forEach(alias -> subCommandsAlias.putIfAbsent(alias, subCommand));
+
+            final SC subCommand = createSubCommand(processor, executionProvider);
+            command.addSubCommand(subCommandName, subCommand);
+
+            processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
         }
     }
 
     @NotNull
     protected abstract P createProcessor(@NotNull final Method method);
 
-    @Nullable
+    @NotNull
     protected abstract SC createSubCommand(@NotNull final P processor, @NotNull final ExecutionProvider executionProvider);
 
     /**
@@ -189,30 +188,10 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
     }
 
     /**
-     * Gets the annotated class, used for the child processors to get the class with all the main annotations.
-     *
-     * @return The annotated class.
-     */
-    protected Class<?> getAnnotatedClass() {
-        return annotatedClass;
-    }
-
-    /**
-     * Gets the parent class or the current one, the one with all the main annotations.
-     *
-     * @return The class that has all the annotations.
-     */
-    private Class<?> extractAnnotationClass() {
-        final Class<? extends BaseCommand> commandClass = baseCommand.getClass();
-        final Class<?> parent = commandClass.getSuperclass();
-        return parent != BaseCommand.class ? parent : commandClass;
-    }
-
-    /**
      * Helper method for getting the command names from the command annotation.
      */
     private void extractCommandNames() {
-        final Command commandAnnotation = annotatedClass.getAnnotation(Command.class);
+        final Command commandAnnotation = baseCommand.getClass().getAnnotation(Command.class);
 
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
@@ -238,7 +217,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
      * Extracts the {@link Description} Annotation from the annotatedClass.
      */
     private void extractDescription() {
-        final Description description = annotatedClass.getAnnotation(Description.class);
+        final Description description = baseCommand.getClass().getAnnotation(Description.class);
         if (description == null) return;
         this.description = description.value();
     }
