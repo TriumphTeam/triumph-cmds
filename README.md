@@ -1,4 +1,6 @@
-<img style="display: block; margin:auto" src="https://github.com/TriumphTeam/docs/raw/main/libraries/triumph-cmds/ICON.png">
+<p align="center">
+  <img style="display: block; margin:auto" src="https://github.com/TriumphTeam/docs/raw/main/libraries/triumph-cmds/ICON.png">
+</p>
 <h1 align="center">Welcome to Triumph CMDs</h1>
 
 **Triumph CMDs** is a command annotation framework for various Platforms.
