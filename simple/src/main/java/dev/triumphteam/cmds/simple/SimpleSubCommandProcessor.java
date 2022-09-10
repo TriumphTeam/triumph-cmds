@@ -21,19 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.cli;
+package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.AbstractSubCommand;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
-public final class CliSubCommand<S> extends AbstractSubCommand<S> {
+import java.lang.reflect.Method;
 
-    public CliSubCommand(
-            @NotNull final CliSubCommandProcessor<S> processor,
+final class SimpleSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+
+    public SimpleSubCommandProcessor(
+            @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
-            @NotNull final ExecutionProvider executionProvider
+            @NotNull final Method method,
+            @NotNull final RegistryContainer<S> registries,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(processor, parentName, executionProvider);
+        super(baseCommand, parentName, method, registries, senderValidator);
     }
 }
