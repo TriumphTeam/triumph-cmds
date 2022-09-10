@@ -18,7 +18,7 @@ With this, your parameters are the command's arguments!
 
 ## Supported Platforms
 
-- CLI (Command Line Interface)
+- Simple (Perfect for custom implementations)
 - Discord (Prefixed and Slash Commands)
 - Minecraft (Bukkit)
 
