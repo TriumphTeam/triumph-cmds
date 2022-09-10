@@ -37,13 +37,15 @@ import static java.util.Collections.emptyList;
 
 public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
-    private final CommandPermission permission;
+    private final List<CommandPermission> permissions;
 
     public BukkitSubCommand(@NotNull final BukkitSubCommandProcessor<S> processor, @NotNull final String parentName, @NotNull final ExecutionProvider executionProvider) {
         super(processor, parentName, executionProvider);
-        this.permission = processor.getPermission();
+        this.permissions = processor.getPermissions();
 
-        if (this.permission != null) this.permission.register();
+        if (this.permissions != null) {
+            this.permissions.forEach(CommandPermission::register);
+        }
     }
 
     public List<String> getSuggestions(@NotNull final S sender, @NotNull final List<String> args) {
@@ -62,9 +64,12 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
         return internalArgument.suggestions(sender, trimmed, context);
     }
 
-    // TODO: Comments
+    /**
+     * A {@link List<CommandPermission>} used by this sub-command
+     * @return a list of permissions
+     */
     @Nullable
-    public CommandPermission getPermission() {
-        return permission;
+    public List<CommandPermission> getPermissions() {
+        return permissions;
     }
 }

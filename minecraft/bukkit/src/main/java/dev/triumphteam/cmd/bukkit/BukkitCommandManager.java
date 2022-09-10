@@ -48,8 +48,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
@@ -65,7 +64,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     private final CommandMap commandMap;
     private final Map<String, org.bukkit.command.Command> bukkitCommands;
 
-    private String basePermission = "";
+    private List<String> basePermissions = Collections.singletonList("");
 
     private BukkitCommandManager(
             @NotNull final Plugin plugin,
@@ -127,7 +126,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
                 getSenderValidator(),
                 syncExecutionProvider,
                 asyncExecutionProvider,
-                basePermission
+                basePermissions
         );
 
         final BukkitCommand<S> command = commands.computeIfAbsent(processor.getName(), ignored -> createAndRegisterCommand(processor.getName(), processor));
@@ -145,16 +144,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     public void unregisterCommand(@NotNull final BaseCommand command) {
         // TODO add a remove functionality
     }
-
-    public void setBasePermission(@NotNull final String basePermission) {
-        this.basePermission = basePermission;
-    }
-
-    @NotNull
-    public String getBasePermission() {
-        return basePermission;
-    }
-
+    
     @NotNull
     @Override
     protected RegistryContainer<S> getRegistryContainer() {

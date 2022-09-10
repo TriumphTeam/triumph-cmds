@@ -35,10 +35,12 @@ import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
 
-    private final CommandPermission basePermission;
+    private final List<CommandPermission> basePermissions;
 
     public BukkitCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -47,19 +49,19 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final SenderValidator<S> senderValidator,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider,
-            @NotNull final String globalBasePermission
+            @NotNull final List<String> globalBasePermissions
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
 
         final Permission annotation = getBaseCommand().getClass().getAnnotation(Permission.class);
         if (annotation == null) {
-            this.basePermission = null;
+            this.basePermissions = null;
             return;
         }
 
-        this.basePermission = createPermission(
-                globalBasePermission,
-                annotation.value(),
+        this.basePermissions = createPermissions(
+                globalBasePermissions,
+                Arrays.stream(annotation.value()).collect(Collectors.toList()),
                 annotation.description(),
                 annotation.def()
         );
@@ -74,7 +76,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
                 method,
                 getRegistryContainer(),
                 getSenderValidator(),
-                basePermission
+                basePermissions
         );
     }
 
@@ -87,19 +89,23 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
         return new BukkitSubCommand<>(processor, getName(), executionProvider);
     }
 
-    static CommandPermission createPermission(
-            @NotNull final String parentNode,
-            @NotNull final String node,
+    static List<CommandPermission> createPermissions(
+            @NotNull final List<String> parentNodes,
+            @NotNull final List<String> nodes,
             @NotNull final String description,
             @NotNull final PermissionDefault permissionDefault
     ) {
-        final StringBuilder permissionBuilder = new StringBuilder();
-        if (!parentNode.isEmpty()) {
-            permissionBuilder.append(parentNode);
-            if (!node.isEmpty()) permissionBuilder.append(".");
+        List<CommandPermission> permissions = new ArrayList<>();
+        if(!parentNodes.isEmpty()) {
+            for (String parentNode : parentNodes)
+                for (String node : nodes)
+                    permissions.add(new CommandPermission(parentNode + "." + node, description, permissionDefault));
+        } else {
+            for (String node : nodes) {
+                permissions.add(new CommandPermission(node, description, permissionDefault));
+            }
         }
-        permissionBuilder.append(node);
 
-        return new CommandPermission(permissionBuilder.toString(), description, permissionDefault);
+        return permissions;
     }
 }

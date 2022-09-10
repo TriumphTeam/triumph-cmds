@@ -44,7 +44,7 @@ public @interface Permission {
      *
      * @return The permission's main node.
      */
-    String value();
+    String[] value();
 
     /**
      * Represents the possible default values for permissions.
