@@ -857,18 +857,10 @@ public abstract class AbstractSubCommandProcessor<S> {
     @NotNull
     private Suggestion<S> createSuggestion(@Nullable final SuggestionKey suggestionKey, @NotNull final Class<?> type) {
         if (suggestionKey == null) {
-            if (Enum.class.isAssignableFrom(type)) {
-                try {
-                    return new EnumSuggestion<>((Class<? extends Enum<?>>) type);
-                } catch (final IllegalArgumentException e) {
-                    throw createException(e.getMessage());
-                }
-            }
+            if (Enum.class.isAssignableFrom(type)) return new EnumSuggestion<>((Class<? extends Enum<?>>) type);
 
             final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(type);
-            if (resolver != null) {
-                return new SimpleSuggestion<>(resolver);
-            }
+            if (resolver != null) return new SimpleSuggestion<>(resolver);
 
             return new EmptySuggestion<>();
         }

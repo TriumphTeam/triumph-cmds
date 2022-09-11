@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.util;
 
+import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -61,13 +62,17 @@ public final class EnumUtils {
      */
     public static Map<String, WeakReference<? extends Enum<?>>> populateCache(@NotNull final Class<? extends Enum<?>> enumClass) {
         final Map<String, WeakReference<? extends Enum<?>>> result = new HashMap<>();
+
         for (Enum<?> enumInstance : enumClass.getEnumConstants()) {
             final String name = enumInstance.name().toUpperCase();
             if (result.containsKey(name)) {
-                throw new IllegalArgumentException("Provided enum has multiple values with the name \"" + name + "\"");
+                throw new CommandRegistrationException(
+                        "Provided enum \"" + enumClass.getSimpleName() + "\" has multiple values with the name \"" + name + "\""
+                );
             }
             result.put(name, new WeakReference<Enum<?>>(enumInstance));
         }
+
         ENUM_CONSTANT_CACHE.put(enumClass, result);
         return result;
     }
