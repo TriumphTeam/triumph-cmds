@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,8 @@ import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
@@ -36,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -54,7 +57,6 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     ) {
         super(senderMapper, senderValidator);
     }
-
 
     @NotNull
     @Contract("_, _ -> new")
@@ -82,8 +84,16 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
                 name,
                 ignored -> new SimpleCommand<>(processor, syncExecutionProvider, asyncExecutionProvider)
         );
+        processor.addSubCommands(command);
 
-        command.addSubCommands(baseCommand);
+        processor.getAlias().forEach(it -> {
+            final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(
+                    it,
+                    ignored -> new SimpleCommand<>(processor, syncExecutionProvider, asyncExecutionProvider)
+            );
+            // Adding sub commands.
+            processor.addSubCommands(aliasCommand);
+        });
     }
 
     /**
@@ -99,28 +109,26 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         // TODO add a remove functionality
     }
 
-    public void startManager() {
-        final Scanner scanner = new Scanner(System.in);
-        while (true) {
-            final String line = scanner.nextLine();
-            //executeCommand(line);
-            //TODO: fix executeCommand
-        }
-    }
-
-    public void executeCommand(S sender, String line) {
-        if (line.isEmpty()) return;
-        final String[] args = line.split(" ");
-        if (args.length == 0) return;
-        final String commandName = args[0];
+    /**
+     * Execute the commands given the passed arguments.
+     *
+     * @param sender The provided sender.
+     * @param args   The provided arguments.
+     */
+    public void executeCommand(@NotNull final S sender, final @NotNull List<String> args) {
+        if (args.isEmpty()) return;
+        final String commandName = args.get(0);
 
         final SimpleCommand<S> command = commands.get(commandName);
         if (command == null) {
-            // TODO: Change this to a logger
-            System.out.println("Command not found");
+            registryContainer.getMessageRegistry().sendMessage(
+                    MessageKey.UNKNOWN_COMMAND,
+                    sender,
+                    new DefaultMessageContext(commandName, "")
+            );
             return;
         }
 
-        command.execute(sender, Arrays.copyOfRange(args, 1, args.length));
+        command.execute(sender, args.subList(1, args.size()));
     }
 }

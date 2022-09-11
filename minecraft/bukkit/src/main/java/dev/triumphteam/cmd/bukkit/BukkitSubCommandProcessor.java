@@ -33,13 +33,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private final List<CommandPermission> permissions;
+    private final CommandPermission permission;
 
     public BukkitSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
@@ -47,27 +45,25 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
             @NotNull final Method method,
             @NotNull final RegistryContainer<S> registryContainer,
             @NotNull final SenderValidator<S> senderValidator,
-            @Nullable final List<CommandPermission> basePermissions
+            @Nullable final CommandPermission basePermission
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
 
         final Permission annotation = method.getAnnotation(Permission.class);
         if (annotation == null) {
-            this.permissions = basePermissions;
+            this.permission = basePermission;
             return;
         }
-        @Nullable List<String> permissionList = Collections.singletonList("");
-        if(basePermissions != null) permissionList = basePermissions.stream().map(CommandPermission::getNode).collect(Collectors.toList());
-        permissions = BukkitCommandProcessor.createPermissions(
-                permissionList,
+
+        permission = BukkitCommandProcessor.createPermission(
+                basePermission,
                 Arrays.stream(annotation.value()).collect(Collectors.toList()),
                 annotation.description(),
                 annotation.def()
         );
     }
 
-    @Nullable
-    public List<CommandPermission> getPermissions() {
-        return permissions;
+    public CommandPermission getPermission() {
+        return permission;
     }
 }

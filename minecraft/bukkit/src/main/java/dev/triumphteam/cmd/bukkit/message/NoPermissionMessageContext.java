@@ -23,24 +23,27 @@
  */
 package dev.triumphteam.cmd.bukkit.message;
 
+import dev.triumphteam.cmd.bukkit.CommandPermission;
 import dev.triumphteam.cmd.core.message.context.AbstractMessageContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public final class NoPermissionMessageContext extends AbstractMessageContext {
 
-    private final String permission;
+    private final CommandPermission permission;
 
     public NoPermissionMessageContext(
             @NotNull final String command,
             @NotNull final String subCommand,
-            @NotNull final String permission
+            @NotNull final CommandPermission permission
     ) {
         super(command, subCommand);
         this.permission = permission;
     }
 
-    public String getPermission() {
-        return permission;
+    @NotNull
+    public List<String> getNodes() {
+        return permission.getNodes();
     }
-
 }

@@ -31,7 +31,6 @@ import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -55,8 +54,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         super(name);
 
         this.description = processor.getDescription();
-        RegistryContainer<S> registryContainer = processor.getRegistryContainer();
-        this.messageRegistry = registryContainer.getMessageRegistry();
+        this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderMapper = processor.getSenderMapper();
     }
 
@@ -90,9 +88,9 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             return true;
         }
 
-        final List<CommandPermission> permissions = subCommand.getPermissions();
-        if (permissions != null && !hasPermission(permissions, sender)) {
-            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permissions.get(0).getNode()));
+        final CommandPermission permission = subCommand.getPermission();
+        if (permission != null && !permission.hasPermission(sender)) {
+            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
             return true;
         }
 
@@ -115,9 +113,9 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
                     .filter(it -> !it.getValue().isDefault())
                     .filter(it -> it.getKey().startsWith(arg))
                     .filter(it -> {
-                        final List<CommandPermission> permissions = it.getValue().getPermissions();
-                        if (permissions == null) return false;
-                        return hasPermission(permissions, sender);
+                        final CommandPermission permission = it.getValue().getPermission();
+                        if (permission == null) return false;
+                        return permission.hasPermission(sender);
                     })
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
@@ -126,8 +124,8 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         if (subCommandExists(arg)) subCommand = getSubCommand(arg);
         if (subCommand == null) return emptyList();
 
-        final List<CommandPermission> permissions = subCommand.getPermissions();
-        if (permissions != null && hasPermission(permissions, sender)) return emptyList();
+        final CommandPermission permission = subCommand.getPermission();
+        if (permission != null && permission.hasPermission(sender)) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
 
@@ -166,15 +164,5 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
      */
     private boolean subCommandExists(@NotNull final String key) {
         return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
-    }
-
-    /**
-     * Checks if a {@link CommandSender} has any of the permissions from a {@link List<CommandPermission>}
-     * @param permissions The list of permissions
-     * @param sender
-     * @return true if the sender has any of the permissions in the list
-     */
-    private boolean hasPermission(@NotNull final List<CommandPermission> permissions, @NotNull final CommandSender sender) {
-        return permissions.stream().anyMatch(p -> sender.hasPermission(p.getNode()));
     }
 }

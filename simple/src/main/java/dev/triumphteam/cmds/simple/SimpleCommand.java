@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -76,41 +76,15 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
-    /**
-     * adds SubCommands from the Command.
-     *
-     * @param baseCommand The {@link BaseCommand} to get the sub commands from.
-     */
-    public void addSubCommands(@NotNull final BaseCommand baseCommand) {
-        for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
-            if (Modifier.isPrivate(method.getModifiers())) continue;
-
-            final SimpleSubCommandProcessor<S> processor = new SimpleSubCommandProcessor<>(
-                    baseCommand,
-                    name,
-                    method,
-                    registries,
-                    senderValidator
-            );
-
-            final String subCommandName = processor.getName();
-            if (subCommandName == null) continue;
-
-            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-            final SimpleSubCommand<S> subCommand = subCommands.computeIfAbsent(subCommandName, it -> new SimpleSubCommand<>(processor, name, executionProvider));
-            processor.getAlias().forEach(alias -> subCommandAliases.putIfAbsent(alias, subCommand));
-        }
-    }
-
     // TODO: Comments
     public void execute(
             @NotNull final S sender,
-            @NotNull final String[] args
+            @NotNull final List<String> args
     ) {
         SimpleSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
-        if (args.length > 0) subCommandName = args[0].toLowerCase();
+        if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
         if (subCommand == null || subCommandExists(subCommandName)) {
             subCommand = getSubCommand(subCommandName);
         }
@@ -122,7 +96,7 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
             return;
         }
 
-        final List<String> commandArgs = Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
+        final List<String> commandArgs = !subCommand.isDefault() ? args.subList(1, args.size()) : args;
         subCommand.execute(mappedSender, commandArgs);
     }
 
