@@ -33,7 +33,11 @@ import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.lang.reflect.AnnotatedElement;
 
 final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
@@ -47,11 +51,11 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
             @NotNull final SenderValidator<S> senderValidator,
             @NotNull final ExecutionProvider syncExecutionProvider,
             @NotNull final ExecutionProvider asyncExecutionProvider,
-            @NotNull final String globalBasePermission
+            @Nullable final CommandPermission globalBasePermission
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
 
-        final Permission annotation = getAnnotatedClass().getAnnotation(Permission.class);
+        final Permission annotation = getBaseCommand().getClass().getAnnotation(Permission.class);
         if (annotation == null) {
             this.basePermission = null;
             return;
@@ -59,7 +63,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
 
         this.basePermission = createPermission(
                 globalBasePermission,
-                annotation.value(),
+                Arrays.stream(annotation.value()).collect(Collectors.toList()),
                 annotation.description(),
                 annotation.def()
         );
@@ -88,18 +92,13 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
     }
 
     static CommandPermission createPermission(
-            @NotNull final String parentNode,
-            @NotNull final String node,
+            @Nullable final CommandPermission parent,
+            @NotNull final List<String> nodes,
             @NotNull final String description,
             @NotNull final PermissionDefault permissionDefault
     ) {
-        final StringBuilder permissionBuilder = new StringBuilder();
-        if (!parentNode.isEmpty()) {
-            permissionBuilder.append(parentNode);
-            if (!node.isEmpty()) permissionBuilder.append(".");
-        }
-        permissionBuilder.append(node);
-
-        return new CommandPermission(permissionBuilder.toString(), description, permissionDefault);
+        return parent == null
+                ? new CommandPermission(nodes, description, permissionDefault)
+                : parent.child(nodes, description, permissionDefault);
     }
 }

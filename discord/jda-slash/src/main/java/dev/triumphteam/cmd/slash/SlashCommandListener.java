@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,15 +30,11 @@ import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -102,9 +98,9 @@ final class SlashCommandListener<S> extends ListenerAdapter {
         command.execute(sender, subCommandName != null ? subCommandName : Default.DEFAULT_CMD_NAME, args);
     }
 
-    private static final List<String> ass = Arrays.asList("Hello", "There", "Ass", "Fuck", "Hoy");
+    // private static final List<String> ass = Arrays.asList("Hello", "There", "Ass", "Fuck", "Hoy");
 
-    @Override
+    /*@Override
     public void onCommandAutoCompleteInteraction(@NotNull final CommandAutoCompleteInteractionEvent event) {
         final String name = event.getName();
         SlashCommand<S> command = commandManager.getCommand(name);
@@ -122,7 +118,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
                         .filter(it -> it.toLowerCase(Locale.ROOT).startsWith(event.getFocusedOption().getValue().toLowerCase(Locale.ROOT)))
                         .collect(Collectors.toList())
         ).queue();
-    }
+    }*/
 
     /**
      * Updates all the commands on ready.

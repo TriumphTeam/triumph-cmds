@@ -21,19 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmds.simple;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import dev.triumphteam.cmd.core.AbstractSubCommand;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import org.jetbrains.annotations.NotNull;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Inherited
-public @interface Privileges {
+public final class SimpleSubCommand<S> extends AbstractSubCommand<S> {
 
-    Roles[] value();
-
+    public SimpleSubCommand(
+            @NotNull final SimpleSubCommandProcessor<S> processor,
+            @NotNull final String parentName,
+            @NotNull final ExecutionProvider executionProvider
+    ) {
+        super(processor, parentName, executionProvider);
+    }
 }

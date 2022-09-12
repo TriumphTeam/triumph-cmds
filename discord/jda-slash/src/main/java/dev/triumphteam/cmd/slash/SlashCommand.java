@@ -93,10 +93,18 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
 
     @Override
     public void addSubCommand(@NotNull final String name, @NotNull final SlashSubCommand<S> subCommand) {
-        final SubCommand<S> defaultCmd = subCommands.get(Default.DEFAULT_CMD_NAME);
-        if (defaultCmd != null) {
-            if (subCommands.size() > 1) throw new CommandRegistrationException("TODO");
+        if (name.equals(Default.DEFAULT_CMD_NAME)) {
+            if (!this.subCommands.isEmpty()) {
+                throw new CommandRegistrationException(String.format("Can not register default command for '%s' because it has subcommands", this.name));
+            }
+
+            this.subCommands.put(name, subCommand);
             isDefault = true;
+            return;
+        }
+
+        if (isDefault) {
+            throw new CommandRegistrationException(String.format("Can not register subcommand '%s' for command '%s' because it has a default command", name, this.name));
         }
 
         this.subCommands.putIfAbsent(name, subCommand);

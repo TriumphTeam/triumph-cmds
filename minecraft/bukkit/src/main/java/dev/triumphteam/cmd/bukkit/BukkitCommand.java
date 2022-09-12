@@ -30,16 +30,12 @@ import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -57,8 +53,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         super(name);
 
         this.description = processor.getDescription();
-        RegistryContainer<S> registryContainer = processor.getRegistryContainer();
-        this.messageRegistry = registryContainer.getMessageRegistry();
+        this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderMapper = processor.getSenderMapper();
     }
 
@@ -94,7 +89,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final CommandPermission permission = subCommand.getPermission();
         if (permission != null && !permission.hasPermission(sender)) {
-            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission.getNode()));
+            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
             return true;
         }
 
@@ -129,7 +124,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         if (subCommand == null) return emptyList();
 
         final CommandPermission permission = subCommand.getPermission();
-        if (permission != null && !permission.hasPermission(sender)) return emptyList();
+        if (permission != null && permission.hasPermission(sender)) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
 

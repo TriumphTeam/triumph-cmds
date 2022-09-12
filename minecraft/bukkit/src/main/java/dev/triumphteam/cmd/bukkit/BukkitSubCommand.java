@@ -62,7 +62,11 @@ public final class BukkitSubCommand<S> extends SubCommand<S> {
         return internalArgument.suggestions(sender, trimmed, context);
     }
 
-    // TODO: Comments
+    /**
+     * A {@link CommandPermission} used by this sub-command.
+     *
+     * @return The command's permission.
+     */
     @Nullable
     public CommandPermission getPermission() {
         return permission;

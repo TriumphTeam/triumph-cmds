@@ -48,8 +48,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
@@ -65,7 +64,8 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     private final CommandMap commandMap;
     private final Map<String, org.bukkit.command.Command> bukkitCommands;
 
-    private String basePermission = "";
+    // TODO: Default base from constructor
+    private final CommandPermission basePermission = null;
 
     private BukkitCommandManager(
             @NotNull final Plugin plugin,
@@ -78,6 +78,13 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
         this.commandMap = getCommandMap();
         this.bukkitCommands = getBukkitCommands(commandMap);
+
+        // Register some defaults
+        registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(arg));
+        registerArgument(Player.class, (sender, arg) -> Bukkit.getPlayer(arg));
+        registerArgument(World.class, (sender, arg) -> Bukkit.getWorld(arg));
+
+        registerSuggestion(Player.class, (sender, context) -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
     }
 
     /**
@@ -145,16 +152,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     public void unregisterCommand(@NotNull final BaseCommand command) {
         // TODO add a remove functionality
     }
-
-    public void setBasePermission(@NotNull final String basePermission) {
-        this.basePermission = basePermission;
-    }
-
-    @NotNull
-    public String getBasePermission() {
-        return basePermission;
-    }
-
+    
     @NotNull
     @Override
     protected RegistryContainer<S> getRegistryContainer() {
@@ -186,15 +184,9 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.sendMessage("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`."));
 
-        manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage("You do not have permission to perform this command. Permission needed: `" + context.getPermission() + "`."));
+        manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage("You do not have permission to perform this command. Permission needed: `" + context.getNodes() + "`."));
         manager.registerMessage(BukkitMessageKey.PLAYER_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by players."));
         manager.registerMessage(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by the console."));
-
-        manager.registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(arg));
-        manager.registerArgument(Player.class, (sender, arg) -> Bukkit.getPlayer(arg));
-        manager.registerArgument(World.class, (sender, arg) -> Bukkit.getWorld(arg));
-
-        manager.registerSuggestion(Player.class, (sender, context) -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
     }
 
     /**

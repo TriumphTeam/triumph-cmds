@@ -73,7 +73,7 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<Prefixe
      * @return The prefix from the annotation or an empty string.
      */
     private String extractPrefix() {
-        final Prefix prefixAnnotation = getAnnotatedClass().getAnnotation(Prefix.class);
+        final Prefix prefixAnnotation = getBaseCommand().getClass().getAnnotation(Prefix.class);
         return prefixAnnotation == null ? "" : prefixAnnotation.value();
     }
 

@@ -21,50 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit;
+package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.lang.reflect.AnnotatedElement;
 
-final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+final class SimpleSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
-    private final CommandPermission permission;
-
-    public BukkitSubCommandProcessor(
+    public SimpleSubCommandProcessor(
             @NotNull final BaseCommand baseCommand,
             @NotNull final String parentName,
-            @NotNull final AnnotatedElement annotatedElement,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator,
-            @Nullable final CommandPermission basePermission
+            @NotNull final Method method,
+            @NotNull final RegistryContainer<S> registries,
+            @NotNull final SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, annotatedElement, registryContainer, senderValidator);
-
-        final Permission annotation = annotatedElement.getAnnotation(Permission.class);
-        if (annotation == null) {
-            this.permission = basePermission;
-            return;
-        }
-
-        permission = BukkitCommandProcessor.createPermission(
-                basePermission,
-                Arrays.stream(annotation.value()).collect(Collectors.toList()),
-                annotation.description(),
-                annotation.def()
-        );
-    }
-
-    public CommandPermission getPermission() {
-        return permission;
+        super(baseCommand, parentName, method, registries, senderValidator);
     }
 }

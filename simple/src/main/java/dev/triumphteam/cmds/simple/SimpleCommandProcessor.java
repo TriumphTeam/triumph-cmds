@@ -21,50 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.bukkit;
+package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.lang.reflect.AnnotatedElement;
 
-final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S, S, SimpleSubCommand<S>, SimpleSubCommandProcessor<S>> {
 
-    private final CommandPermission permission;
-
-    public BukkitSubCommandProcessor(
+    public SimpleCommandProcessor(
             @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final AnnotatedElement annotatedElement,
-            @NotNull final RegistryContainer<S> registryContainer,
+            @NotNull final RegistryContainer<S> registries,
+            @NotNull final SenderMapper<S, S> senderMapper,
             @NotNull final SenderValidator<S> senderValidator,
-            @Nullable final CommandPermission basePermission
+            @NotNull final ExecutionProvider syncExecutionProvider,
+            @NotNull final ExecutionProvider asyncExecutionProvider
     ) {
-        super(baseCommand, parentName, annotatedElement, registryContainer, senderValidator);
-
-        final Permission annotation = annotatedElement.getAnnotation(Permission.class);
-        if (annotation == null) {
-            this.permission = basePermission;
-            return;
-        }
-
-        permission = BukkitCommandProcessor.createPermission(
-                basePermission,
-                Arrays.stream(annotation.value()).collect(Collectors.toList()),
-                annotation.description(),
-                annotation.def()
-        );
+        super(baseCommand, registries, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
     }
 
-    public CommandPermission getPermission() {
-        return permission;
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected SimpleSubCommandProcessor<S> createProcessor(@NotNull Method method) {
+        return new SimpleSubCommandProcessor<S>(
+                getBaseCommand(),
+                method.getName(),
+                method,
+                getRegistryContainer(),
+                getSenderValidator()
+        );
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    protected SimpleSubCommand<S> createSubCommand(@NotNull SimpleSubCommandProcessor<S> processor, @NotNull ExecutionProvider executionProvider) {
+        return new SimpleSubCommand<S>(processor, getName(), executionProvider);
     }
 }
