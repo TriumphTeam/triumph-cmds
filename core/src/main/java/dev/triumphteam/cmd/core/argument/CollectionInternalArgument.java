@@ -66,7 +66,7 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
      * @return A {@link java.util.Collection} type as the resolved value.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
         final Stream<Object> stream = value.stream().map(arg -> internalArgument.resolve(sender, arg));
         if (collectionType == Set.class) return stream.collect(Collectors.toSet());
         return stream.collect(Collectors.toList());

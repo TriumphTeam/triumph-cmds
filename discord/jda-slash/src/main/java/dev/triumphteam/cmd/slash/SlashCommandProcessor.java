@@ -55,12 +55,12 @@ final class SlashCommandProcessor<S>
     private final List<Permission> enabledPermissions = new ArrayList<>();
 
     public SlashCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final SlashRegistryContainer<S> registryContainer,
-            @NotNull final SenderMapper<SlashSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull SlashRegistryContainer<S> registryContainer,
+            final @NotNull SenderMapper<SlashSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
         this.choiceRegistry = registryContainer.getChoiceRegistry();
@@ -72,8 +72,7 @@ final class SlashCommandProcessor<S>
      *
      * @return The enabled permissions.
      */
-    @NotNull
-    public List<Permission> getEnabledPermissions() {
+    public @NotNull List<@NotNull Permission> getEnabledPermissions() {
         return enabledPermissions;
     }
 
@@ -82,8 +81,7 @@ final class SlashCommandProcessor<S>
      *
      * @return The choice registry.
      */
-    @NotNull
-    public ChoiceRegistry getChoiceRegistry() {
+    public @NotNull ChoiceRegistry getChoiceRegistry() {
         return choiceRegistry;
     }
 
@@ -93,7 +91,7 @@ final class SlashCommandProcessor<S>
      * @param klass The class to get from.
      * @return List with all the roles annotations.
      */
-    private List<Roles> getRolesFromAnnotations(@NotNull final Class<?> klass) {
+    private @NotNull List<@NotNull Roles> getRolesFromAnnotations(final @NotNull Class<?> klass) {
         final Privileges privileges = klass.getAnnotation(Privileges.class);
         if (privileges != null) return Arrays.asList(privileges.value());
 
@@ -102,9 +100,8 @@ final class SlashCommandProcessor<S>
         return Collections.emptyList();
     }
 
-    @NotNull
     @Override
-    protected SlashSubCommandProcessor<S> createProcessor(@NotNull final Method method) {
+    protected @NotNull SlashSubCommandProcessor<S> createProcessor(final @NotNull Method method) {
         return new SlashSubCommandProcessor<>(
                 getBaseCommand(),
                 getName(),
@@ -114,11 +111,10 @@ final class SlashCommandProcessor<S>
         );
     }
 
-    @Nullable
     @Override
-    protected SlashSubCommand<S> createSubCommand(
-            @NotNull final SlashSubCommandProcessor<S> processor,
-            @NotNull final ExecutionProvider executionProvider
+    protected @Nullable SlashSubCommand<S> createSubCommand(
+            final @NotNull SlashSubCommandProcessor<S> processor,
+            final @NotNull ExecutionProvider executionProvider
     ) {
         return new SlashSubCommand<>(processor, getName(), executionProvider);
     }

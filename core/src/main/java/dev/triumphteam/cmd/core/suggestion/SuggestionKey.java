@@ -60,7 +60,7 @@ public final class SuggestionKey extends RegistryKey {
      *
      * @return The keys {@link Set}.
      */
-    public static @NotNull Set<SuggestionKey> getRegisteredKeys() {
+    public static @NotNull Set<@NotNull SuggestionKey> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 

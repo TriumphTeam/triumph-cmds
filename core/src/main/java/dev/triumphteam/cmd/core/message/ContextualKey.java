@@ -63,7 +63,7 @@ public abstract class ContextualKey<C extends MessageContext> extends RegistryKe
      *
      * @return The keys {@link Set}.
      */
-    public static @NotNull Set<ContextualKey<? extends MessageContext>> getRegisteredKeys() {
+    public static @NotNull Set<@NotNull ContextualKey<? extends @NotNull MessageContext>> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 

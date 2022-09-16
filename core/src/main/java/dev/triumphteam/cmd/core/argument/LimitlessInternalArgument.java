@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @param <S> The sender type.
  */
-public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, List<String>> {
+public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, List<@NotNull String>> {
 
     public LimitlessInternalArgument(
             final @NotNull String name,
@@ -49,9 +49,9 @@ public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgum
     }
 
     @Override
-    public @NotNull List<String> suggestions(
+    public @NotNull List<@NotNull String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<String> trimmed,
+            final @NotNull List<@NotNull String> trimmed,
             final @NotNull SuggestionContext context
     ) {
         final String last = trimmed.get(trimmed.size() - 1);

@@ -64,9 +64,9 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     }
 
     @Override
-    public @NotNull List<String> suggestions(
+    public @NotNull List<@NotNull String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<String> trimmed,
+            final @NotNull List<@NotNull String> trimmed,
             final @NotNull SuggestionContext context
     ) {
         return suggestion.getSuggestions(sender, trimmed.get(0), context);

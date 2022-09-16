@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.flag.internal;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,11 +44,11 @@ public final class FlagGroup<S> {
 
     private final List<String> allFlags = new ArrayList<>();
 
-    public Map<String, FlagOptions<S>> getFlags() {
+    public @NotNull Map<@Nullable String, @NotNull FlagOptions<S>> getFlags() {
         return flags;
     }
 
-    public Map<String, FlagOptions<S>> getLongFlags() {
+    public @NotNull Map<@NotNull String, @NotNull FlagOptions<S>> getLongFlags() {
         return longFlags;
     }
 
@@ -69,7 +70,7 @@ public final class FlagGroup<S> {
         flags.put(key, flagOptions);
     }
 
-    public @NotNull List<String> getAllFlags() {
+    public @NotNull List<@NotNull String> getAllFlags() {
         return allFlags;
     }
 

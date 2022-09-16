@@ -36,7 +36,7 @@ public final class NamedArgumentResult implements Arguments {
 
     private final Map<String, Object> values;
 
-    public NamedArgumentResult(final @NotNull Map<String, Object> values) {
+    public NamedArgumentResult(final @NotNull Map<@NotNull String, @NotNull Object> values) {
         this.values = values;
     }
 

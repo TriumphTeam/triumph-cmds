@@ -34,18 +34,17 @@ public final class SimpleChoice implements Choice {
 
     private final Supplier<List<String>> resolver;
 
-    public SimpleChoice(@NotNull final Supplier<List<String>> resolver) {
+    public SimpleChoice(final @NotNull Supplier<@NotNull List<@NotNull String>> resolver) {
         this.resolver = resolver;
     }
 
-    @NotNull
     @Override
-    public List<String> getChoices() {
+    public @NotNull List<@NotNull String> getChoices() {
         return resolver.get();
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final SimpleChoice that = (SimpleChoice) o;
@@ -58,7 +57,7 @@ public final class SimpleChoice implements Choice {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "SimpleChoice{" +
                 "resolver=" + resolver +
                 '}';

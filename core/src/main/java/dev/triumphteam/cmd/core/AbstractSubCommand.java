@@ -218,7 +218,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     }
 
     // TODO: 2/1/2022 Comments
-    public @NotNull List<@Nullable String> mapArguments(final @NotNull Map<String, String> args) {
+    public @NotNull List<@Nullable String> mapArguments(final @NotNull Map<@NotNull String, @NotNull String> args) {
         final List<String> arguments = getArguments().stream().map(InternalArgument::getName).collect(Collectors.toList());
         return arguments.stream().map(it -> {
             final String value = args.get(it);

@@ -39,7 +39,7 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
     }
 
     @Override
-    public @NotNull List<String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
+    public @NotNull List<@NotNull String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
         return resolver
                 .resolve(sender, context)
                 .stream()

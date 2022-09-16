@@ -34,16 +34,15 @@ public final class NoPermissionMessageContext extends AbstractMessageContext {
     private final CommandPermission permission;
 
     public NoPermissionMessageContext(
-            @NotNull final String command,
-            @NotNull final String subCommand,
-            @NotNull final CommandPermission permission
+            final @NotNull String command,
+            final @NotNull String subCommand,
+            final @NotNull CommandPermission permission
     ) {
         super(command, subCommand);
         this.permission = permission;
     }
 
-    @NotNull
-    public List<String> getNodes() {
+    public @NotNull List<@NotNull String> getNodes() {
         return permission.getNodes();
     }
 }

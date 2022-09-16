@@ -224,7 +224,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The sub command alias.
      */
-    public @NotNull List<String> getAlias() {
+    public @NotNull List<@NotNull String> getAlias() {
         return alias;
     }
 
@@ -269,7 +269,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The requirements.
      */
-    public @NotNull Set<Requirement<S, ?>> getRequirements() {
+    public @NotNull Set<@NotNull Requirement<S, ?>> getRequirements() {
         return requirements;
     }
 
@@ -282,8 +282,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         return messageRegistry;
     }
 
-    @NotNull
-    public RegistryContainer<S> getRegistryContainer() {
+    public @NotNull RegistryContainer<S> getRegistryContainer() {
         return registryContainer;
     }
 
@@ -445,7 +444,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         addArgument(createSimpleArgument(type, argumentName, argumentDescription, suggestionList.get(position), position, optional));
     }
 
-    private @NotNull Map<String, InternalArgument<S, ?>> collectNamedArgs(final @NotNull String key) {
+    private @NotNull Map<@NotNull String, @NotNull InternalArgument<S, ?>> collectNamedArgs(final @NotNull String key) {
         final List<Argument> arguments = namedArgumentRegistry.getResolver(ArgumentKey.of(key));
         if (arguments == null || arguments.isEmpty()) {
             throw createException("No registered named arguments found for key \"" + key + "\"");
@@ -538,7 +537,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param optional            whether this Argument is optional.
      * @return The created {@link InternalArgument}.
      */
-    protected InternalArgument<S, String> createSimpleArgument(
+    protected @NotNull InternalArgument<S, String> createSimpleArgument(
             final @NotNull Class<?> type,
             final @NotNull String parameterName,
             final @NotNull String argumentDescription,
@@ -688,7 +687,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The list of flags.
      */
-    private @NotNull List<Flag> getFlagsFromAnnotations() {
+    private @NotNull List<@NotNull Flag> getFlagsFromAnnotations() {
         final CommandFlags flags = method.getAnnotation(CommandFlags.class);
         if (flags != null) return Arrays.asList(flags.value());
 
@@ -723,7 +722,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The list of requirements.
      */
-    private @NotNull List<dev.triumphteam.cmd.core.annotation.Requirement> getRequirementsFromAnnotations() {
+    private @NotNull List<dev.triumphteam.cmd.core.annotation.@NotNull Requirement> getRequirementsFromAnnotations() {
         final Requirements requirements = method.getAnnotation(Requirements.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
@@ -739,7 +738,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return A list of BiConsumers with checks.
      */
-    protected @NotNull List<BiConsumer<Boolean, InternalArgument<S, ?>>> getArgValidations() {
+    protected @NotNull List<@NotNull BiConsumer<@NotNull Boolean, @NotNull InternalArgument<S, ?>>> getArgValidations() {
         return Arrays.asList(validateOptionals(), validateLimitless());
     }
 
@@ -761,7 +760,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return Returns a BiConsumer with an is optional check.
      */
-    protected @NotNull BiConsumer<Boolean, InternalArgument<S, ?>> validateOptionals() {
+    protected @NotNull BiConsumer<@NotNull Boolean, @NotNull InternalArgument<S, ?>> validateOptionals() {
         return (hasNext, internalArgument) -> {
             if (hasNext && internalArgument.isOptional()) {
                 throw createException("Optional internalArgument is only allowed as the last internalArgument");
@@ -774,7 +773,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return Returns a BiConsumer with an instance of check.
      */
-    protected @NotNull BiConsumer<Boolean, InternalArgument<S, ?>> validateLimitless() {
+    protected @NotNull BiConsumer<@NotNull Boolean, @NotNull InternalArgument<S, ?>> validateLimitless() {
         return (hasNext, internalArgument) -> {
             if (hasNext && internalArgument instanceof LimitlessInternalArgument) {
                 throw createException("Limitless internalArgument is only allowed as the last internalArgument");
@@ -878,7 +877,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         suggestionList.set(index, suggestion);
     }
 
-    private @NotNull List<dev.triumphteam.cmd.core.annotation.Suggestion> getSuggestionsFromAnnotations() {
+    private @NotNull List<dev.triumphteam.cmd.core.annotation.@NotNull Suggestion> getSuggestionsFromAnnotations() {
         final Suggestions requirements = method.getAnnotation(Suggestions.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 

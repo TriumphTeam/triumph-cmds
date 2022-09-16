@@ -54,9 +54,9 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
     private final SenderMapper<PrefixedSender, S> senderMapper;
 
     public PrefixedCommandListener(
-            @NotNull final PrefixedCommandManager<S> commandManager,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderMapper<PrefixedSender, S> senderMapper
+            final @NotNull PrefixedCommandManager<S> commandManager,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull SenderMapper<PrefixedSender, S> senderMapper
     ) {
         this.commandManager = commandManager;
         this.messageRegistry = registryContainer.getMessageRegistry();
@@ -70,7 +70,7 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
      * @param event The event object.
      */
     @Override
-    public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
+    public void onMessageReceived(final @NotNull MessageReceivedEvent event) {
         final User author = event.getAuthor();
         if (author.isBot()) return;
 
@@ -105,8 +105,7 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
      * @param command The command string.
      * @return A prefix from the allowed prefixes.
      */
-    @Nullable
-    private String getPrefix(final String command) {
+    private @Nullable String getPrefix(final @NotNull String command) {
         for (Pattern prefix : commandManager.getPrefixesRegexes()) {
             final Matcher matcher = prefix.matcher(command);
 

@@ -64,8 +64,7 @@ public final class JdaOptionUtil {
 
     private JdaOptionUtil() {}
 
-    @NotNull
-    public static OptionType fromType(@NotNull final Class<?> type) {
+    public static @NotNull OptionType fromType(final @NotNull Class<?> type) {
         return OPTION_TYPE_MAP.getOrDefault(type, OptionType.STRING);
     }
 

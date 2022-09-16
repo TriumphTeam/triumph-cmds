@@ -60,7 +60,7 @@ public final class RequirementKey extends RegistryKey {
      *
      * @return The keys {@link Set}.
      */
-    public static @NotNull Set<RequirementKey> getRegisteredKeys() {
+    public static @NotNull Set<@NotNull RequirementKey> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 

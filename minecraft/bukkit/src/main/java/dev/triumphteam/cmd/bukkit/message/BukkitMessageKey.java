@@ -40,7 +40,7 @@ public final class BukkitMessageKey<C extends MessageContext> extends Contextual
     public static final BukkitMessageKey<MessageContext> PLAYER_ONLY = of("player.only", MessageContext.class);
     public static final BukkitMessageKey<MessageContext> CONSOLE_ONLY = of("console.only", MessageContext.class);
 
-    private BukkitMessageKey(@NotNull final String key, @NotNull final Class<C> type) {
+    private BukkitMessageKey(final @NotNull String key, final @NotNull Class<C> type) {
         super(key, type);
     }
 
@@ -52,14 +52,13 @@ public final class BukkitMessageKey<C extends MessageContext> extends Contextual
      * @param <C>  Generic {@link MessageContext} type.
      * @return A new {@link BukkitMessageKey} for a specific {@link MessageContext}.
      */
-    @NotNull
     @Contract("_, _ -> new")
-    private static <C extends MessageContext> BukkitMessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
+    private static <C extends MessageContext> @NotNull BukkitMessageKey<C> of(final @NotNull String key, final @NotNull Class<C> type) {
         return new BukkitMessageKey<>(key, type);
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "BukkitMessageKey{super=" + super.toString() + "}";
     }
 }

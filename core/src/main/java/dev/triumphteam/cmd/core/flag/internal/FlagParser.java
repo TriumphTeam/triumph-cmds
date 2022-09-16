@@ -50,7 +50,7 @@ public final class FlagParser<S> {
         this.flagGroup = flagGroup;
     }
 
-    public @NotNull Map<FlagOptions<S>, String> parseFlags(final @NotNull List<String> toParse) {
+    public @NotNull Map<@NotNull FlagOptions<S>, @NotNull String> parseFlags(final @NotNull List<@NotNull String> toParse) {
         return parseInternal(toParse).getKey();
     }
 
@@ -59,7 +59,9 @@ public final class FlagParser<S> {
         return new FlagsResult<>(sender, parsed.getKey(), parsed.getValue());
     }
 
-    private Map.@NotNull Entry<@NotNull Map<@NotNull FlagOptions<S>, @NotNull String>, @NotNull List<@NotNull String>> parseInternal(final @NotNull List<String> toParse) {
+    private List<String> hi;
+
+    private Map.@NotNull Entry<@NotNull Map<@NotNull FlagOptions<S>, @NotNull String>, @NotNull List<@NotNull String>> parseInternal(final @NotNull List<@NotNull String> toParse) {
         final FlagScanner tokens = new FlagScanner(toParse);
 
         final Map<FlagOptions<S>, String> flags = new LinkedHashMap<>();

@@ -71,14 +71,14 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
      * @return A {@link Flags} which contains the flags and leftovers.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
         return flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
     }
 
     @Override
-    public @NotNull List<String> suggestions(
+    public @NotNull List<@NotNull String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<String> trimmed,
+            final @NotNull List<@NotNull String> trimmed,
             final @NotNull SuggestionContext context
     ) {
         final int size = trimmed.size();

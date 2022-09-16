@@ -37,7 +37,7 @@ public final class FlagScanner {
 
     private String current = null;
 
-    public FlagScanner(final @NotNull List<String> tokens) {
+    public FlagScanner(final @NotNull List<@NotNull String> tokens) {
         this.tokens = tokens;
     }
 
@@ -46,8 +46,7 @@ public final class FlagScanner {
      *
      * @return The current token.
      */
-    @NotNull
-    public String peek() {
+    public @NotNull String peek() {
         return current;
     }
 
@@ -63,8 +62,7 @@ public final class FlagScanner {
     /**
      * Points the pointer to the next token.
      */
-    @NotNull
-    public String next() {
+    public @NotNull String next() {
         if (pointer < tokens.size()) pointer++;
         setToken(tokens.get(pointer));
         return peek();

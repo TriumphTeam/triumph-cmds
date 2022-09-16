@@ -33,14 +33,13 @@ public final class EmptyChoice implements Choice {
 
     public static final EmptyChoice INSTANCE = new EmptyChoice();
 
-    @NotNull
     @Override
-    public List<String> getChoices() {
+    public @NotNull List<@NotNull String> getChoices() {
         return emptyList();
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "EmptyChoice{}";
     }
 }

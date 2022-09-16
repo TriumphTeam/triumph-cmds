@@ -31,9 +31,9 @@ import org.jetbrains.annotations.NotNull;
 final class PrefixedSubCommand<S> extends AbstractSubCommand<S> {
 
     public PrefixedSubCommand(
-            @NotNull final AbstractSubCommandProcessor<S> processor,
-            @NotNull final String parentName,
-            @NotNull final ExecutionProvider executionProvider
+            final @NotNull AbstractSubCommandProcessor<S> processor,
+            final @NotNull String parentName,
+            final @NotNull ExecutionProvider executionProvider
     ) {
         super(processor, parentName, executionProvider);
     }
