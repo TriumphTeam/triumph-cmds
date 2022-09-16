@@ -38,11 +38,11 @@ public final class InvalidArgumentContext extends AbstractMessageContext {
     private final Class<?> type;
 
     public InvalidArgumentContext(
-            @NotNull final String command,
-            @NotNull final String subCommand,
-            @NotNull final String argument,
-            @NotNull final String name,
-            @NotNull final Class<?> type
+            final @NotNull String command,
+            final @NotNull String subCommand,
+            final @NotNull String argument,
+            final @NotNull String name,
+            final @NotNull Class<?> type
     ) {
         super(command, subCommand);
         this.argument = argument;
@@ -55,8 +55,7 @@ public final class InvalidArgumentContext extends AbstractMessageContext {
      *
      * @return The invalid argument.
      */
-    @NotNull
-    public String getTypedArgument() {
+    public @NotNull String getTypedArgument() {
         return argument;
     }
 
@@ -67,8 +66,7 @@ public final class InvalidArgumentContext extends AbstractMessageContext {
      *
      * @return The argument name, should be equal to the parameter name.
      */
-    @NotNull
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -77,13 +75,12 @@ public final class InvalidArgumentContext extends AbstractMessageContext {
      *
      * @return The argument type the user should have used.
      */
-    @NotNull
-    public Class<?> getArgumentType() {
+    public @NotNull Class<?> getArgumentType() {
         return type;
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
@@ -97,7 +94,7 @@ public final class InvalidArgumentContext extends AbstractMessageContext {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "InvalidArgumentContext{" +
                 "argument='" + argument + '\'' +
                 ", name='" + name + '\'' +

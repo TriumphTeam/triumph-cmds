@@ -35,34 +35,30 @@ public final class SimpleArgument implements Argument {
     private final SuggestionKey suggestionKey;
 
 
-    public SimpleArgument(@NotNull final AbstractArgumentBuilder<?> argumentBuilder) {
+    public SimpleArgument(final @NotNull AbstractArgumentBuilder<?> argumentBuilder) {
         this.type = argumentBuilder.getType();
         this.name = argumentBuilder.getName();
         this.description = argumentBuilder.getDescription();
         this.suggestionKey = argumentBuilder.getSuggestionKey();
     }
 
-    @NotNull
     @Override
-    public Class<?> getType() {
+    public @NotNull Class<?> getType() {
         return type;
     }
 
-    @NotNull
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
-    @NotNull
     @Override
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return description;
     }
 
-    @Nullable
     @Override
-    public SuggestionKey getSuggestion() {
+    public @Nullable SuggestionKey getSuggestion() {
         return suggestionKey;
     }
 }

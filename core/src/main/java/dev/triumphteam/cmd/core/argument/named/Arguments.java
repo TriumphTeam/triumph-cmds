@@ -41,12 +41,12 @@ public interface Arguments {
      * @param <T>  The generic type of the argument.
      * @return An {@link Optional} argument.
      */
-    @NotNull <T> Optional<T> get(@NotNull final String name, @NotNull final Class<T> type);
+    <T> @NotNull Optional<T> get(final @NotNull String name, final @NotNull Class<T> type);
 
 
-    @NotNull <T> Optional<List<T>> getAsList(@NotNull final String name, @NotNull final Class<T> type);
+    <T> @NotNull Optional<List<T>> getAsList(final @NotNull String name, final @NotNull Class<T> type);
 
-    @NotNull <T> Optional<Set<T>> getAsSet(@NotNull final String name, @NotNull final Class<T> type);
+    <T> @NotNull Optional<Set<T>> getAsSet(final @NotNull String name, final @NotNull Class<T> type);
 
     /**
      * Get all arguments passed to this command

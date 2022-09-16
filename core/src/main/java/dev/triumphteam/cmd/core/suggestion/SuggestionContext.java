@@ -35,24 +35,24 @@ public final class SuggestionContext {
     private final String subCommand;
 
     public SuggestionContext(
-            @NotNull final List<String> args,
-            @NotNull final String command,
-            @NotNull final String subCommand
+            final @NotNull List<String> args,
+            final @NotNull String command,
+            final @NotNull String subCommand
     ) {
         this.args = args;
         this.command = command;
         this.subCommand = subCommand;
     }
 
-    public List<String> getArgs() {
+    public @NotNull List<String> getArgs() {
         return Collections.unmodifiableList(args);
     }
 
-    public String getCommand() {
+    public @NotNull String getCommand() {
         return command;
     }
 
-    public String getSubCommand() {
+    public @NotNull String getSubCommand() {
         return subCommand;
     }
 }

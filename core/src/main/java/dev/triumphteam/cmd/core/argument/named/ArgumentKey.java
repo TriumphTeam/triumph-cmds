@@ -29,13 +29,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class ArgumentKey extends RegistryKey {
 
-    private ArgumentKey(@NotNull final String key) {
+    private ArgumentKey(final @NotNull String key) {
         super(key);
     }
 
-    @NotNull
     @Contract("_ -> new")
-    public static ArgumentKey of(@NotNull final String key) {
+    public static @NotNull ArgumentKey of(final @NotNull String key) {
         return new ArgumentKey(key);
     }
 }

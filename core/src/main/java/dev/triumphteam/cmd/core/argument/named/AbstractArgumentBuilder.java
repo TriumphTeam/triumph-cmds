@@ -37,7 +37,7 @@ abstract class AbstractArgumentBuilder<T extends AbstractArgumentBuilder<T>> {
     private String description = "Description!";
     private SuggestionKey suggestionKey;
 
-    public AbstractArgumentBuilder(@NotNull final Class<?> type) {
+    public AbstractArgumentBuilder(final @NotNull Class<?> type) {
         this.type = type;
     }
 
@@ -47,9 +47,8 @@ abstract class AbstractArgumentBuilder<T extends AbstractArgumentBuilder<T>> {
      * @param name The name of the argument.
      * @return This builder.
      */
-    @NotNull
     @Contract("_ -> this")
-    public T name(@NotNull final String name) {
+    public @NotNull T name(final @NotNull String name) {
         this.name = name;
         return (T) this;
     }
@@ -60,16 +59,14 @@ abstract class AbstractArgumentBuilder<T extends AbstractArgumentBuilder<T>> {
      * @param description The description of the argument.
      * @return This builder.
      */
-    @NotNull
     @Contract("_ -> this")
-    public T description(@NotNull final String description) {
+    public @NotNull T description(final @NotNull String description) {
         this.description = description;
         return (T) this;
     }
 
-    @NotNull
     @Contract("_ -> this")
-    public T suggestion(@NotNull final SuggestionKey suggestionKey) {
+    public @NotNull T suggestion(final @NotNull SuggestionKey suggestionKey) {
         this.suggestionKey = suggestionKey;
         return (T) this;
     }
@@ -79,32 +76,27 @@ abstract class AbstractArgumentBuilder<T extends AbstractArgumentBuilder<T>> {
      *
      * @return A new {@link Argument} with the data from this builder.
      */
-    @NotNull
     @Contract(" -> new")
-    public Argument build() {
+    public @NotNull Argument build() {
         return new SimpleArgument(this);
     }
 
-    @NotNull
-    Class<?> getType() {
+    @NotNull Class<?> getType() {
         return type;
     }
 
-    @NotNull
-    String getName() {
+    @NotNull String getName() {
         if (name == null || name.isEmpty()) {
             throw new CommandRegistrationException("Argument is missing a name!");
         }
         return name;
     }
 
-    @NotNull
-    String getDescription() {
+    @NotNull String getDescription() {
         return description;
     }
 
-    @Nullable
-    SuggestionKey getSuggestionKey() {
+    @Nullable SuggestionKey getSuggestionKey() {
         return suggestionKey;
     }
 }

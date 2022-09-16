@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class ArgumentBuilder extends AbstractArgumentBuilder<ArgumentBuilder> {
 
-    public ArgumentBuilder(@NotNull final Class<?> type) {
+    public ArgumentBuilder(final @NotNull Class<?> type) {
         super(type);
     }
 }

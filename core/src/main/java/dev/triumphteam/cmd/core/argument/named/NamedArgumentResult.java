@@ -36,24 +36,23 @@ public final class NamedArgumentResult implements Arguments {
 
     private final Map<String, Object> values;
 
-    public NamedArgumentResult(@NotNull final Map<String, Object> values) {
+    public NamedArgumentResult(final @NotNull Map<String, Object> values) {
         this.values = values;
     }
 
-    @NotNull
     @Override
-    public <T> Optional<T> get(final @NotNull String name, final @NotNull Class<T> type) {
+    public <T> @NotNull Optional<T> get(final @NotNull String name, final @NotNull Class<T> type) {
         return (Optional<T>) Optional.ofNullable(values.get(name));
     }
 
     @Override
-    public @NotNull <T> Optional<List<T>> getAsList(final @NotNull String name, final @NotNull Class<T> type) {
+    public <T> @NotNull Optional<List<T>> getAsList(final @NotNull String name, final @NotNull Class<T> type) {
         final List<T> value = (List<T>) values.get(name);
         return Optional.ofNullable(value);
     }
 
     @Override
-    public @NotNull <T> Optional<Set<T>> getAsSet(final @NotNull String name, final @NotNull Class<T> type) {
+    public <T> @NotNull Optional<Set<T>> getAsSet(final @NotNull String name, final @NotNull Class<T> type) {
         final Set<T> value = (Set<T>) values.get(name);
         return Optional.ofNullable(value);
     }
@@ -69,7 +68,7 @@ public final class NamedArgumentResult implements Arguments {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "Arguments{" +
                 "values=" + values +
                 '}';

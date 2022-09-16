@@ -42,11 +42,11 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
     private final ArgumentResolver<S> resolver;
 
     public ResolverInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final Class<?> type,
-            @NotNull final ArgumentResolver<S> resolver,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<?> type,
+            final @NotNull ArgumentResolver<S> resolver,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -61,14 +61,13 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
      * @param value  The {@link String} argument value.
      * @return An Object value of the correct type, based on the result from the {@link ArgumentResolver}.
      */
-    @Nullable
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final String value) {
+    public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
         return resolver.resolve(sender, value);
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;

@@ -37,6 +37,6 @@ public interface ExecutionProvider {
      *
      * @param command The command to execute.
      */
-    void execute(@NotNull final Runnable command);
+    void execute(final @NotNull Runnable command);
 
 }

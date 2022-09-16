@@ -39,7 +39,7 @@ public final class RequirementKey extends RegistryKey {
     // Holds all registered keys, default and custom ones
     private static final Set<RequirementKey> REGISTERED_KEYS = new HashSet<>();
 
-    private RequirementKey(@NotNull final String key) {
+    private RequirementKey(final @NotNull String key) {
         super(key);
         REGISTERED_KEYS.add(this);
     }
@@ -50,9 +50,8 @@ public final class RequirementKey extends RegistryKey {
      * @param key The value of the key, normally separated by <code>.</code>.
      * @return A new {@link RequirementKey}.
      */
-    @NotNull
     @Contract("_ -> new")
-    public static RequirementKey of(@NotNull final String key) {
+    public static @NotNull RequirementKey of(final @NotNull String key) {
         return new RequirementKey(key);
     }
 
@@ -61,13 +60,12 @@ public final class RequirementKey extends RegistryKey {
      *
      * @return The keys {@link Set}.
      */
-    @NotNull
-    public static Set<RequirementKey> getRegisteredKeys() {
+    public static @NotNull Set<RequirementKey> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "RequirementKey{super=" + super.toString() + "}";
     }
 }

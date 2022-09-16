@@ -31,13 +31,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class CommandRegistrationException extends RuntimeException {
 
-    public CommandRegistrationException(@NotNull final String message) {
+    public CommandRegistrationException(final @NotNull String message) {
         super(message);
     }
 
     public CommandRegistrationException(
-            @NotNull final String message,
-            @NotNull final Class<? extends BaseCommand> commandClass
+            final @NotNull String message,
+            final @NotNull Class<? extends BaseCommand> commandClass
     ) {
         super(message + ". In Class \"" + commandClass.getName() + "\"");
     }

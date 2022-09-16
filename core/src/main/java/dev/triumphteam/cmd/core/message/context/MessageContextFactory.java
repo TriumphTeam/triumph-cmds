@@ -29,8 +29,7 @@ import org.jetbrains.annotations.NotNull;
 @FunctionalInterface
 public interface MessageContextFactory<C extends MessageContext> {
 
-    @NotNull
     @Contract("_, _ -> new")
-    C create(@NotNull final String command, @NotNull final String subCommand);
+    @NotNull C create(final @NotNull String command, final @NotNull String subCommand);
 
 }

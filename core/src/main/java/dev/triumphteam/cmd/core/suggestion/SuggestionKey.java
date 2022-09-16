@@ -39,7 +39,7 @@ public final class SuggestionKey extends RegistryKey {
     // Holds all registered keys, default and custom ones
     private static final Set<SuggestionKey> REGISTERED_KEYS = new HashSet<>();
 
-    private SuggestionKey(@NotNull final String key) {
+    private SuggestionKey(final @NotNull String key) {
         super(key);
         REGISTERED_KEYS.add(this);
     }
@@ -50,9 +50,8 @@ public final class SuggestionKey extends RegistryKey {
      * @param key The value of the key, normally separated by <code>.</code>.
      * @return A new {@link SuggestionKey}.
      */
-    @NotNull
     @Contract("_ -> new")
-    public static SuggestionKey of(@NotNull final String key) {
+    public static @NotNull SuggestionKey of(final @NotNull String key) {
         return new SuggestionKey(key);
     }
 
@@ -61,13 +60,12 @@ public final class SuggestionKey extends RegistryKey {
      *
      * @return The keys {@link Set}.
      */
-    @NotNull
-    public static Set<SuggestionKey> getRegisteredKeys() {
+    public static @NotNull Set<SuggestionKey> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "SuggestionKey{super=" + super.toString() + "}";
     }
 }

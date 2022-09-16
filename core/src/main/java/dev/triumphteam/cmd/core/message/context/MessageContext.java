@@ -36,8 +36,7 @@ public interface MessageContext {
      *
      * @return The command name.
      */
-    @NotNull
-    String getCommand();
+    @NotNull String getCommand();
 
     /**
      * Gets the sub command in which the error occurred.
@@ -45,7 +44,6 @@ public interface MessageContext {
      *
      * @return The sub command name.
      */
-    @NotNull
-    String getSubCommand();
+    @NotNull String getSubCommand();
 
 }

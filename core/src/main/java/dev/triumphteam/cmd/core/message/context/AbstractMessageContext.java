@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.message.context;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -35,7 +36,7 @@ public abstract class AbstractMessageContext implements MessageContext {
     private final String command;
     private final String subCommand;
 
-    public AbstractMessageContext(@NotNull final String command, @NotNull final String subCommand) {
+    public AbstractMessageContext(final @NotNull String command, final @NotNull String subCommand) {
         this.command = command;
         this.subCommand = subCommand;
     }
@@ -45,9 +46,8 @@ public abstract class AbstractMessageContext implements MessageContext {
      *
      * @return The command name.
      */
-    @NotNull
     @Override
-    public String getCommand() {
+    public @NotNull String getCommand() {
         return command;
     }
 
@@ -56,14 +56,13 @@ public abstract class AbstractMessageContext implements MessageContext {
      *
      * @return The sub command name.
      */
-    @NotNull
     @Override
-    public String getSubCommand() {
+    public @NotNull String getSubCommand() {
         return subCommand;
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final AbstractMessageContext that = (AbstractMessageContext) o;
@@ -76,7 +75,7 @@ public abstract class AbstractMessageContext implements MessageContext {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "AbstractMessageContext{" +
                 "command='" + command + '\'' +
                 ", subCommand='" + subCommand + '\'' +

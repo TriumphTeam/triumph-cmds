@@ -35,14 +35,11 @@ import java.util.List;
  */
 public interface SubCommand<S> {
 
-    @NotNull
-    String getName();
+    @NotNull String getName();
 
-    @NotNull
-    String getParentName();
+    @NotNull String getParentName();
 
-    @NotNull
-    Class<? extends S> getSenderType();
+    @NotNull Class<? extends S> getSenderType();
 
     boolean hasArguments();
 
@@ -60,6 +57,6 @@ public interface SubCommand<S> {
      * @param sender The sender.
      * @param args   The arguments to pass to the executor.
      */
-    void execute(@NotNull S sender, @NotNull final List<String> args);
+    void execute(final @NotNull S sender, final @NotNull List<@NotNull String> args);
 
 }

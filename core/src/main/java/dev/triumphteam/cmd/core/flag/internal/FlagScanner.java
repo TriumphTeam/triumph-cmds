@@ -37,7 +37,7 @@ public final class FlagScanner {
 
     private String current = null;
 
-    public FlagScanner(@NotNull final List<String> tokens) {
+    public FlagScanner(final @NotNull List<String> tokens) {
         this.tokens = tokens;
     }
 
@@ -83,7 +83,7 @@ public final class FlagScanner {
      *
      * @param token The new token to set.
      */
-    private void setToken(@NotNull final String token) {
+    private void setToken(final @NotNull String token) {
         this.current = token;
     }
 

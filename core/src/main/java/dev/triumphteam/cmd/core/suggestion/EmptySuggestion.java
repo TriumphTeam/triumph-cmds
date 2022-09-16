@@ -31,14 +31,13 @@ import static java.util.Collections.emptyList;
 
 public final class EmptySuggestion<S> implements Suggestion<S> {
 
-    @NotNull
     @Override
-    public List<String> getSuggestions(@NotNull final S sender, @NotNull final String current, @NotNull final SuggestionContext context) {
+    public @NotNull List<String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
         return emptyList();
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "EmptySuggestion{}";
     }
 }

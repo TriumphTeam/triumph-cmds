@@ -32,24 +32,22 @@ class ArgFlagValue<S> implements FlagValue {
     private final String value;
     private final StringInternalArgument<S> argument;
 
-    public ArgFlagValue(@NotNull final String value, @NotNull final StringInternalArgument<S> argument) {
+    public ArgFlagValue(final @NotNull String value, final @NotNull StringInternalArgument<S> argument) {
         this.value = value;
         this.argument = argument;
     }
 
-    @Nullable
-    public Object getValue(@NotNull final S sender, @NotNull final Class<?> type) {
+    public @Nullable Object getValue(final @NotNull S sender, final @NotNull Class<?> type) {
         if (!type.equals(argument.getType())) return null;
         return argument.resolve(sender, value);
     }
 
-    @NotNull
-    public String getAsString() {
+    public @NotNull String getAsString() {
         return value;
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "ArgFlagValue{" +
                 "value='" + value + '\'' +
                 ", argument=" + argument +

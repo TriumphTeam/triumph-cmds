@@ -41,10 +41,10 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
     private final CharSequence delimiter;
 
     public JoinedStringInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final CharSequence delimiter,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull CharSequence delimiter,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -59,14 +59,13 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
      * @param value  The arguments {@link List}.
      * @return A single {@link String} with the joined {@link List}.
      */
-    @NotNull
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
         return String.join(delimiter, value);
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
