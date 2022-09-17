@@ -23,11 +23,14 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.AbstractSubCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class SimpleSubCommand<S> extends AbstractSubCommand<S> {
+import java.util.List;
+
+public final class SimpleSubCommand<S> extends SubCommand<S> {
 
     public SimpleSubCommand(
             @NotNull final SimpleSubCommandProcessor<S> processor,
@@ -35,5 +38,11 @@ public final class SimpleSubCommand<S> extends AbstractSubCommand<S> {
             @NotNull final ExecutionProvider executionProvider
     ) {
         super(processor, parentName, executionProvider);
+    }
+
+    // TODO:
+    @Override
+    public @Nullable Object resolve(@NotNull final S sender, final @NotNull List<String> value) {
+        return null;
     }
 }

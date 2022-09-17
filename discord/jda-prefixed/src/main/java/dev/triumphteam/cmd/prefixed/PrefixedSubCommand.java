@@ -27,6 +27,9 @@ import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 final class PrefixedSubCommand<S> extends SubCommand<S> {
 
@@ -36,5 +39,11 @@ final class PrefixedSubCommand<S> extends SubCommand<S> {
             @NotNull final ExecutionProvider executionProvider
     ) {
         super(processor, parentName, executionProvider);
+    }
+
+    // TODO:   
+    @Override
+    public @Nullable Object resolve(@NotNull final S sender, final @NotNull List<String> value) {
+        return null;
     }
 }

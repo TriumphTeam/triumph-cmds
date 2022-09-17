@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,12 @@ final class SlashSubCommand<S> extends SubCommand<S> {
 
     public String getDescription() {
         return description;
+    }
+
+    // TODO
+    @Override
+    public @Nullable Object resolve(@NotNull final S sender, final @NotNull List<String> value) {
+        return null;
     }
 
     public List<OptionData> getJdaOptions() {

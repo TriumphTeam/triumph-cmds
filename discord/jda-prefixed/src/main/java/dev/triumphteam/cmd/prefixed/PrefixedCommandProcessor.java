@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.prefixed.annotation.Prefix;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
 /**
@@ -77,16 +78,16 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<Prefixe
         return prefixAnnotation == null ? "" : prefixAnnotation.value();
     }
 
-    @NotNull
     @Override
-    protected PrefixedSubCommandProcessor<S> createProcessor(@NotNull final Method method) {
-        return new PrefixedSubCommandProcessor<>(
+    protected @NotNull PrefixedSubCommandProcessor<S> createProcessor(final @NotNull AnnotatedElement method) {
+        return null;
+        /*return new PrefixedSubCommandProcessor<>(
                 getBaseCommand(),
                 getName(),
                 method,
                 getRegistryContainer(),
                 getSenderValidator()
-        );
+        );*/
     }
 
     @NotNull

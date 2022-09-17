@@ -35,6 +35,7 @@ import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.Permission;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,16 +102,16 @@ final class SlashCommandProcessor<S>
         return Collections.emptyList();
     }
 
-    @NotNull
     @Override
-    protected SlashSubCommandProcessor<S> createProcessor(@NotNull final Method method) {
-        return new SlashSubCommandProcessor<>(
+    protected @NotNull SlashSubCommandProcessor<S> createProcessor(final @NotNull AnnotatedElement method) {
+        return null;
+        /*return new SlashSubCommandProcessor<>(
                 getBaseCommand(),
                 getName(),
                 method,
                 (SlashRegistryContainer<S>) getRegistryContainer(),
                 getSenderValidator()
-        );
+        );*/
     }
 
     @NotNull

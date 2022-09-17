@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
 public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S, S, SimpleSubCommand<S>, SimpleSubCommandProcessor<S>> {
@@ -49,18 +50,18 @@ public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S,
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    protected SimpleSubCommandProcessor<S> createProcessor(@NotNull Method method) {
-        return new SimpleSubCommandProcessor<S>(
+    protected @NotNull SimpleSubCommandProcessor<S> createProcessor(final @NotNull AnnotatedElement method) {
+        return null;
+        /*return new SimpleSubCommandProcessor<S>(
                 getBaseCommand(),
                 method.getName(),
                 method,
                 getRegistryContainer(),
                 getSenderValidator()
-        );
+        );*/
     }
-    
+
     /**
      * {@inheritDoc}
      */
