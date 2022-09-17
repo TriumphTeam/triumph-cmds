@@ -48,10 +48,10 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     private final Suggestion<S> suggestion;
 
     public AbstractInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final Class<?> type,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<?> type,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -64,9 +64,9 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     }
 
     @Override
-    public List<String> suggestions(
-            @NotNull final S sender,
-            @NotNull final List<String> trimmed,
+    public @NotNull List<@NotNull String> suggestions(
+            final @NotNull S sender,
+            final @NotNull List<@NotNull String> trimmed,
             final @NotNull SuggestionContext context
     ) {
         return suggestion.getSuggestions(sender, trimmed.get(0), context);
@@ -79,9 +79,8 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
      *
      * @return The internalArgument name.
      */
-    @NotNull
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -91,7 +90,7 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     }
 
     @Override
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return description;
     }
 
@@ -101,9 +100,8 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
      *
      * @return The internalArgument type.
      */
-    @NotNull
     @Override
-    public Class<?> getType() {
+    public @NotNull Class<?> getType() {
         return type;
     }
 
@@ -117,12 +115,12 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
         return optional;
     }
 
-    protected Suggestion<S> getSuggestion() {
+    protected @NotNull Suggestion<S> getSuggestion() {
         return suggestion;
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final AbstractInternalArgument<?, ?> internalArgument = (AbstractInternalArgument<?, ?>) o;
@@ -135,7 +133,7 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "AbstractInternalArgument{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +

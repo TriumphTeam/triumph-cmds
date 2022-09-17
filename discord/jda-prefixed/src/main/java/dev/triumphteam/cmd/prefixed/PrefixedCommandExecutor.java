@@ -48,9 +48,9 @@ final class PrefixedCommandExecutor<S> {
     private final ExecutionProvider asyncExecutionProvider;
 
     public PrefixedCommandExecutor(
-            @NotNull final MessageRegistry<S> messageRegistry,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            final @NotNull MessageRegistry<S> messageRegistry,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
         this.messageRegistry = messageRegistry;
         this.syncExecutionProvider = syncExecutionProvider;
@@ -62,7 +62,7 @@ final class PrefixedCommandExecutor<S> {
      *
      * @param processor The processor with all the command data.
      */
-    public void register(@NotNull final PrefixedCommandProcessor<S> processor) {
+    public void register(final @NotNull PrefixedCommandProcessor<S> processor) {
         final String name = processor.getName();
 
         final PrefixedCommand<S> command = commands.computeIfAbsent(name, p -> new PrefixedCommand<>(processor, syncExecutionProvider, asyncExecutionProvider));
@@ -82,9 +82,9 @@ final class PrefixedCommandExecutor<S> {
      * @param args        The command arguments.
      */
     public void execute(
-            @NotNull final String commandName,
-            @NotNull final S sender,
-            @NotNull final List<String> args
+            final @NotNull String commandName,
+            final @NotNull S sender,
+            final @NotNull List<@NotNull String> args
     ) {
 
         final PrefixedCommand<S> command = commands.get(commandName);

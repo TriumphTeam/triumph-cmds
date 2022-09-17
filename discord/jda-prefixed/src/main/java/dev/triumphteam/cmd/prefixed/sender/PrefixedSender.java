@@ -45,16 +45,14 @@ public interface PrefixedSender {
      *
      * @return The original {@link Message}.
      */
-    @NotNull
-    Message getMessage();
+    @NotNull Message getMessage();
 
     /**
      * Gets the {@link User} that send the message.
      *
      * @return The {@link User} that sent the message.
      */
-    @NotNull
-    User getUser();
+    @NotNull User getUser();
 
     /**
      * Gets the {@link Member} that sent the message if the {@link User} is a member.
@@ -62,31 +60,27 @@ public interface PrefixedSender {
      *
      * @return The {@link Member} that sent the message or null.
      */
-    @Nullable
-    Member getMember();
+    @Nullable Member getMember();
 
     /**
      * Gets the {@link TextChannel} the message was sent on.
      *
      * @return The {@link TextChannel}, will throw exception if the message was not sent in a text channel.
      */
-    @NotNull
-    TextChannel getChannel();
+    @NotNull TextChannel getChannel();
 
     /**
      * Gets the {@link Guild} the command was sent from.
      *
      * @return The {@link Guild}.
      */
-    @NotNull
-    Guild getGuild();
+    @NotNull Guild getGuild();
 
     /**
      * Gets the {@link JDA} instance.
      *
      * @return The {@link JDA} instance.
      */
-    @NotNull
-    JDA getJDA();
+    @NotNull JDA getJDA();
 
 }

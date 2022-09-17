@@ -43,9 +43,9 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
     private final Map<String, InternalArgument<S, ?>> arguments;
 
     public NamedInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final Map<String, InternalArgument<S, ?>> arguments,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Map<String, InternalArgument<S, ?>> arguments,
             final int position,
             final boolean isOptional
     ) {
@@ -53,9 +53,8 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
         this.arguments = arguments;
     }
 
-    @NotNull
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
         final Map<String, String> parsedArgs = NamedArgumentParser.parse(String.join(" ", value));
         final Map<String, Object> mapped = new HashMap<>(parsedArgs.size());
 
@@ -71,10 +70,10 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
     }
 
     @Override
-    public List<String> suggestions(
-            @NotNull final S sender,
-            @NotNull final List<String> trimmed,
-            @NotNull final SuggestionContext context
+    public @NotNull List<@NotNull String> suggestions(
+            final @NotNull S sender,
+            final @NotNull List<@NotNull String> trimmed,
+            final @NotNull SuggestionContext context
     ) {
         final Map<String, String> parsedArgs = NamedArgumentParser.parse(String.join(" ", trimmed));
         final String current = trimmed.get(trimmed.size() - 1);
@@ -119,12 +118,11 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
         return notUsed;
     }
 
-    @Nullable
     @SuppressWarnings("unchecked")
-    private Object resolveArgument(
-            @NotNull final S sender,
-            @NotNull final InternalArgument<S, ?> argument,
-            @NotNull final String value
+    private @Nullable Object resolveArgument(
+            final @NotNull S sender,
+            final @NotNull InternalArgument<S, ?> argument,
+            final @NotNull String value
     ) {
         if (argument instanceof StringInternalArgument) {
             return ((StringInternalArgument<S>) argument).resolve(sender, value);
@@ -133,9 +131,8 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
         return null;
     }
 
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "NamedInternalArgument{" +
                 "arguments=" + arguments +
                 ", super=" + super.toString() + "}";

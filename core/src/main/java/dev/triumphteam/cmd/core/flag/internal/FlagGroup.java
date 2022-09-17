@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.flag.internal;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,11 +44,11 @@ public final class FlagGroup<S> {
 
     private final List<String> allFlags = new ArrayList<>();
 
-    public Map<String, FlagOptions<S>> getFlags() {
+    public @NotNull Map<@Nullable String, @NotNull FlagOptions<S>> getFlags() {
         return flags;
     }
 
-    public Map<String, FlagOptions<S>> getLongFlags() {
+    public @NotNull Map<@NotNull String, @NotNull FlagOptions<S>> getLongFlags() {
         return longFlags;
     }
 
@@ -56,7 +57,7 @@ public final class FlagGroup<S> {
      *
      * @param flagOptions The {@link FlagOptions} that should be added to the lis.
      */
-    public void addFlag(@NotNull final FlagOptions<S> flagOptions) {
+    public void addFlag(final @NotNull FlagOptions<S> flagOptions) {
         final String key = flagOptions.getKey();
 
         final String longFlag = flagOptions.getLongFlag();
@@ -69,7 +70,7 @@ public final class FlagGroup<S> {
         flags.put(key, flagOptions);
     }
 
-    public List<String> getAllFlags() {
+    public @NotNull List<@NotNull String> getAllFlags() {
         return allFlags;
     }
 
@@ -88,8 +89,7 @@ public final class FlagGroup<S> {
      * @param token The current token, a flag name or not.
      * @return The flag if found or null if not a valid flag.
      */
-    @Nullable
-    public FlagOptions<S> getMatchingFlag(@NotNull final String token) {
+    public @Nullable FlagOptions<S> getMatchingFlag(final @NotNull String token) {
         final String stripped = stripLeadingHyphens(token);
 
         final FlagOptions<S> flag = flags.get(stripped);
@@ -102,8 +102,7 @@ public final class FlagGroup<S> {
      * @param token The flag token.
      * @return The flag token without hyphens.
      */
-    @NotNull
-    private String stripLeadingHyphens(@NotNull final String token) {
+    private @NotNull String stripLeadingHyphens(final @NotNull String token) {
         if (token.startsWith("--")) return token.substring(2);
         if (token.startsWith("-")) return token.substring(1);
         return token;

@@ -35,19 +35,18 @@ import org.jetbrains.annotations.NotNull;
 public abstract class StringInternalArgument<S> extends AbstractInternalArgument<S, String> {
 
     public StringInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final Class<?> type,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<?> type,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
         super(name, description, type, suggestion, position, optional);
     }
 
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "StringArgument{super=" + super.toString() + "}";
     }
 

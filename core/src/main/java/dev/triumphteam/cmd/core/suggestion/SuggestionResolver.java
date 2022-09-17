@@ -40,7 +40,6 @@ public interface SuggestionResolver<S> {
      * @param context The command context for the suggestion
      * @return A list of suggestions.
      */
-    @NotNull
-    List<String> resolve(@NotNull final S sender, @NotNull final SuggestionContext context);
+    @NotNull List<@NotNull String> resolve(final @NotNull S sender, final @NotNull SuggestionContext context);
 
 }

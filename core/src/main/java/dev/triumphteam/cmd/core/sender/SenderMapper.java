@@ -34,10 +34,9 @@ import org.jetbrains.annotations.NotNull;
 @FunctionalInterface
 public interface SenderMapper<DS, S> {
 
-    @NotNull
-    S map(@NotNull final DS defaultSender);
+    @NotNull S map(final @NotNull DS defaultSender);
 
-    static <S> SenderMapper<S, S> defaultMapper() {
+    static <S> @NotNull SenderMapper<S, S> defaultMapper() {
         return defaultMapper -> defaultMapper;
     }
 }

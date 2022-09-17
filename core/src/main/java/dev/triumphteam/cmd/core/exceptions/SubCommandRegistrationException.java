@@ -34,9 +34,9 @@ import java.lang.reflect.Method;
 public final class SubCommandRegistrationException extends RuntimeException {
 
     public SubCommandRegistrationException(
-            @NotNull final String message,
-            @NotNull final Method method,
-            @NotNull final Class<? extends BaseCommand> commandClass
+            final @NotNull String message,
+            final @NotNull Method method,
+            final @NotNull Class<? extends BaseCommand> commandClass
     ) {
         super(message + ". In Method \"" + method.getName() + "\" in Class \"" + commandClass.getName() + "\"");
     }

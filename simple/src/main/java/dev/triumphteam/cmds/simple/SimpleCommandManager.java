@@ -52,23 +52,22 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
     private SimpleCommandManager(
-            @NotNull final SenderMapper<S, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull SenderMapper<S, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         super(senderMapper, senderValidator);
     }
 
-    @NotNull
     @Contract("_, _ -> new")
-    public static <S> SimpleCommandManager<S> create(
-            @NotNull final SenderMapper<S, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+    public static <S> @NotNull SimpleCommandManager<S> create(
+            final @NotNull SenderMapper<S, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         return new SimpleCommandManager<>(senderMapper, senderValidator);
     }
 
     @Override
-    public void registerCommand(@NotNull final BaseCommand baseCommand) {
+    public void registerCommand(final @NotNull BaseCommand baseCommand) {
         final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
                 baseCommand,
                 getRegistryContainer(),
@@ -105,7 +104,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     }
 
     @Override
-    public void unregisterCommand(@NotNull final BaseCommand command) {
+    public void unregisterCommand(final @NotNull BaseCommand command) {
         // TODO add a remove functionality
     }
 
@@ -115,7 +114,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
      * @param sender The provided sender.
      * @param args   The provided arguments.
      */
-    public void executeCommand(@NotNull final S sender, final @NotNull List<String> args) {
+    public void executeCommand(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
         if (args.isEmpty()) return;
         final String commandName = args.get(0);
 

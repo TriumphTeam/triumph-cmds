@@ -39,14 +39,14 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
 
     private final CommandPermission permission;
 
-    public BukkitSubCommand(@NotNull final BukkitSubCommandProcessor<S> processor, @NotNull final String parentName, @NotNull final ExecutionProvider executionProvider) {
+    public BukkitSubCommand(final @NotNull BukkitSubCommandProcessor<S> processor, final @NotNull String parentName, final @NotNull ExecutionProvider executionProvider) {
         super(processor, parentName, executionProvider);
         this.permission = processor.getPermission();
 
         if (this.permission != null) this.permission.register();
     }
 
-    public List<String> getSuggestions(@NotNull final S sender, @NotNull final List<String> args) {
+    public @NotNull List<@NotNull String> getSuggestions(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
         final int index = args.size() - 1;
         final InternalArgument<S, ?> internalArgument = getArgument(index);
         if (internalArgument == null) return emptyList();
@@ -67,8 +67,7 @@ public final class BukkitSubCommand<S> extends AbstractSubCommand<S> {
      *
      * @return The command's permission.
      */
-    @Nullable
-    public CommandPermission getPermission() {
+    public @Nullable CommandPermission getPermission() {
         return permission;
     }
 }

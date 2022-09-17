@@ -40,12 +40,12 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
     private final CommandPermission permission;
 
     public BukkitSubCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final Method method,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator,
-            @Nullable final CommandPermission basePermission
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull String parentName,
+            final @NotNull Method method,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull SenderValidator<S> senderValidator,
+            final @Nullable CommandPermission basePermission
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
 
@@ -63,7 +63,7 @@ final class BukkitSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> 
         );
     }
 
-    public CommandPermission getPermission() {
+    public @Nullable CommandPermission getPermission() {
         return permission;
     }
 }

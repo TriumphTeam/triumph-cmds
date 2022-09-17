@@ -42,7 +42,7 @@ public interface Flags {
      * @param flag The flag to check.
      * @return Whether the flag is present in the command or not.
      */
-    boolean hasFlag(@NotNull final String flag);
+    boolean hasFlag(final @NotNull String flag);
 
     /**
      * Gets the flag value.
@@ -53,7 +53,7 @@ public interface Flags {
      * @param <T>  The value type, based on the class from before.
      * @return The flag's value.
      */
-    @NotNull <T> Optional<T> getValue(@NotNull final String flag, @NotNull final Class<T> type);
+    <T> @NotNull Optional<T> getValue(final @NotNull String flag, final @NotNull Class<T> type);
 
     /**
      * Instead of converting the value to the desired type, simply get it as string.
@@ -61,15 +61,14 @@ public interface Flags {
      * @param flag The flag to get the value from.
      * @return The flag's value.
      */
-    @NotNull Optional<String> getValue(@NotNull final String flag);
+    @NotNull Optional<String> getValue(final @NotNull String flag);
 
     /**
      * Gets the arguments typed without the flags, joined to string.
      *
      * @return The arguments joined to string.
      */
-    @NotNull
-    String getText();
+    @NotNull String getText();
 
     /**
      * Gets the arguments typed without the flags, joined to string.
@@ -77,14 +76,12 @@ public interface Flags {
      * @param delimiter The delimiter of the joining.
      * @return The arguments joined to string with a delimiter.
      */
-    @NotNull
-    String getText(@NotNull final String delimiter);
+    @NotNull String getText(final @NotNull String delimiter);
 
     /**
      * Gets the arguments typed without the flags.
      *
      * @return A {@link List} with the typed arguments.
      */
-    @NotNull
-    List<String> getArgs();
+    @NotNull List<@NotNull String> getArgs();
 }

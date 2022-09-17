@@ -46,20 +46,22 @@ public final class FlagParser<S> {
     private static final String SHORT = "-";
     private static final int EQUALS = '=';
 
-    public FlagParser(@NotNull final FlagGroup<S> flagGroup) {
+    public FlagParser(final @NotNull FlagGroup<S> flagGroup) {
         this.flagGroup = flagGroup;
     }
 
-    public Map<FlagOptions<S>, String> parseFlags(@NotNull final List<String> toParse) {
+    public @NotNull Map<@NotNull FlagOptions<S>, @NotNull String> parseFlags(final @NotNull List<@NotNull String> toParse) {
         return parseInternal(toParse).getKey();
     }
 
-    public Flags parse(@NotNull final S sender, @NotNull final List<String> toParse) {
+    public @NotNull Flags parse(final @NotNull S sender, final @NotNull List<@NotNull String> toParse) {
         final Map.Entry<Map<FlagOptions<S>, String>, List<String>> parsed = parseInternal(toParse);
         return new FlagsResult<>(sender, parsed.getKey(), parsed.getValue());
     }
 
-    private Map.Entry<Map<FlagOptions<S>, String>, List<String>> parseInternal(@NotNull final List<String> toParse) {
+    private List<String> hi;
+
+    private Map.@NotNull Entry<@NotNull Map<@NotNull FlagOptions<S>, @NotNull String>, @NotNull List<@NotNull String>> parseInternal(final @NotNull List<@NotNull String> toParse) {
         final FlagScanner tokens = new FlagScanner(toParse);
 
         final Map<FlagOptions<S>, String> flags = new LinkedHashMap<>();

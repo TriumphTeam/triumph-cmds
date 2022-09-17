@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.message;
 import dev.triumphteam.cmd.core.registry.RegistryKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,7 +43,7 @@ public abstract class ContextualKey<C extends MessageContext> extends RegistryKe
 
     private final Class<C> type;
 
-    protected ContextualKey(@NotNull final String key, @NotNull final Class<C> type) {
+    protected ContextualKey(final @NotNull String key, final @NotNull Class<C> type) {
         super(key);
         this.type = type;
         REGISTERED_KEYS.add(this);
@@ -53,7 +54,7 @@ public abstract class ContextualKey<C extends MessageContext> extends RegistryKe
      *
      * @return The Context type.
      */
-    public Class<C> getType() {
+    public @NotNull Class<C> getType() {
         return type;
     }
 
@@ -62,13 +63,12 @@ public abstract class ContextualKey<C extends MessageContext> extends RegistryKe
      *
      * @return The keys {@link Set}.
      */
-    @NotNull
-    public static Set<ContextualKey<? extends MessageContext>> getRegisteredKeys() {
+    public static @NotNull Set<@NotNull ContextualKey<? extends @NotNull MessageContext>> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
@@ -82,7 +82,7 @@ public abstract class ContextualKey<C extends MessageContext> extends RegistryKe
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "ContextualKey{" +
                 "type=" + type +
                 ", super=" + super.toString() + "}";

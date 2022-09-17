@@ -50,7 +50,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
     private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
 
-    public BukkitCommand(@NotNull final String name, @NotNull final BukkitCommandProcessor<S> processor) {
+    public BukkitCommand(final @NotNull String name, final @NotNull BukkitCommandProcessor<S> processor) {
         super(name);
 
         this.description = processor.getDescription();
@@ -59,12 +59,12 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     }
 
     @Override
-    public void addSubCommand(@NotNull final String name, @NotNull final BukkitSubCommand<S> subCommand) {
+    public void addSubCommand(final @NotNull String name, final @NotNull BukkitSubCommand<S> subCommand) {
         subCommands.putIfAbsent(name, subCommand);
     }
 
     @Override
-    public void addSubCommandAlias(@NotNull final String alias, @NotNull final BukkitSubCommand<S> subCommand) {
+    public void addSubCommandAlias(final @NotNull String alias, final @NotNull BukkitSubCommand<S> subCommand) {
         subCommandAliases.putIfAbsent(alias, subCommand);
     }
 
@@ -72,7 +72,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
      * {@inheritDoc}
      */
     @Override
-    public boolean execute(@NotNull final CommandSender sender, @NotNull final String commandLabel, @NotNull final String[] args) {
+    public boolean execute(final @NotNull CommandSender sender, final @NotNull String commandLabel, final @NotNull String @NotNull [] args) {
         BukkitSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
@@ -100,9 +100,8 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         return true;
     }
 
-    @NotNull
     @Override
-    public List<String> tabComplete(@NotNull final CommandSender sender, @NotNull final String alias, @NotNull final String[] args) throws IllegalArgumentException {
+    public @NotNull List<@NotNull String> tabComplete(final @NotNull CommandSender sender, final @NotNull String alias, final @NotNull String @NotNull [] args) throws IllegalArgumentException {
         if (args.length == 0) return emptyList();
         BukkitSubCommand<S> subCommand = getDefaultSubCommand();
 
@@ -138,8 +137,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
      *
      * @return A default SubCommand.
      */
-    @Nullable
-    private BukkitSubCommand<S> getDefaultSubCommand() {
+    private @Nullable BukkitSubCommand<S> getDefaultSubCommand() {
         return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
@@ -149,8 +147,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
      * @param key the String to look for the {@link SubCommand<CommandSender>}
      * @return the {@link SubCommand<CommandSender>} for the particular key or NULL
      */
-    @Nullable
-    private BukkitSubCommand<S> getSubCommand(@NotNull final String key) {
+    private @Nullable BukkitSubCommand<S> getSubCommand(final @NotNull String key) {
         final BukkitSubCommand<S> subCommand = subCommands.get(key);
         if (subCommand != null) return subCommand;
         return subCommandAliases.get(key);
@@ -162,7 +159,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
      * @param key the Key to check for
      * @return whether a SubCommand with that key exists
      */
-    private boolean subCommandExists(@NotNull final String key) {
+    private boolean subCommandExists(final @NotNull String key) {
         return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
     }
 }

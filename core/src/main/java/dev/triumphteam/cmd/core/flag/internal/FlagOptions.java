@@ -42,9 +42,9 @@ public final class FlagOptions<S> {
     private final StringInternalArgument<S> argument;
 
     public FlagOptions(
-            @Nullable final String flag,
-            @Nullable final String longFlag,
-            @Nullable final StringInternalArgument<S> argument
+            final @Nullable String flag,
+            final @Nullable String longFlag,
+            final @Nullable StringInternalArgument<S> argument
     ) {
         this.flag = flag;
         this.longFlag = longFlag;
@@ -56,8 +56,7 @@ public final class FlagOptions<S> {
      *
      * @return The flag identifier.
      */
-    @Nullable
-    public String getFlag() {
+    public @Nullable String getFlag() {
         return flag;
     }
 
@@ -66,13 +65,12 @@ public final class FlagOptions<S> {
      *
      * @return The long flag identifier.
      */
-    @Nullable
-    public String getLongFlag() {
+    public @Nullable String getLongFlag() {
         return longFlag;
     }
 
     // TODO: Comments
-    public StringInternalArgument<S> getArgument() {
+    public @Nullable StringInternalArgument<S> getArgument() {
         return argument;
     }
 
@@ -81,8 +79,7 @@ public final class FlagOptions<S> {
      *
      * @return The key that identifies the flag.
      */
-    @NotNull
-    public String getKey() {
+    public @NotNull String getKey() {
         // Will never happen.
         if (flag == null && longFlag == null) {
             throw new CommandExecutionException("Both options can't be null.");

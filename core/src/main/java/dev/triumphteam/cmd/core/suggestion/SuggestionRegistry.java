@@ -47,7 +47,7 @@ public final class SuggestionRegistry<S> implements Registry {
      * @param key      The suggestion key.
      * @param resolver The action to get the suggestions.
      */
-    public void register(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> resolver) {
+    public void register(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver<S> resolver) {
         suggestions.put(key, resolver);
     }
 
@@ -57,7 +57,7 @@ public final class SuggestionRegistry<S> implements Registry {
      * @param type     The type to suggest for.
      * @param resolver The action to get the suggestions.
      */
-    public void register(@NotNull final Class<?> type, @NotNull final SuggestionResolver<S> resolver) {
+    public void register(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S> resolver) {
         typeSuggestions.put(type, resolver);
     }
 
@@ -67,9 +67,8 @@ public final class SuggestionRegistry<S> implements Registry {
      * @param key The specific key.
      * @return A saved {@link SuggestionResolver}.
      */
-    @Nullable
     @Contract("null -> null")
-    public SuggestionResolver<S> getSuggestionResolver(@Nullable final SuggestionKey key) {
+    public @Nullable SuggestionResolver<S> getSuggestionResolver(final @Nullable SuggestionKey key) {
         if (key == null) return null;
         return suggestions.get(key);
     }
@@ -80,8 +79,7 @@ public final class SuggestionRegistry<S> implements Registry {
      * @param type The specific type.
      * @return A saved {@link SuggestionResolver}.
      */
-    @Nullable
-    public SuggestionResolver<S> getSuggestionResolver(@NotNull final Class<?> type) {
+    public @Nullable SuggestionResolver<S> getSuggestionResolver(final @NotNull Class<?> type) {
         return typeSuggestions.get(type);
     }
 }

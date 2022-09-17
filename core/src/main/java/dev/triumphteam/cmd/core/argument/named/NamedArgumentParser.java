@@ -35,7 +35,7 @@ public final class NamedArgumentParser {
     private static final char ESCAPE = '\\';
     private static final char SEPARATOR = ':';
 
-    public static Map<String, String> parse(@NotNull final String literal) {
+    public static Map<String, String> parse(final @NotNull String literal) {
         final PrimitiveIterator.OfInt iterator = literal.chars().iterator();
 
         final Map<String, String> args = new LinkedHashMap<>();

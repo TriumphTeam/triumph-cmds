@@ -38,28 +38,23 @@ public class RegistryContainer<S> {
     private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
     private final SuggestionRegistry<S> suggestionRegistry = new SuggestionRegistry<>();
 
-    @NotNull
-    public ArgumentRegistry<S> getArgumentRegistry() {
+    public @NotNull ArgumentRegistry<S> getArgumentRegistry() {
         return argumentRegistry;
     }
 
-    @NotNull
-    public NamedArgumentRegistry<S> getNamedArgumentRegistry() {
+    public @NotNull NamedArgumentRegistry<S> getNamedArgumentRegistry() {
         return namedArgumentRegistry;
     }
 
-    @NotNull
-    public RequirementRegistry<S> getRequirementRegistry() {
+    public @NotNull RequirementRegistry<S> getRequirementRegistry() {
         return requirementRegistry;
     }
 
-    @NotNull
-    public MessageRegistry<S> getMessageRegistry() {
+    public @NotNull MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
     }
 
-    @NotNull
-    public SuggestionRegistry<S> getSuggestionRegistry() {
+    public @NotNull SuggestionRegistry<S> getSuggestionRegistry() {
         return suggestionRegistry;
     }
 }

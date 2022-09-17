@@ -50,7 +50,7 @@ public abstract class BaseCommand {
      *
      * @param alias The alias {@link List}
      */
-    public BaseCommand(@Nullable final List<String> alias) {
+    public BaseCommand(final @Nullable List<@NotNull String> alias) {
         this(null, alias);
     }
 
@@ -59,7 +59,7 @@ public abstract class BaseCommand {
      *
      * @param command The command name
      */
-    public BaseCommand(@Nullable final String command) {
+    public BaseCommand(final @Nullable String command) {
         this(command, null);
     }
 
@@ -69,7 +69,7 @@ public abstract class BaseCommand {
      * @param command The command name
      * @param alias   The aliases for the command
      */
-    public BaseCommand(@Nullable final String command, @Nullable final List<String> alias) {
+    public BaseCommand(final @Nullable String command, final @Nullable List<@NotNull String> alias) {
         this.command = command;
         if (alias != null) {
             this.alias.addAll(alias);
@@ -81,8 +81,7 @@ public abstract class BaseCommand {
      *
      * @return The {@link #command}
      */
-    @Nullable
-    public String getCommand() {
+    public @Nullable String getCommand() {
         return command;
     }
 
@@ -91,8 +90,7 @@ public abstract class BaseCommand {
      *
      * @return The {@link #alias}
      */
-    @NotNull
-    public List<String> getAlias() {
+    public @NotNull List<@NotNull String> getAlias() {
         return alias;
     }
 

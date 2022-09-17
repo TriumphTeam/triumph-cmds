@@ -45,9 +45,9 @@ public final class Requirement<S, C extends MessageContext> {
     private final boolean invert;
 
     public Requirement(
-            @NotNull final RequirementResolver<S> resolver,
-            @Nullable final ContextualKey<C> messageKey,
-            @NotNull final MessageContextFactory<C> contextFactory,
+            final @NotNull RequirementResolver<S> resolver,
+            final @Nullable ContextualKey<C> messageKey,
+            final @NotNull MessageContextFactory<C> contextFactory,
             final boolean invert
     ) {
         this.resolver = resolver;
@@ -61,8 +61,7 @@ public final class Requirement<S, C extends MessageContext> {
      *
      * @return The message key or null if no message should be sent.
      */
-    @Nullable
-    public ContextualKey<C> getMessageKey() {
+    public @Nullable ContextualKey<C> getMessageKey() {
         return messageKey;
     }
 
@@ -76,10 +75,10 @@ public final class Requirement<S, C extends MessageContext> {
      * @param <ST>       The sender type.
      */
     public <ST> void sendMessage(
-            @NotNull final MessageRegistry<ST> registry,
-            @NotNull final ST sender,
-            @NotNull final String command,
-            @NotNull final String subCommand
+            final @NotNull MessageRegistry<ST> registry,
+            final @NotNull ST sender,
+            final @NotNull String command,
+            final @NotNull String subCommand
     ) {
         if (messageKey == null) return;
         registry.sendMessage(messageKey, sender, contextFactory.create(command, subCommand));
@@ -91,12 +90,12 @@ public final class Requirement<S, C extends MessageContext> {
      * @param sender The sender which will be needed to check if the requirement is met or not.
      * @return Whether the requirement is met.
      */
-    public boolean isMet(@NotNull final S sender) {
+    public boolean isMet(final @NotNull S sender) {
         return resolver.resolve(sender) != invert;
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final Requirement<?, ?> that = (Requirement<?, ?>) o;
@@ -109,7 +108,7 @@ public final class Requirement<S, C extends MessageContext> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "Requirement{" +
                 "resolver=" + resolver +
                 ", messageKey=" + messageKey +

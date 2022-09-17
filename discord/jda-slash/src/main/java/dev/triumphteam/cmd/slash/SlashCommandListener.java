@@ -50,8 +50,8 @@ final class SlashCommandListener<S> extends ListenerAdapter {
     private final AttachmentRegistry attachmentRegistry;
 
     public SlashCommandListener(
-            @NotNull final SlashCommandManager<S> commandManager,
-            @NotNull final SenderMapper<SlashSender, S> senderMapper
+            final @NotNull SlashCommandManager<S> commandManager,
+            final @NotNull SenderMapper<SlashSender, S> senderMapper
     ) {
         this.commandManager = commandManager;
         this.senderMapper = senderMapper;
@@ -65,7 +65,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
      * @param event The slash command event.
      */
     @Override
-    public void onSlashCommandInteraction(@NotNull final SlashCommandInteractionEvent event) {
+    public void onSlashCommandInteraction(final @NotNull SlashCommandInteractionEvent event) {
         final String name = event.getName();
         SlashCommand<S> command = commandManager.getCommand(name);
         if (command == null) {
@@ -101,7 +101,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
     // private static final List<String> ass = Arrays.asList("Hello", "There", "Ass", "Fuck", "Hoy");
 
     /*@Override
-    public void onCommandAutoCompleteInteraction(@NotNull final CommandAutoCompleteInteractionEvent event) {
+    public void onCommandAutoCompleteInteraction(final @NotNull CommandAutoCompleteInteractionEvent event) {
         final String name = event.getName();
         SlashCommand<S> command = commandManager.getCommand(name);
         if (command == null) {
@@ -126,7 +126,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
      * @param event The ready event.
      */
     @Override
-    public void onReady(@NotNull final ReadyEvent event) {
+    public void onReady(final @NotNull ReadyEvent event) {
         commandManager.updateAllCommands();
     }
 }

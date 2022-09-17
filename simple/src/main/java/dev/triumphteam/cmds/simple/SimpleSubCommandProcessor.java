@@ -34,11 +34,11 @@ import java.lang.reflect.Method;
 final class SimpleSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
     public SimpleSubCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final Method method,
-            @NotNull final RegistryContainer<S> registries,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull String parentName,
+            final @NotNull Method method,
+            final @NotNull RegistryContainer<S> registries,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         super(baseCommand, parentName, method, registries, senderValidator);
     }

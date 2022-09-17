@@ -74,7 +74,7 @@ public final class ArgumentRegistry<S> implements Registry {
      * @param clazz    The {@link Class} type the argument should be.
      * @param argument The {@link ArgumentResolver} with the resolution of the argument.
      */
-    public void register(@NotNull final Class<?> clazz, final ArgumentResolver<S> argument) {
+    public void register(final @NotNull Class<?> clazz, final @NotNull ArgumentResolver<S> argument) {
         arguments.put(clazz, argument);
     }
 
@@ -84,8 +84,7 @@ public final class ArgumentRegistry<S> implements Registry {
      * @param clazz The {@link Class} type the argument.
      * @return An {@link ArgumentResolver} or null if it doesn't exist.
      */
-    @Nullable
-    public ArgumentResolver<S> getResolver(@NotNull final Class<?> clazz) {
+    public @Nullable ArgumentResolver<S> getResolver(final @NotNull Class<?> clazz) {
         return arguments.get(clazz);
     }
 

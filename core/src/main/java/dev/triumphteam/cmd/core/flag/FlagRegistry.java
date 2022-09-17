@@ -36,12 +36,11 @@ public final class FlagRegistry<S> implements Registry {
     private final Map<FlagKey, SuggestionResolver<S>> suggestions = new HashMap<>();
 
 
-    public void register(@NotNull final FlagKey key, @NotNull final SuggestionResolver<S> resolver) {
+    public void register(final @NotNull FlagKey key, final @NotNull SuggestionResolver<S> resolver) {
         suggestions.put(key, resolver);
     }
 
-    @Nullable
-    public SuggestionResolver<S> getSuggestionResolver(@NotNull final FlagKey key) {
+    public @Nullable SuggestionResolver<S> getSuggestionResolver(final @NotNull FlagKey key) {
         return suggestions.get(key);
     }
 }

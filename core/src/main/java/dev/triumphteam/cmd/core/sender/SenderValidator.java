@@ -36,12 +36,11 @@ import java.util.Set;
  */
 public interface SenderValidator<S> {
 
-    @NotNull
-    Set<Class<? extends S>> getAllowedSenders();
+    @NotNull Set<Class<? extends S>> getAllowedSenders();
 
     boolean validate(
-            @NotNull final MessageRegistry<S> messageRegistry,
+            final @NotNull MessageRegistry<S> messageRegistry,
             final @NotNull SubCommand<S> subCommand,
-            @NotNull final S sender
+            final @NotNull S sender
     );
 }

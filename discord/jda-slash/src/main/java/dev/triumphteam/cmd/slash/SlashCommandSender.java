@@ -42,115 +42,103 @@ final class SlashCommandSender implements SlashSender {
 
     private final SlashCommandInteractionEvent event;
 
-    public SlashCommandSender(@NotNull final SlashCommandInteractionEvent event) {
+    public SlashCommandSender(final @NotNull SlashCommandInteractionEvent event) {
         this.event = event;
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public SlashCommandInteractionEvent getEvent() {
+    public @NotNull SlashCommandInteractionEvent getEvent() {
         return event;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Nullable
     @Override
-    public Guild getGuild() {
+    public @Nullable Guild getGuild() {
         return event.getGuild();
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public MessageChannel getChannel() {
+    public @NotNull MessageChannel getChannel() {
         return event.getChannel();
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public User getUser() {
+    public @NotNull User getUser() {
         return event.getUser();
     }
 
     /**
      * {@inheritDoc}
      */
-    @Nullable
     @Override
-    public Member getMember() {
+    public @Nullable Member getMember() {
         return event.getMember();
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public InteractionHook getHook() {
+    public @NotNull InteractionHook getHook() {
         return event.getHook();
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public ReplyCallbackAction reply(@NotNull final String message) {
+    public @NotNull ReplyCallbackAction reply(final @NotNull String message) {
         return event.reply(message);
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public ReplyCallbackAction reply(@NotNull final MessageCreateData message) {
+    public @NotNull ReplyCallbackAction reply(final @NotNull MessageCreateData message) {
         return event.reply(message);
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public ReplyCallbackAction reply(@NotNull final MessageEmbed embed, @NotNull final MessageEmbed... embeds) {
+    public @NotNull ReplyCallbackAction reply(final @NotNull MessageEmbed embed, final @NotNull MessageEmbed @NotNull ... embeds) {
         return event.replyEmbeds(embed, embeds);
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public ReplyCallbackAction reply(@NotNull final Collection<? extends MessageEmbed> embeds) {
+    public @NotNull ReplyCallbackAction reply(final @NotNull Collection<? extends MessageEmbed> embeds) {
         return event.replyEmbeds(embeds);
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public ReplyCallbackAction deferReply() {
+    public @NotNull ReplyCallbackAction deferReply() {
         return event.deferReply();
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public ReplyCallbackAction deferReply(final boolean ephemeral) {
+    public @NotNull ReplyCallbackAction deferReply(final boolean ephemeral) {
         return event.deferReply(ephemeral);
     }
 }

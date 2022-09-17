@@ -42,7 +42,7 @@ public class MessageKey<C extends MessageContext> extends ContextualKey<C> {
     public static final MessageKey<DefaultMessageContext> NOT_ENOUGH_ARGUMENTS = of("not.enough.arguments", DefaultMessageContext.class);
     public static final MessageKey<InvalidArgumentContext> INVALID_ARGUMENT = of("invalid.argument", InvalidArgumentContext.class);
 
-    protected MessageKey(@NotNull final String key, @NotNull final Class<C> type) {
+    protected MessageKey(final @NotNull String key, final @NotNull Class<C> type) {
         super(key, type);
     }
 
@@ -54,9 +54,8 @@ public class MessageKey<C extends MessageContext> extends ContextualKey<C> {
      * @param <C>  Generic {@link MessageContext} type.
      * @return A new {@link MessageKey} for a specific {@link MessageContext}.
      */
-    @NotNull
     @Contract("_, _ -> new")
-    public static <C extends MessageContext> MessageKey<C> of(@NotNull final String key, @NotNull final Class<C> type) {
+    public static <C extends MessageContext> @NotNull MessageKey<C> of(final @NotNull String key, final @NotNull Class<C> type) {
         return new MessageKey<>(key, type);
     }
 }

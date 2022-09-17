@@ -45,11 +45,11 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
     private final Class<?> collectionType;
 
     public CollectionInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final InternalArgument<S, String> internalArgument,
-            @NotNull final Class<?> collectionType,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull InternalArgument<S, String> internalArgument,
+            final @NotNull Class<?> collectionType,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -65,16 +65,15 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
      * @param value  The arguments {@link List}.
      * @return A {@link java.util.Collection} type as the resolved value.
      */
-    @NotNull
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
         final Stream<Object> stream = value.stream().map(arg -> internalArgument.resolve(sender, arg));
         if (collectionType == Set.class) return stream.collect(Collectors.toSet());
         return stream.collect(Collectors.toList());
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;

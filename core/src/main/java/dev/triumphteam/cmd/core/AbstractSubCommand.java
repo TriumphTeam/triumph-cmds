@@ -78,9 +78,9 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     private final boolean containsLimitless;
 
     public AbstractSubCommand(
-            @NotNull final AbstractSubCommandProcessor<S> processor,
-            @NotNull final String parentName,
-            @NotNull final ExecutionProvider executionProvider
+            final @NotNull AbstractSubCommandProcessor<S> processor,
+            final @NotNull String parentName,
+            final @NotNull ExecutionProvider executionProvider
     ) {
         this.baseCommand = processor.getBaseCommand();
         this.method = processor.getMethod();
@@ -114,9 +114,8 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     }
 
     // TODO: 2/5/2022 comments
-    @NotNull
     @Override
-    public Class<? extends S> getSenderType() {
+    public @NotNull Class<? extends S> getSenderType() {
         return senderType;
     }
 
@@ -125,9 +124,8 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      *
      * @return The name of the parent command.
      */
-    @NotNull
     @Override
-    public String getParentName() {
+    public @NotNull String getParentName() {
         return parentName;
     }
 
@@ -136,9 +134,8 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      *
      * @return The name of the sub command.
      */
-    @NotNull
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -152,8 +149,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      *
      * @return The message registry.
      */
-    @NotNull
-    protected MessageRegistry<S> getMessageRegistry() {
+    protected @NotNull MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
     }
 
@@ -164,7 +160,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @param args   The arguments to pass to the executor.
      */
     @Override
-    public void execute(@NotNull final S sender, @NotNull final List<String> args) {
+    public void execute(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
         if (!senderValidator.validate(messageRegistry, this, sender)) return;
         if (!meetRequirements(sender)) return;
 
@@ -196,13 +192,11 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      *
      * @return The arguments of the sub command.
      */
-    @NotNull
-    protected List<InternalArgument<S, ?>> getArguments() {
+    protected @NotNull List<@NotNull InternalArgument<S, ?>> getArguments() {
         return internalArguments;
     }
 
-    @Nullable
-    protected InternalArgument<S, ?> getArgument(@NotNull final String name) {
+    protected @Nullable InternalArgument<S, ?> getArgument(final @NotNull String name) {
         final List<InternalArgument<S, ?>> foundArgs = internalArguments.stream()
                 .filter(internalArgument -> internalArgument.getName().toLowerCase().startsWith(name))
                 .collect(Collectors.toList());
@@ -211,8 +205,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
         return foundArgs.get(0);
     }
 
-    @Nullable
-    protected InternalArgument<S, ?> getArgument(final int index) {
+    protected @Nullable InternalArgument<S, ?> getArgument(final int index) {
         final int size = internalArguments.size();
         if (size == 0) return null;
         if (index >= size) {
@@ -225,7 +218,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
     }
 
     // TODO: 2/1/2022 Comments
-    public List<@Nullable String> mapArguments(@NotNull final Map<String, String> args) {
+    public @NotNull List<@Nullable String> mapArguments(final @NotNull Map<@NotNull String, @NotNull String> args) {
         final List<String> arguments = getArguments().stream().map(InternalArgument::getName).collect(Collectors.toList());
         return arguments.stream().map(it -> {
             final String value = args.get(it);
@@ -243,9 +236,9 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      */
     @SuppressWarnings("unchecked")
     private boolean validateAndCollectArguments(
-            @NotNull final S sender,
-            @NotNull final List<Object> invokeArguments,
-            @NotNull final List<String> commandArgs
+            final @NotNull S sender,
+            final @NotNull List<@Nullable Object> invokeArguments,
+            final @NotNull List<@NotNull String> commandArgs
     ) {
         for (int i = 0; i < internalArguments.size(); i++) {
             final InternalArgument<S, ?> internalArgument = internalArguments.get(i);
@@ -303,7 +296,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @param sender The sender of the command.
      * @return Whether all requirements are met.
      */
-    private boolean meetRequirements(@NotNull final S sender) {
+    private boolean meetRequirements(final @NotNull S sender) {
         for (final Requirement<S, ?> requirement : requirements) {
             if (!requirement.isMet(sender)) {
                 requirement.sendMessage(messageRegistry, sender, parentName, name);
@@ -321,8 +314,7 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @param index The current index of the internalArgument.
      * @return The internalArgument name or null.
      */
-    @Nullable
-    private String valueOrNull(@NotNull final List<String> list, final int index) {
+    private @Nullable String valueOrNull(final @NotNull List<@NotNull String> list, final int index) {
         if (index >= list.size()) return null;
         return list.get(index);
     }
@@ -334,15 +326,13 @@ public abstract class AbstractSubCommand<S> implements SubCommand<S> {
      * @param from The index from which should start removing.
      * @return A list with the leftover arguments.
      */
-    @NotNull
-    private List<String> leftOvers(@NotNull final List<String> list, final int from) {
+    private @NotNull List<@NotNull String> leftOvers(final @NotNull List<@NotNull String> list, final int from) {
         if (from > list.size()) return Collections.emptyList();
         return list.subList(from, list.size());
     }
 
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "SimpleSubCommand{" +
                 "baseCommand=" + baseCommand +
                 ", method=" + method +
