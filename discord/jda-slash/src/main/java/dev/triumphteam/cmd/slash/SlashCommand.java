@@ -69,10 +69,10 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
     private boolean isDefault = false;
 
     public SlashCommand(
-            @NotNull final SlashCommandProcessor<S> processor,
-            @NotNull final List<Permission> allow,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            final @NotNull SlashCommandProcessor<S> processor,
+            final @NotNull List<@NotNull Permission> allow,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
         this.name = processor.getName();
         this.description = processor.getDescription();
@@ -86,13 +86,13 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
-    public List<Permission> getAllowed() {
+    public @NotNull List<@NotNull Permission> getAllowed() {
         return allow;
     }
 
 
     @Override
-    public void addSubCommand(@NotNull final String name, @NotNull final SlashSubCommand<S> subCommand) {
+    public void addSubCommand(final @NotNull String name, final @NotNull SlashSubCommand<S> subCommand) {
         if (name.equals(Default.DEFAULT_CMD_NAME)) {
             if (!this.subCommands.isEmpty()) {
                 throw new CommandRegistrationException(String.format("Can not register default command for '%s' because it has subcommands", this.name));
@@ -111,7 +111,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
     }
 
     @Override
-    public void addSubCommandAlias(@NotNull final String alias, @NotNull final SlashSubCommand<S> subCommand) {
+    public void addSubCommandAlias(final @NotNull String alias, final @NotNull SlashSubCommand<S> subCommand) {
         // Doesn't support alias .. yet
     }
 
@@ -122,17 +122,16 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
      * @param args   The command arguments.
      */
     public void execute(
-            @NotNull final S sender,
-            @NotNull final String subCommandName,
-            @NotNull final Map<String, String> args
+            final @NotNull S sender,
+            final @NotNull String subCommandName,
+            final @NotNull Map<@NotNull String, @NotNull String> args
     ) {
         final SlashSubCommand<S> subCommand = getSubCommand(subCommandName);
         if (subCommand == null) return;
         subCommand.execute(sender, subCommand.mapArguments(args));
     }
 
-    @NotNull
-    public SlashCommandData asCommandData() {
+    public @NotNull SlashCommandData asCommandData() {
         final SlashCommandData commandData = Commands.slash(name, description);
         final DefaultMemberPermissions memberPermission = allow.isEmpty() ? DefaultMemberPermissions.ENABLED : DefaultMemberPermissions.enabledFor(allow);
 
@@ -162,8 +161,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
      *
      * @return The default sub command.
      */
-    @Nullable
-    private SlashSubCommand<S> getDefaultSubCommand() {
+    private @Nullable SlashSubCommand<S> getDefaultSubCommand() {
         return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
@@ -173,8 +171,7 @@ final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
      * @param key The sub command name.
      * @return A sub command or null.
      */
-    @Nullable
-    private SlashSubCommand<S> getSubCommand(@NotNull final String key) {
+    private @Nullable SlashSubCommand<S> getSubCommand(final @NotNull String key) {
         return subCommands.get(key);
     }
 }

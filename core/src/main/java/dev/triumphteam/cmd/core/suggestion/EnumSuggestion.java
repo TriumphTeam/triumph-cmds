@@ -35,15 +35,14 @@ public final class EnumSuggestion<S> implements Suggestion<S> {
 
     private final Class<? extends Enum<?>> enumType;
 
-    public EnumSuggestion(@NotNull final Class<? extends Enum<?>> enumType) {
+    public EnumSuggestion(final @NotNull Class<? extends Enum<?>> enumType) {
         this.enumType = enumType;
 
         EnumUtils.populateCache(enumType);
     }
 
-    @NotNull
     @Override
-    public List<String> getSuggestions(@NotNull final S sender, @NotNull final String current, @NotNull final SuggestionContext context) {
+    public @NotNull List<@NotNull String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
         return EnumUtils.getEnumConstants(enumType)
                 .values()
                 .stream()
@@ -58,7 +57,7 @@ public final class EnumSuggestion<S> implements Suggestion<S> {
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final EnumSuggestion that = (EnumSuggestion) o;
@@ -70,9 +69,8 @@ public final class EnumSuggestion<S> implements Suggestion<S> {
         return Objects.hash(enumType);
     }
 
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "EnumSuggestion{" +
                 "enumType=" + enumType +
                 '}';

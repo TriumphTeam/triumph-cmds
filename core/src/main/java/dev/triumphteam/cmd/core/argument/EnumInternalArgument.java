@@ -44,10 +44,10 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
     private final Class<? extends Enum<?>> enumType;
 
     public EnumInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final Class<? extends Enum<?>> type,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<? extends Enum<?>> type,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -58,7 +58,7 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
         populateCache(type);
     }
 
-    public Class<? extends Enum<?>> getEnumType() {
+    public @NotNull Class<? extends Enum<?>> getEnumType() {
         return enumType;
     }
 
@@ -69,16 +69,15 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
      * @param value  The {@link String} argument value.
      * @return An {@link Enum} value of the correct type.
      */
-    @Nullable
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final String value) {
+    public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
         final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
         if (reference == null) return null;
         return reference.get();
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;

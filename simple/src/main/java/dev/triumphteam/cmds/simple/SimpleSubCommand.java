@@ -33,9 +33,9 @@ import java.util.List;
 public final class SimpleSubCommand<S> extends SubCommand<S> {
 
     public SimpleSubCommand(
-            @NotNull final SimpleSubCommandProcessor<S> processor,
-            @NotNull final String parentName,
-            @NotNull final ExecutionProvider executionProvider
+            final @NotNull SimpleSubCommandProcessor<S> processor,
+            final @NotNull String parentName,
+            final @NotNull ExecutionProvider executionProvider
     ) {
         super(processor, parentName, executionProvider);
     }

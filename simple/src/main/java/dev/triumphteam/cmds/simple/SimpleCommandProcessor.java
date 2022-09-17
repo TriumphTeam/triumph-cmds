@@ -37,12 +37,12 @@ import java.lang.reflect.Method;
 public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S, S, SimpleSubCommand<S>, SimpleSubCommandProcessor<S>> {
 
     public SimpleCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final RegistryContainer<S> registries,
-            @NotNull final SenderMapper<S, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull RegistryContainer<S> registries,
+            final @NotNull SenderMapper<S, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
         super(baseCommand, registries, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
     }
@@ -65,9 +65,8 @@ public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S,
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    protected SimpleSubCommand<S> createSubCommand(@NotNull SimpleSubCommandProcessor<S> processor, @NotNull ExecutionProvider executionProvider) {
+    protected @NotNull SimpleSubCommand<S> createSubCommand(final @NotNull SimpleSubCommandProcessor<S> processor, final @NotNull ExecutionProvider executionProvider) {
         return new SimpleSubCommand<S>(processor, getName(), executionProvider);
     }
 }

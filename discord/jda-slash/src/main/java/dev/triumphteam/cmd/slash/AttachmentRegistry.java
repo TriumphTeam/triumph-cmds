@@ -34,12 +34,11 @@ class AttachmentRegistry {
 
     private final Map<String, Message.Attachment> attachments = new MapMaker().weakValues().makeMap();
 
-    @Nullable
-    public Message.Attachment getAttachment(@NotNull final String id) {
+    public Message.@Nullable Attachment getAttachment(final @NotNull String id) {
         return attachments.get(id);
     }
 
-    public void addAttachment(@NotNull final String id, @NotNull final Message.Attachment attachment) {
+    public void addAttachment(final @NotNull String id, final Message.@NotNull Attachment attachment) {
         attachments.put(id, attachment);
     }
 }

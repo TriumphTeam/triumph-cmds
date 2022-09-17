@@ -80,10 +80,10 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
     private PrefixedCommandManager(
-            @NotNull final JDA jda,
-            @NotNull final String globalPrefix,
-            @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull JDA jda,
+            final @NotNull String globalPrefix,
+            final @NotNull SenderMapper<PrefixedSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         super(senderMapper, senderValidator);
         this.globalPrefix = globalPrefix;
@@ -102,13 +102,12 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param <S>             The sender type.
      * @return The new instance.
      */
-    @NotNull
     @Contract("_, _, _, _ -> new")
-    public static <S> PrefixedCommandManager<S> create(
-            @NotNull final JDA jda,
-            @NotNull final String globalPrefix,
-            @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+    public static <S> @NotNull PrefixedCommandManager<S> create(
+            final @NotNull JDA jda,
+            final @NotNull String globalPrefix,
+            final @NotNull SenderMapper<PrefixedSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         return new PrefixedCommandManager<>(jda, globalPrefix, senderMapper, senderValidator);
     }
@@ -123,12 +122,11 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param <S>             The sender type.
      * @return The new instance.
      */
-    @NotNull
     @Contract("_, _, _ -> new")
-    public static <S> PrefixedCommandManager<S> create(
-            @NotNull final JDA jda,
-            @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+    public static <S> @NotNull PrefixedCommandManager<S> create(
+            final @NotNull JDA jda,
+            final @NotNull SenderMapper<PrefixedSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         return create(jda, "", senderMapper, senderValidator);
     }
@@ -140,9 +138,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param globalPrefix The global prefix.
      * @return The new instance.
      */
-    @NotNull
     @Contract("_, _ -> new")
-    public static PrefixedCommandManager<PrefixedSender> create(@NotNull final JDA jda, @NotNull final String globalPrefix) {
+    public static @NotNull PrefixedCommandManager<PrefixedSender> create(final @NotNull JDA jda, final @NotNull String globalPrefix) {
         final PrefixedCommandManager<PrefixedSender> manager = create(
                 jda,
                 globalPrefix,
@@ -159,9 +156,8 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param jda The JDA instance.
      * @return The new instance.
      */
-    @NotNull
     @Contract("_, -> new")
-    public static PrefixedCommandManager<PrefixedSender> create(@NotNull final JDA jda) {
+    public static @NotNull PrefixedCommandManager<PrefixedSender> create(final @NotNull JDA jda) {
         return create(jda, "");
     }
 
@@ -171,7 +167,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param baseCommand The {@link BaseCommand} to be registered.
      */
     @Override
-    public void registerCommand(@NotNull final BaseCommand baseCommand) {
+    public void registerCommand(final @NotNull BaseCommand baseCommand) {
         addCommand(null, baseCommand);
     }
 
@@ -181,7 +177,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param guild       the {@link Guild} to register the command to.
      * @param baseCommand The {@link BaseCommand} to be registered.
      */
-    public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand baseCommand) {
+    public void registerCommand(final @NotNull Guild guild, final @NotNull BaseCommand baseCommand) {
         addCommand(guild, baseCommand);
     }
 
@@ -191,20 +187,19 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param guild        The {@link Guild} to register the commands for.
      * @param baseCommands A list of baseCommands to be registered.
      */
-    public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand... baseCommands) {
+    public void registerCommand(final @NotNull Guild guild, final @NotNull BaseCommand @NotNull ... baseCommands) {
         for (final BaseCommand command : baseCommands) {
             registerCommand(guild, command);
         }
     }
 
     @Override
-    public void unregisterCommand(@NotNull final BaseCommand command) {
+    public void unregisterCommand(final @NotNull BaseCommand command) {
         // TODO: 11/23/2021 Add unregistering commands and also guild commands
     }
 
-    @NotNull
     @Override
-    protected RegistryContainer<S> getRegistryContainer() {
+    protected @NotNull RegistryContainer<S> getRegistryContainer() {
         return registryContainer;
     }
 
@@ -214,7 +209,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param guild       The guild to add the command to or null if it's a global command.
      * @param baseCommand The {@link BaseCommand} to be added.
      */
-    private void addCommand(@Nullable final Guild guild, @NotNull final BaseCommand baseCommand) {
+    private void addCommand(final @Nullable Guild guild, final @NotNull BaseCommand baseCommand) {
         final PrefixedCommandProcessor<S> processor = new PrefixedCommandProcessor<>(
                 baseCommand,
                 registryContainer,
@@ -279,8 +274,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param prefix The prefix of the command.
      * @return The {@link BaseCommand} or null if it doesn't exist.
      */
-    @Nullable
-    PrefixedCommandExecutor<S> getCommand(@NotNull final Guild guild, @NotNull final String prefix) {
+    @Nullable PrefixedCommandExecutor<S> getCommand(final @NotNull Guild guild, final @NotNull String prefix) {
         final Map<String, PrefixedCommandExecutor<S>> commands = guildCommands.get(guild.getIdLong());
         return commands != null ? commands.get(prefix) : null;
     }
@@ -291,8 +285,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      * @param prefix The prefix of the command.
      * @return The {@link BaseCommand} or null if it doesn't exist.
      */
-    @Nullable
-    PrefixedCommandExecutor<S> getCommand(@NotNull final String prefix) {
+    @Nullable PrefixedCommandExecutor<S> getCommand(final @NotNull String prefix) {
         return globalCommands.get(prefix);
     }
 
@@ -301,8 +294,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      *
      * @return A {@link Set} with all the registered prefixes.
      */
-    @NotNull
-    Set<String> getPrefixes() {
+    @NotNull Set<@NotNull String> getPrefixes() {
         return prefixes;
     }
 
@@ -311,12 +303,11 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      *
      * @return A {@link Set} with all the registered prefixes regexes.
      */
-    @NotNull
-    Set<Pattern> getPrefixesRegexes() {
+    @NotNull Set<@NotNull Pattern> getPrefixesRegexes() {
         return prefixesRegexes;
     }
 
-    private static void setUpDefaults(@NotNull final PrefixedCommandManager<PrefixedSender> manager) {
+    private static void setUpDefaults(final @NotNull PrefixedCommandManager<PrefixedSender> manager) {
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.getMessage().reply("Unknown command: `" + context.getCommand() + "`.").queue());
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());

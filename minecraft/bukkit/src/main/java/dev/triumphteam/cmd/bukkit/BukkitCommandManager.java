@@ -68,9 +68,9 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     private final CommandPermission basePermission = null;
 
     private BukkitCommandManager(
-            @NotNull final Plugin plugin,
-            @NotNull final SenderMapper<CommandSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull Plugin plugin,
+            final @NotNull SenderMapper<CommandSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         super(senderMapper, senderValidator);
         this.plugin = plugin;
@@ -94,9 +94,8 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
      * @param plugin The {@link Plugin} instance created.
      * @return A new instance of the {@link BukkitCommandManager}.
      */
-    @NotNull
     @Contract("_ -> new")
-    public static BukkitCommandManager<CommandSender> create(@NotNull final Plugin plugin) {
+    public static @NotNull BukkitCommandManager<CommandSender> create(final @NotNull Plugin plugin) {
         final BukkitCommandManager<CommandSender> commandManager = new BukkitCommandManager<>(
                 plugin,
                 SenderMapper.defaultMapper(),
@@ -115,18 +114,17 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
      * @param senderValidator The {@link SenderValidator} used to validate the {@link S} type.
      * @return A new instance of the {@link BukkitCommandManager}.
      */
-    @NotNull
     @Contract("_, _, _ -> new")
-    public static <S> BukkitCommandManager<S> create(
-            @NotNull final Plugin plugin,
-            @NotNull final SenderMapper<CommandSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+    public static <S> @NotNull BukkitCommandManager<S> create(
+            final @NotNull Plugin plugin,
+            final @NotNull SenderMapper<CommandSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         return new BukkitCommandManager<>(plugin, senderMapper, senderValidator);
     }
 
     @Override
-    public void registerCommand(@NotNull final BaseCommand baseCommand) {
+    public void registerCommand(final @NotNull BaseCommand baseCommand) {
         final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(
                 baseCommand,
                 registryContainer,
@@ -149,17 +147,16 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     }
 
     @Override
-    public void unregisterCommand(@NotNull final BaseCommand command) {
+    public void unregisterCommand(final @NotNull BaseCommand command) {
         // TODO add a remove functionality
     }
-    
-    @NotNull
+
     @Override
-    protected RegistryContainer<S> getRegistryContainer() {
+    protected @NotNull RegistryContainer<S> getRegistryContainer() {
         return registryContainer;
     }
 
-    private BukkitCommand<S> createAndRegisterCommand(@NotNull final String name, @NotNull final BukkitCommandProcessor<S> processor) {
+    private @NotNull BukkitCommand<S> createAndRegisterCommand(final @NotNull String name, final @NotNull BukkitCommandProcessor<S> processor) {
         // From ACF (https://github.com/aikar/commands)
         // To allow commands to be registered on the plugin.yml
         final org.bukkit.command.Command oldCommand = commandMap.getCommand(name);
@@ -178,7 +175,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
      *
      * @param manager The {@link BukkitCommandManager} instance to set up.
      */
-    private static void setUpDefaults(@NotNull final BukkitCommandManager<CommandSender> manager) {
+    private static void setUpDefaults(final @NotNull BukkitCommandManager<CommandSender> manager) {
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.sendMessage("Unknown command: `" + context.getCommand() + "`."));
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
@@ -194,8 +191,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
      *
      * @return The Command Map
      */
-    @NotNull
-    private CommandMap getCommandMap() {
+    private @NotNull CommandMap getCommandMap() {
         try {
             final Server server = Bukkit.getServer();
             final Method getCommandMap = server.getClass().getDeclaredMethod("getCommandMap");
@@ -207,8 +203,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         }
     }
 
-    @NotNull
-    private Map<String, org.bukkit.command.Command> getBukkitCommands(@NotNull final CommandMap commandMap) {
+    private @NotNull Map<@NotNull String, org.bukkit.command.@NotNull Command> getBukkitCommands(final @NotNull CommandMap commandMap) {
         try {
             final Field bukkitCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
             bukkitCommands.setAccessible(true);

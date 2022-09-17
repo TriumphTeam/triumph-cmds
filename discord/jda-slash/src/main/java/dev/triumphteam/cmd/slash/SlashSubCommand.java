@@ -45,16 +45,16 @@ final class SlashSubCommand<S> extends SubCommand<S> {
     private final List<Choice> choices;
 
     public SlashSubCommand(
-            @NotNull final SlashSubCommandProcessor<S> processor,
-            @NotNull final String parentName,
-            @NotNull final ExecutionProvider executionProvider
+            final @NotNull SlashSubCommandProcessor<S> processor,
+            final @NotNull String parentName,
+            final @NotNull ExecutionProvider executionProvider
     ) {
         super(processor, parentName, executionProvider);
         this.description = processor.getDescription();
         this.choices = processor.getChoices();
     }
 
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return description;
     }
 
@@ -64,7 +64,7 @@ final class SlashSubCommand<S> extends SubCommand<S> {
         return null;
     }
 
-    public List<OptionData> getJdaOptions() {
+    public @NotNull List<@NotNull OptionData> getJdaOptions() {
         final List<OptionData> options = new ArrayList<>();
         final List<InternalArgument<S, ?>> internalArguments = getArguments();
 
@@ -90,10 +90,8 @@ final class SlashSubCommand<S> extends SubCommand<S> {
         return options;
     }
 
-    @NotNull
-    private Choice getChoice(final int index) {
+    private @NotNull Choice getChoice(final int index) {
         if (index >= choices.size()) return EmptyChoice.INSTANCE;
         return choices.get(index);
     }
-
 }

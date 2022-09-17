@@ -39,7 +39,7 @@ public final class ChoiceKey extends RegistryKey {
     // Holds all registered keys, default and custom ones
     private static final Set<ChoiceKey> REGISTERED_KEYS = new HashSet<>();
 
-    private ChoiceKey(@NotNull final String key) {
+    private ChoiceKey(final @NotNull String key) {
         super(key);
         REGISTERED_KEYS.add(this);
     }
@@ -50,9 +50,8 @@ public final class ChoiceKey extends RegistryKey {
      * @param key The value of the key, normally separated by <code>.</code>.
      * @return A new {@link ChoiceKey}.
      */
-    @NotNull
     @Contract("_ -> new")
-    public static ChoiceKey of(@NotNull final String key) {
+    public static @NotNull ChoiceKey of(final @NotNull String key) {
         return new ChoiceKey(key);
     }
 
@@ -61,13 +60,12 @@ public final class ChoiceKey extends RegistryKey {
      *
      * @return The keys {@link Set}.
      */
-    @NotNull
-    public static Set<ChoiceKey> getRegisteredKeys() {
+    public static @NotNull Set<@NotNull ChoiceKey> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "ChoiceKey{super=" + super.toString() + "}";
     }
 }

@@ -65,11 +65,11 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
     private final List<Choice> choices;
 
     public SlashSubCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final Method method,
-            @NotNull final SlashRegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull String parentName,
+            final @NotNull Method method,
+            final @NotNull SlashRegistryContainer<S> registryContainer,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
         this.choiceRegistry = registryContainer.getChoiceRegistry();
@@ -78,21 +78,20 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
     }
 
     @Override
-    protected List<BiConsumer<Boolean, InternalArgument<S, ?>>> getArgValidations() {
+    protected @NotNull List<@NotNull BiConsumer<@NotNull Boolean, @NotNull InternalArgument<S, ?>>> getArgValidations() {
         return Collections.singletonList(validateLimitless());
     }
 
-    @NotNull
-    public List<Choice> getChoices() {
+    public @NotNull List<@NotNull Choice> getChoices() {
         return choices;
     }
 
     @Override
-    protected InternalArgument<S, String> createSimpleArgument(
-            @NotNull final Class<?> type,
-            @NotNull final String parameterName,
-            @NotNull final String argumentDescription,
-            @NotNull final Suggestion<S> suggestion,
+    protected @NotNull InternalArgument<S, String> createSimpleArgument(
+            final @NotNull Class<?> type,
+            final @NotNull String parameterName,
+            final @NotNull String argumentDescription,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -111,9 +110,9 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
         return super.createSimpleArgument(type, parameterName, argumentDescription, suggestion, position, optional);
     }
 
-    public List<Choice> extractChoices(
-            @NotNull final Method method,
-            @NotNull final Class<? extends BaseCommand> commandClass
+    public @NotNull List<@NotNull Choice> extractChoices(
+            final @NotNull Method method,
+            final @NotNull Class<? extends BaseCommand> commandClass
     ) {
         final List<Choice> choiceList = new ArrayList<>();
 
@@ -138,9 +137,9 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
     }
 
     private void extractSuggestionFromParams(
-            @NotNull final Method method,
-            @NotNull final List<Choice> choiceList,
-            @NotNull final Class<? extends BaseCommand> commandClass
+            final @NotNull Method method,
+            final @NotNull List<@NotNull Choice> choiceList,
+            final @NotNull Class<? extends BaseCommand> commandClass
     ) {
         final Parameter[] parameters = method.getParameters();
         for (int i = 1; i < parameters.length; i++) {
@@ -171,9 +170,9 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
     }
 
     private void setOrAdd(
-            @NotNull final List<Choice> choiceList,
+            final @NotNull List<@NotNull Choice> choiceList,
             final int index,
-            @Nullable final Choice choice
+            final @Nullable Choice choice
     ) {
         if (index >= choiceList.size()) {
             if (choice == null) {
@@ -188,7 +187,7 @@ final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
         choiceList.set(index, choice);
     }
 
-    private List<dev.triumphteam.cmd.slash.annotation.Choice> getChoicesFromAnnotation(@NotNull final Method method) {
+    private List<dev.triumphteam.cmd.slash.annotation.Choice> getChoicesFromAnnotation(final @NotNull Method method) {
         final Choices requirements = method.getAnnotation(Choices.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 

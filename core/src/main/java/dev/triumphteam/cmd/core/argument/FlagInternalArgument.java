@@ -52,9 +52,9 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
     private final FlagParser<S> flagParser;
 
     public FlagInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final FlagGroup<S> flagGroup,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull FlagGroup<S> flagGroup,
             final int position,
             final boolean isOptional
     ) {
@@ -70,16 +70,15 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
      * @param value  The arguments {@link List}.
      * @return A {@link Flags} which contains the flags and leftovers.
      */
-    @NotNull
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final List<String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
         return flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
     }
 
     @Override
-    public List<String> suggestions(
-            @NotNull final S sender,
-            final @NotNull List<String> trimmed,
+    public @NotNull List<@NotNull String> suggestions(
+            final @NotNull S sender,
+            final @NotNull List<@NotNull String> trimmed,
             final @NotNull SuggestionContext context
     ) {
         final int size = trimmed.size();
@@ -148,7 +147,7 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;

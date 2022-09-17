@@ -31,12 +31,13 @@ public final class ListArgumentBuilder extends AbstractArgumentBuilder<ListArgum
     private final Class<?> collectionType;
     private String separator = ",";
 
-    public ListArgumentBuilder(@NotNull final Class<?> collectionType, @NotNull final Class<?> type) {
+    public ListArgumentBuilder(final @NotNull Class<?> collectionType, final @NotNull Class<?> type) {
         super(type);
         this.collectionType = collectionType;
     }
 
-    public ListArgumentBuilder separator(@NotNull final String separator) {
+    @Contract("_ -> this")
+    public @NotNull ListArgumentBuilder separator(final @NotNull String separator) {
         this.separator = separator;
         return this;
     }
@@ -46,18 +47,16 @@ public final class ListArgumentBuilder extends AbstractArgumentBuilder<ListArgum
      *
      * @return A new {@link Argument} with the data from this builder.
      */
-    @NotNull
     @Contract(" -> new")
-    public Argument build() {
+    public @NotNull Argument build() {
         return new ListArgument(this);
     }
 
-    Class<?> getCollectionType() {
+    @NotNull Class<?> getCollectionType() {
         return collectionType;
     }
 
-    @NotNull
-    String getSeparator() {
+    @NotNull String getSeparator() {
         return separator;
     }
 }

@@ -33,13 +33,11 @@ final class SlashRegistryContainer<S> extends RegistryContainer<S> {
     private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
     private final AttachmentRegistry attachmentRegistry = new AttachmentRegistry();
 
-    @NotNull
-    public ChoiceRegistry getChoiceRegistry() {
+    public @NotNull ChoiceRegistry getChoiceRegistry() {
         return choiceRegistry;
     }
 
-    @NotNull
-    public AttachmentRegistry getAttachmentRegistry() {
+    public @NotNull AttachmentRegistry getAttachmentRegistry() {
         return attachmentRegistry;
     }
 }

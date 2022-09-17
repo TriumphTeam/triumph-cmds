@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.registry;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -34,7 +35,7 @@ public abstract class RegistryKey {
 
     private final String key;
 
-    public RegistryKey(@NotNull final String key) {
+    public RegistryKey(final @NotNull String key) {
         this.key = key;
     }
 
@@ -43,13 +44,12 @@ public abstract class RegistryKey {
      *
      * @return The key value.
      */
-    @NotNull
-    public String getKey() {
+    public @NotNull String getKey() {
         return key;
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final RegistryKey that = (RegistryKey) o;
@@ -62,7 +62,7 @@ public abstract class RegistryKey {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "RegistryKey{" +
                 "key='" + key + '\'' +
                 '}';

@@ -48,48 +48,42 @@ public interface SlashSender {
      *
      * @return The original event.
      */
-    @NotNull
-    SlashCommandInteractionEvent getEvent();
+    @NotNull SlashCommandInteractionEvent getEvent();
 
     /**
      * Gets the guild that the command was sent in or null if it was sent in a private message.
      *
      * @return The guild.
      */
-    @Nullable
-    Guild getGuild();
+    @Nullable Guild getGuild();
 
     /**
      * Gets the channel that the command was sent in.
      *
      * @return The channel.
      */
-    @NotNull
-    MessageChannel getChannel();
+    @NotNull MessageChannel getChannel();
 
     /**
      * Gets the user that sent the command.
      *
      * @return The user.
      */
-    @NotNull
-    User getUser();
+    @NotNull User getUser();
 
     /**
      * Gets the member that sent the command or null if the user is not a member.
      *
      * @return The member.
      */
-    @Nullable
-    Member getMember();
+    @Nullable Member getMember();
 
     /**
      * Gets the interaction hook for the command.
      *
      * @return The interaction hook.
      */
-    @NotNull
-    InteractionHook getHook();
+    @NotNull InteractionHook getHook();
 
     /**
      * Replies to the command with a string message.
@@ -97,8 +91,7 @@ public interface SlashSender {
      * @param message The message to reply with.
      * @return The reply action.
      */
-    @NotNull
-    ReplyCallbackAction reply(@NotNull final String message);
+    @NotNull ReplyCallbackAction reply(final @NotNull String message);
 
     /**
      * Replies to the command with a message.
@@ -106,8 +99,7 @@ public interface SlashSender {
      * @param message The message to reply with.
      * @return The reply action.
      */
-    @NotNull
-    ReplyCallbackAction reply(@NotNull final MessageCreateData message);
+    @NotNull ReplyCallbackAction reply(final @NotNull MessageCreateData message);
 
     /**
      * Replies to the command with a message embed.
@@ -116,8 +108,7 @@ public interface SlashSender {
      * @param embeds The additional embeds.
      * @return The reply action.
      */
-    @NotNull
-    ReplyCallbackAction reply(@NotNull final MessageEmbed embed, @NotNull final MessageEmbed... embeds);
+    @NotNull ReplyCallbackAction reply(final @NotNull MessageEmbed embed, final @NotNull MessageEmbed @NotNull ... embeds);
 
     /**
      * Replies to the command with a message embeds.
@@ -125,16 +116,14 @@ public interface SlashSender {
      * @param embeds The embeds to reply with.
      * @return The reply action.
      */
-    @NotNull
-    ReplyCallbackAction reply(@NotNull final Collection<? extends MessageEmbed> embeds);
+    @NotNull ReplyCallbackAction reply(final @NotNull Collection<? extends MessageEmbed> embeds);
 
     /**
      * Defers the reply to the command.
      *
      * @return The reply action.
      */
-    @NotNull
-    ReplyCallbackAction deferReply();
+    @NotNull ReplyCallbackAction deferReply();
 
     /**
      * Defers the reply to the command but ephemeral.
@@ -142,7 +131,6 @@ public interface SlashSender {
      * @param ephemeral Whether the message should be ephemeral.
      * @return The reply action.
      */
-    @NotNull
-    ReplyCallbackAction deferReply(boolean ephemeral);
+    @NotNull ReplyCallbackAction deferReply(final boolean ephemeral);
 
 }

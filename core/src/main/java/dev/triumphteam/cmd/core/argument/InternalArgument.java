@@ -44,8 +44,7 @@ public interface InternalArgument<S, T> {
      *
      * @return The argument name.
      */
-    @NotNull
-    String getName();
+    @NotNull String getName();
 
     // TODO: 1/31/2022
     int getPosition();
@@ -56,7 +55,7 @@ public interface InternalArgument<S, T> {
      *
      * @return The description of this Argument.
      */
-    String getDescription();
+    @NotNull String getDescription();
 
     /**
      * The argument type.
@@ -64,8 +63,7 @@ public interface InternalArgument<S, T> {
      *
      * @return The argument type.
      */
-    @NotNull
-    Class<?> getType();
+    @NotNull Class<?> getType();
 
     /**
      * If argument is optional or not.
@@ -81,14 +79,13 @@ public interface InternalArgument<S, T> {
      * @param value  The argument value.
      * @return An object with the resolved value.
      */
-    @Nullable
-    Object resolve(@NotNull final S sender, @NotNull final T value);
+    @Nullable Object resolve(final @NotNull S sender, final @NotNull T value);
 
     // TODO: Comments
-    List<String> suggestions(
-            @NotNull final S sender,
-            @NotNull final List<String> trimmed,
-            @NotNull final SuggestionContext context
+   @NotNull List<@NotNull String> suggestions(
+            final @NotNull S sender,
+            final @NotNull List<@NotNull String> trimmed,
+            final @NotNull SuggestionContext context
     );
 
 }

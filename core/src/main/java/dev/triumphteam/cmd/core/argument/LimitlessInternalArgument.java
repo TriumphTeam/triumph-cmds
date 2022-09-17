@@ -35,13 +35,13 @@ import java.util.List;
  *
  * @param <S> The sender type.
  */
-public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, List<String>> {
+public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, List<@NotNull String>> {
 
     public LimitlessInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final Class<?> type,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<?> type,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean isOptional
     ) {
@@ -49,18 +49,17 @@ public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgum
     }
 
     @Override
-    public List<String> suggestions(
-            @NotNull final S sender,
-            @NotNull final List<String> trimmed,
-            @NotNull final SuggestionContext context
+    public @NotNull List<@NotNull String> suggestions(
+            final @NotNull S sender,
+            final @NotNull List<@NotNull String> trimmed,
+            final @NotNull SuggestionContext context
     ) {
         final String last = trimmed.get(trimmed.size() - 1);
         return getSuggestion().getSuggestions(sender, last, context);
     }
 
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "LimitlessArgument{super=" + super.toString() + "}";
     }
 

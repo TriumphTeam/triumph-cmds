@@ -59,9 +59,9 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
     private final ExecutionProvider asyncExecutionProvider;
 
     public PrefixedCommand(
-            @NotNull final PrefixedCommandProcessor<S> processor,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            final @NotNull PrefixedCommandProcessor<S> processor,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
         this.name = processor.getName();
         this.alias = processor.getAlias();
@@ -74,12 +74,12 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
     }
 
     @Override
-    public void addSubCommand(@NotNull final String name, @NotNull final PrefixedSubCommand<S> subCommand) {
+    public void addSubCommand(final @NotNull String name, final @NotNull PrefixedSubCommand<S> subCommand) {
         this.subCommands.putIfAbsent(name, subCommand);
     }
 
     @Override
-    public void addSubCommandAlias(@NotNull final String alias, @NotNull final PrefixedSubCommand<S> subCommand) {
+    public void addSubCommandAlias(final @NotNull String alias, final @NotNull PrefixedSubCommand<S> subCommand) {
         this.subCommands.putIfAbsent(alias, subCommand);
     }
 
@@ -89,7 +89,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
      * @param sender The sender.
      * @param args   The command arguments.
      */
-    public void execute(@NotNull final S sender, @NotNull final List<String> args) {
+    public void execute(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
         SubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
@@ -114,8 +114,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
      *
      * @return The default sub command.
      */
-    @Nullable
-    private SubCommand<S> getDefaultSubCommand() {
+    private @Nullable SubCommand<S> getDefaultSubCommand() {
         return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
@@ -125,8 +124,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
      * @param key The sub command name.
      * @return A sub command or null.
      */
-    @Nullable
-    private SubCommand<S> getSubCommand(@NotNull final String key) {
+    private @Nullable SubCommand<S> getSubCommand(final @NotNull String key) {
         return subCommands.get(key);
     }
 
@@ -136,7 +134,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
      * @param key The sub command name.
      * @return True if the sub command exists.
      */
-    private boolean subCommandExists(@NotNull final String key) {
+    private boolean subCommandExists(final @NotNull String key) {
         return subCommands.containsKey(key);
     }
 

@@ -144,11 +144,11 @@ public abstract class AbstractSubCommandProcessor<S> {
     private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
     protected AbstractSubCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final AnnotatedElement annotatedElement,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull String parentName,
+            final @NotNull AnnotatedElement annotatedElement,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         this.baseCommand = baseCommand;
         this.parentName = parentName;
@@ -182,8 +182,8 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param annotatedElement The method to search from.
      */
-    protected void extractArguments(@NotNull final AnnotatedElement annotatedElement) {
-        /*final Parameter[] parameters = annotatedElement.getParameters();
+    protected void extractArguments(final @NotNull AnnotatedElement annotatedElement) {
+        /*final Parameter[] parameters = method.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
             if (i == 0) {
@@ -201,8 +201,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The sub command name.
      */
-    @Nullable
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 
@@ -211,13 +210,11 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return either the extracted Description or the default one.
      */
-    @NotNull
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return description;
     }
 
-    @NotNull
-    public Class<? extends S> getSenderType() {
+    public @NotNull Class<? extends S> getSenderType() {
         if (senderType == null) throw createException("Sender type could not be found.");
         return senderType;
     }
@@ -227,8 +224,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The sub command alias.
      */
-    @NotNull
-    public List<String> getAlias() {
+    public @NotNull List<@NotNull String> getAlias() {
         return alias;
     }
 
@@ -255,14 +251,12 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The base command instance.
      */
-    @NotNull
-    public BaseCommand getBaseCommand() {
+    public @NotNull BaseCommand getBaseCommand() {
         return baseCommand;
     }
 
     // TODO comments
-    @NotNull
-    public AnnotatedElement getAnnotatedElement() {
+    public @NotNull AnnotatedElement getAnnotatedElement() {
         return annotatedElement;
     }
 
@@ -271,8 +265,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The requirements.
      */
-    @NotNull
-    public Set<Requirement<S, ?>> getRequirements() {
+    public @NotNull Set<@NotNull Requirement<S, ?>> getRequirements() {
         return requirements;
     }
 
@@ -281,19 +274,16 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The message registry.
      */
-    @NotNull
-    public MessageRegistry<S> getMessageRegistry() {
+    public @NotNull MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
     }
 
-    @NotNull
-    public RegistryContainer<S> getRegistryContainer() {
+    public @NotNull RegistryContainer<S> getRegistryContainer() {
         return registryContainer;
     }
 
     // TODO: 2/4/2022 comments
-    @NotNull
-    public SenderValidator<S> getSenderValidator() {
+    public @NotNull SenderValidator<S> getSenderValidator() {
         return senderValidator;
     }
 
@@ -303,9 +293,8 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param message The main message to pass to the exception.
      * @return A new {@link SubCommandRegistrationException}.
      */
-    @NotNull
     @Contract("_ -> new")
-    protected SubCommandRegistrationException createException(@NotNull final String message) {
+    protected @NotNull SubCommandRegistrationException createException(final @NotNull String message) {
         return new SubCommandRegistrationException(message, annotatedElement, baseCommand.getClass());
     }
 
@@ -314,7 +303,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param type The sender type.
      */
-    protected void validateSender(@NotNull final Class<?> type) {
+    protected void validateSender(final @NotNull Class<?> type) {
         final Set<Class<? extends S>> allowedSenders = senderValidator.getAllowedSenders();
         if (allowedSenders.contains(type)) {
             senderType = (Class<? extends S>) type;
@@ -336,8 +325,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The arguments list.
      */
-    @NotNull
-    public List<InternalArgument<S, ?>> getArguments() {
+    public @NotNull List<@NotNull InternalArgument<S, ?>> getArguments() {
         return internalArguments;
     }
 
@@ -346,7 +334,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param parameter The current parameter to get data from.
      */
-    protected void createArgument(@NotNull final Parameter parameter, final int position) {
+    protected void createArgument(final @NotNull Parameter parameter, final int position) {
         final Class<?> type = parameter.getType();
         final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(parameter, position);
@@ -452,7 +440,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         addArgument(createSimpleArgument(type, argumentName, argumentDescription, suggestionList.get(position), position, optional));
     }
 
-    private Map<String, InternalArgument<S, ?>> collectNamedArgs(final String key) {
+    private @NotNull Map<@NotNull String, @NotNull InternalArgument<S, ?>> collectNamedArgs(final @NotNull String key) {
         final List<Argument> arguments = namedArgumentRegistry.getResolver(ArgumentKey.of(key));
         if (arguments == null || arguments.isEmpty()) {
             throw createException("No registered named arguments found for key \"" + key + "\"");
@@ -510,8 +498,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param parameter The parameter to get data from.
      * @return The final internalArgument name.
      */
-    @NotNull
-    private String getArgName(@NotNull final Parameter parameter) {
+    private @NotNull String getArgName(final @NotNull Parameter parameter) {
         if (parameter.isAnnotationPresent(ArgName.class)) {
             return parameter.getAnnotation(ArgName.class).value();
         }
@@ -526,8 +513,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param index     The index of the internalArgument.
      * @return The final internalArgument description.
      */
-    @NotNull
-    private String getArgumentDescription(@NotNull final Parameter parameter, final int index) {
+    private @NotNull String getArgumentDescription(final @NotNull Parameter parameter, final int index) {
         final Description description = parameter.getAnnotation(Description.class);
         if (description != null) {
             return description.value();
@@ -547,11 +533,11 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param optional            whether this Argument is optional.
      * @return The created {@link InternalArgument}.
      */
-    protected InternalArgument<S, String> createSimpleArgument(
-            @NotNull final Class<?> type,
-            @NotNull final String parameterName,
-            @NotNull final String argumentDescription,
-            @NotNull final Suggestion<S> suggestion,
+    protected @NotNull InternalArgument<S, String> createSimpleArgument(
+            final @NotNull Class<?> type,
+            final @NotNull String parameterName,
+            final @NotNull String argumentDescription,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -589,7 +575,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param requirement The requirement to add.
      */
-    protected void addRequirement(@NotNull final Requirement<S, ?> requirement) {
+    protected void addRequirement(final @NotNull Requirement<S, ?> requirement) {
         requirements.add(requirement);
     }
 
@@ -598,7 +584,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @param internalArgument The created internalArgument.
      */
-    private void addArgument(@NotNull final InternalArgument<S, ?> internalArgument) {
+    private void addArgument(final @NotNull InternalArgument<S, ?> internalArgument) {
         internalArguments.add(internalArgument);
     }
 
@@ -693,7 +679,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The list of flags.
      */
-    private List<Flag> getFlagsFromAnnotations() {
+    private @NotNull List<@NotNull Flag> getFlagsFromAnnotations() {
         final CommandFlags flags = annotatedElement.getAnnotation(CommandFlags.class);
         if (flags != null) return Arrays.asList(flags.value());
 
@@ -728,7 +714,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return The list of requirements.
      */
-    private List<dev.triumphteam.cmd.core.annotation.Requirement> getRequirementsFromAnnotations() {
+    private @NotNull List<dev.triumphteam.cmd.core.annotation.@NotNull Requirement> getRequirementsFromAnnotations() {
         final Requirements requirements = annotatedElement.getAnnotation(Requirements.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
@@ -744,7 +730,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return A list of BiConsumers with checks.
      */
-    protected List<BiConsumer<Boolean, InternalArgument<S, ?>>> getArgValidations() {
+    protected @NotNull List<@NotNull BiConsumer<@NotNull Boolean, @NotNull InternalArgument<S, ?>>> getArgValidations() {
         return Arrays.asList(validateOptionals(), validateLimitless());
     }
 
@@ -766,7 +752,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return Returns a BiConsumer with an is optional check.
      */
-    protected BiConsumer<Boolean, InternalArgument<S, ?>> validateOptionals() {
+    protected @NotNull BiConsumer<@NotNull Boolean, @NotNull InternalArgument<S, ?>> validateOptionals() {
         return (hasNext, internalArgument) -> {
             if (hasNext && internalArgument.isOptional()) {
                 throw createException("Optional internalArgument is only allowed as the last internalArgument");
@@ -779,7 +765,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      *
      * @return Returns a BiConsumer with an instance of check.
      */
-    protected BiConsumer<Boolean, InternalArgument<S, ?>> validateLimitless() {
+    protected @NotNull BiConsumer<@NotNull Boolean, @NotNull InternalArgument<S, ?>> validateLimitless() {
         return (hasNext, internalArgument) -> {
             if (hasNext && internalArgument instanceof LimitlessInternalArgument) {
                 throw createException("Limitless internalArgument is only allowed as the last internalArgument");
@@ -847,8 +833,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         }*/
     }
 
-    @NotNull
-    private Suggestion<S> createSuggestion(@Nullable final SuggestionKey suggestionKey, @NotNull final Class<?> type) {
+    private @NotNull Suggestion<S> createSuggestion(final @Nullable SuggestionKey suggestionKey, final @NotNull Class<?> type) {
         if (suggestionKey == null) {
             if (Enum.class.isAssignableFrom(type)) return new EnumSuggestion<>((Class<? extends Enum<?>>) type);
 
@@ -871,7 +856,7 @@ public abstract class AbstractSubCommandProcessor<S> {
      * @param index      The index of the suggestion.
      * @param suggestion The suggestion.
      */
-    private void setOrAddSuggestion(final int index, @Nullable final Suggestion<S> suggestion) {
+    private void setOrAddSuggestion(final int index, final @Nullable Suggestion<S> suggestion) {
         if (index >= suggestionList.size()) {
             if (suggestion == null) {
                 suggestionList.add(new EmptySuggestion<>());
@@ -885,7 +870,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         suggestionList.set(index, suggestion);
     }
 
-    private List<dev.triumphteam.cmd.core.annotation.Suggestion> getSuggestionsFromAnnotations() {
+    private @NotNull List<dev.triumphteam.cmd.core.annotation.@NotNull Suggestion> getSuggestionsFromAnnotations() {
         final Suggestions requirements = annotatedElement.getAnnotation(Suggestions.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
@@ -894,7 +879,7 @@ public abstract class AbstractSubCommandProcessor<S> {
         return singletonList(suggestion);
     }
 
-    private Class<?> getGenericType(@NotNull final Parameter parameter) {
+    private @NotNull Class<?> getGenericType(final @NotNull Parameter parameter) {
         final Class<?> type = parameter.getType();
         if (COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
             final ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();

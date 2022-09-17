@@ -37,7 +37,7 @@ public interface Argument {
      *
      * @return A {@link ArgumentBuilder} for a {@link String} argument.
      */
-    static ArgumentBuilder forString() {
+    static @NotNull ArgumentBuilder forString() {
         return new ArgumentBuilder(String.class);
     }
 
@@ -46,7 +46,7 @@ public interface Argument {
      *
      * @return A {@link ArgumentBuilder} for a {@link Integer} argument.
      */
-    static ArgumentBuilder forInt() {
+    static @NotNull ArgumentBuilder forInt() {
         return new ArgumentBuilder(int.class);
     }
 
@@ -55,7 +55,7 @@ public interface Argument {
      *
      * @return A {@link ArgumentBuilder} for a {@link Float} argument.
      */
-    static ArgumentBuilder forFloat() {
+    static @NotNull ArgumentBuilder forFloat() {
         return new ArgumentBuilder(float.class);
     }
 
@@ -64,7 +64,7 @@ public interface Argument {
      *
      * @return A {@link ArgumentBuilder} for a {@link Double} argument.
      */
-    static ArgumentBuilder forDouble() {
+    static @NotNull ArgumentBuilder forDouble() {
         return new ArgumentBuilder(double.class);
     }
 
@@ -73,7 +73,7 @@ public interface Argument {
      *
      * @return A {@link ArgumentBuilder} for a {@link Boolean} argument.
      */
-    static ArgumentBuilder forBoolean() {
+    static @NotNull ArgumentBuilder forBoolean() {
         return new ArgumentBuilder(boolean.class);
     }
 
@@ -82,28 +82,24 @@ public interface Argument {
      *
      * @return A {@link ArgumentBuilder} for a custom type argument.
      */
-    static ArgumentBuilder forType(@NotNull final Class<?> type) {
+    static @NotNull ArgumentBuilder forType(final @NotNull Class<?> type) {
         return new ArgumentBuilder(type);
     }
 
-    static ListArgumentBuilder listOf(@NotNull final Class<?> type) {
+    static @NotNull ListArgumentBuilder listOf(final @NotNull Class<?> type) {
         return new ListArgumentBuilder(List.class, type);
     }
 
-    static ListArgumentBuilder setOf(@NotNull final Class<?> type) {
+    static @NotNull ListArgumentBuilder setOf(final @NotNull Class<?> type) {
         return new ListArgumentBuilder(Set.class, type);
     }
 
     // TODO: Comments
-    @NotNull
-    Class<?> getType();
+    @NotNull Class<?> getType();
 
-    @NotNull
-    String getName();
+    @NotNull String getName();
 
-    @NotNull
-    String getDescription();
+    @NotNull String getDescription();
 
-    @Nullable
-    SuggestionKey getSuggestion();
+    @Nullable SuggestionKey getSuggestion();
 }

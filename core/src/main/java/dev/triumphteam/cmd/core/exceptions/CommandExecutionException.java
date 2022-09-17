@@ -23,27 +23,30 @@
  */
 package dev.triumphteam.cmd.core.exceptions;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Throws when the command execution fails.
  */
 public final class CommandExecutionException extends RuntimeException {
 
-    public CommandExecutionException(@NotNull final String message) {
+    public CommandExecutionException(final @NotNull String message) {
         super(message);
     }
 
     public CommandExecutionException(
-            @NotNull final String message,
-            @NotNull final String parent,
-            @NotNull final String command
+            final @NotNull String message,
+            final @NotNull String parent,
+            final @NotNull String command
     ) {
         super(message + ". On \"" + parent + "\" command on \"" + command + "\" sub command.");
     }
 
+    @Contract("_ -> this")
     @Override
-    public synchronized CommandExecutionException initCause(final Throwable cause) {
+    public synchronized @NotNull CommandExecutionException initCause(final @Nullable Throwable cause) {
         super.initCause(cause);
         return this;
     }

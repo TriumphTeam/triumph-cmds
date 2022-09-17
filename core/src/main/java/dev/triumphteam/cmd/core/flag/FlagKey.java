@@ -36,7 +36,7 @@ public final class FlagKey extends RegistryKey {
     // Holds all registered keys, default and custom ones
     private static final Set<FlagKey> REGISTERED_KEYS = new HashSet<>();
 
-    private FlagKey(@NotNull final String key) {
+    private FlagKey(final @NotNull String key) {
         super(key);
         REGISTERED_KEYS.add(this);
     }
@@ -47,24 +47,17 @@ public final class FlagKey extends RegistryKey {
      * @param key The value of the key, normally separated by <code>.</code>.
      * @return A new {@link FlagKey}.
      */
-    @NotNull
     @Contract("_ -> new")
-    public static FlagKey of(@NotNull final String key) {
+    public static @NotNull FlagKey of(final @NotNull String key) {
         return new FlagKey(key);
     }
 
-    /**
-     * Gets an immutable {@link Set} with all the registered keys.
-     *
-     * @return The keys {@link Set}.
-     */
-    @NotNull
-    public static Set<FlagKey> getRegisteredKeys() {
+    public static @NotNull Set<@NotNull FlagKey> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "FlagKey{super=" + super.toString() + "}";
     }
 }

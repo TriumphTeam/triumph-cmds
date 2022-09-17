@@ -62,9 +62,9 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
-            @NotNull final SimpleCommandProcessor<S> processor,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            final @NotNull SimpleCommandProcessor<S> processor,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
         this.name = processor.getName();
 
@@ -78,8 +78,8 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
 
     // TODO: Comments
     public void execute(
-            @NotNull final S sender,
-            @NotNull final List<String> args
+            final @NotNull S sender,
+            final @NotNull List<@NotNull String> args
     ) {
         SimpleSubCommand<S> subCommand = getDefaultSubCommand();
 
@@ -105,8 +105,7 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
      *
      * @return A default SubCommand.
      */
-    @Nullable
-    private SimpleSubCommand<S> getDefaultSubCommand() {
+    private @Nullable SimpleSubCommand<S> getDefaultSubCommand() {
         return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
@@ -116,8 +115,7 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
      * @param key the String to look for the {@link SubCommand<S>}
      * @return the {@link SubCommand<S>} for the particular key or NULL
      */
-    @Nullable
-    private SimpleSubCommand<S> getSubCommand(@NotNull final String key) {
+    private @Nullable SimpleSubCommand<S> getSubCommand(final @NotNull String key) {
         final SimpleSubCommand<S> subCommand = subCommands.get(key);
         if (subCommand != null) return subCommand;
         return subCommandAliases.get(key);
@@ -129,7 +127,7 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
      * @param key the Key to check for
      * @return whether a SubCommand with that key exists
      */
-    private boolean subCommandExists(@NotNull final String key) {
+    private boolean subCommandExists(final @NotNull String key) {
         return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
     }
 
@@ -137,7 +135,7 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
      * {@inheritDoc}
      */
     @Override
-    public void addSubCommand(@NotNull String name, @NotNull SimpleSubCommand<S> subCommand) {
+    public void addSubCommand(final @NotNull String name, final @NotNull SimpleSubCommand<S> subCommand) {
         this.subCommands.put(name, subCommand);
     }
 
@@ -145,7 +143,7 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
      * {@inheritDoc}
      */
     @Override
-    public void addSubCommandAlias(@NotNull String alias, @NotNull SimpleSubCommand<S> subCommand) {
+    public void addSubCommandAlias(final @NotNull String alias, final @NotNull SimpleSubCommand<S> subCommand) {
         this.subCommandAliases.put(alias, subCommand);
     }
 }

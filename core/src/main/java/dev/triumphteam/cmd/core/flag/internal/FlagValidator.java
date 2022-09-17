@@ -47,9 +47,9 @@ public final class FlagValidator {
      * @param annotatedElement The method from the registration so that better error message can be thrown.
      */
     public static void validate(
-            @Nullable final String flag,
-            @NotNull final AnnotatedElement annotatedElement,
-            @NotNull final BaseCommand baseCommand
+            final @Nullable String flag,
+            final @NotNull AnnotatedElement annotatedElement,
+            final @NotNull BaseCommand baseCommand
     ) {
         if (flag == null) return;
 

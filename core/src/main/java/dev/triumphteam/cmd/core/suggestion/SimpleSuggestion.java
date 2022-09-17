@@ -34,13 +34,12 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
 
     private final SuggestionResolver<S> resolver;
 
-    public SimpleSuggestion(@NotNull final SuggestionResolver<S> resolver) {
+    public SimpleSuggestion(final @NotNull SuggestionResolver<S> resolver) {
         this.resolver = resolver;
     }
 
-    @NotNull
     @Override
-    public List<String> getSuggestions(@NotNull final S sender, @NotNull final String current, @NotNull final SuggestionContext context) {
+    public @NotNull List<@NotNull String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
         return resolver
                 .resolve(sender, context)
                 .stream()
@@ -49,7 +48,7 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final SimpleSuggestion<?> that = (SimpleSuggestion<?>) o;
@@ -62,7 +61,7 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "SimpleSuggestion{" +
                 "resolver=" + resolver +
                 '}';

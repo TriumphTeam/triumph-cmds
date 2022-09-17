@@ -46,12 +46,12 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
     private final Class<?> collectionType;
 
     public SplitStringInternalArgument(
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final String regex,
-            @NotNull final InternalArgument<S, String> internalArgument,
-            @NotNull final Class<?> collectionType,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull String regex,
+            final @NotNull InternalArgument<S, String> internalArgument,
+            final @NotNull Class<?> collectionType,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -68,16 +68,19 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
      * @param value  The argument value.
      * @return A collection of the split strings.
      */
-    @NotNull
     @Override
-    public Object resolve(@NotNull final S sender, @NotNull final String value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull String value) {
         final Stream<Object> stream = Arrays.stream(value.split(regex)).map(arg -> internalArgument.resolve(sender, arg));
         if (collectionType == Set.class) return stream.collect(Collectors.toSet());
         return stream.collect(Collectors.toList());
     }
 
     @Override
-    public List<String> suggestions(@NotNull final S sender, final @NotNull List<String> trimmed, final @NotNull SuggestionContext context) {
+    public @NotNull List<@NotNull String> suggestions(
+            final @NotNull S sender,
+            final @NotNull List<@NotNull String> trimmed,
+            final @NotNull SuggestionContext context
+    ) {
         final List<String> split = Arrays.asList(trimmed.get(trimmed.size() - 1).split(regex));
         if (split.size() == 0) return Collections.emptyList();
         final String current = split.get(split.size() - 1);

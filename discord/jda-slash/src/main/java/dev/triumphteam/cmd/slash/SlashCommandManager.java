@@ -75,9 +75,9 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
     public SlashCommandManager(
-            @NotNull final JDA jda,
-            @NotNull final SenderMapper<SlashSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull JDA jda,
+            final @NotNull SenderMapper<SlashSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         super(senderMapper, senderValidator);
         this.jda = jda;
@@ -95,12 +95,11 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param <S>             The type of the custom sender.
      * @return A new instance of the {@link SlashCommandManager}.
      */
-    @NotNull
     @Contract("_, _, _ -> new")
-    public static <S> SlashCommandManager<S> create(
-            @NotNull final JDA jda,
-            @NotNull final SenderMapper<SlashSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+    public static <S> @NotNull SlashCommandManager<S> create(
+            final @NotNull JDA jda,
+            final @NotNull SenderMapper<SlashSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         return new SlashCommandManager<>(jda, senderMapper, senderValidator);
     }
@@ -112,7 +111,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param jda The JDA instance created.
      * @return A new instance of the {@link SlashCommandManager}.
      */
-    public static SlashCommandManager<SlashSender> create(@NotNull final JDA jda) {
+    public static @NotNull SlashCommandManager<SlashSender> create(final @NotNull JDA jda) {
         final SlashCommandManager<SlashSender> commandManager = create(jda, SenderMapper.defaultMapper(), new SlashSenderValidator());
         setUpDefaults(commandManager);
         return commandManager;
@@ -124,7 +123,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param baseCommand The {@link BaseCommand} to be registered.
      */
     @Override
-    public void registerCommand(@NotNull final BaseCommand baseCommand) {
+    public void registerCommand(final @NotNull BaseCommand baseCommand) {
         addCommand(null, baseCommand, Collections.emptyList());
     }
 
@@ -134,7 +133,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param guild       The {@link Guild} to register the command for.
      * @param baseCommand The {@link BaseCommand} to be registered.
      */
-    public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand baseCommand) {
+    public void registerCommand(final @NotNull Guild guild, final @NotNull BaseCommand baseCommand) {
         addCommand(guild, baseCommand, Collections.emptyList());
     }
 
@@ -145,8 +144,8 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param enabledPermissions The {@link Role}s that are allowed to use the command.
      */
     public void registerCommand(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final List<Permission> enabledPermissions) {
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull List<@NotNull Permission> enabledPermissions) {
         addCommand(null, baseCommand, enabledPermissions);
     }
 
@@ -158,9 +157,9 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param enabledPermissions The {@link Permission}s that are allowed to use the command.
      */
     public void registerCommand(
-            @NotNull final Guild guild,
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final List<Permission> enabledPermissions) {
+            final @NotNull Guild guild,
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull List<@NotNull Permission> enabledPermissions) {
         addCommand(guild, baseCommand, enabledPermissions);
     }
 
@@ -170,13 +169,13 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param guild        The {@link Guild} to register the command for.
      * @param baseCommands The {@link BaseCommand}s to be registered.
      */
-    public void registerCommand(@NotNull final Guild guild, @NotNull final BaseCommand... baseCommands) {
+    public void registerCommand(final @NotNull Guild guild, final @NotNull BaseCommand @NotNull ... baseCommands) {
         for (final BaseCommand baseCommand : baseCommands) {
             registerCommand(guild, baseCommand);
         }
     }
 
-    public void registerChoices(@NotNull final ChoiceKey key, @NotNull final Supplier<List<String>> choiceSupplier) {
+    public void registerChoices(final @NotNull ChoiceKey key, final @NotNull Supplier<@NotNull List<@NotNull String>> choiceSupplier) {
         registryContainer.getChoiceRegistry().register(key, choiceSupplier);
     }
 
@@ -206,9 +205,8 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
                         .addCommands(commands.values().stream().map(SlashCommand::asCommandData).collect(Collectors.toList())).queue());
     }
 
-    @NotNull
     @Override
-    protected SlashRegistryContainer<S> getRegistryContainer() {
+    protected @NotNull SlashRegistryContainer<S> getRegistryContainer() {
         return registryContainer;
     }
 
@@ -219,9 +217,9 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param baseCommand The {@link BaseCommand} to be added.
      */
     private void addCommand(
-            @Nullable final Guild guild,
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final List<Permission> enabledPermissions
+            final @Nullable Guild guild,
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull List<@NotNull Permission> enabledPermissions
     ) {
         final SlashCommandProcessor<S> processor = new SlashCommandProcessor<>(
                 baseCommand,
@@ -257,8 +255,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param name The name of the command.
      * @return The {@link SlashCommand} or null if it doesn't exist.
      */
-    @Nullable
-    SlashCommand<S> getCommand(@NotNull final String name) {
+    @Nullable SlashCommand<S> getCommand(final @NotNull String name) {
         return globalCommands.get(name);
     }
 
@@ -269,8 +266,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      * @param name  The name of the command.
      * @return The {@link SlashCommand} or null if it doesn't exist.
      */
-    @Nullable
-    SlashCommand<S> getCommand(@NotNull Guild guild, @NotNull final String name) {
+    @Nullable SlashCommand<S> getCommand(@NotNull Guild guild, final @NotNull String name) {
         final Map<String, SlashCommand<S>> commands = guildCommands.get(guild.getIdLong());
         return commands != null ? commands.get(name) : null;
     }
@@ -280,7 +276,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      *
      * @param manager The {@link CommandManager} to use.
      */
-    private static void setUpDefaults(@NotNull final SlashCommandManager<SlashSender> manager) {
+    private static void setUpDefaults(final @NotNull SlashCommandManager<SlashSender> manager) {
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.reply("Unknown command: `" + context.getCommand() + "`.").setEphemeral(true).queue());
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());

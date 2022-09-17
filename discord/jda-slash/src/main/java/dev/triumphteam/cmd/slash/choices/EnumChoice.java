@@ -37,14 +37,13 @@ public final class EnumChoice implements Choice {
 
     private final Class<? extends Enum<?>> enumType;
 
-    public EnumChoice(@NotNull final Class<? extends Enum<?>> enumType) {
+    public EnumChoice(final @NotNull Class<? extends Enum<?>> enumType) {
         this.enumType = enumType;
         populateCache(enumType);
     }
 
-    @NotNull
     @Override
-    public List<String> getChoices() {
+    public @NotNull List<@NotNull String> getChoices() {
         return EnumUtils.getEnumConstants(enumType)
                 .values()
                 .stream()
@@ -58,7 +57,7 @@ public final class EnumChoice implements Choice {
     }
 
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final EnumChoice that = (EnumChoice) o;
@@ -70,9 +69,8 @@ public final class EnumChoice implements Choice {
         return Objects.hash(enumType);
     }
 
-    @NotNull
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "EnumChoice{" +
                 "enumType=" + enumType +
                 '}';

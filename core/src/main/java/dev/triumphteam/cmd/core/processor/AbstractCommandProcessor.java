@@ -72,12 +72,12 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
     private final ExecutionProvider asyncExecutionProvider;
 
     protected AbstractCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderMapper<SD, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull SenderMapper<SD, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
         this.baseCommand = baseCommand;
         this.registryContainer = registryContainer;
@@ -91,10 +91,11 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
     }
 
     // TODO: Comments
-    public void addSubCommands(@NotNull final dev.triumphteam.cmd.core.Command<S, SC> command) {
+    public void addSubCommands(final @NotNull dev.triumphteam.cmd.core.Command<S, SC> command) {
         final Class<? extends BaseCommand> baseCommandClass = baseCommand.getClass();
+
         // Method sub commands
-        for (final Method method : baseCommand.getClass().getDeclaredMethods()) {
+        for (final Method method : baseCommandClass.getDeclaredMethods()) {
             // TODO: ALLOW PRIVATE
             if (Modifier.isPrivate(method.getModifiers())) continue;
 
@@ -107,7 +108,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
                 throw new SubCommandRegistrationException(
                         "@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty",
                         method,
-                        baseCommand.getClass()
+                        baseCommandClass
                 );
             }
 
@@ -155,19 +156,16 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
         }
     }
 
-    @NotNull
-    protected abstract P createProcessor(@NotNull final AnnotatedElement method);
+    protected abstract @NotNull P createProcessor(final @NotNull AnnotatedElement method);
 
-    @NotNull
-    protected abstract SC createSubCommand(@NotNull final P processor, @NotNull final ExecutionProvider executionProvider);
+    protected abstract @NotNull SC createSubCommand(final @NotNull P processor, final @NotNull ExecutionProvider executionProvider);
 
     /**
      * Used for the child processors to get the command name.
      *
      * @return The command name.
      */
-    @NotNull
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
@@ -176,8 +174,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
      *
      * @return The command alias.
      */
-    @NotNull
-    public List<String> getAlias() {
+    public @NotNull List<@NotNull String> getAlias() {
         return alias;
     }
 
@@ -186,13 +183,12 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
      *
      * @return The {@link BaseCommand}.
      */
-    @NotNull
-    public BaseCommand getBaseCommand() {
+    public @NotNull BaseCommand getBaseCommand() {
         return baseCommand;
     }
 
     // TODO: Comments
-    public RegistryContainer<S> getRegistryContainer() {
+    public @NotNull RegistryContainer<S> getRegistryContainer() {
         return registryContainer;
     }
 
@@ -201,30 +197,28 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
      *
      * @return The {@link SenderMapper}.
      */
-    @NotNull
-    public SenderMapper<SD, S> getSenderMapper() {
+    public @NotNull SenderMapper<SD, S> getSenderMapper() {
         return senderMapper;
     }
 
     // TODO: 2/4/2022 comments
-    @NotNull
-    public SenderValidator<S> getSenderValidator() {
+    public @NotNull SenderValidator<S> getSenderValidator() {
         return senderValidator;
     }
 
-    public Map<String, SC> getSubCommands() {
+    public @NotNull Map<@NotNull String, SC> getSubCommands() {
         return subCommands;
     }
 
-    public Map<String, SC> getSubCommandsAlias() {
+    public @NotNull Map<@NotNull String, SC> getSubCommandsAlias() {
         return subCommandsAlias;
     }
 
-    public ExecutionProvider getSyncExecutionProvider() {
+    public @NotNull ExecutionProvider getSyncExecutionProvider() {
         return syncExecutionProvider;
     }
 
-    public ExecutionProvider getAsyncExecutionProvider() {
+    public @NotNull ExecutionProvider getAsyncExecutionProvider() {
         return asyncExecutionProvider;
     }
 
@@ -233,8 +227,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
      *
      * @return either the extracted Description or the default one.
      */
-    @NotNull
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return description;
     }
 

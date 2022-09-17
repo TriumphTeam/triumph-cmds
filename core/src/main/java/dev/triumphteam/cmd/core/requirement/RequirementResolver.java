@@ -39,6 +39,6 @@ public interface RequirementResolver<S> {
      * @param sender The sender to check the requirement.
      * @return Whether the requirement is met or not.
      */
-    boolean resolve(@NotNull final S sender);
+    boolean resolve(final @NotNull S sender);
 
 }

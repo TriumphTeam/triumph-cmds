@@ -39,11 +39,11 @@ import java.lang.reflect.Method;
 final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
 
     public PrefixedSubCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final String parentName,
-            @NotNull final Method method,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull String parentName,
+            final @NotNull Method method,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         super(baseCommand, parentName, method, registryContainer, senderValidator);
     }

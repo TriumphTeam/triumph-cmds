@@ -40,17 +40,16 @@ final class SlashSenderValidator implements SenderValidator<SlashSender> {
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public Set<Class<? extends SlashSender>> getAllowedSenders() {
+    public @NotNull Set<@NotNull Class<? extends @NotNull SlashSender>> getAllowedSenders() {
         return ImmutableSet.of(SlashSender.class);
     }
 
     @Override
     public boolean validate(
-            @NotNull final MessageRegistry<SlashSender> messageRegistry,
-            @NotNull final SubCommand<SlashSender> subCommand,
-            @NotNull final SlashSender sender
+            final @NotNull MessageRegistry<SlashSender> messageRegistry,
+            final @NotNull SubCommand<SlashSender> subCommand,
+            final @NotNull SlashSender sender
     ) {
         return true;
     }

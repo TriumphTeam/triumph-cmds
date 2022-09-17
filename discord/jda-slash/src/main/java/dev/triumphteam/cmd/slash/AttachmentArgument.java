@@ -33,11 +33,11 @@ public class AttachmentArgument<S> extends StringInternalArgument<S> {
     private final AttachmentRegistry attachmentRegistry;
 
     public AttachmentArgument(
-            @NotNull final AttachmentRegistry attachmentRegistry,
-            @NotNull final String name,
-            @NotNull final String description,
-            @NotNull final Class<?> type,
-            @NotNull final Suggestion<S> suggestion,
+            final @NotNull AttachmentRegistry attachmentRegistry,
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<?> type,
+            final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
@@ -46,7 +46,7 @@ public class AttachmentArgument<S> extends StringInternalArgument<S> {
     }
 
     @Override
-    public @Nullable Object resolve(@NotNull final S sender, final @NotNull String value) {
+    public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
         return attachmentRegistry.getAttachment(value);
     }
 }

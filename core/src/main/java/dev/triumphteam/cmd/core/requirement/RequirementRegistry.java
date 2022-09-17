@@ -45,7 +45,7 @@ public final class RequirementRegistry<S> implements Registry {
      * @param key      The requirement key.
      * @param resolver The resolver to check if the requirement is met.
      */
-    public void register(@NotNull final RequirementKey key, @NotNull final RequirementResolver<S> resolver) {
+    public void register(final @NotNull RequirementKey key, final @NotNull RequirementResolver<S> resolver) {
         requirements.put(key, resolver);
     }
 
@@ -55,8 +55,7 @@ public final class RequirementRegistry<S> implements Registry {
      * @param key The specific key.
      * @return A saved {@link RequirementResolver}.
      */
-    @Nullable
-    public RequirementResolver<S> getRequirement(@NotNull final RequirementKey key) {
+    public @Nullable RequirementResolver<S> getRequirement(final @NotNull RequirementKey key) {
         return requirements.get(key);
     }
 

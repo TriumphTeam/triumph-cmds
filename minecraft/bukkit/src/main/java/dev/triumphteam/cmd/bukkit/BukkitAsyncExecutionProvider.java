@@ -35,7 +35,7 @@ public final class BukkitAsyncExecutionProvider implements ExecutionProvider {
 
     private final Plugin plugin;
 
-    public BukkitAsyncExecutionProvider(@NotNull final Plugin plugin) {
+    public BukkitAsyncExecutionProvider(final @NotNull Plugin plugin) {
         this.plugin = plugin;
     }
 

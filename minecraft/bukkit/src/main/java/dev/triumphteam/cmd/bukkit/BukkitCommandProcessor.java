@@ -45,13 +45,13 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
     private final CommandPermission basePermission;
 
     public BukkitCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderMapper<CommandSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider,
-            @Nullable final CommandPermission globalBasePermission
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull SenderMapper<CommandSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider,
+            final @Nullable CommandPermission globalBasePermission
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
 
@@ -69,9 +69,8 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
         );
     }
 
-    @NotNull
     @Override
-    protected BukkitSubCommandProcessor<S> createProcessor(@NotNull final AnnotatedElement method) {
+    protected @NotNull BukkitSubCommandProcessor<S> createProcessor(final @NotNull AnnotatedElement method) {
         return new BukkitSubCommandProcessor<>(
                 getBaseCommand(),
                 getName(),
@@ -82,20 +81,19 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
         );
     }
 
-    @NotNull
     @Override
-    protected BukkitSubCommand<S> createSubCommand(
-            @NotNull final BukkitSubCommandProcessor<S> processor,
-            @NotNull final ExecutionProvider executionProvider
+    protected @NotNull BukkitSubCommand<S> createSubCommand(
+            final @NotNull BukkitSubCommandProcessor<S> processor,
+            final @NotNull ExecutionProvider executionProvider
     ) {
         return new BukkitSubCommand<>(processor, getName(), executionProvider);
     }
 
     static CommandPermission createPermission(
-            @Nullable final CommandPermission parent,
-            @NotNull final List<String> nodes,
-            @NotNull final String description,
-            @NotNull final PermissionDefault permissionDefault
+            final @Nullable CommandPermission parent,
+            final @NotNull List<@NotNull String> nodes,
+            final @NotNull String description,
+            final @NotNull PermissionDefault permissionDefault
     ) {
         return parent == null
                 ? new CommandPermission(nodes, description, permissionDefault)

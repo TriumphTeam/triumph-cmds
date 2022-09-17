@@ -45,7 +45,7 @@ final class PrefixedCommandSender implements PrefixedSender {
     private final Guild guild;
     private final JDA jda;
 
-    public PrefixedCommandSender(@NotNull final Message message) {
+    public PrefixedCommandSender(final @NotNull Message message) {
         this.message = message;
         this.user = message.getAuthor();
         this.member = message.getMember();
@@ -57,54 +57,48 @@ final class PrefixedCommandSender implements PrefixedSender {
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public Message getMessage() {
+    public @NotNull Message getMessage() {
         return message;
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public User getUser() {
+    public @NotNull User getUser() {
         return user;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Nullable
     @Override
-    public Member getMember() {
+    public @Nullable Member getMember() {
         return member;
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public TextChannel getChannel() {
+    public @NotNull TextChannel getChannel() {
         return channel;
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public Guild getGuild() {
+    public @NotNull Guild getGuild() {
         return guild;
     }
 
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public JDA getJDA() {
+    public @NotNull JDA getJDA() {
         return jda;
     }
 }

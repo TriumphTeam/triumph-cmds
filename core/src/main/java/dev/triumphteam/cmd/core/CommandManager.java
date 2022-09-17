@@ -54,8 +54,8 @@ public abstract class CommandManager<DS, S> {
     private final SenderValidator<S> senderValidator;
 
     public CommandManager(
-            @NotNull final SenderMapper<DS, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator
+            final @NotNull SenderMapper<DS, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         this.senderMapper = senderMapper;
         this.senderValidator = senderValidator;
@@ -66,14 +66,14 @@ public abstract class CommandManager<DS, S> {
      *
      * @param baseCommand The {@link BaseCommand} to be registered.
      */
-    public abstract void registerCommand(@NotNull final BaseCommand baseCommand);
+    public abstract void registerCommand(final @NotNull BaseCommand baseCommand);
 
     /**
      * Registers {@link BaseCommand}s.
      *
      * @param baseCommands A list of baseCommands to be registered.
      */
-    public final void registerCommand(@NotNull final BaseCommand... baseCommands) {
+    public final void registerCommand(final @NotNull BaseCommand @NotNull ... baseCommands) {
         for (final BaseCommand command : baseCommands) {
             registerCommand(command);
         }
@@ -84,14 +84,14 @@ public abstract class CommandManager<DS, S> {
      *
      * @param command The {@link BaseCommand} to be unregistered.
      */
-    public abstract void unregisterCommand(@NotNull final BaseCommand command);
+    public abstract void unregisterCommand(final @NotNull BaseCommand command);
 
     /**
      * Method to unregister commands with vararg.
      *
      * @param commands A list of commands to be unregistered.
      */
-    public final void unregisterCommands(@NotNull final BaseCommand... commands) {
+    public final void unregisterCommands(final @NotNull BaseCommand @NotNull ... commands) {
         for (final BaseCommand command : commands) {
             unregisterCommand(command);
         }
@@ -103,26 +103,26 @@ public abstract class CommandManager<DS, S> {
      * @param clazz    The class of the internalArgument to be registered.
      * @param resolver The {@link ArgumentResolver} with the internalArgument resolution.
      */
-    public final void registerArgument(@NotNull final Class<?> clazz, @NotNull final ArgumentResolver<S> resolver) {
+    public final void registerArgument(final @NotNull Class<?> clazz, final @NotNull ArgumentResolver<S> resolver) {
         getRegistryContainer().getArgumentRegistry().register(clazz, resolver);
     }
 
     // TODO: Comments
-    public void registerSuggestion(@NotNull final SuggestionKey key, @NotNull final SuggestionResolver<S> suggestionResolver) {
+    public void registerSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver<S> suggestionResolver) {
         getRegistryContainer().getSuggestionRegistry().register(key, suggestionResolver);
     }
 
     // TODO: Comments
-    public void registerSuggestion(@NotNull final Class<?> type, @NotNull final SuggestionResolver<S> suggestionResolver) {
+    public void registerSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S> suggestionResolver) {
         getRegistryContainer().getSuggestionRegistry().register(type, suggestionResolver);
     }
 
     // TODO: Comments
-    public final void registerNamedArguments(@NotNull final ArgumentKey key, @NotNull final Argument @NotNull ... arguments) {
+    public final void registerNamedArguments(final @NotNull ArgumentKey key, final @NotNull Argument @NotNull ... arguments) {
         registerNamedArguments(key, Arrays.asList(arguments));
     }
 
-    public final void registerNamedArguments(@NotNull final ArgumentKey key, @NotNull final List<@NotNull Argument> arguments) {
+    public final void registerNamedArguments(final @NotNull ArgumentKey key, final @NotNull List<@NotNull Argument> arguments) {
         getRegistryContainer().getNamedArgumentRegistry().register(key, arguments);
     }
 
@@ -133,8 +133,8 @@ public abstract class CommandManager<DS, S> {
      * @param resolver The {@link ArgumentResolver} with the message sending resolution.
      */
     public final <C extends MessageContext> void registerMessage(
-            @NotNull final ContextualKey<C> key,
-            @NotNull final MessageResolver<S, C> resolver
+            final @NotNull ContextualKey<C> key,
+            final @NotNull MessageResolver<S, C> resolver
     ) {
         getRegistryContainer().getMessageRegistry().register(key, resolver);
     }
@@ -146,22 +146,21 @@ public abstract class CommandManager<DS, S> {
      * @param resolver The {@link ArgumentResolver} with the requirement resolution.
      */
     public final void registerRequirement(
-            @NotNull final RequirementKey key,
-            @NotNull final RequirementResolver<S> resolver
+            final @NotNull RequirementKey key,
+            final @NotNull RequirementResolver<S> resolver
     ) {
         getRegistryContainer().getRequirementRegistry().register(key, resolver);
     }
 
     // TODO: Comments
-    @NotNull
-    protected abstract RegistryContainer<S> getRegistryContainer();
+    protected abstract @NotNull RegistryContainer<S> getRegistryContainer();
 
     // TODO: 2/4/2022 comments
-    protected SenderMapper<DS, S> getSenderMapper() {
+    protected @NotNull SenderMapper<DS, S> getSenderMapper() {
         return senderMapper;
     }
 
-    protected SenderValidator<S> getSenderValidator() {
+    protected @NotNull SenderValidator<S> getSenderValidator() {
         return senderValidator;
     }
 }

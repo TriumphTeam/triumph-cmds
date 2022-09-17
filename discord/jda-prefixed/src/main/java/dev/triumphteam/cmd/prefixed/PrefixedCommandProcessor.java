@@ -46,12 +46,12 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<Prefixe
     private final String prefix;
 
     public PrefixedCommandProcessor(
-            @NotNull final BaseCommand baseCommand,
-            @NotNull final RegistryContainer<S> registryContainer,
-            @NotNull final SenderMapper<PrefixedSender, S> senderMapper,
-            @NotNull final SenderValidator<S> senderValidator,
-            @NotNull final ExecutionProvider syncExecutionProvider,
-            @NotNull final ExecutionProvider asyncExecutionProvider
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull SenderMapper<PrefixedSender, S> senderMapper,
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull ExecutionProvider syncExecutionProvider,
+            final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
         super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
         prefix = extractPrefix();
@@ -63,8 +63,7 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<Prefixe
      *
      * @return The command's prefix.
      */
-    @NotNull
-    public String getPrefix() {
+    public @NotNull String getPrefix() {
         return prefix;
     }
 
@@ -73,7 +72,7 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<Prefixe
      *
      * @return The prefix from the annotation or an empty string.
      */
-    private String extractPrefix() {
+    private @NotNull String extractPrefix() {
         final Prefix prefixAnnotation = getBaseCommand().getClass().getAnnotation(Prefix.class);
         return prefixAnnotation == null ? "" : prefixAnnotation.value();
     }
@@ -90,9 +89,8 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<Prefixe
         );*/
     }
 
-    @NotNull
     @Override
-    protected PrefixedSubCommand<S> createSubCommand(@NotNull final PrefixedSubCommandProcessor<S> processor, final @NotNull ExecutionProvider executionProvider) {
+    protected @NotNull PrefixedSubCommand<S> createSubCommand(final @NotNull PrefixedSubCommandProcessor<S> processor, final @NotNull ExecutionProvider executionProvider) {
         return new PrefixedSubCommand<>(processor, getName(), executionProvider);
     }
 }

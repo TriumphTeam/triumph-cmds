@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 public interface Command<S, SC extends SubCommand<S>> {
 
 
-    void addSubCommand(@NotNull final String name, @NotNull final SC subCommand);
+    void addSubCommand(final @NotNull String name, final @NotNull SC subCommand);
 
-    void addSubCommandAlias(@NotNull final String alias, @NotNull final SC subCommand);
+    void addSubCommandAlias(final @NotNull String alias, final @NotNull SC subCommand);
 }

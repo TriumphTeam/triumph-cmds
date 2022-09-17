@@ -37,7 +37,7 @@ public final class ListArgument implements Argument {
     private final SuggestionKey suggestionKey;
 
 
-    public ListArgument(@NotNull final ListArgumentBuilder argumentBuilder) {
+    public ListArgument(final @NotNull ListArgumentBuilder argumentBuilder) {
         this.type = argumentBuilder.getType();
         this.name = argumentBuilder.getName();
         this.description = argumentBuilder.getDescription();
@@ -46,37 +46,31 @@ public final class ListArgument implements Argument {
         this.separator = argumentBuilder.getSeparator();
     }
 
-    @NotNull
     @Override
-    public Class<?> getType() {
+    public @NotNull Class<?> getType() {
         return type;
     }
 
-    @NotNull
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
-    @NotNull
     @Override
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return description;
     }
 
-    @Nullable
     @Override
-    public SuggestionKey getSuggestion() {
+    public @Nullable SuggestionKey getSuggestion() {
         return suggestionKey;
     }
 
-    @NotNull
-    public Class<?> getCollectionType() {
+    public @NotNull Class<?> getCollectionType() {
         return collectionType;
     }
 
-    @NotNull
-    public String getSeparator() {
+    public @NotNull String getSeparator() {
         return separator;
     }
 }

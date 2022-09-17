@@ -40,9 +40,8 @@ class PrefixedSenderValidator implements SenderValidator<PrefixedSender> {
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public Set<Class<? extends PrefixedSender>> getAllowedSenders() {
+    public @NotNull Set<@NotNull Class<? extends PrefixedSender>> getAllowedSenders() {
         return ImmutableSet.of(PrefixedSender.class);
     }
 
@@ -51,9 +50,9 @@ class PrefixedSenderValidator implements SenderValidator<PrefixedSender> {
      */
     @Override
     public boolean validate(
-            @NotNull final MessageRegistry<PrefixedSender> messageRegistry,
-            @NotNull final SubCommand<PrefixedSender> subCommand,
-            @NotNull final PrefixedSender sender
+            final @NotNull MessageRegistry<PrefixedSender> messageRegistry,
+            final @NotNull SubCommand<PrefixedSender> subCommand,
+            final @NotNull PrefixedSender sender
     ) {
         return true;
     }

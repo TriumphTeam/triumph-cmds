@@ -30,12 +30,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class DefaultMessageContext extends AbstractMessageContext {
 
-    public DefaultMessageContext(@NotNull final String command, @NotNull final String subCommand) {
+    public DefaultMessageContext(final @NotNull String command, final @NotNull String subCommand) {
         super(command, subCommand);
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "DefaultMessageContext{super=" + super.toString() + "}";
     }
 }

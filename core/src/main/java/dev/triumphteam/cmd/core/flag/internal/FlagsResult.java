@@ -44,16 +44,16 @@ class FlagsResult<S> implements Flags {
     private final S sender;
 
     FlagsResult(
-            @NotNull final S sender,
-            @NotNull final Map<FlagOptions<S>, String> flags,
-            @NotNull final List<String> args
+            final @NotNull S sender,
+            final @NotNull Map<@NotNull FlagOptions<S>, @NotNull String> flags,
+            final @NotNull List<@NotNull String> args
     ) {
         this.sender = sender;
         flags.forEach(this::addFlag);
         this.args = args;
     }
 
-    void addFlag(@NotNull final FlagOptions<S> flag, @Nullable final String value) {
+    void addFlag(final @NotNull FlagOptions<S> flag, final @Nullable String value) {
         final String shortFlag = flag.getFlag();
         final String longFlag = flag.getLongFlag();
 
@@ -68,7 +68,7 @@ class FlagsResult<S> implements Flags {
         }
     }
 
-    void addArg(@NotNull final String arg) {
+    void addArg(final @NotNull String arg) {
         args.add(arg);
     }
 
@@ -83,9 +83,8 @@ class FlagsResult<S> implements Flags {
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public <T> Optional<T> getValue(final @NotNull String flag, final @NotNull Class<T> type) {
+    public <T> @NotNull Optional<T> getValue(final @NotNull String flag, final @NotNull Class<T> type) {
         final FlagValue flagValue = flags.get(flag);
         if (flagValue == null) return Optional.empty();
         if (!(flagValue instanceof ArgFlagValue)) return Optional.empty();
@@ -96,9 +95,8 @@ class FlagsResult<S> implements Flags {
     /**
      * {@inheritDoc}
      */
-    @NotNull
     @Override
-    public Optional<String> getValue(final @NotNull String flag) {
+    public @NotNull Optional<String> getValue(final @NotNull String flag) {
         final FlagValue flagValue = flags.get(flag);
         if (flagValue == null) return Optional.empty();
         if (!(flagValue instanceof ArgFlagValue)) return Optional.empty();
@@ -126,7 +124,7 @@ class FlagsResult<S> implements Flags {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull List<String> getArgs() {
+    public @NotNull List<@NotNull String> getArgs() {
         return Collections.unmodifiableList(args);
     }
 
