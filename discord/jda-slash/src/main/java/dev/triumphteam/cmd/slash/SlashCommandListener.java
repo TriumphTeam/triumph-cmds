@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.slash;
 
 import com.google.common.collect.Maps;
 import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
@@ -63,6 +64,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
      * Needs to map the given result to the correct arguments to be used.
      *
      * @param event The slash command event.
+     * @throws CommandExecutionException If the sender mapper returns null.
      */
     @Override
     public void onSlashCommandInteraction(final @NotNull SlashCommandInteractionEvent event) {
@@ -76,6 +78,9 @@ final class SlashCommandListener<S> extends ListenerAdapter {
         if (command == null) return;
 
         final S sender = senderMapper.map(new SlashCommandSender(event));
+        if (sender == null) {
+            throw new CommandExecutionException("Invalid sender. Sender mapper returned null");
+        }
 
         final String subCommandName = event.getSubcommandName();
 

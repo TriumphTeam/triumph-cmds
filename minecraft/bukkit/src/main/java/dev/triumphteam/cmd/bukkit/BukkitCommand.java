@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
@@ -72,6 +73,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
     /**
      * {@inheritDoc}
+     * @throws CommandExecutionException If the sender mapper returns null.
      */
     @Override
     public boolean execute(
@@ -88,6 +90,9 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         }
 
         final S mappedSender = senderMapper.map(sender);
+        if (mappedSender == null) {
+            throw new CommandExecutionException("Invalid sender. Sender mapper returned null");
+        }
 
         if (subCommand == null || (args.length > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(getName(), subCommandName));
@@ -133,6 +138,9 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         if (permission != null && permission.hasPermission(sender)) return emptyList();
 
         final S mappedSender = senderMapper.map(sender);
+        if (mappedSender == null) {
+            return emptyList();
+        }
 
         final List<String> commandArgs = Arrays.asList(args);
         return subCommand.getSuggestions(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
