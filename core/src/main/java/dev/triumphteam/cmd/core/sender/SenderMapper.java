@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.sender;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Interface for mapping a default send into a custom sender.
@@ -34,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 @FunctionalInterface
 public interface SenderMapper<DS, S> {
 
-    @NotNull S map(final @NotNull DS defaultSender);
+    @Nullable S map(final @NotNull DS defaultSender);
 
     static <S> @NotNull SenderMapper<S, S> defaultMapper() {
         return defaultMapper -> defaultMapper;
