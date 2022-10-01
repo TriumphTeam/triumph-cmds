@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
@@ -68,6 +69,7 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
      * Listens to every message to detect the command.
      *
      * @param event The event object.
+     * @throws CommandExecutionException If the sender mapper returns null.
      */
     @Override
     public void onMessageReceived(final @NotNull MessageReceivedEvent event) {
@@ -79,6 +81,9 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
         final List<String> args = Arrays.asList(message.getContentRaw().split(" "));
 
         final S sender = senderMapper.map(new PrefixedCommandSender(message));
+        if (sender == null) {
+            throw new CommandExecutionException("Invalid sender. Sender mapper returned null");
+        }
 
         if (args.isEmpty()) return;
 

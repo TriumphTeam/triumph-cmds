@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -90,6 +91,9 @@ public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
         }
 
         final S mappedSender = senderMapper.map(sender);
+        if (mappedSender == null) {
+            throw new CommandExecutionException("Invalid sender. Sender mapper returned null");
+        }
 
         if (subCommand == null) {
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(name, subCommandName));
