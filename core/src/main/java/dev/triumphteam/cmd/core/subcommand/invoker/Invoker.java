@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public interface Invoker {
 
-    void invoke(@Nullable final Object arg, @NotNull final Object[] arguments) throws
+    void invoke(final @Nullable Object arg, final @NotNull Object[] arguments) throws
             InstantiationException,
             IllegalAccessException,
             IllegalArgumentException,

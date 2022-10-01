@@ -33,6 +33,9 @@ import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.invoker.ClassInvoker;
+import dev.triumphteam.cmd.core.subcommand.invoker.Invoker;
+import dev.triumphteam.cmd.core.subcommand.invoker.MethodInvoker;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.AnnotatedElement;
@@ -45,6 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Abstracts most of the "extracting" from command annotations, allows for extending.
@@ -95,30 +99,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
         final Class<? extends BaseCommand> baseCommandClass = baseCommand.getClass();
 
         // Method sub commands
-        for (final Method method : baseCommandClass.getDeclaredMethods()) {
-            // TODO: ALLOW PRIVATE
-            if (Modifier.isPrivate(method.getModifiers())) continue;
-
-            final P processor = createProcessor(method);
-            final String subCommandName = processor.getName();
-            // Not a command
-            if (subCommandName == null) continue;
-
-            if (subCommandName.isEmpty()) {
-                throw new SubCommandRegistrationException(
-                        "@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty",
-                        method,
-                        baseCommandClass
-                );
-            }
-
-            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-
-            final SC subCommand = createSubCommand(processor, executionProvider);
-            command.addSubCommand(subCommandName, subCommand);
-
-            processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
-        }
+        collectMethodSubCommands(command, baseCommandClass, method -> new MethodInvoker(baseCommand, method));
 
         // Classes sub commands
         for (final Class<?> klass : baseCommandClass.getDeclaredClasses()) {
@@ -152,7 +133,41 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
                 );
             }
 
-            
+            collectMethodSubCommands(command, klass, method -> new ClassInvoker(baseCommand, constructor, method, isStatic));
+        }
+    }
+
+    private void collectMethodSubCommands(
+            final @NotNull dev.triumphteam.cmd.core.Command<S, SC> command,
+            final @NotNull Class<?> klass,
+            final @NotNull Function<Method, Invoker> invokerFunction
+    ) {
+        // Method sub commands
+        for (final Method method : klass.getDeclaredMethods()) {
+            // TODO: ALLOW PRIVATE
+            if (Modifier.isPrivate(method.getModifiers())) continue;
+
+            final Invoker invoker = invokerFunction.apply(method);
+
+            final P processor = createProcessor(method);
+            final String subCommandName = processor.getName();
+            // Not a command
+            if (subCommandName == null) continue;
+
+            if (subCommandName.isEmpty()) {
+                throw new SubCommandRegistrationException(
+                        "@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty",
+                        method,
+                        klass
+                );
+            }
+
+            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
+
+            final SC subCommand = createSubCommand(processor, executionProvider);
+            command.addSubCommand(subCommandName, subCommand);
+
+            processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
         }
     }
 

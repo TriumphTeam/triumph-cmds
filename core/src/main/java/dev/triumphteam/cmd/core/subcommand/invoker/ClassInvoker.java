@@ -16,9 +16,9 @@ public class ClassInvoker implements Invoker {
     private final boolean isStatic;
 
     public ClassInvoker(
-            @NotNull final BaseCommand parent,
-            @NotNull final Constructor<?> constructor,
-            @NotNull final Method method,
+            final @NotNull BaseCommand parent,
+            final @NotNull Constructor<?> constructor,
+            final @NotNull Method method,
             final boolean isStatic
     ) {
         this.parent = parent;
@@ -28,8 +28,8 @@ public class ClassInvoker implements Invoker {
     }
 
     @Override
-    public void invoke(final @Nullable java.lang.Object arg, final @NotNull java.lang.Object[] arguments) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        final java.lang.Object instance = isStatic ? constructor.newInstance(arg) : constructor.newInstance(parent, arg);
+    public void invoke(final @Nullable Object arg, final @NotNull Object[] arguments) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        final Object instance = isStatic ? constructor.newInstance(arg) : constructor.newInstance(parent, arg);
         method.invoke(instance, arguments);
     }
 }

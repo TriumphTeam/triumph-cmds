@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.core.exceptions;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.AnnotatedElement;
@@ -36,7 +35,7 @@ public final class SubCommandRegistrationException extends RuntimeException {
     public SubCommandRegistrationException(
             final @NotNull String message,
             final @NotNull AnnotatedElement element,
-            final @NotNull Class<? extends BaseCommand> commandClass
+            final @NotNull Class<?> commandClass
     ) {
         super(message + ". In Method \"" + element + "\" in Class \"" + commandClass.getName() + "\"");
     }

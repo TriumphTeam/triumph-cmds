@@ -35,7 +35,10 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -71,7 +74,11 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
      * {@inheritDoc}
      */
     @Override
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull String commandLabel, final @NotNull String @NotNull [] args) {
+    public boolean execute(
+            final @NotNull CommandSender sender,
+            final @NotNull String commandLabel,
+            final @NotNull String @NotNull [] args
+    ) {
         BukkitSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
@@ -129,36 +136,5 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
 
         final List<String> commandArgs = Arrays.asList(args);
         return subCommand.getSuggestions(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
-    }
-
-    /**
-     * Gets a default command if present.
-     *
-     * @return A default SubCommand.
-     */
-    private @Nullable BukkitSubCommand<S> getDefaultSubCommand() {
-        return subCommands.get(Default.DEFAULT_CMD_NAME);
-    }
-
-    /**
-     * Used in order to search for the given {@link SubCommand<CommandSender>} in the {@link #subCommandAliases}
-     *
-     * @param key the String to look for the {@link SubCommand<CommandSender>}
-     * @return the {@link SubCommand<CommandSender>} for the particular key or NULL
-     */
-    private @Nullable BukkitSubCommand<S> getSubCommand(final @NotNull String key) {
-        final BukkitSubCommand<S> subCommand = subCommands.get(key);
-        if (subCommand != null) return subCommand;
-        return subCommandAliases.get(key);
-    }
-
-    /**
-     * Checks if a SubCommand with the specified key exists.
-     *
-     * @param key the Key to check for
-     * @return whether a SubCommand with that key exists
-     */
-    private boolean subCommandExists(final @NotNull String key) {
-        return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
     }
 }

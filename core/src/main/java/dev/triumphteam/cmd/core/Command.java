@@ -23,8 +23,16 @@
  */
 package dev.triumphteam.cmd.core;
 
+import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Command interface which all platforms will implement.
@@ -32,10 +40,62 @@ import org.jetbrains.annotations.NotNull;
  * @param <S>  The sender type.
  * @param <SC> The sub command type.
  */
-public interface Command<S, SC extends SubCommand<S>> {
+public interface Command<DS, S, SC extends SubCommand<S>> {
 
+    @NotNull Map<String, SC> getSubCommands();
+
+    @NotNull Map<String, SC> getSubCommandAlias();
 
     void addSubCommand(final @NotNull String name, final @NotNull SC subCommand);
 
     void addSubCommandAlias(final @NotNull String alias, final @NotNull SC subCommand);
+    @NotNull String getName();
+
+    @NotNull MessageRegistry<S> getMessageRegistry();
+
+    default @Nullable SC getSubCommand(final @NotNull List<String> args, final @NotNull S mappedSender) {
+        SC subCommand = getDefaultSubCommand();
+
+        String subCommandName = "";
+        if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
+        if (subCommand == null || subCommandExists(subCommandName)) {
+            subCommand = getSubCommand(subCommandName);
+        }
+
+        if (subCommand == null || (args.size() > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
+            getMessageRegistry().sendMessage(
+                    MessageKey.UNKNOWN_COMMAND,
+                    mappedSender,
+                    new DefaultMessageContext(getName(), subCommandName)
+            );
+            return null;
+        }
+
+        return subCommand;
+    }
+
+    /**
+     * Gets a default command if present.
+     *
+     * @return A default SubCommand.
+     */
+    default @Nullable SC getDefaultSubCommand() {
+        return getSubCommands().get(Default.DEFAULT_CMD_NAME);
+    }
+
+    default @Nullable SC getSubCommand(final @NotNull String key) {
+        final SC subCommand = getSubCommands().get(key);
+        if (subCommand != null) return subCommand;
+        return getSubCommandAlias().get(key);
+    }
+
+    /**
+     * Checks if a SubCommand with the specified key exists.
+     *
+     * @param key the Key to check for
+     * @return whether a SubCommand with that key exists
+     */
+    default boolean subCommandExists(final @NotNull String key) {
+        return getSubCommands().containsKey(key) || getSubCommandAlias().containsKey(key);
+    }
 }
