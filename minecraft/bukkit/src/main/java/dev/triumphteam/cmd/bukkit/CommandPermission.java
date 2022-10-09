@@ -29,6 +29,7 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +52,26 @@ public final class CommandPermission {
         this.nodes = nodes;
         this.description = description;
         this.permissionDefault = permissionDefault;
+    }
+
+    /**
+     * Checks whether the {@link CommandSender} has the (nullable) {@link CommandPermission}.
+     * <p>
+     * The method simply checks if any of the following two things are {@code true}:
+     * <ul>
+     *     <li>The permission is {@code null}</li>
+     *     <li>The sender has the permission</li>
+     * </ul>
+     *
+     * @param sender The main command sender.
+     * @param permission The permission.
+     * @return Whether the sender has permission to run the command.
+     */
+    public static boolean hasPermission(
+            final @NotNull CommandSender sender,
+            final @Nullable CommandPermission permission
+    ) {
+        return permission == null || permission.hasPermission(sender);
     }
 
     public @NotNull CommandPermission child(
