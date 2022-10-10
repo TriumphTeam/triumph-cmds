@@ -78,7 +78,7 @@ final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<Prefixe
     }
 
     @Override
-    protected @NotNull PrefixedSubCommandProcessor<S> createProcessor(final @NotNull AnnotatedElement method) {
+    protected @NotNull PrefixedSubCommandProcessor<S> createSubProcessor(final @NotNull AnnotatedElement method) {
         return null;
         /*return new PrefixedSubCommandProcessor<>(
                 getBaseCommand(),

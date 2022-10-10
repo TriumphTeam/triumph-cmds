@@ -30,7 +30,6 @@ import dev.triumphteam.cmd.core.annotation.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotation.ArgName;
 import dev.triumphteam.cmd.core.annotation.Async;
 import dev.triumphteam.cmd.core.annotation.CommandFlags;
-import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.annotation.Flag;
 import dev.triumphteam.cmd.core.annotation.Join;

@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core.subcommand;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;

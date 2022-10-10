@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.slash;
 
 import com.google.common.collect.Maps;
-import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;

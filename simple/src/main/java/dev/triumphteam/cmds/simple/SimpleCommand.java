@@ -23,10 +23,8 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
-import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
@@ -38,9 +36,6 @@ import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

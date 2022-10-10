@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;

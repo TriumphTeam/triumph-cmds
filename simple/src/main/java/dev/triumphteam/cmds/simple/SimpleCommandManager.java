@@ -36,11 +36,9 @@ import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
@@ -69,7 +67,8 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     @Override
     public void registerCommand(final @NotNull BaseCommand baseCommand) {
         final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
-                baseCommand,
+                baseCommand.getClass(),
+                () -> baseCommand,
                 getRegistryContainer(),
                 getSenderMapper(),
                 getSenderValidator(),

@@ -102,7 +102,7 @@ final class SlashCommandProcessor<S>
     }
 
     @Override
-    protected @NotNull SlashSubCommandProcessor<S> createProcessor(final @NotNull AnnotatedElement method) {
+    protected @NotNull SlashSubCommandProcessor<S> createSubProcessor(final @NotNull AnnotatedElement method) {
         return null;
         /*return new SlashSubCommandProcessor<>(
                 getBaseCommand(),

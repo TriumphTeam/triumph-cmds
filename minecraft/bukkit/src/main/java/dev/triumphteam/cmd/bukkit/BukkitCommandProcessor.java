@@ -70,7 +70,7 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
     }
 
     @Override
-    protected @NotNull BukkitSubCommandProcessor<S> createProcessor(final @NotNull AnnotatedElement method) {
+    protected @NotNull BukkitSubCommandProcessor<S> createSubProcessor(final @NotNull AnnotatedElement method) {
         return new BukkitSubCommandProcessor<>(
                 getBaseCommand(),
                 getName(),

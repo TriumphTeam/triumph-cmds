@@ -33,7 +33,6 @@ import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
-import dev.triumphteam.cmd.core.subcommand.invoker.ClassInvoker;
 import dev.triumphteam.cmd.core.subcommand.invoker.Invoker;
 import dev.triumphteam.cmd.core.subcommand.invoker.MethodInvoker;
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Abstracts most of the "extracting" from command annotations, allows for extending.
@@ -58,7 +58,7 @@ import java.util.function.Function;
  *
  * @param <S> Sender type
  */
-public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, P extends AbstractSubCommandProcessor<S>> {
+public abstract class AbstractCommandProcessor<DS, S, SC extends SubCommand<S>, P extends AbstractSubCommandProcessor<S>> {
 
     private String name;
     // TODO: 11/28/2021 Add better default description
@@ -67,23 +67,26 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
     private final Map<String, SC> subCommands = new HashMap<>();
     private final Map<String, SC> subCommandsAlias = new HashMap<>();
 
-    private final BaseCommand baseCommand;
+    private final Class<? extends BaseCommand> commandClass;
+    private final Supplier<BaseCommand> instanceSupplier;
     private final RegistryContainer<S> registryContainer;
-    private final SenderMapper<SD, S> senderMapper;
+    private final SenderMapper<DS, S> senderMapper;
     private final SenderValidator<S> senderValidator;
 
     private final ExecutionProvider syncExecutionProvider;
     private final ExecutionProvider asyncExecutionProvider;
 
     protected AbstractCommandProcessor(
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull Class<? extends BaseCommand> commandClass,
+            final @NotNull Supplier<BaseCommand> instanceSupplier,
             final @NotNull RegistryContainer<S> registryContainer,
-            final @NotNull SenderMapper<SD, S> senderMapper,
+            final @NotNull SenderMapper<DS, S> senderMapper,
             final @NotNull SenderValidator<S> senderValidator,
             final @NotNull ExecutionProvider syncExecutionProvider,
             final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
-        this.baseCommand = baseCommand;
+        this.commandClass = commandClass;
+        this.instanceSupplier = instanceSupplier;
         this.registryContainer = registryContainer;
         this.senderMapper = senderMapper;
         this.senderValidator = senderValidator;
@@ -96,13 +99,11 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
 
     // TODO: Comments
     public void addSubCommands(final @NotNull dev.triumphteam.cmd.core.Command<S, SC> command) {
-        final Class<? extends BaseCommand> baseCommandClass = baseCommand.getClass();
-
         // Method sub commands
-        collectMethodSubCommands(command, baseCommandClass, method -> new MethodInvoker(baseCommand, method));
+        collectMethodSubCommands(command, commandClass, method -> new MethodInvoker(instanceSupplier, method));
 
         // Classes sub commands
-        for (final Class<?> klass : baseCommandClass.getDeclaredClasses()) {
+        for (final Class<?> klass : commandClass.getDeclaredClasses()) {
             final List<Constructor<?>> constructors = Arrays.asList(klass.getDeclaredConstructors());
 
             if (constructors.size() != 1) {
@@ -120,20 +121,19 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
 
             final boolean hasArg = argsSize > 0;
 
-            final P processor = createProcessor(klass);
+            final P processor = createSubProcessor(klass);
             final String subCommandName = processor.getName();
             // Not a command
             if (subCommandName == null) continue;
             // If the name is empty and there is no arguments
             if (subCommandName.isEmpty() && !hasArg) {
                 throw new SubCommandRegistrationException(
-                        "@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty on a class unless it has an argument.",
+                        "@" + Command.class.getSimpleName() + " name must not be empty on a class unless it has an argument.",
                         klass,
-                        baseCommand.getClass()
+                        commandClass
                 );
             }
 
-            collectMethodSubCommands(command, klass, method -> new ClassInvoker(baseCommand, constructor, method, isStatic));
         }
     }
 
@@ -149,7 +149,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
 
             final Invoker invoker = invokerFunction.apply(method);
 
-            final P processor = createProcessor(method);
+            final P processor = createSubProcessor(method);
             final String subCommandName = processor.getName();
             // Not a command
             if (subCommandName == null) continue;
@@ -171,7 +171,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
         }
     }
 
-    protected abstract @NotNull P createProcessor(final @NotNull AnnotatedElement method);
+    protected abstract @NotNull P createSubProcessor(final @NotNull AnnotatedElement method);
 
     protected abstract @NotNull SC createSubCommand(final @NotNull P processor, final @NotNull ExecutionProvider executionProvider);
 
@@ -193,15 +193,6 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
         return alias;
     }
 
-    /**
-     * Gets the {@link BaseCommand} which is needed to invoke the command later.
-     *
-     * @return The {@link BaseCommand}.
-     */
-    public @NotNull BaseCommand getBaseCommand() {
-        return baseCommand;
-    }
-
     // TODO: Comments
     public @NotNull RegistryContainer<S> getRegistryContainer() {
         return registryContainer;
@@ -212,21 +203,13 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
      *
      * @return The {@link SenderMapper}.
      */
-    public @NotNull SenderMapper<SD, S> getSenderMapper() {
+    public @NotNull SenderMapper<DS, S> getSenderMapper() {
         return senderMapper;
     }
 
     // TODO: 2/4/2022 comments
     public @NotNull SenderValidator<S> getSenderValidator() {
         return senderValidator;
-    }
-
-    public @NotNull Map<@NotNull String, SC> getSubCommands() {
-        return subCommands;
-    }
-
-    public @NotNull Map<@NotNull String, SC> getSubCommandsAlias() {
-        return subCommandsAlias;
     }
 
     public @NotNull ExecutionProvider getSyncExecutionProvider() {
@@ -250,7 +233,7 @@ public abstract class AbstractCommandProcessor<SD, S, SC extends SubCommand<S>, 
      * Helper method for getting the command names from the command annotation.
      */
     private void extractCommandNames() {
-        final Command commandAnnotation = baseCommand.getClass().getAnnotation(Command.class);
+        final Command commandAnnotation = commandClass.getAnnotation(Command.class);
 
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();

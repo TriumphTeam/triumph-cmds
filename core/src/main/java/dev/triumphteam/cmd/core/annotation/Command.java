@@ -32,21 +32,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Command annotation, marks the class as a command class.
+ * Command annotation, marks the class or method as a command.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Inherited
 public @interface Command {
 
+    // Default commands use this name.
+    String DEFAULT_CMD_NAME = "TH_DEFAULT";
+
     /**
-     * Main command's name.
-     * Must be empty and have spaces.
+     * Command's name.
+     * Must not have spaces.
      *
-     * @return The command.
+     * @return The command name.
      */
     @NotNull
-    String value();
+    String value() default DEFAULT_CMD_NAME;
 
     /**
      * List with all command aliases.
