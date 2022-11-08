@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.cmd.core.registry;
 
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
+import dev.triumphteam.cmd.core.command.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.command.argument.named.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;

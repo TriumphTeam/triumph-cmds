@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.named;
+package dev.triumphteam.cmd.core.command.argument.named;
 
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;

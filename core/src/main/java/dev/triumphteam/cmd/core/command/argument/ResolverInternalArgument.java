@@ -21,55 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument;
+package dev.triumphteam.cmd.core.command.argument;
 
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
- * Collection argument, a {@link LimitlessInternalArgument} but returns a {@link List} instead.
- * Currently, only supports {@link List} and {@link Set}.
+ * Normal {@link StringInternalArgument}.
+ * Basically the main implementation.
+ * Uses an {@link ArgumentResolver} from the {@link ArgumentRegistry}.
+ * Allows you to register many other simple argument types.
  *
  * @param <S> The sender type.
  */
-public final class CollectionInternalArgument<S> extends LimitlessInternalArgument<S> {
+public final class ResolverInternalArgument<S> extends StringInternalArgument<S> {
 
-    private final InternalArgument<S, String> internalArgument;
-    private final Class<?> collectionType;
+    private final ArgumentResolver<S> resolver;
 
-    public CollectionInternalArgument(
+    public ResolverInternalArgument(
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull InternalArgument<S, String> internalArgument,
-            final @NotNull Class<?> collectionType,
+            final @NotNull Class<?> type,
+            final @NotNull ArgumentResolver<S> resolver,
             final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, suggestion, position, optional);
-        this.internalArgument = internalArgument;
-        this.collectionType = collectionType;
+        super(name, description, type, suggestion, position, optional);
+        this.resolver = resolver;
     }
 
     /**
      * Resolves the argument type.
      *
      * @param sender The sender to resolve to.
-     * @param value  The arguments {@link List}.
-     * @return A {@link java.util.Collection} type as the resolved value.
+     * @param value  The {@link String} argument value.
+     * @return An Object value of the correct type, based on the result from the {@link ArgumentResolver}.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
-        final Stream<Object> stream = value.stream().map(arg -> internalArgument.resolve(sender, arg));
-        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
-        return stream.collect(Collectors.toList());
+    public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
+        return resolver.resolve(sender, value);
     }
 
     @Override
@@ -77,19 +71,20 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final CollectionInternalArgument<?> that = (CollectionInternalArgument<?>) o;
-        return collectionType.equals(that.collectionType);
+        final ResolverInternalArgument<?> that = (ResolverInternalArgument<?>) o;
+        return resolver.equals(that.resolver);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), collectionType);
+        return Objects.hash(super.hashCode(), resolver);
     }
 
     @Override
     public @NotNull String toString() {
-        return "CollectionArgument{" +
-                "collectionType=" + collectionType +
+        return "ResolverArgument{" +
+                "resolver=" + resolver +
                 ", super=" + super.toString() + "}";
     }
+
 }

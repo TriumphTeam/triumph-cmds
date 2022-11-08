@@ -24,8 +24,8 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
-import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.command.argument.InternalArgument;
+import dev.triumphteam.cmd.core.command.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;

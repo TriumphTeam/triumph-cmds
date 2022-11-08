@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
-import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.command.argument.InternalArgument;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.slash.choices.Choice;
 import dev.triumphteam.cmd.slash.choices.EmptyChoice;

@@ -23,9 +23,9 @@
  */
 package dev.triumphteam.cmd.core;
 
-import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.named.Argument;
-import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.command.argument.ArgumentResolver;
+import dev.triumphteam.cmd.core.command.argument.named.Argument;
+import dev.triumphteam.cmd.core.command.argument.named.ArgumentKey;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.MessageResolver;
 import dev.triumphteam.cmd.core.message.context.MessageContext;

@@ -21,49 +21,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument;
+package dev.triumphteam.cmd.core.command.argument;
 
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
- * Normal {@link StringInternalArgument}.
- * Basically the main implementation.
- * Uses an {@link ArgumentResolver} from the {@link ArgumentRegistry}.
- * Allows you to register many other simple argument types.
+ * Joined string argument, a {@link LimitlessInternalArgument}.
+ * Returns a single {@link String} that was joined from a {@link List} of arguments.
  *
  * @param <S> The sender type.
  */
-public final class ResolverInternalArgument<S> extends StringInternalArgument<S> {
+public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgument<S> {
 
-    private final ArgumentResolver<S> resolver;
+    private final CharSequence delimiter;
 
-    public ResolverInternalArgument(
+    public JoinedStringInternalArgument(
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull Class<?> type,
-            final @NotNull ArgumentResolver<S> resolver,
+            final @NotNull CharSequence delimiter,
             final @NotNull Suggestion<S> suggestion,
             final int position,
             final boolean optional
     ) {
-        super(name, description, type, suggestion, position, optional);
-        this.resolver = resolver;
+        super(name, description, String.class, suggestion, position, optional);
+        this.delimiter = delimiter;
     }
 
     /**
      * Resolves the argument type.
      *
      * @param sender The sender to resolve to.
-     * @param value  The {@link String} argument value.
-     * @return An Object value of the correct type, based on the result from the {@link ArgumentResolver}.
+     * @param value  The arguments {@link List}.
+     * @return A single {@link String} with the joined {@link List}.
      */
     @Override
-    public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
-        return resolver.resolve(sender, value);
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
+        return String.join(delimiter, value);
     }
 
     @Override
@@ -71,19 +69,19 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        final ResolverInternalArgument<?> that = (ResolverInternalArgument<?>) o;
-        return resolver.equals(that.resolver);
+        final JoinedStringInternalArgument<?> that = (JoinedStringInternalArgument<?>) o;
+        return delimiter.equals(that.delimiter);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), resolver);
+        return Objects.hash(super.hashCode(), delimiter);
     }
 
     @Override
     public @NotNull String toString() {
-        return "ResolverArgument{" +
-                "resolver=" + resolver +
+        return "JoinedStringArgument{" +
+                "delimiter=" + delimiter +
                 ", super=" + super.toString() + "}";
     }
 

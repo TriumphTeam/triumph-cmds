@@ -21,71 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument;
+package dev.triumphteam.cmd.core.command.argument;
 
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 /**
- * Command argument.
+ * A limitless internalArgument is an internalArgument type that won't check for internalArgument size.
+ * For example: Lists, Arrays, etc.
  *
  * @param <S> The sender type.
- * @param <T> The Argument type.
  */
-public interface InternalArgument<S, T> {
+public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, List<@NotNull String>> {
 
-    /**
-     * Gets the name of the argument.
-     * This will be either the parameter name or <code>arg1</code>, <code>arg2</code>, etc.
-     * Needs to be compiled with compiler argument <code>-parameters</code> to show actual names.
-     *
-     * @return The argument name.
-     */
-    @NotNull String getName();
+    public LimitlessInternalArgument(
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<?> type,
+            final @NotNull Suggestion<S> suggestion,
+            final int position,
+            final boolean isOptional
+    ) {
+        super(name, description, type, suggestion, position, isOptional);
+    }
 
-    // TODO: 1/31/2022
-    int getPosition();
-
-    /**
-     * The description of this Argument.
-     * Holds the description.
-     *
-     * @return The description of this Argument.
-     */
-    @NotNull String getDescription();
-
-    /**
-     * The argument type.
-     * Holds the class type of the argument.
-     *
-     * @return The argument type.
-     */
-    @NotNull Class<?> getType();
-
-    /**
-     * If argument is optional or not.
-     *
-     * @return Whether the argument is optional.
-     */
-    boolean isOptional();
-
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The argument value.
-     * @return An object with the resolved value.
-     */
-    @Nullable Object resolve(final @NotNull S sender, final @NotNull T value);
-
-    // TODO: Comments
-   @NotNull List<@NotNull String> suggestions(
+    @Override
+    public @NotNull List<@NotNull String> suggestions(
             final @NotNull S sender,
             final @NotNull List<@NotNull String> trimmed,
             final @NotNull SuggestionContext context
-    );
+    ) {
+        final String last = trimmed.get(trimmed.size() - 1);
+        return getSuggestion().getSuggestions(sender, last, context);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "LimitlessArgument{super=" + super.toString() + "}";
+    }
 
 }

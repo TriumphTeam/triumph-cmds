@@ -24,9 +24,9 @@
 package dev.triumphteam.cmd.core.subcommand;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
-import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.command.argument.InternalArgument;
+import dev.triumphteam.cmd.core.command.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.command.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;

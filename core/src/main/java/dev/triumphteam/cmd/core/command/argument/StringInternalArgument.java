@@ -21,26 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument;
+package dev.triumphteam.cmd.core.command.argument;
 
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * Resolver for custom argument types.
+ * Differently from the {@link LimitlessInternalArgument}, this internalArgument will always be just one string as the arg value.
+ * And will return one single value as the resolved value.
  *
  * @param <S> The sender type.
  */
-@FunctionalInterface
-public interface ArgumentResolver<S> {
+public abstract class StringInternalArgument<S> extends AbstractInternalArgument<S, String> {
 
-    /**
-     * Resolves the current argument based on the given arg.
-     *
-     * @param sender The sender which can be used for checks.
-     * @param arg    The typed argument.
-     * @return An Object with the resolved value or null.
-     */
-    @Nullable Object resolve(final @NotNull S sender, final @NotNull String arg);
+    public StringInternalArgument(
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<?> type,
+            final @NotNull Suggestion<S> suggestion,
+            final int position,
+            final boolean optional
+    ) {
+        super(name, description, type, suggestion, position, optional);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "StringArgument{super=" + super.toString() + "}";
+    }
 
 }
