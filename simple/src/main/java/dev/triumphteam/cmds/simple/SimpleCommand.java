@@ -24,20 +24,12 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
-import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +40,8 @@ public final class SimpleCommand<S> implements Command<S> {
 
     private final MessageRegistry<S> messageRegistry;
 
-    private final Map<String, SubCommand<S>> subCommands = new HashMap<>();
-    private final Map<String, SubCommand<S>> subCommandAliases = new HashMap<>();
+    private final Map<String, OldSubCommand<S>> subCommands = new HashMap<>();
+    private final Map<String, OldSubCommand<S>> subCommandAliases = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
@@ -68,7 +60,7 @@ public final class SimpleCommand<S> implements Command<S> {
     ) {
         final int argumentSize = arguments.size();
 
-        final SubCommand<S> subCommand = getSubCommand(arguments);
+        final OldSubCommand<S> subCommand = getSubCommand(arguments);
 
         if (subCommand == null || (argumentSize > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
             final String name = argumentSize == 0 ? dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME : arguments.get(0);
@@ -80,12 +72,12 @@ public final class SimpleCommand<S> implements Command<S> {
     }
 
     @Override
-    public @NotNull Map<String, SubCommand<S>> getSubCommands() {
+    public @NotNull Map<String, OldSubCommand<S>> getSubCommands() {
         return subCommands;
     }
 
     @Override
-    public @NotNull Map<String, SubCommand<S>> getSubCommandAlias() {
+    public @NotNull Map<String, OldSubCommand<S>> getSubCommandAlias() {
         return subCommandAliases;
     }
 }

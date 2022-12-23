@@ -26,7 +26,7 @@ package dev.triumphteam.cmd.prefixed;
 import com.google.common.collect.ImmutableSet;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,7 +51,7 @@ class PrefixedSenderValidator implements SenderValidator<PrefixedSender> {
     @Override
     public boolean validate(
             final @NotNull MessageRegistry<PrefixedSender> messageRegistry,
-            final @NotNull SubCommand<PrefixedSender> subCommand,
+            final @NotNull OldSubCommand<PrefixedSender> subCommand,
             final @NotNull PrefixedSender sender
     ) {
         return true;

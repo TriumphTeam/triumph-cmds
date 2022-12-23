@@ -21,26 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.command.argument.named;
+package dev.triumphteam.cmd.core.argument.named;
 
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.registry.RegistryKey;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+public class ArgumentKey extends RegistryKey {
 
-public final class NamedArgumentRegistry<S> implements Registry {
-
-    private final Map<ArgumentKey, List<Argument>> namedArguments = new HashMap<>();
-
-    public void register(final @NotNull ArgumentKey key, final @NotNull List<@NotNull Argument> arguments) {
-        namedArguments.put(key, arguments);
+    private ArgumentKey(final @NotNull String key) {
+        super(key);
     }
 
-    public @Nullable List<@NotNull Argument> getResolver(final @NotNull ArgumentKey key) {
-        return namedArguments.get(key);
+    @Contract("_ -> new")
+    public static @NotNull ArgumentKey of(final @NotNull String key) {
+        return new ArgumentKey(key);
     }
-
 }

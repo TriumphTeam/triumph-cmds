@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.bukkit;
 
 import com.google.common.collect.ImmutableSet;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
@@ -52,7 +52,7 @@ class BukkitSenderValidator implements SenderValidator<CommandSender> {
     @Override
     public boolean validate(
             final @NotNull MessageRegistry<CommandSender> messageRegistry,
-            final @NotNull SubCommand<CommandSender> subCommand,
+            final @NotNull OldSubCommand<CommandSender> subCommand,
             final @NotNull CommandSender sender
     ) {
         final Class<? extends CommandSender> senderClass = subCommand.getSenderType();

@@ -21,25 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.command.argument.named;
+package dev.triumphteam.cmd.core.argument.named;
 
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class SimpleArgument implements Argument {
+public final class ListArgument implements Argument {
 
+    private final Class<?> collectionType;
+    private final String separator;
     private final Class<?> type;
     private final String name;
     private final String description;
     private final SuggestionKey suggestionKey;
 
 
-    public SimpleArgument(final @NotNull AbstractArgumentBuilder<?> argumentBuilder) {
+    public ListArgument(final @NotNull ListArgumentBuilder argumentBuilder) {
         this.type = argumentBuilder.getType();
         this.name = argumentBuilder.getName();
         this.description = argumentBuilder.getDescription();
         this.suggestionKey = argumentBuilder.getSuggestionKey();
+        this.collectionType = argumentBuilder.getCollectionType();
+        this.separator = argumentBuilder.getSeparator();
     }
 
     @Override
@@ -60,5 +64,13 @@ public final class SimpleArgument implements Argument {
     @Override
     public @Nullable SuggestionKey getSuggestion() {
         return suggestionKey;
+    }
+
+    public @NotNull Class<?> getCollectionType() {
+        return collectionType;
+    }
+
+    public @NotNull String getSeparator() {
+        return separator;
     }
 }

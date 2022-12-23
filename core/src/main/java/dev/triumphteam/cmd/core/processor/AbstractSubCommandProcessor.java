@@ -110,7 +110,7 @@ import static java.util.Collections.singletonList;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-public abstract class OldAbstractSubCommandProcessor<S> {
+public abstract class AbstractSubCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
     private final String parentName;
@@ -143,7 +143,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
 
     private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
-    protected OldAbstractSubCommandProcessor(
+    protected AbstractSubCommandProcessor(
             final @NotNull BaseCommand baseCommand,
             final @NotNull String parentName,
             final @NotNull AnnotatedElement annotatedElement,

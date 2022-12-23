@@ -23,25 +23,19 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyList;
 
 public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command<S> {
 
@@ -74,7 +68,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         final List<String> arguments = Arrays.asList(args);
         final int argumentSize = arguments.size();
 
-        final SubCommand<S> subCommand = getSubCommand(arguments);
+        final OldSubCommand<S> subCommand = getSubCommand(arguments);
 
         final S mappedSender = senderMapper.map(sender);
         if (mappedSender == null) {
@@ -99,12 +93,12 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     }
 
     @Override
-    public @NotNull Map<String, SubCommand<S>> getSubCommands() {
+    public @NotNull Map<String, OldSubCommand<S>> getSubCommands() {
         return null;
     }
 
     @Override
-    public @NotNull Map<String, SubCommand<S>> getSubCommandAlias() {
+    public @NotNull Map<String, OldSubCommand<S>> getSubCommandAlias() {
         return null;
     }
 }

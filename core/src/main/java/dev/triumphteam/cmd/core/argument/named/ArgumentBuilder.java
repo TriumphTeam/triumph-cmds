@@ -21,26 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.command.argument;
+package dev.triumphteam.cmd.core.argument.named;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-/**
- * Resolver for custom argument types.
- *
- * @param <S> The sender type.
- */
-@FunctionalInterface
-public interface ArgumentResolver<S> {
+public final class ArgumentBuilder extends AbstractArgumentBuilder<ArgumentBuilder> {
 
-    /**
-     * Resolves the current argument based on the given arg.
-     *
-     * @param sender The sender which can be used for checks.
-     * @param arg    The typed argument.
-     * @return An Object with the resolved value or null.
-     */
-    @Nullable Object resolve(final @NotNull S sender, final @NotNull String arg);
-
+    public ArgumentBuilder(final @NotNull Class<?> type) {
+        super(type);
+    }
 }

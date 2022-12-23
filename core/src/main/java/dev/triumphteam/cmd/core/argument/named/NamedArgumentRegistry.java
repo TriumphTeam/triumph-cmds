@@ -21,42 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.command.argument.named;
+package dev.triumphteam.cmd.core.argument.named;
 
+import dev.triumphteam.cmd.core.registry.Registry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
-public interface Arguments {
+public final class NamedArgumentRegistry<S> implements Registry {
 
-    /**
-     * Gets an argument by name.
-     * The argument will be an empty {@link Optional} if it does not exist or if the value is invalid.
-     *
-     * @param name The name of the argument.
-     * @param type The class of the type of the argument.
-     * @param <T>  The generic type of the argument.
-     * @return An {@link Optional} argument.
-     */
-    <T> @NotNull Optional<T> get(final @NotNull String name, final @NotNull Class<T> type);
+    private final Map<ArgumentKey, List<Argument>> namedArguments = new HashMap<>();
 
+    public void register(final @NotNull ArgumentKey key, final @NotNull List<@NotNull Argument> arguments) {
+        namedArguments.put(key, arguments);
+    }
 
-    <T> @NotNull Optional<List<T>> getAsList(final @NotNull String name, final @NotNull Class<T> type);
+    public @Nullable List<@NotNull Argument> getResolver(final @NotNull ArgumentKey key) {
+        return namedArguments.get(key);
+    }
 
-    <T> @NotNull Optional<Set<T>> getAsSet(final @NotNull String name, final @NotNull Class<T> type);
-
-    /**
-     * Get all arguments passed to this command
-     * @return a {@link Map} of all arguments
-     */
-    @NotNull Map<String, Object> getArguments();
-
-    /**
-     * Check if no arguments are passed
-     * @return true if no arguments have been passed in the command
-     */
-    boolean isEmpty();
 }

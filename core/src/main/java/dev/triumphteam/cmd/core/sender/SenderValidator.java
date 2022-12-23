@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.sender;
 
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +40,7 @@ public interface SenderValidator<S> {
 
     boolean validate(
             final @NotNull MessageRegistry<S> messageRegistry,
-            final @NotNull SubCommand<S> subCommand,
+            final @NotNull OldSubCommand<S> subCommand,
             final @NotNull S sender
     );
 }

@@ -21,20 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.command.argument.named;
+package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.registry.RegistryKey;
-import org.jetbrains.annotations.Contract;
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 
-public class ArgumentKey extends RegistryKey {
+/**
+ * Differently from the {@link LimitlessInternalArgument}, this internalArgument will always be just one string as the arg value.
+ * And will return one single value as the resolved value.
+ *
+ * @param <S> The sender type.
+ */
+public abstract class StringInternalArgument<S> extends AbstractInternalArgument<S, String> {
 
-    private ArgumentKey(final @NotNull String key) {
-        super(key);
+    public StringInternalArgument(
+            final @NotNull String name,
+            final @NotNull String description,
+            final @NotNull Class<?> type,
+            final @NotNull Suggestion<S> suggestion,
+            final int position,
+            final boolean optional
+    ) {
+        super(name, description, type, suggestion, position, optional);
     }
 
-    @Contract("_ -> new")
-    public static @NotNull ArgumentKey of(final @NotNull String key) {
-        return new ArgumentKey(key);
+    @Override
+    public @NotNull String toString() {
+        return "StringArgument{super=" + super.toString() + "}";
     }
+
 }

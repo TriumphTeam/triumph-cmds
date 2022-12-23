@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.command.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

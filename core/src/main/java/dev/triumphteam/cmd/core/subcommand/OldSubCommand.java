@@ -24,9 +24,10 @@
 package dev.triumphteam.cmd.core.subcommand;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.command.argument.InternalArgument;
-import dev.triumphteam.cmd.core.command.argument.LimitlessInternalArgument;
-import dev.triumphteam.cmd.core.command.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
@@ -54,7 +55,7 @@ import java.util.stream.Collectors;
  *
  * @param <S> The sender type.
  */
-public abstract class SubCommand<S> {
+public abstract class OldSubCommand<S> {
 
     private final BaseCommand baseCommand;
     private final Method method = null;
@@ -77,7 +78,7 @@ public abstract class SubCommand<S> {
     private final boolean hasArguments;
     private final boolean containsLimitless;
 
-    public SubCommand(
+    public OldSubCommand(
             @NotNull final OldAbstractSubCommandProcessor<S> processor,
             @NotNull final String parentName,
             @NotNull final ExecutionProvider executionProvider

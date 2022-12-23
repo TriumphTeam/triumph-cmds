@@ -21,11 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.command.argument;
+package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.command.argument.named.Arguments;
-import dev.triumphteam.cmd.core.command.argument.named.NamedArgumentParser;
-import dev.triumphteam.cmd.core.command.argument.named.NamedArgumentResult;
+import dev.triumphteam.cmd.core.argument.named.Arguments;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentParser;
+import dev.triumphteam.cmd.core.argument.named.NamedArgumentResult;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;

@@ -32,7 +32,7 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.core.subcommand.invoker.Invoker;
 import dev.triumphteam.cmd.core.subcommand.invoker.MethodInvoker;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +57,7 @@ import java.util.function.Supplier;
  *
  * @param <S> Sender type
  */
-public abstract class OldAbstractCommandProcessor<DS, S, SC extends SubCommand<S>, P extends OldAbstractSubCommandProcessor<S>> {
+public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubCommand<S>, P extends OldAbstractSubCommandProcessor<S>> {
 
     private String name;
     // TODO: 11/28/2021 Add better default description

@@ -23,29 +23,50 @@
  */
 package dev.triumphteam.cmd.core;
 
-import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.processor.Commands;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
+
+import static dev.triumphteam.cmd.core.processor.Commands.nameOf;
 
 /**
  * Command interface which all platforms will implement.
  *
- * @param <S>  The sender type.
+ * @param <S> The sender type.
  */
 public interface Command<S> {
 
-    @NotNull Map<String, SubCommand<S>> getSubCommands();
+    @NotNull Map<String, OldSubCommand<S>> getSubCommands();
 
-    @NotNull Map<String, SubCommand<S>> getSubCommandAlias();
+    @NotNull Map<String, OldSubCommand<S>> getSubCommandAlias();
 
-    default @Nullable SubCommand<S> getSubCommand(final @NotNull List<String> args) {
-        SubCommand<S> subCommand = getDefaultSubCommand();
+    void addSubCommand(final @NotNull SubCommand subCommand, final boolean isAlias);
+
+    default void addCommandsFrom(final @NotNull BaseCommand baseCommand) {
+        final Class<? extends BaseCommand> klass = baseCommand.getClass();
+        for (final Method method : klass.getDeclaredMethods()) {
+            // Ignore non-public methods
+            if (Modifier.isPublic(method.getModifiers())) continue;
+
+            final String name = nameOf(method);
+            // Not a command, ignore the method
+            if (name == null) continue;
+
+
+        }
+
+        // TODO: CLASSES
+    }
+
+    default @Nullable OldSubCommand<S> getSubCommand(final @NotNull List<String> args) {
+        OldSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
@@ -60,27 +81,16 @@ public interface Command<S> {
         return subCommand;
     }
 
-    /**
-     * Gets a default command if present.
-     *
-     * @return A default SubCommand.
-     */
-    default @Nullable SubCommand<S> getDefaultSubCommand() {
+    default @Nullable OldSubCommand<S> getDefaultSubCommand() {
         return getSubCommands().get(dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME);
     }
 
-    default @Nullable SubCommand<S> getSubCommand(final @NotNull String key) {
-        final SubCommand<S> subCommand = getSubCommands().get(key);
+    default @Nullable OldSubCommand<S> getSubCommand(final @NotNull String key) {
+        final OldSubCommand<S> subCommand = getSubCommands().get(key);
         if (subCommand != null) return subCommand;
         return getSubCommandAlias().get(key);
     }
 
-    /**
-     * Checks if a SubCommand with the specified key exists.
-     *
-     * @param key the Key to check for
-     * @return whether a SubCommand with that key exists
-     */
     default boolean subCommandExists(final @NotNull String key) {
         return getSubCommands().containsKey(key) || getSubCommandAlias().containsKey(key);
     }

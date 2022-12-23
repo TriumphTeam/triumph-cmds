@@ -3,7 +3,7 @@ package dev.triumphteam.tests
 import dev.triumphteam.cmd.core.message.MessageRegistry
 import dev.triumphteam.cmd.core.sender.SenderMapper
 import dev.triumphteam.cmd.core.sender.SenderValidator
-import dev.triumphteam.cmd.core.subcommand.SubCommand
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand
 
 class TestSender
 
@@ -18,7 +18,7 @@ class TestSenderValidator : SenderValidator<TestSender> {
 
     override fun validate(
         messageRegistry: MessageRegistry<TestSender>,
-        subCommand: SubCommand<TestSender>,
+        subCommand: OldSubCommand<TestSender>,
         sender: TestSender,
     ): Boolean = true
 }

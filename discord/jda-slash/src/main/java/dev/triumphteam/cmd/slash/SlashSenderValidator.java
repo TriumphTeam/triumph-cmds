@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.slash;
 
 import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
@@ -48,7 +48,7 @@ final class SlashSenderValidator implements SenderValidator<SlashSender> {
     @Override
     public boolean validate(
             final @NotNull MessageRegistry<SlashSender> messageRegistry,
-            final @NotNull SubCommand<SlashSender> subCommand,
+            final @NotNull OldSubCommand<SlashSender> subCommand,
             final @NotNull SlashSender sender
     ) {
         return true;

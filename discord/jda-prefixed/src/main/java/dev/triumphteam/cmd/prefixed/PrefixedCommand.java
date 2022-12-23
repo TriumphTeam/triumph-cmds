@@ -28,7 +28,7 @@ import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -89,7 +89,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
      * @param args   The command arguments.
      */
     public void execute(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
-        SubCommand<S> subCommand = getDefaultSubCommand();
+        OldSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
@@ -113,7 +113,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
      *
      * @return The default sub command.
      */
-    private @Nullable SubCommand<S> getDefaultSubCommand() {
+    private @Nullable OldSubCommand<S> getDefaultSubCommand() {
         return subCommands.get(Default.DEFAULT_CMD_NAME);
     }
 
@@ -123,7 +123,7 @@ final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
      * @param key The sub command name.
      * @return A sub command or null.
      */
-    private @Nullable SubCommand<S> getSubCommand(final @NotNull String key) {
+    private @Nullable OldSubCommand<S> getSubCommand(final @NotNull String key) {
         return subCommands.get(key);
     }
 

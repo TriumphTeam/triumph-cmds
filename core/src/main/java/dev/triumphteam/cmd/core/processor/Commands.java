@@ -5,7 +5,9 @@ import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,5 +68,14 @@ public final class Commands {
     public static @NotNull String descriptionOf(final @NotNull BaseCommand baseCommand) {
         final Description commandAnnotation = baseCommand.getClass().getAnnotation(Description.class);
         return commandAnnotation == null ? baseCommand.getDescription() : commandAnnotation.value();
+    }
+
+    public static @Nullable String nameOf(final @NotNull AnnotatedElement element) {
+        final Command commandAnnotation = element.getAnnotation(Command.class);
+
+        // Not a command element
+        if (commandAnnotation == null) return null;
+
+        return commandAnnotation.value();
     }
 }
