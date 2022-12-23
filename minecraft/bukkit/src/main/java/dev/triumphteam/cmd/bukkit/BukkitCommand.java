@@ -87,7 +87,6 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
             messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
             return true;
         }*/
-
         subCommand.execute(mappedSender, !subCommand.isDefault() ? arguments.subList(1, argumentSize) : arguments);
         return true;
     }

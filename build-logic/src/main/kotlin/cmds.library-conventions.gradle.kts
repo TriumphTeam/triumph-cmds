@@ -31,7 +31,7 @@ tasks {
 
                     developers {
                         developer {
-                            id.set("matt")
+                            id.set("Matt")
                             name.set("Mateus Moreira")
                         }
                     }

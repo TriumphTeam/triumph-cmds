@@ -58,7 +58,7 @@ public interface Command<S> {
             // Not a command, ignore the method
             if (name == null) continue;
 
-            
+
         }
 
         // TODO: CLASSES

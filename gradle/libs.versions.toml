@@ -1,10 +1,14 @@
 [versions]
-# Code
+kotlin = "1.7.21"
+license = "0.16.1"
+
+# Core
 guava = "31.1-jre"
+annotations = "23.0.0"
 
 # Testing
-junit = "5.8.2"
-assertj = "3.22.0"
+junit = "5.9.1"
+assertj = "3.23.1"
 
 # Minecraft
 spigot = "1.18.2-R0.1-SNAPSHOT"
@@ -12,10 +16,13 @@ spigot = "1.18.2-R0.1-SNAPSHOT"
 # Discord
 jda = "5.0.0-alpha.18"
 
+# Formatting
+spotless = "6.12.0"
 
 [libraries]
 # Core
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
 
 # Testing
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
@@ -27,3 +34,21 @@ spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
 
 # Discord
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+
+# build
+build-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+build-license = { module = "gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin", version.ref = "license" }
+build-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+
+[bundles]
+# Testing
+testing = [
+    "junit-api",
+    "junit-engine",
+    "assertj"
+]
+build = [
+    "build-kotlin",
+    "build-license",
+    "build-spotless"
+]

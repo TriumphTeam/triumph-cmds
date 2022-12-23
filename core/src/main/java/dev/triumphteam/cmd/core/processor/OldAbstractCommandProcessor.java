@@ -248,7 +248,6 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
         }
 
         alias.addAll(baseCommand.getAlias());*/
-
         if (name.isEmpty()) {
             throw new CommandRegistrationException("Command name must not be empty", BaseCommand.class);
         }
