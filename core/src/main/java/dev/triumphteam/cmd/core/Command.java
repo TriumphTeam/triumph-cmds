@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,11 +42,15 @@ import static dev.triumphteam.cmd.core.processor.Commands.nameOf;
  */
 public interface Command<S> {
 
-    @NotNull Map<String, OldSubCommand<S>> getSubCommands();
+    @NotNull Map<String, SubCommand<S>> getSubCommands();
 
-    @NotNull Map<String, OldSubCommand<S>> getSubCommandAlias();
+    @NotNull Map<String, SubCommand<S>> getSubCommandAlias();
 
-    void addSubCommand(final @NotNull SubCommand<S> subCommand, final boolean isAlias);
+    void addSubCommand(
+            final @NotNull String name,
+            final @NotNull SubCommand<S> subCommand,
+            final boolean isAlias
+    );
 
     default void addCommandsFrom(final @NotNull BaseCommand baseCommand) {
         final Class<? extends BaseCommand> klass = baseCommand.getClass();
@@ -58,14 +62,14 @@ public interface Command<S> {
             // Not a command, ignore the method
             if (name == null) continue;
 
-
+            System.out.println("Sub boy -> " + name);
         }
 
         // TODO: CLASSES
     }
 
-    default @Nullable OldSubCommand<S> getSubCommand(final @NotNull List<String> args) {
-        OldSubCommand<S> subCommand = getDefaultSubCommand();
+    default @Nullable SubCommand<S> getSubCommand(final @NotNull List<String> args) {
+        SubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
@@ -73,19 +77,20 @@ public interface Command<S> {
             subCommand = getSubCommand(subCommandName);
         }
 
-        if (subCommand == null || (args.size() > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
+        // TODO
+        /*if (subCommand == null || (args.size() > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
             return null;
-        }
+        }*/
 
         return subCommand;
     }
 
-    default @Nullable OldSubCommand<S> getDefaultSubCommand() {
+    default @Nullable SubCommand<S> getDefaultSubCommand() {
         return getSubCommands().get(dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME);
     }
 
-    default @Nullable OldSubCommand<S> getSubCommand(final @NotNull String key) {
-        final OldSubCommand<S> subCommand = getSubCommands().get(key);
+    default @Nullable SubCommand<S> getSubCommand(final @NotNull String key) {
+        final SubCommand<S> subCommand = getSubCommands().get(key);
         if (subCommand != null) return subCommand;
         return getSubCommandAlias().get(key);
     }

@@ -24,6 +24,7 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.Command;
+import dev.triumphteam.cmd.core.argument.SubCommand;
 import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -40,8 +41,8 @@ public final class SimpleCommand<S> implements Command<S> {
 
     private final MessageRegistry<S> messageRegistry;
 
-    private final Map<String, OldSubCommand<S>> subCommands = new HashMap<>();
-    private final Map<String, OldSubCommand<S>> subCommandAliases = new HashMap<>();
+    private final Map<String, SubCommand<S>> subCommands = new HashMap<>();
+    private final Map<String, SubCommand<S>> subCommandAliases = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
@@ -60,24 +61,34 @@ public final class SimpleCommand<S> implements Command<S> {
     ) {
         final int argumentSize = arguments.size();
 
-        final OldSubCommand<S> subCommand = getSubCommand(arguments);
+        final SubCommand<S> subCommand = getSubCommand(arguments);
 
-        if (subCommand == null || (argumentSize > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
+        // TODO
+        /*if (subCommand == null || (argumentSize > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
             final String name = argumentSize == 0 ? dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME : arguments.get(0);
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(this.name, name));
             return;
         }
 
-        subCommand.execute(sender, !subCommand.isDefault() ? arguments.subList(1, argumentSize) : arguments);
+        subCommand.execute(sender, !subCommand.isDefault() ? arguments.subList(1, argumentSize) : arguments);*/
     }
 
     @Override
-    public @NotNull Map<String, OldSubCommand<S>> getSubCommands() {
+    public void addSubCommand(
+            final @NotNull String name,
+            final @NotNull SubCommand<S> subCommand,
+            final boolean isAlias
+    ) {
+        subCommands.put(name, subCommand);
+    }
+
+    @Override
+    public @NotNull Map<String, SubCommand<S>> getSubCommands() {
         return subCommands;
     }
 
     @Override
-    public @NotNull Map<String, OldSubCommand<S>> getSubCommandAlias() {
+    public @NotNull Map<String, SubCommand<S>> getSubCommandAlias() {
         return subCommandAliases;
     }
 }

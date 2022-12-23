@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -114,8 +114,7 @@ public abstract class OldSubCommand<S> {
     }
 
     // TODO: 2/5/2022 comments
-    @NotNull
-    public Class<? extends S> getSenderType() {
+    @NotNull public Class<? extends S> getSenderType() {
         return senderType;
     }
 
@@ -124,8 +123,7 @@ public abstract class OldSubCommand<S> {
      *
      * @return The name of the parent command.
      */
-    @NotNull
-    public String getParentName() {
+    @NotNull public String getParentName() {
         return parentName;
     }
 
@@ -134,8 +132,7 @@ public abstract class OldSubCommand<S> {
      *
      * @return The name of the sub command.
      */
-    @NotNull
-    public String getName() {
+    @NotNull public String getName() {
         return name;
     }
 
@@ -148,8 +145,7 @@ public abstract class OldSubCommand<S> {
      *
      * @return The message registry.
      */
-    @NotNull
-    protected MessageRegistry<S> getMessageRegistry() {
+    @NotNull protected MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
     }
 
@@ -191,13 +187,11 @@ public abstract class OldSubCommand<S> {
      *
      * @return The arguments of the sub command.
      */
-    @NotNull
-    protected List<InternalArgument<S, ?>> getArguments() {
+    @NotNull protected List<InternalArgument<S, ?>> getArguments() {
         return internalArguments;
     }
 
-    @Nullable
-    protected InternalArgument<S, ?> getArgument(@NotNull final String name) {
+    @Nullable protected InternalArgument<S, ?> getArgument(@NotNull final String name) {
         final List<InternalArgument<S, ?>> foundArgs = internalArguments.stream()
                 .filter(internalArgument -> internalArgument.getName().toLowerCase().startsWith(name))
                 .collect(Collectors.toList());
@@ -206,8 +200,7 @@ public abstract class OldSubCommand<S> {
         return foundArgs.get(0);
     }
 
-    @Nullable
-    protected InternalArgument<S, ?> getArgument(final int index) {
+    @Nullable protected InternalArgument<S, ?> getArgument(final int index) {
         final int size = internalArguments.size();
         if (size == 0) return null;
         if (index >= size) {
@@ -316,8 +309,7 @@ public abstract class OldSubCommand<S> {
      * @param index The current index of the internalArgument.
      * @return The internalArgument name or null.
      */
-    @Nullable
-    private String valueOrNull(@NotNull final List<String> list, final int index) {
+    @Nullable private String valueOrNull(@NotNull final List<String> list, final int index) {
         if (index >= list.size()) return null;
         return list.get(index);
     }
@@ -329,14 +321,12 @@ public abstract class OldSubCommand<S> {
      * @param from The index from which should start removing.
      * @return A list with the leftover arguments.
      */
-    @NotNull
-    private List<String> leftOvers(@NotNull final List<String> list, final int from) {
+    @NotNull private List<String> leftOvers(@NotNull final List<String> list, final int from) {
         if (from > list.size()) return Collections.emptyList();
         return list.subList(from, list.size());
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public String toString() {
         return "SimpleSubCommand{" +
                 "baseCommand=" + baseCommand +

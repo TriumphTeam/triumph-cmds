@@ -30,13 +30,10 @@ kotlin {
     explicitApi()
 }
 
-val licenseFile: File = rootProject.file("LICENSE")
-
 license {
-    header = licenseFile
+    header = rootProject.file("LICENSE")
     encoding = "UTF-8"
-    mapping("kotlin", "JAVADOC_STYLE")
-    mapping("java", "JAVADOC_STYLE")
+    useDefaultMappings = true
 
     include("**/*.kt")
     include("**/*.java")
