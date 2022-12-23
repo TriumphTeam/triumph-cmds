@@ -39,7 +39,7 @@ public final class Commands {
             name = commandAnnotation.value();
         }
 
-        if (name.isEmpty()) {
+        if (name.isEmpty() || name.equals(Command.DEFAULT_CMD_NAME)) {
             throw new CommandRegistrationException("Command name must not be empty", baseCommand.getClass());
         }
 
