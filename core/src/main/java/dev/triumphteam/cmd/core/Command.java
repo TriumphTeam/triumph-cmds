@@ -23,9 +23,8 @@
  */
 package dev.triumphteam.cmd.core;
 
-import dev.triumphteam.cmd.core.processor.Commands;
+import dev.triumphteam.cmd.core.argument.SubCommand;
 import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
-import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +46,7 @@ public interface Command<S> {
 
     @NotNull Map<String, OldSubCommand<S>> getSubCommandAlias();
 
-    void addSubCommand(final @NotNull SubCommand subCommand, final boolean isAlias);
+    void addSubCommand(final @NotNull SubCommand<S> subCommand, final boolean isAlias);
 
     default void addCommandsFrom(final @NotNull BaseCommand baseCommand) {
         final Class<? extends BaseCommand> klass = baseCommand.getClass();
@@ -59,7 +58,7 @@ public interface Command<S> {
             // Not a command, ignore the method
             if (name == null) continue;
 
-
+            
         }
 
         // TODO: CLASSES
