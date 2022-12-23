@@ -37,24 +37,15 @@ import java.util.Map;
  * Command interface which all platforms will implement.
  *
  * @param <S>  The sender type.
- * @param <SC> The sub command type.
  */
-public interface Command<S, SC extends SubCommand<S>> {
+public interface Command<S> {
 
-    @NotNull Map<String, SC> getSubCommands();
+    @NotNull Map<String, SubCommand<S>> getSubCommands();
 
-    @NotNull Map<String, SC> getSubCommandAlias();
+    @NotNull Map<String, SubCommand<S>> getSubCommandAlias();
 
-    void addSubCommand(final @NotNull String name, final @NotNull SC subCommand);
-
-    void addSubCommandAlias(final @NotNull String alias, final @NotNull SC subCommand);
-
-    @NotNull String getName();
-
-    @NotNull MessageRegistry<S> getMessageRegistry();
-
-    default @Nullable SC getSubCommand(final @NotNull List<String> args, final @NotNull S mappedSender) {
-        SC subCommand = getDefaultSubCommand();
+    default @Nullable SubCommand<S> getSubCommand(final @NotNull List<String> args) {
+        SubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
@@ -63,11 +54,6 @@ public interface Command<S, SC extends SubCommand<S>> {
         }
 
         if (subCommand == null || (args.size() > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
-            getMessageRegistry().sendMessage(
-                    MessageKey.UNKNOWN_COMMAND,
-                    mappedSender,
-                    new DefaultMessageContext(getName(), subCommandName)
-            );
             return null;
         }
 
@@ -79,12 +65,12 @@ public interface Command<S, SC extends SubCommand<S>> {
      *
      * @return A default SubCommand.
      */
-    default @Nullable SC getDefaultSubCommand() {
+    default @Nullable SubCommand<S> getDefaultSubCommand() {
         return getSubCommands().get(dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME);
     }
 
-    default @Nullable SC getSubCommand(final @NotNull String key) {
-        final SC subCommand = getSubCommands().get(key);
+    default @Nullable SubCommand<S> getSubCommand(final @NotNull String key) {
+        final SubCommand<S> subCommand = getSubCommands().get(key);
         if (subCommand != null) return subCommand;
         return getSubCommandAlias().get(key);
     }

@@ -3,7 +3,7 @@ package dev.triumphteam.cmd.core.subcommand;
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -11,7 +11,7 @@ import java.util.Map;
 public class SubCommandHolder<DS, S> extends SubCommand<S> implements Command<DS, S, SubCommand<S>> {
 
     public SubCommandHolder(
-            final @NotNull AbstractSubCommandProcessor<S> processor,
+            final @NotNull OldAbstractSubCommandProcessor<S> processor,
             final @NotNull String parentName,
             final @NotNull ExecutionProvider executionProvider
     ) {

@@ -30,6 +30,7 @@ import dev.triumphteam.cmd.core.annotation.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotation.ArgName;
 import dev.triumphteam.cmd.core.annotation.Async;
 import dev.triumphteam.cmd.core.annotation.CommandFlags;
+import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.Description;
 import dev.triumphteam.cmd.core.annotation.Flag;
 import dev.triumphteam.cmd.core.annotation.Join;
@@ -109,7 +110,7 @@ import static java.util.Collections.singletonList;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractSubCommandProcessor<S> {
+public abstract class OldAbstractSubCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
     private final String parentName;
@@ -142,7 +143,7 @@ public abstract class AbstractSubCommandProcessor<S> {
 
     private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
-    protected AbstractSubCommandProcessor(
+    protected OldAbstractSubCommandProcessor(
             final @NotNull BaseCommand baseCommand,
             final @NotNull String parentName,
             final @NotNull AnnotatedElement annotatedElement,

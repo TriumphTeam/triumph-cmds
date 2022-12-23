@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,61 +37,61 @@ public abstract class BaseCommand {
 
     private final String command;
     private final List<String> alias = new ArrayList<>();
+    private final String description;
 
-    /**
-     * Normal constructor with no arguments for when using the {@link Command} annotation
-     */
+
     public BaseCommand() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    /**
-     * Constructor for alias only
-     *
-     * @param alias The alias {@link List}
-     */
     public BaseCommand(final @Nullable List<@NotNull String> alias) {
-        this(null, alias);
+        this(null, alias, null);
     }
 
-    /**
-     * Constructor for command name only
-     *
-     * @param command The command name
-     */
     public BaseCommand(final @Nullable String command) {
-        this(command, null);
+        this(command, null, null);
     }
 
-    /**
-     * Secondary constructor for when wanting a more customizable command, which isn't possible with annotations
-     *
-     * @param command The command name
-     * @param alias   The aliases for the command
-     */
-    public BaseCommand(final @Nullable String command, final @Nullable List<@NotNull String> alias) {
+    public BaseCommand(final @Nullable String command, final @Nullable String description) {
+        this(command, null, description);
+    }
+
+    public BaseCommand(
+            final @Nullable String command,
+            final @Nullable List<@NotNull String> alias,
+            final @Nullable String description
+    ) {
         this.command = command;
+        this.description = description;
         if (alias != null) {
             this.alias.addAll(alias);
         }
     }
 
     /**
-     * Gets the command name
+     * Gets the command name.
      *
-     * @return The {@link #command}
+     * @return The {@link #command}.
      */
     public @Nullable String getCommand() {
         return command;
     }
 
     /**
-     * Gets the list with the aliases for the command
+     * Gets the list with the aliases for the command.
      *
-     * @return The {@link #alias}
+     * @return The {@link #alias}.
      */
     public @NotNull List<@NotNull String> getAlias() {
         return alias;
     }
 
+    /**
+     * Gets the description of the command.
+     *
+     * @return The {@link #description}.
+     */
+    public @NotNull String getDescription() {
+        return description == null ? "" : description;
+    }
 }

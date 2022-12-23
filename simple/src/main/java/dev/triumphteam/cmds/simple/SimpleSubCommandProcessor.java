@@ -24,14 +24,14 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
-final class SimpleSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+final class SimpleSubCommandProcessor<S> extends OldAbstractSubCommandProcessor<S> {
 
     public SimpleSubCommandProcessor(
             final @NotNull BaseCommand baseCommand,

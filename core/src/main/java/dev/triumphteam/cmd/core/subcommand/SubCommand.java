@@ -33,7 +33,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +78,7 @@ public abstract class SubCommand<S> {
     private final boolean containsLimitless;
 
     public SubCommand(
-            @NotNull final AbstractSubCommandProcessor<S> processor,
+            @NotNull final OldAbstractSubCommandProcessor<S> processor,
             @NotNull final String parentName,
             @NotNull final ExecutionProvider executionProvider
     ) {

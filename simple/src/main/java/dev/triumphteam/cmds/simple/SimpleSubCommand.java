@@ -39,10 +39,4 @@ public final class SimpleSubCommand<S> extends SubCommand<S> {
     ) {
         super(processor, parentName, executionProvider);
     }
-
-    // TODO:
-    @Override
-    public @Nullable Object resolve(@NotNull final S sender, final @NotNull List<String> value) {
-        return null;
-    }
 }

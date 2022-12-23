@@ -26,6 +26,7 @@ package dev.triumphteam.cmds.simple;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
@@ -35,39 +36,12 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
-public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S, S, SimpleSubCommand<S>, SimpleSubCommandProcessor<S>> {
+public final class SimpleCommandProcessor extends AbstractCommandProcessor {
 
     public SimpleCommandProcessor(
-            final @NotNull Class<? extends BaseCommand> commandClass,
-            final @NotNull Supplier<BaseCommand> instanceSupplier,
-            final @NotNull RegistryContainer<S> registries,
-            final @NotNull SenderMapper<S, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator,
-            final @NotNull ExecutionProvider syncExecutionProvider,
-            final @NotNull ExecutionProvider asyncExecutionProvider
+            final @NotNull String name,
+            final @NotNull BaseCommand baseCommand
     ) {
-        super(commandClass, instanceSupplier, registries, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull SimpleSubCommandProcessor<S> createSubProcessor(final @NotNull AnnotatedElement method) {
-        return new SimpleSubCommandProcessor<S>(
-                getBaseCommand(),
-                "",
-                (Method) method,
-                getRegistryContainer(),
-                getSenderValidator()
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull SimpleSubCommand<S> createSubCommand(final @NotNull SimpleSubCommandProcessor<S> processor, final @NotNull ExecutionProvider executionProvider) {
-        return new SimpleSubCommand<>(processor, getName(), executionProvider);
+        super(name, baseCommand);
     }
 }

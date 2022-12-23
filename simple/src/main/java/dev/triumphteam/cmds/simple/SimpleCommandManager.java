@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static dev.triumphteam.cmd.core.processor.Commands.nameOf;
+
 public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
     private final Map<String, SimpleCommand<S>> commands = new HashMap<>();
@@ -66,31 +68,26 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
     @Override
     public void registerCommand(final @NotNull BaseCommand baseCommand) {
-        final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
-                baseCommand.getClass(),
-                () -> baseCommand,
-                getRegistryContainer(),
-                getSenderMapper(),
-                getSenderValidator(),
-                syncExecutionProvider,
-                asyncExecutionProvider
-        );
+        final String name = nameOf(baseCommand);
 
-        final String name = processor.getName();
+        final SimpleCommand<S> command = commands.get(name);
+        if (command != null) {
+            // TODO: Command exists, only care about adding subs
+            return;
+        }
 
-        final SimpleCommand<S> command = commands.computeIfAbsent(
-                name,
-                ignored -> new SimpleCommand<>(processor, syncExecutionProvider, asyncExecutionProvider)
-        );
-        processor.addSubCommands(command);
+        // Command does not exist, proceed to add new!
+
+        final SimpleCommandProcessor processor = new SimpleCommandProcessor(name, baseCommand);
+
+        final SimpleCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
+
+        // TODO: ADD SUBCOMMANDS
 
         processor.getAlias().forEach(it -> {
-            final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(
-                    it,
-                    ignored -> new SimpleCommand<>(processor, syncExecutionProvider, asyncExecutionProvider)
-            );
+            final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
             // Adding sub commands.
-            processor.addSubCommands(aliasCommand);
+            // TODO: ADD SUBCOMMANDS
         });
     }
 

@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
@@ -34,14 +34,13 @@ import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 
 /**
  * Processor for Prefixed JDA platform specific code.
  *
  * @param <S> The sender type.
  */
-final class PrefixedCommandProcessor<S> extends AbstractCommandProcessor<PrefixedSender, S, PrefixedSubCommand<S>, PrefixedSubCommandProcessor<S>> {
+final class PrefixedCommandProcessor<S> extends OldAbstractCommandProcessor<PrefixedSender, S, PrefixedSubCommand<S>, PrefixedSubCommandProcessor<S>> {
 
     private final String prefix;
 

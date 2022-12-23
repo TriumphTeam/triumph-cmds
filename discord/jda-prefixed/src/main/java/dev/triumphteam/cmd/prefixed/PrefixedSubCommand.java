@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ import java.util.List;
 final class PrefixedSubCommand<S> extends SubCommand<S> {
 
     public PrefixedSubCommand(
-            final @NotNull AbstractSubCommandProcessor<S> processor,
+            final @NotNull OldAbstractSubCommandProcessor<S> processor,
             final @NotNull String parentName,
             final @NotNull ExecutionProvider executionProvider
     ) {

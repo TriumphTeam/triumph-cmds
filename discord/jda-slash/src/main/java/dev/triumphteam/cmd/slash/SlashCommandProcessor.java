@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractCommandProcessor;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.jda.annotation.Privileges;
@@ -37,7 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,7 +48,7 @@ import java.util.List;
  * @param <S> The sender type.
  */
 final class SlashCommandProcessor<S>
-        extends AbstractCommandProcessor<SlashSender, S, SlashSubCommand<S>, SlashSubCommandProcessor<S>> {
+        extends OldAbstractCommandProcessor<SlashSender, S, SlashSubCommand<S>, SlashSubCommandProcessor<S>> {
 
     private final ChoiceRegistry choiceRegistry;
 

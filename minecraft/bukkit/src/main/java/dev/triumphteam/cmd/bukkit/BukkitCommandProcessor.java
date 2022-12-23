@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
@@ -35,27 +36,22 @@ import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.lang.reflect.AnnotatedElement;
 
-final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSender, S, BukkitSubCommand<S>, BukkitSubCommandProcessor<S>> {
+final class BukkitCommandProcessor<S> extends AbstractCommandProcessor {
 
     private final CommandPermission basePermission;
 
     public BukkitCommandProcessor(
+            final @NotNull String name,
             final @NotNull BaseCommand baseCommand,
-            final @NotNull RegistryContainer<S> registryContainer,
-            final @NotNull SenderMapper<CommandSender, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator,
-            final @NotNull ExecutionProvider syncExecutionProvider,
-            final @NotNull ExecutionProvider asyncExecutionProvider,
             final @Nullable CommandPermission globalBasePermission
     ) {
-        super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
+        super(name, baseCommand);
 
-        final Permission annotation = getBaseCommand().getClass().getAnnotation(Permission.class);
+        final Permission annotation = baseCommand.getClass().getAnnotation(Permission.class);
         if (annotation == null) {
             this.basePermission = null;
             return;
@@ -69,24 +65,8 @@ final class BukkitCommandProcessor<S> extends AbstractCommandProcessor<CommandSe
         );
     }
 
-    @Override
-    protected @NotNull BukkitSubCommandProcessor<S> createSubProcessor(final @NotNull AnnotatedElement method) {
-        return new BukkitSubCommandProcessor<>(
-                getBaseCommand(),
-                getName(),
-                method,
-                getRegistryContainer(),
-                getSenderValidator(),
-                basePermission
-        );
-    }
-
-    @Override
-    protected @NotNull BukkitSubCommand<S> createSubCommand(
-            final @NotNull BukkitSubCommandProcessor<S> processor,
-            final @NotNull ExecutionProvider executionProvider
-    ) {
-        return new BukkitSubCommand<>(processor, getName(), executionProvider);
+    public CommandPermission getBasePermission() {
+        return basePermission;
     }
 
     static CommandPermission createPermission(

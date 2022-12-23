@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +36,7 @@ import java.lang.reflect.Method;
  *
  * @param <S> The sender type.
  */
-final class PrefixedSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+final class PrefixedSubCommandProcessor<S> extends OldAbstractSubCommandProcessor<S> {
 
     public PrefixedSubCommandProcessor(
             final @NotNull BaseCommand baseCommand,

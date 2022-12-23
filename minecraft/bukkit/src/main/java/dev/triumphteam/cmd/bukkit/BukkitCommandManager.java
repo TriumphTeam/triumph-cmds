@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -50,6 +50,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static dev.triumphteam.cmd.core.processor.Commands.nameOf;
 
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
 
@@ -125,24 +127,26 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
     @Override
     public void registerCommand(final @NotNull BaseCommand baseCommand) {
-        final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(
-                baseCommand,
-                registryContainer,
-                getSenderMapper(),
-                getSenderValidator(),
-                syncExecutionProvider,
-                asyncExecutionProvider,
-                basePermission
-        );
+        final String name = nameOf(baseCommand);
 
-        final BukkitCommand<S> command = commands.computeIfAbsent(processor.getName(), ignored -> createAndRegisterCommand(processor.getName(), processor));
-        // Adding sub commands.
-        processor.addSubCommands(command);
+        final BukkitCommand<S> command = commands.get(name);
+        if (command != null) {
+            // TODO: Command exists, only care about adding subs
+            return;
+        }
+
+        // Command does not exist, proceed to add new!
+
+        final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(name, baseCommand, basePermission);
+
+        final BukkitCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> createAndRegisterCommand(it, processor));
+
+        // TODO: ADD SUBCOMMANDS
 
         processor.getAlias().forEach(it -> {
             final BukkitCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> createAndRegisterCommand(it, processor));
             // Adding sub commands.
-            processor.addSubCommands(aliasCommand);
+            // TODO: ADD SUBCOMMANDS
         });
     }
 
@@ -165,7 +169,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             oldCommand.unregister(commandMap);
         }
 
-        final BukkitCommand<S> newCommand = new BukkitCommand<>(name, processor);
+        final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, getSenderMapper(), registryContainer.getMessageRegistry());
         commandMap.register(plugin.getName(), newCommand);
         return newCommand;
     }
@@ -191,7 +195,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
      *
      * @return The Command Map
      */
-    private @NotNull CommandMap getCommandMap() {
+    private static @NotNull CommandMap getCommandMap() {
         try {
             final Server server = Bukkit.getServer();
             final Method getCommandMap = server.getClass().getDeclaredMethod("getCommandMap");
@@ -203,7 +207,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         }
     }
 
-    private @NotNull Map<@NotNull String, org.bukkit.command.@NotNull Command> getBukkitCommands(final @NotNull CommandMap commandMap) {
+    private static @NotNull Map<@NotNull String, org.bukkit.command.@NotNull Command> getBukkitCommands(final @NotNull CommandMap commandMap) {
         try {
             final Field bukkitCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
             bukkitCommands.setAccessible(true);

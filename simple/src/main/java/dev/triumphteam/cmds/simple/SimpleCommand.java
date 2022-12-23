@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,6 +24,7 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.Command;
+import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.subcommand.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
@@ -36,113 +37,55 @@ import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class SimpleCommand<S> implements Command<S, SimpleSubCommand<S>> {
+public final class SimpleCommand<S> implements Command<S> {
 
     private final String name;
 
-    private final RegistryContainer<S> registries;
     private final MessageRegistry<S> messageRegistry;
 
-    private final SenderMapper<S, S> senderMapper;
-    private final SenderValidator<S> senderValidator;
-
-    private final ExecutionProvider syncExecutionProvider;
-    private final ExecutionProvider asyncExecutionProvider;
-
-    private final Map<String, SimpleSubCommand<S>> subCommands = new HashMap<>();
-    private final Map<String, SimpleSubCommand<S>> subCommandAliases = new HashMap<>();
+    private final Map<String, SubCommand<S>> subCommands = new HashMap<>();
+    private final Map<String, SubCommand<S>> subCommandAliases = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
-            final @NotNull SimpleCommandProcessor<S> processor,
-            final @NotNull ExecutionProvider syncExecutionProvider,
-            final @NotNull ExecutionProvider asyncExecutionProvider
+            final @NotNull SimpleCommandProcessor processor,
+            final @NotNull MessageRegistry<S> messageRegistry
     ) {
         this.name = processor.getName();
 
-        this.senderMapper = processor.getSenderMapper();
-        this.senderValidator = processor.getSenderValidator();
-        this.registries = processor.getRegistryContainer();
-        this.messageRegistry = registries.getMessageRegistry();
-        this.syncExecutionProvider = syncExecutionProvider;
-        this.asyncExecutionProvider = asyncExecutionProvider;
+        this.messageRegistry = messageRegistry;
     }
 
     // TODO: Comments
     public void execute(
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> args
+            final @NotNull List<@NotNull String> arguments
     ) {
-        SimpleSubCommand<S> subCommand = getDefaultSubCommand();
+        final int argumentSize = arguments.size();
 
-        String subCommandName = "";
-        if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
-        if (subCommand == null || subCommandExists(subCommandName)) {
-            subCommand = getSubCommand(subCommandName);
-        }
+        final SubCommand<S> subCommand = getSubCommand(arguments);
 
-        final S mappedSender = senderMapper.map(sender);
-        if (mappedSender == null) {
-            throw new CommandExecutionException("Invalid sender. Sender mapper returned null");
-        }
-
-        if (subCommand == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(name, subCommandName));
+        if (subCommand == null || (argumentSize > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
+            final String name = argumentSize == 0 ? dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME : arguments.get(0);
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(this.name, name));
             return;
         }
 
-        final List<String> commandArgs = !subCommand.isDefault() ? args.subList(1, args.size()) : args;
-        subCommand.execute(mappedSender, commandArgs);
+        subCommand.execute(sender, !subCommand.isDefault() ? arguments.subList(1, argumentSize) : arguments);
     }
 
-    /**
-     * Gets a default command if present.
-     *
-     * @return A default SubCommand.
-     */
-    private @Nullable SimpleSubCommand<S> getDefaultSubCommand() {
-        return subCommands.get(Default.DEFAULT_CMD_NAME);
-    }
-
-    /**
-     * Used in order to search for the given {@link SubCommand<S>} in the {@link #subCommandAliases}
-     *
-     * @param key the String to look for the {@link SubCommand<S>}
-     * @return the {@link SubCommand<S>} for the particular key or NULL
-     */
-    private @Nullable SimpleSubCommand<S> getSubCommand(final @NotNull String key) {
-        final SimpleSubCommand<S> subCommand = subCommands.get(key);
-        if (subCommand != null) return subCommand;
-        return subCommandAliases.get(key);
-    }
-
-    /**
-     * Checks if a SubCommand with the specified key exists.
-     *
-     * @param key the Key to check for
-     * @return whether a SubCommand with that key exists
-     */
-    private boolean subCommandExists(final @NotNull String key) {
-        return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void addSubCommand(final @NotNull String name, final @NotNull SimpleSubCommand<S> subCommand) {
-        this.subCommands.put(name, subCommand);
+    public @NotNull Map<String, SubCommand<S>> getSubCommands() {
+        return subCommands;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void addSubCommandAlias(final @NotNull String alias, final @NotNull SimpleSubCommand<S> subCommand) {
-        this.subCommandAliases.put(alias, subCommand);
+    public @NotNull Map<String, SubCommand<S>> getSubCommandAlias() {
+        return subCommandAliases;
     }
 }

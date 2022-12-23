@@ -26,7 +26,7 @@ package dev.triumphteam.cmd.slash;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.command.argument.InternalArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.processor.AbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.slash.annotation.Choices;
@@ -57,7 +57,7 @@ import static java.util.Collections.singletonList;
  *
  * @param <S> The sender type.
  */
-final class SlashSubCommandProcessor<S> extends AbstractSubCommandProcessor<S> {
+final class SlashSubCommandProcessor<S> extends OldAbstractSubCommandProcessor<S> {
 
     private final ChoiceRegistry choiceRegistry;
     private final AttachmentRegistry attachmentRegistry;
