@@ -98,7 +98,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends SubCommand<S
     }
 
     // TODO: Comments
-    public void addSubCommands(final @NotNull dev.triumphteam.cmd.core.Command<S, SC> command) {
+    public void addSubCommands(final @NotNull dev.triumphteam.cmd.core.Command<S> command) {
         // Method sub commands
         collectMethodSubCommands(command, commandClass, method -> new MethodInvoker(instanceSupplier, method));
 
@@ -138,7 +138,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends SubCommand<S
     }
 
     private void collectMethodSubCommands(
-            final @NotNull dev.triumphteam.cmd.core.Command<S, SC> command,
+            final @NotNull dev.triumphteam.cmd.core.Command<S> command,
             final @NotNull Class<?> klass,
             final @NotNull Function<Method, Invoker> invokerFunction
     ) {
@@ -165,9 +165,9 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends SubCommand<S
             final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
 
             final SC subCommand = createSubCommand(processor, executionProvider);
-            command.addSubCommand(subCommandName, subCommand);
+            // command.addSubCommand(subCommandName, subCommand);
 
-            processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
+            // processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
         }
     }
 
@@ -235,7 +235,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends SubCommand<S
     private void extractCommandNames() {
         final Command commandAnnotation = commandClass.getAnnotation(Command.class);
 
-        if (commandAnnotation == null) {
+        /*if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
             if (commandName == null) {
                 throw new CommandRegistrationException("Command name or \"@" + Command.class.getSimpleName() + "\" annotation missing", baseCommand.getClass());
@@ -248,10 +248,10 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends SubCommand<S
             Collections.addAll(alias, commandAnnotation.alias());
         }
 
-        alias.addAll(baseCommand.getAlias());
+        alias.addAll(baseCommand.getAlias());*/
 
         if (name.isEmpty()) {
-            throw new CommandRegistrationException("Command name must not be empty", baseCommand.getClass());
+            throw new CommandRegistrationException("Command name must not be empty", BaseCommand.class);
         }
     }
 
@@ -259,9 +259,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends SubCommand<S
      * Extracts the {@link Description} Annotation from the annotatedClass.
      */
     private void extractDescription() {
-        final Description description = baseCommand.getClass().getAnnotation(Description.class);
-        if (description == null) return;
-        this.description = description.value();
+
     }
 
 }
