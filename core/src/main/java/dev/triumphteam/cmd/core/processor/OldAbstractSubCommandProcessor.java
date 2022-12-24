@@ -26,19 +26,19 @@ package dev.triumphteam.cmd.core.processor;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Maps;
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.ArgDescriptions;
-import dev.triumphteam.cmd.core.annotation.ArgName;
-import dev.triumphteam.cmd.core.annotation.Async;
-import dev.triumphteam.cmd.core.annotation.CommandFlags;
-import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.annotation.Description;
-import dev.triumphteam.cmd.core.annotation.Flag;
-import dev.triumphteam.cmd.core.annotation.Join;
-import dev.triumphteam.cmd.core.annotation.NamedArguments;
-import dev.triumphteam.cmd.core.annotation.Optional;
-import dev.triumphteam.cmd.core.annotation.Requirements;
-import dev.triumphteam.cmd.core.annotation.Split;
-import dev.triumphteam.cmd.core.annotation.Suggestions;
+import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
+import dev.triumphteam.cmd.core.annotations.ArgName;
+import dev.triumphteam.cmd.core.annotations.Async;
+import dev.triumphteam.cmd.core.annotations.CommandFlags;
+import dev.triumphteam.cmd.core.annotations.Default;
+import dev.triumphteam.cmd.core.annotations.Description;
+import dev.triumphteam.cmd.core.annotations.Flag;
+import dev.triumphteam.cmd.core.annotations.Join;
+import dev.triumphteam.cmd.core.annotations.NamedArguments;
+import dev.triumphteam.cmd.core.annotations.Optional;
+import dev.triumphteam.cmd.core.annotations.Requirements;
+import dev.triumphteam.cmd.core.annotations.Split;
+import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
@@ -197,7 +197,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
 
     /**
      * Used for the child factories to get the sub command name.
-     * It's nullable because a method might not have a {@link dev.triumphteam.cmd.core.annotation.SubCommand} or {@link Default} annotation.
+     * It's nullable because a method might not have a {@link dev.triumphteam.cmd.core.annotations.SubCommand} or {@link Default} annotation.
      *
      * @return The sub command name.
      */
@@ -593,7 +593,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
      */
     private void extractSubCommandNames() {
         final Default defaultAnnotation = annotatedElement.getAnnotation(Default.class);
-        final dev.triumphteam.cmd.core.annotation.SubCommand subCommandAnnotation = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotation.SubCommand.class);
+        final dev.triumphteam.cmd.core.annotations.SubCommand subCommandAnnotation = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotations.SubCommand.class);
 
         if (defaultAnnotation == null && subCommandAnnotation == null) {
             return;
@@ -692,7 +692,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
      * Extract all the requirement data for the sub command from the method.
      */
     public void extractRequirements() {
-        for (final dev.triumphteam.cmd.core.annotation.Requirement requirementAnnotation : getRequirementsFromAnnotations()) {
+        for (final dev.triumphteam.cmd.core.annotations.Requirement requirementAnnotation : getRequirementsFromAnnotations()) {
             final RequirementKey requirementKey = RequirementKey.of(requirementAnnotation.value());
             final String messageKeyValue = requirementAnnotation.messageKey();
 
@@ -714,11 +714,11 @@ public abstract class OldAbstractSubCommandProcessor<S> {
      *
      * @return The list of requirements.
      */
-    private @NotNull List<dev.triumphteam.cmd.core.annotation.@NotNull Requirement> getRequirementsFromAnnotations() {
+    private @NotNull List<dev.triumphteam.cmd.core.annotations.@NotNull Requirement> getRequirementsFromAnnotations() {
         final Requirements requirements = annotatedElement.getAnnotation(Requirements.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
-        final dev.triumphteam.cmd.core.annotation.Requirement requirement = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotation.Requirement.class);
+        final dev.triumphteam.cmd.core.annotations.Requirement requirement = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotations.Requirement.class);
         if (requirement == null) return Collections.emptyList();
         return Collections.singletonList(requirement);
     }
@@ -795,7 +795,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
      * Extract all suggestions from the method and parameters.
      */
     public void extractSuggestions() {
-        for (final dev.triumphteam.cmd.core.annotation.Suggestion suggestion : getSuggestionsFromAnnotations()) {
+        for (final dev.triumphteam.cmd.core.annotations.Suggestion suggestion : getSuggestionsFromAnnotations()) {
             final String key = suggestion.value();
             if (key.isEmpty()) {
                 suggestionList.add(new EmptySuggestion<>());
@@ -870,11 +870,11 @@ public abstract class OldAbstractSubCommandProcessor<S> {
         suggestionList.set(index, suggestion);
     }
 
-    private @NotNull List<dev.triumphteam.cmd.core.annotation.@NotNull Suggestion> getSuggestionsFromAnnotations() {
+    private @NotNull List<dev.triumphteam.cmd.core.annotations.@NotNull Suggestion> getSuggestionsFromAnnotations() {
         final Suggestions requirements = annotatedElement.getAnnotation(Suggestions.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
-        final dev.triumphteam.cmd.core.annotation.Suggestion suggestion = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotation.Suggestion.class);
+        final dev.triumphteam.cmd.core.annotations.Suggestion suggestion = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotations.Suggestion.class);
         if (suggestion == null) return emptyList();
         return singletonList(suggestion);
     }

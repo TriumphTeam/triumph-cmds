@@ -21,20 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.annotations;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks the method to be run without any subcommands.
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER})
-@Inherited
-public @interface Description {
+@Target(ElementType.METHOD)
+public @interface Default {
 
-    @NotNull String value();
+    // Default sub commands use this name.
+    String DEFAULT_CMD_NAME = "TH_DEFAULT";
+
+    /**
+     * Gets the list of alias for the default sub command.
+     *
+     * @return An array with command aliases.
+     */
+    @NotNull String[] alias() default {};
 }

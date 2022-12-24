@@ -21,39 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
-
-import org.jetbrains.annotations.NotNull;
+package dev.triumphteam.cmd.core.annotations;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Requirement annotation. Holds all the requirement's data.
- * To be used inside {@link Requirements}.
+ * Marks the sub-command to be executed asynchronously.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@Repeatable(Requirements.class)
-public @interface Requirement {
-
-    /**
-     * The requirement key.
-     * Required to be registered before used.
-     *
-     * @return The requirement key.
-     */
-    @NotNull String value();
-
-    /**
-     * The message key will be used to send a custom message if the specified requirement is denied.
-     *
-     * @return The message key or empty if not needed.
-     */
-    @NotNull String messageKey() default "";
-
-    boolean invert() default false;
-}
+public @interface Async {}

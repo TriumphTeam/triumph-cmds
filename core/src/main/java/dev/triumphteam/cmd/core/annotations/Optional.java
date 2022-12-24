@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,16 +29,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to hold all the command requirements.
+ * Marks the argument as optional, so if a user doesn't type it, it'll be null.
+ * Argument must be nullable in Kotlin.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Requirements {
-
-    /**
-     * A list with all the {@link Requirement} annotations.
-     *
-     * @return An array of {@link Requirement}s.
-     */
-    Requirement[] value();
-}
+@Target(ElementType.PARAMETER)
+public @interface Optional {}

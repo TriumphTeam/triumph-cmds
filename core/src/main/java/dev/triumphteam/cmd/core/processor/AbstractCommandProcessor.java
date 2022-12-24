@@ -24,9 +24,8 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.Description;
-import dev.triumphteam.cmd.core.argument.SubCommand;
+import dev.triumphteam.cmd.core.annotations.Description;
+import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,18 +65,18 @@ public abstract class AbstractCommandProcessor<S> {
         return description;
     }
 
-    public @NotNull List<SubCommand<S>> subCommands() {
+    public @NotNull List<Command<S>> subCommands() {
         final Class<? extends BaseCommand> klass = baseCommand.getClass();
 
-        final List<SubCommand<S>> subCommands = new ArrayList<>();
+        final List<Command<S>> subCommands = new ArrayList<>();
         subCommands.addAll(methodSubCommands(klass.getDeclaredMethods()));
         subCommands.addAll(classSubCommands(klass.getDeclaredClasses()));
 
         return subCommands;
     }
 
-    private @NotNull List<SubCommand<S>> classSubCommands(final @NotNull Class<?>[] classes) {
-        final List<SubCommand<S>> subCommands = new ArrayList<>();
+    private @NotNull List<Command<S>> classSubCommands(final @NotNull Class<?>[] classes) {
+        final List<Command<S>> subCommands = new ArrayList<>();
         for (final Class<?> klass : classes) {
             // Ignore non-public methods
             if (!Modifier.isPublic(klass.getModifiers())) continue;
@@ -95,7 +94,7 @@ public abstract class AbstractCommandProcessor<S> {
         return subCommands;
     }
 
-    private @NotNull List<SubCommand<S>> methodSubCommands(final @NotNull Method[] methods) {
+    private @NotNull List<Command<S>> methodSubCommands(final @NotNull Method[] methods) {
         return Arrays.stream(methods).map(method -> {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) return null;
@@ -105,19 +104,19 @@ public abstract class AbstractCommandProcessor<S> {
             if (name == null) return null;
 
             System.out.println("Sub boy -> " + name);
-            return new SubCommand<S>() {};
+            return new Command<S>() {};
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private @NotNull String nameOf() {
         final Class<? extends @NotNull BaseCommand> commandClass = baseCommand.getClass();
-        final Command commandAnnotation = commandClass.getAnnotation(Command.class);
+        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation = commandClass.getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);
 
         final String name;
         if (commandAnnotation == null) {
             final String commandName = baseCommand.getCommand();
             if (commandName == null) {
-                throw new CommandRegistrationException("Command name or \"@" + Command.class.getSimpleName() + "\" annotation missing", baseCommand.getClass());
+                throw new CommandRegistrationException("Command name or \"@" + dev.triumphteam.cmd.core.annotations.Command.class.getSimpleName() + "\" annotation missing", baseCommand.getClass());
             }
 
             name = commandName;
@@ -125,7 +124,7 @@ public abstract class AbstractCommandProcessor<S> {
             name = commandAnnotation.value();
         }
 
-        if (name.isEmpty() || name.equals(Command.DEFAULT_CMD_NAME)) {
+        if (name.isEmpty() || name.equals(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME)) {
             throw new CommandRegistrationException("Command name must not be empty", baseCommand.getClass());
         }
 
@@ -133,7 +132,7 @@ public abstract class AbstractCommandProcessor<S> {
     }
 
     private @NotNull List<String> aliasOf() {
-        final Command commandAnnotation = baseCommand.getClass().getAnnotation(Command.class);
+        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation = baseCommand.getClass().getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);
         return commandAnnotation == null ? baseCommand.getAlias() : Arrays.asList(commandAnnotation.alias());
     }
 

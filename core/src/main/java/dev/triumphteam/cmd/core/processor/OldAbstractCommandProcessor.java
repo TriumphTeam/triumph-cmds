@@ -24,8 +24,9 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.Description;
+import dev.triumphteam.cmd.core.command.ParentCommand;
+import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
@@ -97,7 +98,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
     }
 
     // TODO: Comments
-    public void addSubCommands(final @NotNull dev.triumphteam.cmd.core.Command<S> command) {
+    public void addSubCommands(final @NotNull ParentCommand<S> command) {
         // Method sub commands
         collectMethodSubCommands(command, commandClass, method -> new MethodInvoker(instanceSupplier, method));
 
@@ -137,7 +138,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
     }
 
     private void collectMethodSubCommands(
-            final @NotNull dev.triumphteam.cmd.core.Command<S> command,
+            final @NotNull ParentCommand<S> command,
             final @NotNull Class<?> klass,
             final @NotNull Function<Method, Invoker> invokerFunction
     ) {
@@ -155,7 +156,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
 
             if (subCommandName.isEmpty()) {
                 throw new SubCommandRegistrationException(
-                        "@" + dev.triumphteam.cmd.core.annotation.SubCommand.class.getSimpleName() + " name must not be empty",
+                        "@" + dev.triumphteam.cmd.core.annotations.SubCommand.class.getSimpleName() + " name must not be empty",
                         method,
                         klass
                 );

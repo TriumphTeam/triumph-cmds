@@ -23,9 +23,9 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.argument.SubCommand;
-import dev.triumphteam.cmd.core.*;
+import dev.triumphteam.cmd.core.annotation.AnnotationContainer;
+import dev.triumphteam.cmd.core.command.ParentCommand;
+import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,14 +33,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class SimpleCommand<S> implements Command<S> {
+public final class SimpleCommand<S> implements ParentCommand<S> {
 
     private final String name;
 
     private final MessageRegistry<S> messageRegistry;
 
-    private final Map<String, SubCommand<S>> subCommands = new HashMap<>();
-    private final Map<String, SubCommand<S>> subCommandAliases = new HashMap<>();
+    private final Map<String, Command<S>> subCommands = new HashMap<>();
+    private final Map<String, Command<S>> subCommandAliases = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
@@ -59,7 +59,7 @@ public final class SimpleCommand<S> implements Command<S> {
     ) {
         final int argumentSize = arguments.size();
 
-        final SubCommand<S> subCommand = getSubCommand(arguments);
+        final Command<S> subCommand = getSubCommand(arguments);
 
         // TODO
         /*if (subCommand == null || (argumentSize > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
@@ -74,19 +74,24 @@ public final class SimpleCommand<S> implements Command<S> {
     @Override
     public void addSubCommand(
             final @NotNull String name,
-            final @NotNull SubCommand<S> subCommand,
+            final @NotNull Command<S> subCommand,
             final boolean isAlias
     ) {
         subCommands.put(name, subCommand);
     }
 
     @Override
-    public @NotNull Map<String, SubCommand<S>> getSubCommands() {
+    public @NotNull Map<String, Command<S>> getSubCommands() {
         return subCommands;
     }
 
     @Override
-    public @NotNull Map<String, SubCommand<S>> getSubCommandAlias() {
+    public @NotNull Map<String, Command<S>> getSubCommandAlias() {
         return subCommandAliases;
+    }
+
+    @Override
+    public @NotNull AnnotationContainer getAnnotations() {
+        return null;
     }
 }

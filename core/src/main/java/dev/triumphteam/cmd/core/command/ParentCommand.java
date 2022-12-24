@@ -21,38 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core;
+package dev.triumphteam.cmd.core.command;
 
-import dev.triumphteam.cmd.core.argument.SubCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
-
-import static dev.triumphteam.cmd.core.processor.Commands.nameOf;
 
 /**
  * Command interface which all platforms will implement.
  *
  * @param <S> The sender type.
  */
-public interface Command<S> {
+public interface ParentCommand<S> extends Command<S> {
 
-    @NotNull Map<String, SubCommand<S>> getSubCommands();
+    @NotNull Map<String, Command<S>> getSubCommands();
 
-    @NotNull Map<String, SubCommand<S>> getSubCommandAlias();
+    @NotNull Map<String, Command<S>> getSubCommandAlias();
 
     void addSubCommand(
             final @NotNull String name,
-            final @NotNull SubCommand<S> subCommand,
+            final @NotNull Command<S> subCommand,
             final boolean isAlias
     );
 
-    default @Nullable SubCommand<S> getSubCommand(final @NotNull List<String> args) {
-        SubCommand<S> subCommand = getDefaultSubCommand();
+    default @Nullable Command<S> getSubCommand(final @NotNull List<String> args) {
+        Command<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
@@ -68,12 +63,12 @@ public interface Command<S> {
         return subCommand;
     }
 
-    default @Nullable SubCommand<S> getDefaultSubCommand() {
-        return getSubCommands().get(dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME);
+    default @Nullable Command<S> getDefaultSubCommand() {
+        return getSubCommands().get(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
     }
 
-    default @Nullable SubCommand<S> getSubCommand(final @NotNull String key) {
-        final SubCommand<S> subCommand = getSubCommands().get(key);
+    default @Nullable Command<S> getSubCommand(final @NotNull String key) {
+        final Command<S> subCommand = getSubCommands().get(key);
         if (subCommand != null) return subCommand;
         return getSubCommandAlias().get(key);
     }

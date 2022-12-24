@@ -21,7 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.annotations;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,17 +31,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides the Option to add custom Choices to Command Parameters in order to add Auto-Complete.
- * Argument must be nullable in Kotlin.
+ * Join annotation is to be used in a String parameter to join all the arguments into one continuous string.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Choices {
+@Target(ElementType.PARAMETER)
+public @interface Join {
 
     /**
-     * An array of possible Choices for this Command Argument.
+     * Sets the delimiter of the join.
+     * By default, it uses a space.
      *
-     * @return An array of Choices.
+     * @return The delimiter of to be used by the join method.
      */
-    String[] value();
+    @NotNull String value() default " ";
 }

@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
-import dev.triumphteam.cmd.core.Command;
+import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
-public final class OldBukkitCommand<S> extends org.bukkit.command.Command implements Command<S, BukkitSubCommand<S>> {
+public final class OldBukkitCommand<S> extends org.bukkit.command.Command implements ParentCommand<S, BukkitSubCommand<S>> {
 
     private final MessageRegistry<S> messageRegistry;
 

@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.core.Command;
+import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
@@ -37,7 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command<S> {
+public final class BukkitCommand<S> extends org.bukkit.command.Command implements ParentCommand<S> {
 
     private final SenderMapper<CommandSender, S> senderMapper;
     private final MessageRegistry<S> messageRegistry;
@@ -76,7 +76,7 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
         }
 
         if (subCommand == null || (argumentSize > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
-            final String name = argumentSize == 0 ? dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME : arguments.get(0);
+            final String name = argumentSize == 0 ? dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME : arguments.get(0);
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(getName(), name));
             return true;
         }

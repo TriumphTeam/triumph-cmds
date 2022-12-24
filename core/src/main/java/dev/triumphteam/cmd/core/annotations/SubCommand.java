@@ -21,7 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.annotations;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,16 +31,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows to specify the name of the argument instead of just using the parameter name.
+ * Sets the method to be a sub command.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface ArgName {
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface SubCommand {
 
     /**
-     * Gets the name of the argument.
+     * Main sub command name.
+     * Must not contain spaces.
      *
-     * @return The name of the argument
+     * @return The sub command name.
      */
-    String value();
+    @NotNull String value();
+
+    /**
+     * List with all the valid aliases for the command.
+     *
+     * @return An array with command aliases.
+     */
+    @NotNull String[] alias() default {};
 }

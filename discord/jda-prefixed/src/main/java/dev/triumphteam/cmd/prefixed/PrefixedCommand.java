@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
-import dev.triumphteam.cmd.core.Command;
+import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
@@ -42,7 +42,7 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-final class PrefixedCommand<S> implements Command<S, PrefixedSubCommand<S>> {
+final class PrefixedCommand<S> implements ParentCommand<S, PrefixedSubCommand<S>> {
 
     private final Map<String, PrefixedSubCommand<S>> subCommands = new HashMap<>();
 

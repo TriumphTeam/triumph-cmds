@@ -21,34 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.command;
 
-import org.jetbrains.annotations.NotNull;
+import dev.triumphteam.cmd.core.annotation.Annotated;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public interface Command<S> extends Annotated {
 
-/**
- * Sets the method to be a sub command.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
-public @interface SubCommand {
 
-    /**
-     * Main sub command name.
-     * Must not contain spaces.
-     *
-     * @return The sub command name.
-     */
-    @NotNull String value();
-
-    /**
-     * List with all the valid aliases for the command.
-     *
-     * @return An array with command aliases.
-     */
-    @NotNull String[] alias() default {};
 }

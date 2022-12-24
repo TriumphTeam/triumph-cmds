@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.annotations;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,17 +31,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Join annotation is to be used in a String parameter to join all the arguments into one continuous string.
+ * Split annotation, allows you to split a string into a list.
+ * For example: diamond;stone;iron;gold, into [diamond, stone, iron, gold].
+ * The splitting is type safe.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Join {
+public @interface Split {
 
     /**
-     * Sets the delimiter of the join.
-     * By default, it uses a space.
+     * The delimiter to split the string by.
      *
-     * @return The delimiter of to be used by the join method.
+     * @return The delimiter.
      */
-    @NotNull String value() default " ";
+    @NotNull String value() default ",";
 }

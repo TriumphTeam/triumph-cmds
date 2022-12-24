@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.command.ParentCommand;
+import dev.triumphteam.cmd.core.annotations.Default;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  *
  * @param <S> The sender type.
  */
-final class SlashCommand<S> implements Command<S, SlashSubCommand<S>> {
+final class SlashCommand<S> implements ParentCommand<S, SlashSubCommand<S>> {
 
     private final Map<String, SlashSubCommand<S>> subCommands = new HashMap<>();
 

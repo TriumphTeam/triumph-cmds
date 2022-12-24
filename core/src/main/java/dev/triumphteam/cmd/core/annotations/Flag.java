@@ -21,29 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.annotations;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks the method to be run without any subcommands.
+ * Flag annotation. Contains all the "data" for the flag.
+ * To be used inside the {@link CommandFlags} annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Default {
-
-    // Default sub commands use this name.
-    String DEFAULT_CMD_NAME = "TH_DEFAULT";
+@Repeatable(CommandFlags.class)
+public @interface Flag {
 
     /**
-     * Gets the list of alias for the default sub command.
+     * Small flag identifier. Isn't required, as long as either flag or long flag has values.
+     * Flags must not have spaces.
      *
-     * @return An array with command aliases.
+     * @return The flag's main identifier.
      */
-    @NotNull String[] alias() default {};
+    @NotNull String flag() default "";
+
+    /**
+     * Long flag identifier. Isn't required either, as long as either flag or long flag has values.
+     * Flags must not have spaces.
+     *
+     * @return The flag's long identifier.
+     */
+    @NotNull String longFlag() default "";
+
+    /**
+     * Define if the flag should have an argument, and it's type.
+     * By default, it uses void, which means no argument is needed.
+     *
+     * @return The argument type.
+     */
+    @NotNull Class<?> argument() default void.class;
+
+    // TODO: Comments
+    @NotNull String suggestion() default "";
 }

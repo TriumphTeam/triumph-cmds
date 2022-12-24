@@ -21,49 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
-
-import org.jetbrains.annotations.NotNull;
+package dev.triumphteam.cmd.core.annotations;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Flag annotation. Contains all the "data" for the flag.
- * To be used inside the {@link CommandFlags} annotation.
+ * Allows to specify the name of the argument instead of just using the parameter name.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-@Repeatable(CommandFlags.class)
-public @interface Flag {
+@Target(ElementType.PARAMETER)
+public @interface ArgName {
 
     /**
-     * Small flag identifier. Isn't required, as long as either flag or long flag has values.
-     * Flags must not have spaces.
+     * Gets the name of the argument.
      *
-     * @return The flag's main identifier.
+     * @return The name of the argument
      */
-    @NotNull String flag() default "";
-
-    /**
-     * Long flag identifier. Isn't required either, as long as either flag or long flag has values.
-     * Flags must not have spaces.
-     *
-     * @return The flag's long identifier.
-     */
-    @NotNull String longFlag() default "";
-
-    /**
-     * Define if the flag should have an argument, and it's type.
-     * By default, it uses void, which means no argument is needed.
-     *
-     * @return The argument type.
-     */
-    @NotNull Class<?> argument() default void.class;
-
-    // TODO: Comments
-    @NotNull String suggestion() default "";
+    String value();
 }

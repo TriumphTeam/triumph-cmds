@@ -21,9 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
-
-import org.jetbrains.annotations.NotNull;
+package dev.triumphteam.cmd.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -31,16 +29,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for declaring all the {@link Flag}s needed for the command.
+ * Annotation to hold all the command requirements.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface CommandFlags {
+public @interface Requirements {
 
     /**
-     * List with all the flags that'll be needed by the command.
+     * A list with all the {@link Requirement} annotations.
      *
-     * @return Array of flags.
+     * @return An array of {@link Requirement}s.
      */
-    @NotNull Flag[] value();
+    Requirement[] value();
 }

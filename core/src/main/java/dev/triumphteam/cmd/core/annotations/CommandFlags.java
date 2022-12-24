@@ -21,40 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.annotations;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Command annotation, marks the class or method as a command.
+ * Annotation for declaring all the {@link Flag}s needed for the command.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Inherited
-public @interface Command {
-
-    // Default commands use this name.
-    String DEFAULT_CMD_NAME = "TH_DEFAULT";
+@Target(ElementType.METHOD)
+public @interface CommandFlags {
 
     /**
-     * Command's name.
-     * Must not have spaces.
+     * List with all the flags that'll be needed by the command.
      *
-     * @return The command name.
+     * @return Array of flags.
      */
-    @NotNull String value() default DEFAULT_CMD_NAME;
-
-    /**
-     * List with all command aliases.
-     * Can be empty but can't have spaces.
-     *
-     * @return The alias array.
-     */
-    @NotNull String[] alias() default {};
+    @NotNull Flag[] value();
 }
