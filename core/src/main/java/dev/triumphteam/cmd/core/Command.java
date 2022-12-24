@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.argument.SubCommand;
-import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

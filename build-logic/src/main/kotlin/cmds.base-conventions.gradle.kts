@@ -1,3 +1,4 @@
+import com.diffplug.gradle.spotless.FormatExtension
 import org.gradle.accessors.dm.LibrariesForLibs
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -9,6 +10,8 @@ plugins {
     kotlin("jvm")
     id("com.github.hierynomus.license")
     id("com.diffplug.spotless")
+    id("net.kyori.indra")
+    id("net.kyori.indra.checkstyle")
 }
 
 repositories {
@@ -39,11 +42,19 @@ license {
     include("**/*.java")
 }
 
+indra {
+    checkstyle()
+}
+
+fun FormatExtension.defaults() {
+    trimTrailingWhitespace()
+    endWithNewline()
+    indentWithSpaces(4)
+}
+
 spotless {
     format("format") {
-        trimTrailingWhitespace()
-        endWithNewline()
-        indentWithSpaces(4)
+        defaults()
 
         target(
             "*.md",
@@ -53,10 +64,12 @@ spotless {
     }
 
     java {
+        defaults()
         formatAnnotations()
     }
 
     kotlin {
+        defaults()
         ktlint("0.47.1").editorConfigOverride(
             mapOf(
                 "ktlint_disabled_rules" to "filename,trailing-comma-on-call-site,trailing-comma-on-declaration-site",

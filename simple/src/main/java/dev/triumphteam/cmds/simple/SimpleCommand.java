@@ -25,10 +25,8 @@ package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.Command;
 import dev.triumphteam.cmd.core.argument.SubCommand;
-import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
-import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.*;
 import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

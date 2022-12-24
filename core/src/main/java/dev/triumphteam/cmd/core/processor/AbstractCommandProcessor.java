@@ -24,8 +24,6 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
