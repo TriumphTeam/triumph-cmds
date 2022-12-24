@@ -3,6 +3,8 @@ dependencyResolutionManagement {
     repositories.gradlePluginPortal()
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "triumph-cmd"
 
 listOf(

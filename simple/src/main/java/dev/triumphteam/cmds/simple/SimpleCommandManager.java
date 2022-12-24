@@ -40,8 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static dev.triumphteam.cmd.core.processor.Commands.nameOf;
-
 public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
     private final Map<String, SimpleCommand<S>> commands = new HashMap<>();
@@ -68,7 +66,9 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
     @Override
     public void registerCommand(final @NotNull BaseCommand baseCommand) {
-        final String name = nameOf(baseCommand);
+        final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(baseCommand);
+
+        final String name = processor.getName();
 
         final SimpleCommand<S> command = commands.get(name);
         if (command != null) {
@@ -77,12 +77,10 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         }
 
         // Command does not exist, proceed to add new!
-
-        final SimpleCommandProcessor processor = new SimpleCommandProcessor(name, baseCommand);
+        processor.subCommands();
 
         final SimpleCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
 
-        // TODO: ADD SUBCOMMANDS
 
         processor.getAlias().forEach(it -> {
             final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));

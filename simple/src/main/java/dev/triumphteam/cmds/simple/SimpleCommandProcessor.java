@@ -24,24 +24,12 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.processor.OldAbstractCommandProcessor;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.function.Supplier;
+public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S> {
 
-public final class SimpleCommandProcessor extends AbstractCommandProcessor {
-
-    public SimpleCommandProcessor(
-            final @NotNull String name,
-            final @NotNull BaseCommand baseCommand
-    ) {
-        super(name, baseCommand);
+    public SimpleCommandProcessor(final @NotNull BaseCommand baseCommand) {
+        super(baseCommand);
     }
 }

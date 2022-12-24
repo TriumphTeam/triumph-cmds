@@ -51,22 +51,6 @@ public interface Command<S> {
             final boolean isAlias
     );
 
-    default void addCommandsFrom(final @NotNull BaseCommand baseCommand) {
-        final Class<? extends BaseCommand> klass = baseCommand.getClass();
-        for (final Method method : klass.getDeclaredMethods()) {
-            // Ignore non-public methods
-            if (Modifier.isPublic(method.getModifiers())) continue;
-
-            final String name = nameOf(method);
-            // Not a command, ignore the method
-            if (name == null) continue;
-
-            System.out.println("Sub boy -> " + name);
-        }
-
-        // TODO: CLASSES
-    }
-
     default @Nullable SubCommand<S> getSubCommand(final @NotNull List<String> args) {
         SubCommand<S> subCommand = getDefaultSubCommand();
 
