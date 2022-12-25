@@ -1,6 +1,5 @@
 package dev.triumphteam.cmd.core.command;
 
-import dev.triumphteam.cmd.core.annotation.AnnotationContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -18,11 +17,6 @@ public class ParentSubCommand<S> implements ParentCommand<S> {
             final boolean isAlias
     ) {
 
-    }
-
-    @Override
-    public @NotNull AnnotationContainer getAnnotations() {
-        return null;
     }
 
     @Override

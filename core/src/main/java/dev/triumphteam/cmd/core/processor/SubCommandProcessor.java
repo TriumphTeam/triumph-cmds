@@ -27,12 +27,12 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-import dev.triumphteam.cmd.core.validation.ArgumentExtensionHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -61,27 +61,22 @@ import static java.util.Collections.singletonList;
 public final class SubCommandProcessor<S> extends CommandProcessor<S> {
 
     private final Method method;
-    private final SenderValidator<S> senderValidator;
-    private final ArgumentExtensionHandler<S> argumentExtensionHandler;
 
     SubCommandProcessor(
             final @NotNull String parentName,
             final @NotNull BaseCommand baseCommand,
             final @NotNull Method method,
-            final @NotNull SenderValidator<S> senderValidator,
             final @NotNull RegistryContainer<S> registryContainer,
-            final @NotNull ArgumentExtensionHandler<S> argumentExtensionHandler
+            final @NotNull CommandExtensions<?, S> commandExtensions
     ) {
-        super(parentName, baseCommand, method, registryContainer);
+        super(parentName, baseCommand, method, registryContainer, commandExtensions);
 
         this.method = method;
-        this.senderValidator = senderValidator;
-        this.argumentExtensionHandler = argumentExtensionHandler;
     }
 
     /**
      * Gets the correct sender type for the command.
-     * It'll validate the sender with the {@link #senderValidator}.
+     * It'll validate the sender with a {@link SenderExtension}.
      *
      * @return The validated sender type.
      */
@@ -92,7 +87,7 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
         }
 
         final Class<?> type = parameters[0].getType();
-        final Set<Class<? extends S>> allowedSenders = senderValidator.getAllowedSenders();
+        final Set<Class<? extends S>> allowedSenders = getCommandExtensions().getSenderExtension().getAllowedSenders();
 
         if (!allowedSenders.contains(type)) {
             throw createException(
@@ -134,7 +129,7 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
             );
 
             // If validation is false ignore it
-            if (!argumentExtensionHandler.validate(this, argument, i, last)) continue;
+            if (!getCommandExtensions().getArgumentValidator().validate(this, argument, i, last)) continue;
 
             arguments.add(argument);
         }

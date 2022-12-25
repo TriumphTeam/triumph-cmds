@@ -31,12 +31,12 @@ import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

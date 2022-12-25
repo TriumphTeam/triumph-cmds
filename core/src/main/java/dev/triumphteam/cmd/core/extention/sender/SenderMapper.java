@@ -21,26 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.flag;
+package dev.triumphteam.cmd.core.extention.sender;
 
-import dev.triumphteam.cmd.core.registry.Registry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+/**
+ * Interface for mapping a default send into a custom sender.
+ *
+ * @param <DS> The type of the default sender.
+ * @param <S>  The type of the custom sender.
+ */
+@FunctionalInterface
+public interface SenderMapper<DS, S> {
 
-public final class FlagRegistry<S> implements Registry {
+    @Nullable S map(final @NotNull DS defaultSender);
 
-    private final Map<FlagKey, SuggestionResolver<S>> suggestions = new HashMap<>();
-
-
-    public void register(final @NotNull FlagKey key, final @NotNull SuggestionResolver<S> resolver) {
-        suggestions.put(key, resolver);
-    }
-
-    public @Nullable SuggestionResolver<S> getSuggestionResolver(final @NotNull FlagKey key) {
-        return suggestions.get(key);
+    static <S> @NotNull SenderMapper<S, S> defaultMapper() {
+        return defaultMapper -> defaultMapper;
     }
 }

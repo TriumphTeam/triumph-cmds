@@ -21,42 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.requirement;
+package dev.triumphteam.cmd.core.extention.registry;
 
-import dev.triumphteam.cmd.core.registry.Registry;
+import dev.triumphteam.cmd.core.flag.FlagKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Registry used for registering new requirements for all commands to use.
- *
- * @param <S> The sender type.
- */
-public final class RequirementRegistry<S> implements Registry {
+public final class FlagRegistry<S> implements Registry {
 
-    private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
+    private final Map<FlagKey, SuggestionResolver<S>> suggestions = new HashMap<>();
 
-    /**
-     * Registers a new {@link RequirementResolver} for the specific Key.
-     *
-     * @param key      The requirement key.
-     * @param resolver The resolver to check if the requirement is met.
-     */
-    public void register(final @NotNull RequirementKey key, final @NotNull RequirementResolver<S> resolver) {
-        requirements.put(key, resolver);
+
+    public void register(final @NotNull FlagKey key, final @NotNull SuggestionResolver<S> resolver) {
+        suggestions.put(key, resolver);
     }
 
-    /**
-     * Gets the {@link RequirementResolver} for the specific Key.
-     *
-     * @param key The specific key.
-     * @return A saved {@link RequirementResolver}.
-     */
-    public @Nullable RequirementResolver<S> getRequirement(final @NotNull RequirementKey key) {
-        return requirements.get(key);
+    public @Nullable SuggestionResolver<S> getSuggestionResolver(final @NotNull FlagKey key) {
+        return suggestions.get(key);
     }
-
 }

@@ -23,11 +23,11 @@
  */
 package dev.triumphteam.cmd.core.argument.named;
 
-import dev.triumphteam.cmd.core.registry.RegistryKey;
+import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public class ArgumentKey extends RegistryKey {
+public class ArgumentKey extends StringKey {
 
     private ArgumentKey(final @NotNull String key) {
         super(key);

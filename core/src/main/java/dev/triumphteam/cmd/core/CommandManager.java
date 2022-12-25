@@ -26,14 +26,13 @@ package dev.triumphteam.cmd.core;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.named.Argument;
 import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.MessageResolver;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
@@ -50,15 +49,10 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public abstract class CommandManager<DS, S> {
 
-    private final SenderMapper<DS, S> senderMapper;
-    private final SenderValidator<S> senderValidator;
+    private final CommandExtensions<S, S> commandExtensions;
 
-    public CommandManager(
-            final @NotNull SenderMapper<DS, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator
-    ) {
-        this.senderMapper = senderMapper;
-        this.senderValidator = senderValidator;
+    public CommandManager(final @NotNull CommandExtensions<S, S> commandExtensions) {
+        this.commandExtensions = commandExtensions;
     }
 
     /**
@@ -152,15 +146,9 @@ public abstract class CommandManager<DS, S> {
         getRegistryContainer().getRequirementRegistry().register(key, resolver);
     }
 
-    // TODO: Comments
     protected abstract @NotNull RegistryContainer<S> getRegistryContainer();
 
-    // TODO: 2/4/2022 comments
-    protected @NotNull SenderMapper<DS, S> getSenderMapper() {
-        return senderMapper;
-    }
-
-    protected @NotNull SenderValidator<S> getSenderValidator() {
-        return senderValidator;
+    protected @NotNull CommandExtensions<S, S> getCommandExtensions() {
+        return commandExtensions;
     }
 }

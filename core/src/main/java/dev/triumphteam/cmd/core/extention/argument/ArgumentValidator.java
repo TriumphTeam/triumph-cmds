@@ -1,10 +1,10 @@
-package dev.triumphteam.cmd.core.validation;
+package dev.triumphteam.cmd.core.extention.argument;
 
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 
-public interface ArgumentExtensionHandler<S> {
+public interface ArgumentValidator<S> {
 
     boolean validate(
             final @NotNull SubCommandProcessor<S> subCommandProcessor,

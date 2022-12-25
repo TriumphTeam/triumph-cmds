@@ -26,9 +26,9 @@ package dev.triumphteam.cmd.prefixed;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.OldAbstractCommandProcessor;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
+import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 

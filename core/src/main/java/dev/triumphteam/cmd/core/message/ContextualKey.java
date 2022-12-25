@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.message;
 
-import dev.triumphteam.cmd.core.registry.RegistryKey;
+import dev.triumphteam.cmd.core.extention.StringKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,7 @@ import java.util.Set;
 /**
  * Registry key, for more organized way of registering and getting things from the registries.
  */
-public abstract class ContextualKey<C extends MessageContext> extends RegistryKey {
+public abstract class ContextualKey<C extends MessageContext> extends StringKey {
 
     // Holds all registered keys, default and custom ones
     private static final Set<ContextualKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();

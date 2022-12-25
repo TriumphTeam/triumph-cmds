@@ -24,8 +24,8 @@
 package dev.triumphteam.cmd.prefixed;
 
 import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
 import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;

@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.message;
+package dev.triumphteam.cmd.core.extention.registry;
 
+import dev.triumphteam.cmd.core.message.ContextualKey;
+import dev.triumphteam.cmd.core.message.MessageResolver;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

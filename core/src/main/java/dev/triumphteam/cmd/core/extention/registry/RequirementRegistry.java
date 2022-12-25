@@ -21,51 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.registry;
+package dev.triumphteam.cmd.core.extention.registry;
 
+import dev.triumphteam.cmd.core.requirement.RequirementKey;
+import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Registry key, for more organized way of registering and getting things from the registries.
+ * Registry used for registering new requirements for all commands to use.
+ *
+ * @param <S> The sender type.
  */
-public abstract class RegistryKey {
+public final class RequirementRegistry<S> implements Registry {
 
-    private final String key;
+    private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
 
-    public RegistryKey(final @NotNull String key) {
-        this.key = key;
+    /**
+     * Registers a new {@link RequirementResolver} for the specific Key.
+     *
+     * @param key      The requirement key.
+     * @param resolver The resolver to check if the requirement is met.
+     */
+    public void register(final @NotNull RequirementKey key, final @NotNull RequirementResolver<S> resolver) {
+        requirements.put(key, resolver);
     }
 
     /**
-     * Gets the key value.
+     * Gets the {@link RequirementResolver} for the specific Key.
      *
-     * @return The key value.
+     * @param key The specific key.
+     * @return A saved {@link RequirementResolver}.
      */
-    public @NotNull String getKey() {
-        return key;
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final RegistryKey that = (RegistryKey) o;
-        return key.equals(that.key);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(key);
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return "RegistryKey{" +
-                "key='" + key + '\'' +
-                '}';
+    public @Nullable RequirementResolver<S> getRequirement(final @NotNull RequirementKey key) {
+        return requirements.get(key);
     }
 
 }

@@ -27,9 +27,9 @@ import dev.triumphteam.cmd.core.annotation.AnnotationContainer;
 import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
+import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 

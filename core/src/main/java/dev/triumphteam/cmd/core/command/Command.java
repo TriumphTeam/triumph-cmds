@@ -23,9 +23,7 @@
  */
 package dev.triumphteam.cmd.core.command;
 
-import dev.triumphteam.cmd.core.annotation.Annotated;
-
-public interface Command<S> extends Annotated {
+public interface Command<S> {
 
 
 }

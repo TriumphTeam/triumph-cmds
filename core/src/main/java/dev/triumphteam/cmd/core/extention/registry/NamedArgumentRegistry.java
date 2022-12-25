@@ -21,23 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.sender;
+package dev.triumphteam.cmd.core.extention.registry;
 
+import dev.triumphteam.cmd.core.argument.named.Argument;
+import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Interface for mapping a default send into a custom sender.
- *
- * @param <DS> The type of the default sender.
- * @param <S>  The type of the custom sender.
- */
-@FunctionalInterface
-public interface SenderMapper<DS, S> {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    @Nullable S map(final @NotNull DS defaultSender);
+public final class NamedArgumentRegistry<S> implements Registry {
 
-    static <S> @NotNull SenderMapper<S, S> defaultMapper() {
-        return defaultMapper -> defaultMapper;
+    private final Map<ArgumentKey, List<Argument>> namedArguments = new HashMap<>();
+
+    public void register(final @NotNull ArgumentKey key, final @NotNull List<@NotNull Argument> arguments) {
+        namedArguments.put(key, arguments);
     }
+
+    public @Nullable List<@NotNull Argument> getResolver(final @NotNull ArgumentKey key) {
+        return namedArguments.get(key);
+    }
+
 }

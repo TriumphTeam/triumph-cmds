@@ -1,12 +1,13 @@
-package dev.triumphteam.cmd.core.validation;
+package dev.triumphteam.cmd.core.extention;
 
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
+import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 
-public class DefaultArgumentExtensionHandler<S> implements ArgumentExtensionHandler<S> {
+public class DefaultArgumentValidator<S> implements ArgumentValidator<S> {
 
     @Override
     public boolean validate(

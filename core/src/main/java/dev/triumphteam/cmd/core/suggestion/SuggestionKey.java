@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.suggestion;
 
-import dev.triumphteam.cmd.core.registry.RegistryKey;
+import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * Key used to identify the {@link } in the {@link }.
  */
-public final class SuggestionKey extends RegistryKey {
+public final class SuggestionKey extends StringKey {
 
     // Holds all registered keys, default and custom ones
     private static final Set<SuggestionKey> REGISTERED_KEYS = new HashSet<>();

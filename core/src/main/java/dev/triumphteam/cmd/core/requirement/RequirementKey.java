@@ -23,7 +23,8 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
-import dev.triumphteam.cmd.core.registry.RegistryKey;
+import dev.triumphteam.cmd.core.extention.StringKey;
+import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +35,7 @@ import java.util.Set;
 /**
  * Key used to identify the {@link RequirementResolver} in the {@link RequirementRegistry}.
  */
-public final class RequirementKey extends RegistryKey {
+public final class RequirementKey extends StringKey {
 
     // Holds all registered keys, default and custom ones
     private static final Set<RequirementKey> REGISTERED_KEYS = new HashSet<>();

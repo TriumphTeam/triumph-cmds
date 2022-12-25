@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.sender;
+package dev.triumphteam.cmd.core.extention.sender;
 
 import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;

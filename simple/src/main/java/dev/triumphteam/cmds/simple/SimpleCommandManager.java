@@ -28,18 +28,22 @@ import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.DefaultArgumentValidator;
+import dev.triumphteam.cmd.core.extention.ExtensionBuilder;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.validation.ArgumentExtensionHandler;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
+import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
+import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
@@ -50,34 +54,23 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
-    private final ArgumentExtensionHandler<S> extensionHandler;
-
-    private SimpleCommandManager(
-            final @NotNull SenderMapper<S, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator,
-            final @NotNull ArgumentExtensionHandler<S> extensionHandler
-    ) {
-        super(senderMapper, senderValidator);
-
-        this.extensionHandler = extensionHandler;
+    private SimpleCommandManager(final @NotNull CommandExtensions<S, S> commandExtensions) {
+        super(commandExtensions);
     }
 
-    @Contract("_, _ -> new")
-    public static <S> @NotNull SimpleCommandManager<S> create(
-            final @NotNull SenderMapper<S, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator,
-            final @NotNull ArgumentExtensionHandler<S> extensionHandler
-    ) {
-        return new SimpleCommandManager<>(senderMapper, senderValidator, extensionHandler);
+    @Contract("_ -> new")
+    public static <S> @NotNull SimpleCommandManager<S> create(final @NotNull Consumer<ExtensionBuilder<S, S>> builder) {
+        final SimpleExtensionBuilder<S> extensionBuilder = new SimpleExtensionBuilder<>();
+        builder.accept(extensionBuilder);
+        return new SimpleCommandManager<>(extensionBuilder.build());
     }
 
     @Override
     public void registerCommand(final @NotNull BaseCommand baseCommand) {
         final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
                 baseCommand,
-                getSenderValidator(),
                 getRegistryContainer(),
-                extensionHandler
+                getCommandExtensions()
         );
 
         final String name = processor.getName();

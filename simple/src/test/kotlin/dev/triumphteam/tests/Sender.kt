@@ -23,14 +23,15 @@
  */
 package dev.triumphteam.tests
 
-import dev.triumphteam.cmd.core.message.MessageRegistry
-import dev.triumphteam.cmd.core.sender.SenderMapper
-import dev.triumphteam.cmd.core.sender.SenderValidator
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry
+import dev.triumphteam.cmd.core.extention.sender.SenderMapper
+import dev.triumphteam.cmd.core.extention.sender.SenderValidator
 import dev.triumphteam.cmd.core.subcommand.OldSubCommand
 
 class TestSender
 
-class TestSenderMapper : SenderMapper<TestSender, TestSender> {
+class TestSenderMapper :
+    SenderMapper<TestSender, TestSender> {
 
     override fun map(defaultSender: TestSender): TestSender = defaultSender
 }

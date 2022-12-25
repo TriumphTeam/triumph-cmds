@@ -21,6 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.registry;
+package dev.triumphteam.cmd.core.extention;
 
-public interface Registry {}
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+
+/**
+ * Registry key, for more organized way of registering and getting things from the registries.
+ */
+public abstract class StringKey {
+
+    private final String key;
+
+    public StringKey(final @NotNull String key) {
+        this.key = key;
+    }
+
+    /**
+     * Gets the key value.
+     *
+     * @return The key value.
+     */
+    public @NotNull String getKey() {
+        return key;
+    }
+
+    @Override
+    public boolean equals(final @Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final StringKey that = (StringKey) o;
+        return key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "RegistryKey{" +
+                "key='" + key + '\'' +
+                '}';
+    }
+
+}

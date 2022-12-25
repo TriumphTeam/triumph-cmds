@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -21,12 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.registry;
+package dev.triumphteam.cmd.core.extention.registry;
 
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentRegistry;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.requirement.RequirementRegistry;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.jetbrains.annotations.NotNull;
 

@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.core.requirement;
 
 import dev.triumphteam.cmd.core.message.ContextualKey;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.core.message.context.MessageContextFactory;
 import org.jetbrains.annotations.NotNull;

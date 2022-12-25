@@ -1,4 +1,4 @@
-package dev.triumphteam.cmd.core.annotation;
+package dev.triumphteam.cmd.core.extention.annotation;
 
 public enum AnnotationTarget {
 

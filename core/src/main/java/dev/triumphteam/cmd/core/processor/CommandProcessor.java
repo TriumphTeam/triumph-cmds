@@ -31,7 +31,8 @@ import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.annotations.Join;
 import dev.triumphteam.cmd.core.annotations.Optional;
 import dev.triumphteam.cmd.core.annotations.Split;
-import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
 import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
@@ -41,7 +42,7 @@ import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.EnumSuggestion;
 import dev.triumphteam.cmd.core.suggestion.SimpleSuggestion;
@@ -85,17 +86,21 @@ public abstract class CommandProcessor<S> {
     private final SuggestionRegistry<S> suggestionRegistry;
     private final ArgumentRegistry<S> argumentRegistry;
 
+    private final CommandExtensions<?, S> commandExtensions;
+
     CommandProcessor(
             final @NotNull String parentName,
             final @NotNull BaseCommand baseCommand,
             final @NotNull AnnotatedElement annotatedElement,
-            final @NotNull RegistryContainer<S> registryContainer
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull CommandExtensions<?, S> commandExtensions
     ) {
         this.parentName = parentName;
         this.baseCommand = baseCommand;
         this.annotatedElement = annotatedElement;
         this.name = nameOf();
 
+        this.commandExtensions = commandExtensions;
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
         this.argumentRegistry = registryContainer.getArgumentRegistry();
     }
@@ -337,5 +342,9 @@ public abstract class CommandProcessor<S> {
         if (suggestion == null) return new EmptySuggestion<>();
 
         return suggestion;
+    }
+
+    protected @NotNull CommandExtensions<?, S> getCommandExtensions() {
+        return commandExtensions;
     }
 }

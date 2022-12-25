@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.flag;
 
-import dev.triumphteam.cmd.core.registry.RegistryKey;
+import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class FlagKey extends RegistryKey {
+public final class FlagKey extends StringKey {
 
     // Holds all registered keys, default and custom ones
     private static final Set<FlagKey> REGISTERED_KEYS = new HashSet<>();

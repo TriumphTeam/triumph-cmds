@@ -23,10 +23,9 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.annotation.AnnotationContainer;
-import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.command.Command;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
+import dev.triumphteam.cmd.core.command.ParentCommand;
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -88,10 +87,5 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
     @Override
     public @NotNull Map<String, Command<S>> getCommandAliases() {
         return subCommandAliases;
-    }
-
-    @Override
-    public @NotNull AnnotationContainer getAnnotations() {
-        return null;
     }
 }
