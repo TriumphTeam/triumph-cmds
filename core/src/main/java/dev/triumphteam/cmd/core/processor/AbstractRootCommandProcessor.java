@@ -85,7 +85,7 @@ public abstract class AbstractRootCommandProcessor<S> {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) return null;
 
-            final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
+            /*final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
                     name,
                     baseCommand,
                     method
@@ -94,7 +94,7 @@ public abstract class AbstractRootCommandProcessor<S> {
             // Not a command, ignore the method
             if (processor.getName() == null) return null;
 
-
+*/
             return (Command<S>) () -> null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }

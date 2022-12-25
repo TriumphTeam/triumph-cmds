@@ -52,10 +52,9 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
             final @NotNull InternalArgument<S, String> internalArgument,
             final @NotNull Class<?> collectionType,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, suggestion, position, optional);
+        super(name, description, String.class, suggestion, optional);
         this.regex = regex;
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;

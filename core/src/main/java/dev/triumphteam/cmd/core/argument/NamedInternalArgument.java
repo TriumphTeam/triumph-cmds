@@ -46,10 +46,9 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Map<String, InternalArgument<S, ?>> arguments,
-            final int position,
             final boolean isOptional
     ) {
-        super(name, description, Arguments.class, new EmptySuggestion<>(), position, isOptional);
+        super(name, description, Arguments.class, new EmptySuggestion<>(), isOptional);
         this.arguments = arguments;
     }
 

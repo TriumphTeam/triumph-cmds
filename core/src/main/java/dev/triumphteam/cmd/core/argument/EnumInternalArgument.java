@@ -48,10 +48,9 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
             final @NotNull String description,
             final @NotNull Class<? extends Enum<?>> type,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
-        super(name, description, type, suggestion, position, optional);
+        super(name, description, type, suggestion, optional);
         this.enumType = type;
 
         // Populates on creation to reduce runtime of first run for certain enums, like Bukkit's Material.

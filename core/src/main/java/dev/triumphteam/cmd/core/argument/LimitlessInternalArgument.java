@@ -42,10 +42,9 @@ public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgum
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean isOptional
     ) {
-        super(name, description, type, suggestion, position, isOptional);
+        super(name, description, type, suggestion, isOptional);
     }
 
     @Override

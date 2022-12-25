@@ -43,7 +43,6 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     private final String name;
     private final String description;
     private final Class<?> type;
-    private final int position;
     private final boolean optional;
     private final Suggestion<S> suggestion;
 
@@ -52,14 +51,12 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.suggestion = suggestion;
-        this.position = position;
         this.optional = optional;
     }
 
@@ -82,11 +79,6 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     @Override
     public @NotNull String getName() {
         return name;
-    }
-
-    @Override
-    public int getPosition() {
-        return position;
     }
 
     @Override
@@ -138,7 +130,6 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", type=" + type +
-                ", position=" + position +
                 ", optional=" + optional +
                 ", suggestion=" + suggestion +
                 '}';

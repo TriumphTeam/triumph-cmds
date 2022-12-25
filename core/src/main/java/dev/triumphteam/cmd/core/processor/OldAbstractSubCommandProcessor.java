@@ -112,27 +112,17 @@ import static java.util.Collections.singletonList;
 @SuppressWarnings("unchecked")
 public abstract class OldAbstractSubCommandProcessor<S> {
 
+    private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
     private final BaseCommand baseCommand;
     private final String parentName;
-
     private final AnnotatedElement annotatedElement;
-    // Name is nullable to detect if the method should or not be considered a sub command.
-    private String name = null;
-    // TODO: 11/28/2021 Add better default description
-    private String description = "No description provided.";
     private final List<String> argDescriptions = new ArrayList<>();
     private final List<String> alias = new ArrayList<>();
-
-    private boolean isDefault = false;
     private final boolean isAsync;
-
-    private Class<? extends S> senderType;
-
     private final FlagGroup<S> flagGroup = new FlagGroup<>();
     private final List<Suggestion<S>> suggestionList = new ArrayList<>();
     private final List<InternalArgument<S, ?>> internalArguments = new ArrayList<>();
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
-
     private final RegistryContainer<S> registryContainer;
     private final SuggestionRegistry<S> suggestionRegistry;
     private final ArgumentRegistry<S> argumentRegistry;
@@ -140,8 +130,12 @@ public abstract class OldAbstractSubCommandProcessor<S> {
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final SenderValidator<S> senderValidator;
-
-    private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
+    // Name is nullable to detect if the method should or not be considered a sub command.
+    private String name = null;
+    // TODO: 11/28/2021 Add better default description
+    private String description = "No description provided.";
+    private boolean isDefault = false;
+    private Class<? extends S> senderType;
 
     protected OldAbstractSubCommandProcessor(
             final @NotNull BaseCommand baseCommand,
@@ -349,7 +343,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                     argumentName,
                     argumentDescription,
                     suggestionList.get(position),
-                    0,
                     true
             );
 
@@ -363,7 +356,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                                 internalArgument,
                                 type,
                                 suggestionList.get(position),
-                                position,
                                 optional
                         )
                 );
@@ -377,7 +369,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                             internalArgument,
                             type,
                             suggestionList.get(position),
-                            position,
                             optional
                     )
             );
@@ -393,7 +384,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                             argumentDescription,
                             joinAnnotation.value(),
                             suggestionList.get(position),
-                            position,
                             optional
                     )
             );
@@ -411,7 +401,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                             argumentName,
                             argumentDescription,
                             flagGroup,
-                            position,
                             optional
                     )
             );
@@ -430,14 +419,13 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                             argumentName,
                             argumentDescription,
                             collectNamedArgs(namedArguments.value()),
-                            position,
                             optional
                     )
             );
             return;
         }
 
-        addArgument(createSimpleArgument(type, argumentName, argumentDescription, suggestionList.get(position), position, optional));
+        addArgument(createSimpleArgument(type, argumentName, argumentDescription, suggestionList.get(position), optional));
     }
 
     private @NotNull Map<@NotNull String, @NotNull InternalArgument<S, ?>> collectNamedArgs(final @NotNull String key) {
@@ -458,7 +446,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                         listArgument.getName(),
                         listArgument.getDescription(),
                         suggestion,
-                        0,
                         true
                 );
 
@@ -471,7 +458,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                                 internalArgument,
                                 listArgument.getType(),
                                 suggestion,
-                                0,
                                 true
                         )
                 );
@@ -484,7 +470,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                             argument.getName(),
                             argument.getDescription(),
                             suggestion,
-                            0,
                             true
                     )
             );
@@ -538,7 +523,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
             final @NotNull String parameterName,
             final @NotNull String argumentDescription,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
         // All other types default to the resolver.
@@ -552,7 +536,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                         argumentDescription,
                         (Class<? extends Enum<?>>) type,
                         suggestion,
-                        position,
                         optional
                 );
             }
@@ -565,7 +548,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                 type,
                 resolver,
                 suggestion,
-                position,
                 optional
         );
     }
@@ -643,7 +625,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                             "",
                             (Class<? extends Enum<?>>) argumentType,
                             suggestion,
-                            0,
                             false
                     );
                 } else {
@@ -658,7 +639,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                             argumentType,
                             resolver,
                             suggestion,
-                            0,
                             false
                     );
                 }

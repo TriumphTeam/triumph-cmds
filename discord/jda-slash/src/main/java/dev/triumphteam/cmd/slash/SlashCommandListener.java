@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.slash;
 
 import com.google.common.collect.Maps;
+import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
@@ -99,7 +100,7 @@ final class SlashCommandListener<S> extends ListenerAdapter {
                     return Maps.immutableEntry(it.getName(), it.getAsString());
                 }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        command.execute(sender, subCommandName != null ? subCommandName : Default.DEFAULT_CMD_NAME, args);
+        command.execute(sender, subCommandName != null ? subCommandName : Command.DEFAULT_CMD_NAME, args);
     }
 
     // private static final List<String> ass = Arrays.asList("Hello", "There", "Ass", "Fuck", "Hoy");

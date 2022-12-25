@@ -39,10 +39,9 @@ public abstract class StringInternalArgument<S> extends AbstractInternalArgument
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
-        super(name, description, type, suggestion, position, optional);
+        super(name, description, type, suggestion, optional);
     }
 
     @Override

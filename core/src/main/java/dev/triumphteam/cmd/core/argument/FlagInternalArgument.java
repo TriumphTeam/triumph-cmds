@@ -55,10 +55,9 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull FlagGroup<S> flagGroup,
-            final int position,
             final boolean isOptional
     ) {
-        super(name, description, Flags.class, new EmptySuggestion<>(), position, isOptional);
+        super(name, description, Flags.class, new EmptySuggestion<>(), isOptional);
         this.flagGroup = flagGroup;
         this.flagParser = new FlagParser<>(flagGroup);
     }

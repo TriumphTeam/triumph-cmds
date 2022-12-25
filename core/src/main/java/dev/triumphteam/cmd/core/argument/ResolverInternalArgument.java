@@ -47,10 +47,9 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
             final @NotNull Class<?> type,
             final @NotNull ArgumentResolver<S> resolver,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
-        super(name, description, type, suggestion, position, optional);
+        super(name, description, type, suggestion, optional);
         this.resolver = resolver;
     }
 
