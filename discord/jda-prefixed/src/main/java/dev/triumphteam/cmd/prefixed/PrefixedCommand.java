@@ -23,15 +23,15 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
+import dev.triumphteam.cmd.core.annotation.AnnotationContainer;
+import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +42,7 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-final class PrefixedCommand<S> implements ParentCommand<S, PrefixedSubCommand<S>> {
+final class PrefixedCommand<S> implements ParentCommand<S> {
 
     private final Map<String, PrefixedSubCommand<S>> subCommands = new HashMap<>();
 
@@ -72,16 +72,6 @@ final class PrefixedCommand<S> implements ParentCommand<S, PrefixedSubCommand<S>
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
-    @Override
-    public void addSubCommand(final @NotNull String name, final @NotNull PrefixedSubCommand<S> subCommand) {
-        this.subCommands.putIfAbsent(name, subCommand);
-    }
-
-    @Override
-    public void addSubCommandAlias(final @NotNull String alias, final @NotNull PrefixedSubCommand<S> subCommand) {
-        this.subCommands.putIfAbsent(alias, subCommand);
-    }
-
     /**
      * Executes the current command for the given sender.
      *
@@ -89,7 +79,7 @@ final class PrefixedCommand<S> implements ParentCommand<S, PrefixedSubCommand<S>
      * @param args   The command arguments.
      */
     public void execute(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
-        OldSubCommand<S> subCommand = getDefaultSubCommand();
+        /*OldSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
@@ -105,36 +95,26 @@ final class PrefixedCommand<S> implements ParentCommand<S, PrefixedSubCommand<S>
 
         // TODO: 11/28/2021 Alias check
         final List<String> arguments = !subCommand.isDefault() ? args.subList(1, args.size()) : args;
-        subCommand.execute(sender, arguments);
+        subCommand.execute(sender, arguments);*/
     }
 
-    /**
-     * Gets the default sub command or null if there is none.
-     *
-     * @return The default sub command.
-     */
-    private @Nullable OldSubCommand<S> getDefaultSubCommand() {
-        return subCommands.get(Default.DEFAULT_CMD_NAME);
+    @Override
+    public @NotNull Map<String, Command<S>> getCommands() {
+        return null;
     }
 
-    /**
-     * Gets the valid sub command for the given name or null if there is none.
-     *
-     * @param key The sub command name.
-     * @return A sub command or null.
-     */
-    private @Nullable OldSubCommand<S> getSubCommand(final @NotNull String key) {
-        return subCommands.get(key);
+    @Override
+    public @NotNull Map<String, Command<S>> getCommandAliases() {
+        return null;
     }
 
-    /**
-     * Checks if the given sub command exists.
-     *
-     * @param key The sub command name.
-     * @return True if the sub command exists.
-     */
-    private boolean subCommandExists(final @NotNull String key) {
-        return subCommands.containsKey(key);
+    @Override
+    public void addSubCommand(final @NotNull String name, final @NotNull Command<S> subCommand, final boolean isAlias) {
+
     }
 
+    @Override
+    public @NotNull AnnotationContainer getAnnotations() {
+        return null;
+    }
 }

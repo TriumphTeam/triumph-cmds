@@ -27,12 +27,11 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
-import dev.triumphteam.cmd.core.suggestion.SimpleSuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import dev.triumphteam.cmd.core.validation.ArgumentExtensionHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,9 +68,10 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
             final @NotNull BaseCommand baseCommand,
             final @NotNull Method method,
             final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull ArgumentExtensionHandler<S> argumentExtensionHandler
     ) {
-        super(parentName, baseCommand, method);
+        super(parentName, baseCommand, method, registryContainer);
 
         this.method = method;
         this.senderValidator = senderValidator;

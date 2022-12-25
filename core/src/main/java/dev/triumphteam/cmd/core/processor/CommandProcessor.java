@@ -29,18 +29,17 @@ import dev.triumphteam.cmd.core.annotations.ArgName;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.annotations.Join;
-import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.annotations.Optional;
 import dev.triumphteam.cmd.core.annotations.Split;
+import dev.triumphteam.cmd.core.argument.ArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
-import dev.triumphteam.cmd.core.argument.FlagInternalArgument;
+import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.JoinedStringInternalArgument;
-import dev.triumphteam.cmd.core.argument.NamedInternalArgument;
+import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
-import dev.triumphteam.cmd.core.argument.named.Arguments;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.flag.Flags;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.EnumSuggestion;
@@ -83,6 +82,7 @@ public abstract class CommandProcessor<S> {
     private final AnnotatedElement annotatedElement;
 
     private final SuggestionRegistry<S> suggestionRegistry;
+    private final ArgumentRegistry<S> argumentRegistry;
 
     CommandProcessor(
             final @NotNull String parentName,
@@ -96,6 +96,7 @@ public abstract class CommandProcessor<S> {
         this.name = nameOf();
 
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
+        this.argumentRegistry = registryContainer.getArgumentRegistry();
     }
 
     @Contract("_ -> new")
@@ -153,49 +154,41 @@ public abstract class CommandProcessor<S> {
                 );
             }
 
-            addArgument(
-                    new CollectionInternalArgument<>(
-                            argumentName,
-                            argumentDescription,
-                            internalArgument,
-                            type,
-                            suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                            optional
-                    )
+            return new CollectionInternalArgument<>(
+                    argumentName,
+                    argumentDescription,
+                    internalArgument,
+                    type,
+                    suggestions.getOrDefault(position, suggestionFromParam(parameter)),
+                    optional
             );
-            return;
         }
 
         // Handler for using String with `@Join`.
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
-            addArgument(
-                    new JoinedStringInternalArgument<>(
-                            argumentName,
-                            argumentDescription,
-                            joinAnnotation.value(),
-                            suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                            optional
-                    )
+            return new JoinedStringInternalArgument<>(
+                    argumentName,
+                    argumentDescription,
+                    joinAnnotation.value(),
+                    suggestions.getOrDefault(position, suggestionFromParam(parameter)),
+                    optional
             );
-            return;
         }
 
         // Handler for flags.
-        if (type == Flags.class) {
+        // TODO RE-ADD FLAGS AND NAMED ARGUMENTS AS A SINGLE TYPE
+        /*if (type == Flags.class) {
             if (flagGroup.isEmpty()) {
                 throw createException("Flags internalArgument detected but no flag annotation declared");
             }
 
-            addArgument(
-                    new FlagInternalArgument<>(
-                            argumentName,
-                            argumentDescription,
-                            flagGroup,
-                            optional
-                    )
+            return new FlagInternalArgument<>(
+                    argumentName,
+                    argumentDescription,
+                    flagGroup,
+                    optional
             );
-            return;
         }
 
         // Handler for named arguments
@@ -205,23 +198,53 @@ public abstract class CommandProcessor<S> {
                 throw createException("TODO");
             }
 
-            addArgument(
-                    new NamedInternalArgument<>(
-                            argumentName,
-                            argumentDescription,
-                            collectNamedArgs(namedArguments.value()),
-                            optional
-                    )
+            return new NamedInternalArgument<>(
+                    argumentName,
+                    argumentDescription,
+                    collectNamedArgs(namedArguments.value()),
+                    optional
             );
-            return;
-        }
+        }*/
 
         return createSimpleArgument(
                 type,
                 argumentName,
                 argumentDescription,
                 suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                position,
+                optional
+        );
+    }
+
+    protected @NotNull InternalArgument<S, String> createSimpleArgument(
+            final @NotNull Class<?> type,
+            final @NotNull String parameterName,
+            final @NotNull String argumentDescription,
+            final @NotNull Suggestion<S> suggestion,
+            final boolean optional
+    ) {
+        // All other types default to the resolver.
+        final ArgumentResolver<S> resolver = argumentRegistry.getResolver(type);
+        if (resolver == null) {
+            // Handler for using any Enum.
+            if (Enum.class.isAssignableFrom(type)) {
+                //noinspection unchecked
+                return new EnumInternalArgument<>(
+                        parameterName,
+                        argumentDescription,
+                        (Class<? extends Enum<?>>) type,
+                        suggestion,
+                        optional
+                );
+            }
+
+            throw createException("No internalArgument of type \"" + type.getName() + "\" registered");
+        }
+        return new ResolverInternalArgument<>(
+                parameterName,
+                argumentDescription,
+                type,
+                resolver,
+                suggestion,
                 optional
         );
     }

@@ -14,10 +14,10 @@ listOf(
 ).forEach(::includeProject)
 
 listOf(
-    "minecraft/bukkit",
-    "discord/jda-common",
-    "discord/jda-prefixed",
-    "discord/jda-slash",
+    // "minecraft/bukkit",
+     "discord/jda-common",
+     "discord/jda-prefixed",
+    // "discord/jda-slash",
 ).forEach {
     val (folder, name) = it.split('/')
     includeProject(name, folder)

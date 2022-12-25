@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-final class BukkitCommandProcessor<S> extends AbstractRootCommandProcessor {
+final class BukkitCommandProcessor<S> extends AbstractRootCommandProcessor<S> {
 
     private final CommandPermission basePermission;
 

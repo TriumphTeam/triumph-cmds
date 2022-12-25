@@ -25,6 +25,8 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
+import dev.triumphteam.cmd.core.annotation.AnnotationContainer;
+import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.message.MessageKey;
@@ -79,7 +81,7 @@ public final class OldBukkitCommand<S> extends org.bukkit.command.Command implem
             final @NotNull String commandLabel,
             final @NotNull String @NotNull [] args
     ) {
-        BukkitSubCommand<S> subCommand = getDefaultSubCommand();
+        /*BukkitSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";
         if (args.length > 0) subCommandName = args[0].toLowerCase();
@@ -105,14 +107,15 @@ public final class OldBukkitCommand<S> extends org.bukkit.command.Command implem
 
         final List<String> commandArgs = Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
 
-        subCommand.execute(mappedSender, commandArgs);
+        subCommand.execute(mappedSender, commandArgs);*/
         return true;
     }
 
     @Override
     public @NotNull List<@NotNull String> tabComplete(final @NotNull CommandSender sender, final @NotNull String alias, final @NotNull String @NotNull [] args) throws IllegalArgumentException {
         if (args.length == 0) return emptyList();
-        BukkitSubCommand<S> subCommand = getDefaultSubCommand();
+        return emptyList();
+        /*BukkitSubCommand<S> subCommand = getDefaultSubCommand();
 
         final String arg = args[0].toLowerCase();
 
@@ -140,6 +143,26 @@ public final class OldBukkitCommand<S> extends org.bukkit.command.Command implem
         }
 
         final List<String> commandArgs = Arrays.asList(args);
-        return subCommand.getSuggestions(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
+        return subCommand.getSuggestions(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);*/
+    }
+
+    @Override
+    public @NotNull AnnotationContainer getAnnotations() {
+        return null;
+    }
+
+    @Override
+    public @NotNull Map<String, Command<S>> getCommands() {
+        return null;
+    }
+
+    @Override
+    public @NotNull Map<String, Command<S>> getCommandAliases() {
+        return null;
+    }
+
+    @Override
+    public void addSubCommand(final @NotNull String name, final @NotNull Command<S> subCommand, final boolean isAlias) {
+
     }
 }

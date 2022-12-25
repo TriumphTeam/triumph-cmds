@@ -23,13 +23,10 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
-import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
+import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 final class PrefixedSubCommand<S> extends OldSubCommand<S> {
 
@@ -41,9 +38,4 @@ final class PrefixedSubCommand<S> extends OldSubCommand<S> {
         super(processor, parentName, executionProvider);
     }
 
-    // TODO:   
-    @Override
-    public @Nullable Object resolve(@NotNull final S sender, final @NotNull List<String> value) {
-        return null;
-    }
 }

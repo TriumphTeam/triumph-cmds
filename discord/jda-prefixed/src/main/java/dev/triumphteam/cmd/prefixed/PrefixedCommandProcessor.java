@@ -29,7 +29,6 @@ import dev.triumphteam.cmd.core.processor.OldAbstractCommandProcessor;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.prefixed.annotation.Prefix;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +51,7 @@ final class PrefixedCommandProcessor<S> extends OldAbstractCommandProcessor<Pref
             final @NotNull ExecutionProvider syncExecutionProvider,
             final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
-        super(baseCommand, registryContainer, senderMapper, senderValidator, syncExecutionProvider, asyncExecutionProvider);
+        super(null, null, null, null, null, null, null);
         prefix = extractPrefix();
     }
 
@@ -72,8 +71,9 @@ final class PrefixedCommandProcessor<S> extends OldAbstractCommandProcessor<Pref
      * @return The prefix from the annotation or an empty string.
      */
     private @NotNull String extractPrefix() {
-        final Prefix prefixAnnotation = getBaseCommand().getClass().getAnnotation(Prefix.class);
-        return prefixAnnotation == null ? "" : prefixAnnotation.value();
+        /*final Prefix prefixAnnotation = getBaseCommand().getClass().getAnnotation(Prefix.class);
+        return prefixAnnotation == null ? "" : prefixAnnotation.value();*/
+        return "";
     }
 
     @Override

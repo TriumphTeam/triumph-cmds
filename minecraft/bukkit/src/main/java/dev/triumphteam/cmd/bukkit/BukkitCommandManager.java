@@ -51,8 +51,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static dev.triumphteam.cmd.core.processor.Commands.nameOf;
-
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
 
     private final Plugin plugin;
@@ -127,7 +125,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
     @Override
     public void registerCommand(final @NotNull BaseCommand baseCommand) {
-        final String name = nameOf(baseCommand);
+        final String name = "nameOf(baseCommand)";
 
         final BukkitCommand<S> command = commands.get(name);
         if (command != null) {
@@ -143,11 +141,11 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
         // TODO: ADD SUBCOMMANDS
 
-        processor.getAlias().forEach(it -> {
+        /*processor.getAlias().forEach(it -> {
             final BukkitCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> createAndRegisterCommand(it, processor));
             // Adding sub commands.
             // TODO: ADD SUBCOMMANDS
-        });
+        });*/
     }
 
     @Override
