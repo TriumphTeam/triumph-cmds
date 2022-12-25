@@ -7,6 +7,6 @@ public interface ArgumentProcessor<T> {
 
     void process(
             final @NotNull Class<? extends T> annotation,
-            final @NotNull CommandMeta meta
+            final @NotNull CommandMeta.Builder meta
     );
 }

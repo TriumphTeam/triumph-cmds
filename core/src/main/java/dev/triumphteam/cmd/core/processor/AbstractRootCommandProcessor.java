@@ -26,19 +26,26 @@ package dev.triumphteam.cmd.core.processor;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.command.Command;
+import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
+import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public abstract class AbstractRootCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
@@ -77,20 +84,46 @@ public abstract class AbstractRootCommandProcessor<S> {
         return description;
     }
 
-    public @NotNull List<Command<S>> commands() {
+    public CommandMeta createMeta() {
+        final CommandMeta.Builder meta = new CommandMeta.Builder(null);
+        final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> processors
+                = commandExtensions.getAnnotationProcessors();
+
+        for (final Annotation annotation : baseCommand.getClass().getAnnotations()) {
+            @SuppressWarnings("rawtypes") final AnnotationProcessor annotationProcessor
+                    = processors.get(annotation.annotationType());
+
+            // No processors available
+            if (annotationProcessor == null) continue;
+
+            annotationProcessor.process(annotation, AnnotationTarget.COMMAND, meta);
+        }
+
+        return meta.build();
+    }
+
+    public @NotNull List<Command<S>> commands(final @NotNull CommandMeta parentMeta) {
         final Class<? extends BaseCommand> klass = baseCommand.getClass();
 
         final List<Command<S>> subCommands = new ArrayList<>();
-        subCommands.addAll(methodCommands(klass.getDeclaredMethods()));
-        subCommands.addAll(classCommands(klass.getDeclaredClasses()));
+        subCommands.addAll(methodCommands(parentMeta, klass.getDeclaredMethods()));
+        subCommands.addAll(classCommands(parentMeta, klass.getDeclaredClasses()));
 
         return subCommands;
     }
 
-    private @NotNull List<Command<S>> methodCommands(final @NotNull Method[] methods) {
+    private @NotNull List<Command<S>> methodCommands(
+            final @NotNull CommandMeta parentMeta,
+            final @NotNull Method[] methods
+    ) {
+        final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors
+                = commandExtensions.getAnnotationProcessors();
+
         return Arrays.stream(methods).map(method -> {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) return null;
+
+            final CommandMeta.Builder meta = new CommandMeta.Builder(parentMeta);
 
             final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
                     name,
@@ -103,13 +136,24 @@ public abstract class AbstractRootCommandProcessor<S> {
             // Not a command, ignore the method
             if (processor.getName() == null) return null;
 
+            // Process annotations
+            for (final Annotation annotation : method.getAnnotations()) {
+                @SuppressWarnings("rawtypes") final AnnotationProcessor annotationProcessor
+                        = annotationProcessors.get(annotation.annotationType());
+                if (annotationProcessor == null) continue;
+                annotationProcessor.process(annotation, AnnotationTarget.SUB_COMMAND, meta);
+            }
+
             processor.senderType();
             System.out.println(processor.arguments());
-            return new Command<S>() {};
+            return new SubCommand<S>(null);
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    private @NotNull List<Command<S>> classCommands(final @NotNull Class<?>[] classes) {
+    private @NotNull List<Command<S>> classCommands(
+            final @NotNull CommandMeta parentMeta,
+            final @NotNull Class<?>[] classes
+    ) {
         final List<Command<S>> subCommands = new ArrayList<>();
         for (final Class<?> klass : classes) {
             // Ignore non-public methods
@@ -121,8 +165,9 @@ public abstract class AbstractRootCommandProcessor<S> {
 
             System.out.println("Sub boy -> " + name);
 
-            subCommands.addAll(methodCommands(klass.getDeclaredMethods()));
-            subCommands.addAll(classCommands(klass.getDeclaredClasses()));
+            // TODO THIS NEEDS TO BE A NEW META FROM PARENT, NOT CURRENT PARENT
+            subCommands.addAll(methodCommands(parentMeta, klass.getDeclaredMethods()));
+            subCommands.addAll(classCommands(parentMeta, klass.getDeclaredClasses()));
         }
 
         return subCommands;

@@ -1,4 +1,4 @@
-package dev.triumphteam.cmd.core.extention;
+package dev.triumphteam.cmd.core.extention.defaults;
 
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;

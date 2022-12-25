@@ -23,6 +23,8 @@
  */
 package dev.triumphteam.cmd.core.annotations;
 
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,4 +35,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Async {}
+public @interface Async {
+
+    MetaKey<Void> META_KEY = MetaKey.of("async", Void.TYPE);
+}

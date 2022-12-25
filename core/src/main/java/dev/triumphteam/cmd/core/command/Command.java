@@ -23,7 +23,9 @@
  */
 package dev.triumphteam.cmd.core.command;
 
-public interface Command<S> {
+import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
+
+public interface Command<S> extends CommandMetaContainer {
 
 
 }

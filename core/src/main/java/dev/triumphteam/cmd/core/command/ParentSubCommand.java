@@ -1,5 +1,6 @@
 package dev.triumphteam.cmd.core.command;
 
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -9,6 +10,10 @@ public class ParentSubCommand<S> implements ParentCommand<S> {
 
     private final Map<String, Command<S>> commands = new HashMap<>();
     private final Map<String, Command<S>> commandAliases = new HashMap<>();
+
+    private final CommandMeta meta;
+
+    public ParentSubCommand(final @NotNull CommandMeta meta) {this.meta = meta;}
 
     @Override
     public void addSubCommand(
@@ -27,5 +32,10 @@ public class ParentSubCommand<S> implements ParentCommand<S> {
     @Override
     public @NotNull Map<String, Command<S>> getCommandAliases() {
         return commandAliases;
+    }
+
+    @Override
+    public @NotNull CommandMeta getMeta() {
+        return meta;
     }
 }

@@ -10,6 +10,6 @@ public interface AnnotationProcessor<A extends Annotation> {
     void process(
             final @NotNull A annotation,
             final @NotNull AnnotationTarget target,
-            final @NotNull CommandMeta meta
+            final @NotNull CommandMeta.Builder meta
     );
 }

@@ -29,14 +29,10 @@ import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
-import dev.triumphteam.cmd.core.extention.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.ExtensionBuilder;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
-import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
-import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,10 +78,8 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         }
 
         // Command does not exist, proceed to add new!
-        processor.commands();
-
         final SimpleCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
-
+        processor.commands(newCommand.getMeta());
 
         processor.getAlias().forEach(it -> {
             final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));

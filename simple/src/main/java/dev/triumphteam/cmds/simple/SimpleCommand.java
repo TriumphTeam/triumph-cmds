@@ -25,6 +25,7 @@ package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.command.ParentCommand;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,12 +42,15 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
     private final Map<String, Command<S>> subCommands = new HashMap<>();
     private final Map<String, Command<S>> subCommandAliases = new HashMap<>();
 
+    private final CommandMeta meta;
+
     @SuppressWarnings("unchecked")
     public SimpleCommand(
             final @NotNull SimpleCommandProcessor<S> processor,
             final @NotNull MessageRegistry<S> messageRegistry
     ) {
         this.name = processor.getName();
+        this.meta = processor.createMeta();
 
         this.messageRegistry = messageRegistry;
     }
@@ -87,5 +91,10 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
     @Override
     public @NotNull Map<String, Command<S>> getCommandAliases() {
         return subCommandAliases;
+    }
+
+    @Override
+    public @NotNull CommandMeta getMeta() {
+        return meta;
     }
 }
