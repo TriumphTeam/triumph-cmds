@@ -24,10 +24,10 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
+import dev.triumphteam.cmd.core.processor.AbstractRootCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 
-public final class SimpleCommandProcessor<S> extends AbstractCommandProcessor<S> {
+public final class SimpleCommandProcessor<S> extends AbstractRootCommandProcessor<S> {
 
     public SimpleCommandProcessor(final @NotNull BaseCommand baseCommand) {
         super(baseCommand);

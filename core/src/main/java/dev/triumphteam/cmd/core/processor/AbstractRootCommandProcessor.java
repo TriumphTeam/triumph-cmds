@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.annotation.AnnotationContainer;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
@@ -37,7 +38,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public abstract class AbstractCommandProcessor<S> {
+public abstract class AbstractRootCommandProcessor<S> {
 
     private final BaseCommand baseCommand;
 
@@ -45,7 +46,7 @@ public abstract class AbstractCommandProcessor<S> {
     private final List<String> alias;
     private final String description;
 
-    public AbstractCommandProcessor(final @NotNull BaseCommand baseCommand) {
+    public AbstractRootCommandProcessor(final @NotNull BaseCommand baseCommand) {
         this.baseCommand = baseCommand;
 
         this.name = nameOf();
@@ -65,47 +66,56 @@ public abstract class AbstractCommandProcessor<S> {
         return description;
     }
 
-    public @NotNull List<Command<S>> subCommands() {
+    public AnnotationContainer createAnnotationContainer() {
+        return null;
+    }
+
+    public @NotNull List<Command<S>> commands() {
         final Class<? extends BaseCommand> klass = baseCommand.getClass();
 
         final List<Command<S>> subCommands = new ArrayList<>();
-        subCommands.addAll(methodSubCommands(klass.getDeclaredMethods()));
-        subCommands.addAll(classSubCommands(klass.getDeclaredClasses()));
+        subCommands.addAll(methodCommands(klass.getDeclaredMethods()));
+        subCommands.addAll(classCommands(klass.getDeclaredClasses()));
 
         return subCommands;
     }
 
-    private @NotNull List<Command<S>> classSubCommands(final @NotNull Class<?>[] classes) {
+    private @NotNull List<Command<S>> methodCommands(final @NotNull Method[] methods) {
+        return Arrays.stream(methods).map(method -> {
+            // Ignore non-public methods
+            if (!Modifier.isPublic(method.getModifiers())) return null;
+
+            final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
+                    name,
+                    baseCommand,
+                    method
+            );
+
+            // Not a command, ignore the method
+            if (processor.getName() == null) return null;
+
+
+            return (Command<S>) () -> null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    private @NotNull List<Command<S>> classCommands(final @NotNull Class<?>[] classes) {
         final List<Command<S>> subCommands = new ArrayList<>();
         for (final Class<?> klass : classes) {
             // Ignore non-public methods
             if (!Modifier.isPublic(klass.getModifiers())) continue;
 
-            final String name = Commands.nameOf(klass);
+            final String name = "";
             // Not a command, ignore the method
             if (name == null) continue;
 
             System.out.println("Sub boy -> " + name);
 
-            subCommands.addAll(methodSubCommands(klass.getDeclaredMethods()));
-            subCommands.addAll(classSubCommands(klass.getDeclaredClasses()));
+            subCommands.addAll(methodCommands(klass.getDeclaredMethods()));
+            subCommands.addAll(classCommands(klass.getDeclaredClasses()));
         }
 
         return subCommands;
-    }
-
-    private @NotNull List<Command<S>> methodSubCommands(final @NotNull Method[] methods) {
-        return Arrays.stream(methods).map(method -> {
-            // Ignore non-public methods
-            if (!Modifier.isPublic(method.getModifiers())) return null;
-
-            final String name = Commands.nameOf(method);
-            // Not a command, ignore the method
-            if (name == null) return null;
-
-            System.out.println("Sub boy -> " + name);
-            return new Command<S>() {};
-        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private @NotNull String nameOf() {

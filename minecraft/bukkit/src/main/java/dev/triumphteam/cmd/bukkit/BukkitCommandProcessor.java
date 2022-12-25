@@ -25,22 +25,15 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.processor.AbstractCommandProcessor;
-import dev.triumphteam.cmd.core.processor.OldAbstractCommandProcessor;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
-import org.bukkit.command.CommandSender;
+import dev.triumphteam.cmd.core.processor.AbstractRootCommandProcessor;
 import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.lang.reflect.AnnotatedElement;
 
-final class BukkitCommandProcessor<S> extends AbstractCommandProcessor {
+final class BukkitCommandProcessor<S> extends AbstractRootCommandProcessor {
 
     private final CommandPermission basePermission;
 

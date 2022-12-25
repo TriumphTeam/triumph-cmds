@@ -23,24 +23,58 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
+import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotations.Command;
+import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.AnnotatedElement;
 
-public final class Commands {
+/**
+ * Abstracts most of the "extracting" from sub command annotations, allows for extending.
+ * <br/>
+ * I know this could be done better, but couldn't think of a better way.
+ * If you do please PR or let me know on my discord!
+ *
+ * @param <S> The sender type.
+ */
+@SuppressWarnings("unchecked")
+public abstract class CommandProcessor<S> {
 
-    private Commands() {
-        throw new AssertionError("Class cannot be instantiated.");
+    private final String parentName;
+    private final BaseCommand baseCommand;
+    private final String name;
+
+    CommandProcessor(
+            final @NotNull String parentName,
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull AnnotatedElement annotatedElement
+    ) {
+        this.parentName = parentName;
+        this.baseCommand = baseCommand;
+        this.name = nameOf(annotatedElement);
     }
 
-    public static @Nullable String nameOf(final @NotNull AnnotatedElement element) {
+    @Contract("_, _ -> new")
+    protected @NotNull SubCommandRegistrationException createException(
+            final @NotNull String message,
+            final @NotNull AnnotatedElement element
+    ) {
+        return new SubCommandRegistrationException(message, element, baseCommand.getClass());
+    }
+
+    private @Nullable String nameOf(final @NotNull AnnotatedElement element) {
         final Command commandAnnotation = element.getAnnotation(Command.class);
 
         // Not a command element
         if (commandAnnotation == null) return null;
 
         return commandAnnotation.value();
+    }
+
+    public @Nullable String getName() {
+        return name;
     }
 }

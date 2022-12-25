@@ -77,7 +77,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         }
 
         // Command does not exist, proceed to add new!
-        processor.subCommands();
+        processor.commands();
 
         final SimpleCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
 

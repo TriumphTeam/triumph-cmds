@@ -36,9 +36,9 @@ import java.util.Map;
  */
 public interface ParentCommand<S> extends Command<S> {
 
-    @NotNull Map<String, Command<S>> getSubCommands();
+    @NotNull Map<String, Command<S>> getCommands();
 
-    @NotNull Map<String, Command<S>> getSubCommandAlias();
+    @NotNull Map<String, Command<S>> getCommandAliases();
 
     void addSubCommand(
             final @NotNull String name,
@@ -64,16 +64,16 @@ public interface ParentCommand<S> extends Command<S> {
     }
 
     default @Nullable Command<S> getDefaultSubCommand() {
-        return getSubCommands().get(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
+        return getCommands().get(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
     }
 
     default @Nullable Command<S> getSubCommand(final @NotNull String key) {
-        final Command<S> subCommand = getSubCommands().get(key);
+        final Command<S> subCommand = getCommands().get(key);
         if (subCommand != null) return subCommand;
-        return getSubCommandAlias().get(key);
+        return getCommandAliases().get(key);
     }
 
     default boolean subCommandExists(final @NotNull String key) {
-        return getSubCommands().containsKey(key) || getSubCommandAlias().containsKey(key);
+        return getCommands().containsKey(key) || getCommandAliases().containsKey(key);
     }
 }

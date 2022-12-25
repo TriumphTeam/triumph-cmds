@@ -44,7 +44,7 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
-            final @NotNull SimpleCommandProcessor processor,
+            final @NotNull SimpleCommandProcessor<S> processor,
             final @NotNull MessageRegistry<S> messageRegistry
     ) {
         this.name = processor.getName();
@@ -81,12 +81,12 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
     }
 
     @Override
-    public @NotNull Map<String, Command<S>> getSubCommands() {
+    public @NotNull Map<String, Command<S>> getCommands() {
         return subCommands;
     }
 
     @Override
-    public @NotNull Map<String, Command<S>> getSubCommandAlias() {
+    public @NotNull Map<String, Command<S>> getCommandAliases() {
         return subCommandAliases;
     }
 

@@ -92,12 +92,12 @@ public final class BukkitCommand<S> extends org.bukkit.command.Command implement
     }
 
     @Override
-    public @NotNull Map<String, OldSubCommand<S>> getSubCommands() {
+    public @NotNull Map<String, OldSubCommand<S>> getCommands() {
         return null;
     }
 
     @Override
-    public @NotNull Map<String, OldSubCommand<S>> getSubCommandAlias() {
+    public @NotNull Map<String, OldSubCommand<S>> getCommandAliases() {
         return null;
     }
 }
