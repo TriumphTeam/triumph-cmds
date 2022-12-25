@@ -33,7 +33,7 @@ import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
-import dev.triumphteam.cmd.core.validation.DefaultArgumentExtensionHandler;
+import dev.triumphteam.cmd.core.validation.ArgumentExtensionHandler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,19 +50,25 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
+    private final ArgumentExtensionHandler<S> extensionHandler;
+
     private SimpleCommandManager(
             final @NotNull SenderMapper<S, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull ArgumentExtensionHandler<S> extensionHandler
     ) {
         super(senderMapper, senderValidator);
+
+        this.extensionHandler = extensionHandler;
     }
 
     @Contract("_, _ -> new")
     public static <S> @NotNull SimpleCommandManager<S> create(
             final @NotNull SenderMapper<S, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull ArgumentExtensionHandler<S> extensionHandler
     ) {
-        return new SimpleCommandManager<>(senderMapper, senderValidator);
+        return new SimpleCommandManager<>(senderMapper, senderValidator, extensionHandler);
     }
 
     @Override
@@ -71,7 +77,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
                 baseCommand,
                 getSenderValidator(),
                 getRegistryContainer(),
-                new DefaultArgumentExtensionHandler<>()
+                extensionHandler
         );
 
         final String name = processor.getName();

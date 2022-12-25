@@ -39,6 +39,7 @@ import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.JoinedStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
+import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
@@ -119,7 +120,7 @@ public abstract class CommandProcessor<S> {
     }
 
     // TODO COMMENTS
-    protected InternalArgument<S, ?> createArgument(
+    protected @NotNull InternalArgument<S, ?> createArgument(
             final @NotNull Parameter parameter,
             final @NotNull List<String> argDescriptions,
             final @NotNull Map<Integer, Suggestion<S>> suggestions,
@@ -134,7 +135,7 @@ public abstract class CommandProcessor<S> {
         // TODO: Add more collection types.
         if (SUPPORTED_COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
             final Class<?> collectionType = getGenericType(parameter);
-            final InternalArgument<S, String> internalArgument = createSimpleArgument(
+            final InternalArgument<S, String> argument = createSimpleArgument(
                     collectionType,
                     argumentName,
                     argumentDescription,
@@ -142,13 +143,18 @@ public abstract class CommandProcessor<S> {
                     true
             );
 
+            // Throw exception on unknown arguments for collection parameter type
+            if (argument instanceof UnknownInternalArgument) {
+                throw createException("No internalArgument of type \"" + argument.getType().getName() + "\" registered");
+            }
+
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
                 return new SplitStringInternalArgument<>(
                         argumentName,
                         argumentDescription,
                         splitAnnotation.value(),
-                        internalArgument,
+                        argument,
                         type,
                         suggestions.getOrDefault(position, suggestionFromParam(parameter)),
                         optional
@@ -158,7 +164,7 @@ public abstract class CommandProcessor<S> {
             return new CollectionInternalArgument<>(
                     argumentName,
                     argumentDescription,
-                    internalArgument,
+                    argument,
                     type,
                     suggestions.getOrDefault(position, suggestionFromParam(parameter)),
                     optional
@@ -238,7 +244,7 @@ public abstract class CommandProcessor<S> {
                 );
             }
 
-            throw createException("No internalArgument of type \"" + type.getName() + "\" registered");
+            return new UnknownInternalArgument<>(type);
         }
         return new ResolverInternalArgument<>(
                 parameterName,

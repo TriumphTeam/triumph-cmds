@@ -11,23 +11,27 @@ import java.util.List;
  * This argument type is always ignored by the creator.
  * This is only used for arguments that are meant to be hidden and not actually part of a command.
  */
-public final class IgnoreInternalArgument<S> implements InternalArgument<S, Void> {
+public final class UnknownInternalArgument<S> implements InternalArgument<S, String> {
 
-    public IgnoreInternalArgument() {}
+    private final Class<?> type;
+
+    public UnknownInternalArgument(final @NotNull Class<?> type) {
+        this.type = type;
+    }
 
     @Override
     public @NotNull String getName() {
-        return "ignored";
+        return "unknown";
     }
 
     @Override
     public @NotNull String getDescription() {
-        return "Ignored.";
+        return "Unknown.";
     }
 
     @Override
     public @NotNull Class<?> getType() {
-        return Void.TYPE;
+        return type;
     }
 
     @Override
@@ -36,7 +40,7 @@ public final class IgnoreInternalArgument<S> implements InternalArgument<S, Void
     }
 
     @Override
-    public @Nullable Object resolve(@NotNull final S sender, final @NotNull Void value) {
+    public @Nullable Object resolve(@NotNull final S sender, final @NotNull String value) {
         return null;
     }
 

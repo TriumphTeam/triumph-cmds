@@ -125,8 +125,6 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
         // Starting at 1 because we don't care about sender here.
         for (int i = 1; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
-            final Class<?> type = parameter.getType();
-
 
             final InternalArgument<S, ?> argument = createArgument(
                     parameter,
@@ -135,7 +133,8 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
                     i
             );
 
-            argumentExtensionHandler.validate(this, argument, i, last);
+            // If validation is false ignore it
+            if (!argumentExtensionHandler.validate(this, argument, i, last)) continue;
 
             arguments.add(argument);
         }

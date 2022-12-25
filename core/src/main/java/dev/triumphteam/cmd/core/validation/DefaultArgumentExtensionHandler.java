@@ -2,13 +2,14 @@ package dev.triumphteam.cmd.core.validation;
 
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultArgumentExtensionHandler<S> implements ArgumentExtensionHandler<S> {
 
     @Override
-    public void validate(
+    public boolean validate(
             final @NotNull SubCommandProcessor<S> processor,
             final @NotNull InternalArgument<S, ?> argument,
             final int position,
@@ -23,10 +24,12 @@ public class DefaultArgumentExtensionHandler<S> implements ArgumentExtensionHand
         if (position != last && argument instanceof LimitlessInternalArgument) {
             throw processor.createException("Limitless internalArgument is only allowed as the last internalArgument");
         }
-    }
 
-    @Override
-    public InternalArgument<S, ?> create() {
-        return null;
+        // Unknown types by default throw
+        if (argument instanceof UnknownInternalArgument) {
+            throw processor.createException("No internalArgument of type \"" + argument.getType().getName() + "\" registered");
+        }
+
+        return true;
     }
 }
