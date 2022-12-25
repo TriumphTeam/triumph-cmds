@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.sender.SenderMapper;
 import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.validation.DefaultArgumentExtensionHandler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,7 +67,12 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
     @Override
     public void registerCommand(final @NotNull BaseCommand baseCommand) {
-        final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(baseCommand);
+        final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
+                baseCommand,
+                getSenderValidator(),
+                getRegistryContainer(),
+                new DefaultArgumentExtensionHandler<>()
+        );
 
         final String name = processor.getName();
 

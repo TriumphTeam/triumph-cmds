@@ -28,6 +28,9 @@ import dev.triumphteam.cmd.core.annotation.AnnotationContainer;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.validation.ArgumentExtensionHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -46,12 +49,25 @@ public abstract class AbstractRootCommandProcessor<S> {
     private final List<String> alias;
     private final String description;
 
-    public AbstractRootCommandProcessor(final @NotNull BaseCommand baseCommand) {
+    private final SenderValidator<S> senderValidator;
+    private final RegistryContainer<S> registryContainer;
+    private final ArgumentExtensionHandler<S> argumentExtensionHandler;
+
+    public AbstractRootCommandProcessor(
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull ArgumentExtensionHandler<S> argumentExtensionHandler
+    ) {
         this.baseCommand = baseCommand;
 
         this.name = nameOf();
         this.alias = aliasOf();
         this.description = descriptionOf();
+
+        this.senderValidator = senderValidator;
+        this.registryContainer = registryContainer;
+        this.argumentExtensionHandler = argumentExtensionHandler;
     }
 
     public String getName() {
@@ -85,16 +101,20 @@ public abstract class AbstractRootCommandProcessor<S> {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) return null;
 
-            /*final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
+            final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
                     name,
                     baseCommand,
-                    method
+                    method,
+                    senderValidator,
+                    registryContainer,
+                    argumentExtensionHandler
             );
 
             // Not a command, ignore the method
             if (processor.getName() == null) return null;
 
-*/
+            processor.senderType();
+            System.out.println(processor.arguments());
             return (Command<S>) () -> null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }

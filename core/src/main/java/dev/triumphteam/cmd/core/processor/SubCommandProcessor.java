@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -93,7 +94,7 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
         final Class<?> type = parameters[0].getType();
         final Set<Class<? extends S>> allowedSenders = senderValidator.getAllowedSenders();
 
-        if (allowedSenders.contains(type)) {
+        if (!allowedSenders.contains(type)) {
             throw createException(
                     "\"" + type.getSimpleName() + "\" is not a valid sender. Sender must be one of the following: " +
                             allowedSenders
@@ -119,17 +120,27 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
         // Position of the last argument.
         final int last = parameters.length - 1;
 
+        final List<InternalArgument<S, ?>> arguments = new ArrayList<>();
+
         // Starting at 1 because we don't care about sender here.
         for (int i = 1; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
             final Class<?> type = parameter.getType();
 
 
-            // argumentExtensionHandler.validate(this, type, )
-            // createArgument(parameter, i - 1);
+            final InternalArgument<S, ?> argument = createArgument(
+                    parameter,
+                    argDescriptions,
+                    suggestions,
+                    i
+            );
+
+            argumentExtensionHandler.validate(this, argument, i, last);
+
+            arguments.add(argument);
         }
 
-        return Collections.emptyList();
+        return arguments;
     }
 
     /**

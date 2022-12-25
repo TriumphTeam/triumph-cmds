@@ -91,4 +91,9 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
                 .map(it -> map + it)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public @NotNull String toString() {
+        return "SplitArgument{super=" + super.toString() + "}";
+    }
 }

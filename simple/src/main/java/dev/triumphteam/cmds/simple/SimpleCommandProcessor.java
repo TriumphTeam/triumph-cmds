@@ -25,11 +25,19 @@ package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.processor.AbstractRootCommandProcessor;
+import dev.triumphteam.cmd.core.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.validation.ArgumentExtensionHandler;
 import org.jetbrains.annotations.NotNull;
 
 public final class SimpleCommandProcessor<S> extends AbstractRootCommandProcessor<S> {
 
-    public SimpleCommandProcessor(final @NotNull BaseCommand baseCommand) {
-        super(baseCommand);
+    public SimpleCommandProcessor(
+            final @NotNull BaseCommand baseCommand,
+            final @NotNull SenderValidator<S> senderValidator,
+            final @NotNull RegistryContainer<S> registryContainer,
+            final @NotNull ArgumentExtensionHandler<S> argumentExtensionHandler
+    ) {
+        super(baseCommand, senderValidator, registryContainer, argumentExtensionHandler);
     }
 }

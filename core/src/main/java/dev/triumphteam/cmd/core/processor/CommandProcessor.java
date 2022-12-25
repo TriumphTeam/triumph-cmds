@@ -100,7 +100,8 @@ public abstract class CommandProcessor<S> {
     }
 
     @Contract("_ -> new")
-    protected @NotNull SubCommandRegistrationException createException(final @NotNull String message) {
+    @NotNull
+    public SubCommandRegistrationException createException(final @NotNull String message) {
         return new SubCommandRegistrationException(message, annotatedElement, baseCommand.getClass());
     }
 

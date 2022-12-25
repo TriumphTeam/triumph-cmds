@@ -48,5 +48,4 @@ public abstract class StringInternalArgument<S> extends AbstractInternalArgument
     public @NotNull String toString() {
         return "StringArgument{super=" + super.toString() + "}";
     }
-
 }

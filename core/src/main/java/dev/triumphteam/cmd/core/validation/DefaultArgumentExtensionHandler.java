@@ -9,43 +9,24 @@ public class DefaultArgumentExtensionHandler<S> implements ArgumentExtensionHand
 
     @Override
     public void validate(
-            final @NotNull SubCommandProcessor<S> subCommandProcessor,
+            final @NotNull SubCommandProcessor<S> processor,
             final @NotNull InternalArgument<S, ?> argument,
             final int position,
             final int last
     ) {
-        validateOptionals(argument, position, last);
-        validateLimitless(argument, position, last);
+        // Validation for optionals
+        if (position != last && argument.isOptional()) {
+            throw processor.createException("Optional internalArgument is only allowed as the last internalArgument");
+        }
+
+        // Validation for limitless
+        if (position != last && argument instanceof LimitlessInternalArgument) {
+            throw processor.createException("Limitless internalArgument is only allowed as the last internalArgument");
+        }
     }
 
     @Override
     public InternalArgument<S, ?> create() {
         return null;
-    }
-
-    /**
-     * Validation for optionals.
-     */
-    private void validateOptionals(
-            final @NotNull InternalArgument<S, ?> argument,
-            final int position,
-            final int last
-    ) {
-        if (position == last && argument.isOptional()) {
-            // throw createException("Optional internalArgument is only allowed as the last internalArgument");
-        }
-    }
-
-    /**
-     * Validation for {@link LimitlessInternalArgument}.
-     */
-    private void validateLimitless(
-            final @NotNull InternalArgument<S, ?> argument,
-            final int position,
-            final int last
-    ) {
-        if (position == last && argument instanceof LimitlessInternalArgument) {
-            // throw createException("Limitless internalArgument is only allowed as the last internalArgument");
-        }
     }
 }
