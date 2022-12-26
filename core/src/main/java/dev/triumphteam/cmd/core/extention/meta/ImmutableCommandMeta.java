@@ -23,4 +23,11 @@ final class ImmutableCommandMeta implements CommandMeta {
     public <V> boolean isPresent(final @NotNull MetaKey<V> metaKey) {
         return meta.containsKey(metaKey);
     }
+
+    @Override
+    public String toString() {
+        return "ImmutableCommandMeta{" +
+                "meta=" + meta +
+                '}';
+    }
 }

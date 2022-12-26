@@ -20,6 +20,8 @@ public class SubCommand<S> implements Command<S> {
         this.meta = processor.createMeta();
         this.senderType = processor.senderType();
         this.arguments = processor.arguments(meta);
+
+        System.out.println(meta);
     }
 
     @Override

@@ -89,7 +89,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
     public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(null);
         // Process all the class annotations
-        processAnnotations(commandExtensions, baseCommand.getClass(), AnnotationTarget.COMMAND, meta);
+        processAnnotations(commandExtensions, baseCommand.getClass(), AnnotationTarget.ROOT_COMMAND, meta);
         // Return modified meta
         return meta.build();
     }

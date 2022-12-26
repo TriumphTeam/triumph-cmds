@@ -81,7 +81,7 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
     public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(getParentMeta());
         // Process all the class annotations
-        processAnnotations(getCommandExtensions(), method, AnnotationTarget.SUB_COMMAND, meta);
+        processAnnotations(getCommandExtensions(), method, AnnotationTarget.COMMAND, meta);
         // Return modified meta
         return meta.build();
     }

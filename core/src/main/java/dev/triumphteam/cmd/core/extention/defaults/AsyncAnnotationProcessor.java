@@ -14,8 +14,7 @@ public final class AsyncAnnotationProcessor implements AnnotationProcessor<Async
             final @NotNull AnnotationTarget target,
             final @NotNull CommandMeta.@NotNull Builder meta
     ) {
-        System.out.println(target);
-        if (target != AnnotationTarget.SUB_COMMAND) return;
+        if (target != AnnotationTarget.COMMAND) return;
         meta.add(Async.META_KEY);
     }
 }
