@@ -28,6 +28,8 @@ import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
@@ -58,7 +60,7 @@ import static java.util.Collections.singletonList;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-public final class SubCommandProcessor<S> extends CommandProcessor<S> {
+public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
 
     private final Method method;
 
@@ -67,11 +69,21 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
             final @NotNull BaseCommand baseCommand,
             final @NotNull Method method,
             final @NotNull RegistryContainer<S> registryContainer,
-            final @NotNull CommandExtensions<?, S> commandExtensions
+            final @NotNull CommandExtensions<?, S> commandExtensions,
+            final @NotNull CommandMeta parentMeta
     ) {
-        super(parentName, baseCommand, method, registryContainer, commandExtensions);
+        super(parentName, baseCommand, method, registryContainer, commandExtensions, parentMeta);
 
         this.method = method;
+    }
+
+    @Override
+    public @NotNull CommandMeta createMeta() {
+        final CommandMeta.Builder meta = new CommandMeta.Builder(getParentMeta());
+        // Process all the class annotations
+        processAnnotations(getCommandExtensions(), method, AnnotationTarget.SUB_COMMAND, meta);
+        // Return modified meta
+        return meta.build();
     }
 
     /**
@@ -103,8 +115,16 @@ public final class SubCommandProcessor<S> extends CommandProcessor<S> {
         return (Class<? extends S>) type;
     }
 
-    public List<InternalArgument<S, ?>> arguments() {
+    public List<InternalArgument<S, ?>> arguments(final @NotNull CommandMeta parentMeta) {
         final Parameter[] parameters = method.getParameters();
+
+        // First thing is to process the parameter annotations
+        final Map<Parameter, CommandMeta> parameterMetas = new HashMap<>();
+        for (final Parameter parameter : parameters) {
+            final CommandMeta.Builder meta = new CommandMeta.Builder(parentMeta);
+            processAnnotations(getCommandExtensions(), parameter, AnnotationTarget.ARGUMENT, meta);
+            parameterMetas.put(parameter, meta.build());
+        }
 
         // Ignore everything if command doesn't have arguments.
         if (parameters.length <= 1) return Collections.emptyList();

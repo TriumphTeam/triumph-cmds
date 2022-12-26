@@ -37,5 +37,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Async {
 
+    // Async's annotation meta key
     MetaKey<Void> META_KEY = MetaKey.of("async", Void.TYPE);
 }

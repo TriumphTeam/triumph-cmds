@@ -29,24 +29,24 @@ import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static dev.triumphteam.cmd.core.processor.AbstractCommandProcessor.processAnnotations;
+
 @SuppressWarnings("unchecked")
-public abstract class AbstractRootCommandProcessor<S> {
+public abstract class AbstractRootCommandProcessor<S> implements CommandProcessor {
 
     private final BaseCommand baseCommand;
 
@@ -84,21 +84,13 @@ public abstract class AbstractRootCommandProcessor<S> {
         return description;
     }
 
-    public CommandMeta createMeta() {
+    @Contract(" -> new")
+    @Override
+    public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(null);
-        final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> processors
-                = commandExtensions.getAnnotationProcessors();
-
-        for (final Annotation annotation : baseCommand.getClass().getAnnotations()) {
-            @SuppressWarnings("rawtypes") final AnnotationProcessor annotationProcessor
-                    = processors.get(annotation.annotationType());
-
-            // No processors available
-            if (annotationProcessor == null) continue;
-
-            annotationProcessor.process(annotation, AnnotationTarget.COMMAND, meta);
-        }
-
+        // Process all the class annotations
+        processAnnotations(commandExtensions, baseCommand.getClass(), AnnotationTarget.COMMAND, meta);
+        // Return modified meta
         return meta.build();
     }
 
@@ -116,37 +108,23 @@ public abstract class AbstractRootCommandProcessor<S> {
             final @NotNull CommandMeta parentMeta,
             final @NotNull Method[] methods
     ) {
-        final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors
-                = commandExtensions.getAnnotationProcessors();
-
         return Arrays.stream(methods).map(method -> {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) return null;
-
-            final CommandMeta.Builder meta = new CommandMeta.Builder(parentMeta);
 
             final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
                     name,
                     baseCommand,
                     method,
                     registryContainer,
-                    commandExtensions
+                    commandExtensions,
+                    parentMeta
             );
 
             // Not a command, ignore the method
             if (processor.getName() == null) return null;
 
-            // Process annotations
-            for (final Annotation annotation : method.getAnnotations()) {
-                @SuppressWarnings("rawtypes") final AnnotationProcessor annotationProcessor
-                        = annotationProcessors.get(annotation.annotationType());
-                if (annotationProcessor == null) continue;
-                annotationProcessor.process(annotation, AnnotationTarget.SUB_COMMAND, meta);
-            }
-
-            processor.senderType();
-            System.out.println(processor.arguments());
-            return new SubCommand<S>(null);
+            return new SubCommand<>(processor);
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
