@@ -1,5 +1,8 @@
 [versions]
+# kotlin
 kotlin = "1.7.21"
+coroutines = "1.6.4"
+
 license = "0.16.1"
 
 # Core
@@ -36,6 +39,9 @@ spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
 
 # Discord
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+
+# Kotlin
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
 # build
 build-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

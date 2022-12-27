@@ -3,6 +3,7 @@ package dev.triumphteam.cmds
 import dev.triumphteam.cmd.core.argument.InternalArgument
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument
+import dev.triumphteam.cmd.core.extention.ExtensionBuilder
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator
@@ -12,6 +13,12 @@ import dev.triumphteam.cmd.core.extention.meta.MetaKey
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import kotlin.coroutines.Continuation
+
+public fun <S, B : ExtensionBuilder<*, S>> B.useCoroutines() {
+    val kotlinArgumentExtension = CoroutinesCommandExtension<S>()
+    addCommandMetaProcessor(kotlinArgumentExtension)
+    setArgumentValidator(kotlinArgumentExtension)
+}
 
 public class CoroutinesCommandExtension<S> : CommandMetaProcessor, ArgumentValidator<S> {
 

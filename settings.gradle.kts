@@ -9,18 +9,18 @@ rootProject.name = "triumph-cmd"
 
 listOf(
     "core",
-    "kotlin",
     "simple"
 ).forEach(::includeProject)
 
 listOf(
-    // "minecraft/bukkit",
-     "discord/jda-common",
-    // "discord/jda-prefixed",
-    // "discord/jda-slash",
+    // "minecraft/bukkit" to "bukkit",
+     "discord/jda-common" to "jda-common",
+    // "discord/jda-prefixed" to "jda-prefixed",
+    // "discord/jda-slash" to "jda-slash",
+     "kotlin/coroutines" to "kotlin-coroutines",
+     "kotlin/extensions" to "kotlin-extensions"
 ).forEach {
-    val (folder, name) = it.split('/')
-    includeProject(name, folder)
+    includeProjectFolders(it.first, it.second)
 }
 
 include("test-module")
@@ -31,10 +31,10 @@ fun includeProject(name: String) {
     }
 }
 
-fun includeProject(name: String, folder: String) {
+fun includeProjectFolders(folder: String, name: String) {
     include(name) {
         this.name = "${rootProject.name}-$name"
-        this.projectDir = file("$folder/$name")
+        this.projectDir = file(folder)
     }
 }
 

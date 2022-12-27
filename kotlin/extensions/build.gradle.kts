@@ -7,9 +7,3 @@ dependencies {
     api(projects.triumphCmdCore)
     api(kotlin("stdlib"))
 }
-
-tasks {
-    kotlin {
-        explicitApi()
-    }
-}
