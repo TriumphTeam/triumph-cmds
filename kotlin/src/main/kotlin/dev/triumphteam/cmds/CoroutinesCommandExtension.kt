@@ -3,24 +3,30 @@ package dev.triumphteam.cmds
 import dev.triumphteam.cmd.core.argument.InternalArgument
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument
+import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator
-import dev.triumphteam.cmd.core.extention.argument.CommandMethodProcessor
+import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta
 import dev.triumphteam.cmd.core.extention.meta.MetaKey
+import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import kotlin.coroutines.Continuation
 
-public class CoroutinesCommandExtension<S> : CommandMethodProcessor, ArgumentValidator<S> {
+public class CoroutinesCommandExtension<S> : CommandMetaProcessor, ArgumentValidator<S> {
 
     private companion object {
         /** The key that'll represent a suspending function. */
         private val SUSPEND_META_KEY: MetaKey<Unit> = MetaKey.of("suspend", Unit::class.java)
     }
 
-    /** Simply processing if the [method] contains a [Continuation], if so, we're dealing with a suspend function. */
-    override fun process(method: Method, meta: CommandMeta.Builder) {
-        if (method.parameterTypes.none(Continuation::class.java::equals)) return
+    /** Simply processing if the [element] contains a [Continuation], if so, we're dealing with a suspend function. */
+    override fun process(element: AnnotatedElement, target: ProcessorTarget, meta: CommandMeta.Builder) {
+        if (element !is Method) return
+        // Not really necessary but doesn't hurt to check
+        if (target != ProcessorTarget.COMMAND) return
+
+        if (element.parameterTypes.none(Continuation::class.java::equals)) return
         // Marks the function as suspending
         // We don't really care about the value it passes
         meta.add(SUSPEND_META_KEY, Unit)

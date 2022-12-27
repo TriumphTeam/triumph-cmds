@@ -4,6 +4,6 @@ import dev.triumphteam.cmd.core.extention.ExtensionBuilder
 
 public fun <S, B : ExtensionBuilder<*, S>> B.useCoroutines() {
     val kotlinArgumentExtension = CoroutinesCommandExtension<S>()
-    addCommandMethodProcessor(kotlinArgumentExtension)
+    addCommandMetaProcessor(kotlinArgumentExtension)
     setArgumentValidator(kotlinArgumentExtension)
 }

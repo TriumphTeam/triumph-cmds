@@ -28,7 +28,7 @@ import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
+import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
@@ -82,8 +82,8 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
     public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(getParentMeta());
         // Process all the class annotations
-        processAnnotations(getCommandExtensions(), method, AnnotationTarget.COMMAND, meta);
-        processCommandMethod(getCommandExtensions(), method, meta);
+        processAnnotations(getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
+        processCommandMeta(getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
         // Return modified meta
         return meta.build();
     }
@@ -94,7 +94,7 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
      *
      * @return The validated sender type.
      */
-    public Class<? extends S> senderType() {
+    public @NotNull Class<? extends S> senderType() {
         final Parameter[] parameters = method.getParameters();
         if (parameters.length == 0) {
             throw createException("Sender parameter missing");
@@ -117,14 +117,14 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
         return (Class<? extends S>) type;
     }
 
-    public List<InternalArgument<S, ?>> arguments(final @NotNull CommandMeta parentMeta) {
+    public @NotNull List<InternalArgument<S, ?>> arguments(final @NotNull CommandMeta parentMeta) {
         final Parameter[] parameters = method.getParameters();
 
         // First thing is to process the parameter annotations
         final Map<Parameter, CommandMeta> parameterMetas = new HashMap<>();
         for (final Parameter parameter : parameters) {
             final CommandMeta.Builder meta = new CommandMeta.Builder(parentMeta);
-            processAnnotations(getCommandExtensions(), parameter, AnnotationTarget.ARGUMENT, meta);
+            processAnnotations(getCommandExtensions(), parameter, ProcessorTarget.ARGUMENT, meta);
             parameterMetas.put(parameter, meta.build());
         }
 
@@ -177,16 +177,16 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
      *
      * @return A list with the descriptions ordered by parameter order.
      */
-    private List<String> argDescriptionFromMethodAnnotation() {
+    private @NotNull List<String> argDescriptionFromMethodAnnotation() {
         final ArgDescriptions argDescriptions = method.getAnnotation(ArgDescriptions.class);
         if (argDescriptions == null) return Collections.emptyList();
         return Arrays.asList(argDescriptions.value());
     }
 
-    public Map<Integer, Suggestion<S>> suggestionsFromMethodAnnotation() {
+    public @NotNull Map<Integer, Suggestion<S>> suggestionsFromMethodAnnotation() {
         final Map<Integer, Suggestion<S>> map = new HashMap<>();
 
-        @NotNull List<dev.triumphteam.cmd.core.annotations.@NotNull Suggestion> suggestionsFromAnnotations = getSuggestionsFromAnnotations();
+        final List<dev.triumphteam.cmd.core.annotations.Suggestion> suggestionsFromAnnotations = getSuggestionsFromAnnotations();
         for (int i = 0; i < suggestionsFromAnnotations.size(); i++) {
             final dev.triumphteam.cmd.core.annotations.Suggestion suggestion = suggestionsFromAnnotations.get(i);
             final String key = suggestion.value();
@@ -201,25 +201,6 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
         }
 
         return map;
-    }
-
-    /**
-     * Extract all suggestions from the parameters.
-     * Adds the suggestions to the passed list.
-     */
-    private void extractSuggestionFromParams() {
-        // TODO SUGGESTIONS
-        /*final Parameter[] parameters = annotatedElement.getParameters();
-        for (int i = 1; i < parameters.length; i++) {
-            final Parameter parameter = parameters[i];
-
-            final dev.triumphteam.cmd.core.annotation.Suggestion suggestion = parameter.getAnnotation(dev.triumphteam.cmd.core.annotation.Suggestion.class);
-            final SuggestionKey suggestionKey = suggestion == null ? null : SuggestionKey.of(suggestion.value());
-
-            final Class<?> type = getGenericType(parameter);
-            final int addIndex = i - 1;
-            setOrAddSuggestion(addIndex, createSuggestion(suggestionKey, type));
-        }*/
     }
 
     private @NotNull List<dev.triumphteam.cmd.core.annotations.@NotNull Suggestion> getSuggestionsFromAnnotations() {

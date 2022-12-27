@@ -75,12 +75,8 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
     }
 
     @Override
-    public void addSubCommand(
-            final @NotNull String name,
-            final @NotNull Command<S> subCommand,
-            final boolean isAlias
-    ) {
-        subCommands.put(name, subCommand);
+    public @NotNull String getName() {
+        return null;
     }
 
     @Override
@@ -91,6 +87,11 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
     @Override
     public @NotNull Map<String, Command<S>> getCommandAliases() {
         return subCommandAliases;
+    }
+
+    @Override
+    public void addSubCommand(final @NotNull Command<S> subCommand, final boolean isAlias) {
+
     }
 
     @Override

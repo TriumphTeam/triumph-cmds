@@ -24,8 +24,9 @@
 package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
+import org.jetbrains.annotations.NotNull;
 
 public interface Command<S> extends CommandMetaContainer {
 
-
+    @NotNull String getName();
 }

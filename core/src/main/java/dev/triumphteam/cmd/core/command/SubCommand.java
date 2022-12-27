@@ -12,11 +12,13 @@ public class SubCommand<S> implements Command<S> {
     private final List<InternalArgument<S, ?>> arguments;
     private final Class<? extends S> senderType;
 
+    private final String name;
     private final CommandMeta meta;
 
     public SubCommand(
             final @NotNull SubCommandProcessor<S> processor
     ) {
+        this.name = processor.getName();
         this.meta = processor.createMeta();
         this.senderType = processor.senderType();
         this.arguments = processor.arguments(meta);
@@ -27,5 +29,10 @@ public class SubCommand<S> implements Command<S> {
     @Override
     public @NotNull CommandMeta getMeta() {
         return meta;
+    }
+
+    @Override
+    public @NotNull String getName() {
+        return name;
     }
 }

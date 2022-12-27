@@ -3,7 +3,7 @@ package dev.triumphteam.cmd.core.extention;
 import dev.triumphteam.cmd.core.exceptions.TriumphCmdException;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
-import dev.triumphteam.cmd.core.extention.argument.CommandMethodProcessor;
+import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,7 @@ import java.util.Map;
 public final class ExtensionBuilder<D, S> {
 
     private final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors = new HashMap<>();
-    private final List<CommandMethodProcessor> commandMethodProcessors = new ArrayList<>();
+    private final List<CommandMetaProcessor> commandMetaProcessors = new ArrayList<>();
 
     private SenderExtension<D, S> senderExtension;
     private ArgumentValidator<S> argumentValidator;
@@ -32,8 +32,8 @@ public final class ExtensionBuilder<D, S> {
     }
 
     @Contract("_ -> this")
-    public @NotNull ExtensionBuilder<D, S> addCommandMethodProcessor(final @NotNull CommandMethodProcessor commandMethodProcessor) {
-        commandMethodProcessors.add(commandMethodProcessor);
+    public @NotNull ExtensionBuilder<D, S> addCommandMetaProcessor(final @NotNull CommandMetaProcessor commandMetaProcessor) {
+        commandMetaProcessors.add(commandMetaProcessor);
         return this;
     }
 
@@ -60,7 +60,7 @@ public final class ExtensionBuilder<D, S> {
 
         return new CommandExtensions<>(
                 annotationProcessors,
-                commandMethodProcessors,
+                commandMetaProcessors,
                 senderExtension,
                 argumentValidator
         );

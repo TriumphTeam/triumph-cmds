@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 /**
  * The target for the custom annotation processing.
  */
-public enum AnnotationTarget {
+public enum ProcessorTarget {
 
     /**
      * The original command, normally the {@link Class} that extends {@link BaseCommand} or a child of it.

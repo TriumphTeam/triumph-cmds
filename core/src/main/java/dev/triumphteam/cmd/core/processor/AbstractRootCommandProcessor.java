@@ -26,10 +26,11 @@ package dev.triumphteam.cmd.core.processor;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.command.Command;
+import dev.triumphteam.cmd.core.command.ParentSubCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
+import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import org.jetbrains.annotations.Contract;
@@ -40,10 +41,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static dev.triumphteam.cmd.core.processor.AbstractCommandProcessor.processAnnotations;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractRootCommandProcessor<S> implements CommandProcessor {
@@ -89,7 +86,9 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
     public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(null);
         // Process all the class annotations
-        processAnnotations(commandExtensions, baseCommand.getClass(), AnnotationTarget.ROOT_COMMAND, meta);
+        final Class<?> klass = baseCommand.getClass();
+        processAnnotations(commandExtensions, klass, ProcessorTarget.ROOT_COMMAND, meta);
+        processCommandMeta(commandExtensions, klass, ProcessorTarget.PARENT_COMMAND, meta);
         // Return modified meta
         return meta.build();
     }
@@ -108,9 +107,10 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
             final @NotNull CommandMeta parentMeta,
             final @NotNull Method[] methods
     ) {
-        return Arrays.stream(methods).map(method -> {
+        final List<Command<S>> commands = new ArrayList<>();
+        for (final Method method : methods) {
             // Ignore non-public methods
-            if (!Modifier.isPublic(method.getModifiers())) return null;
+            if (!Modifier.isPublic(method.getModifiers())) continue;
 
             final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
                     name,
@@ -122,33 +122,47 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
             );
 
             // Not a command, ignore the method
-            if (processor.getName() == null) return null;
+            if (processor.getName() == null) continue;
 
-            return new SubCommand<>(processor);
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+            // Add new command
+            commands.add(new SubCommand<>(processor));
+        }
+
+        return commands;
     }
 
     private @NotNull List<Command<S>> classCommands(
             final @NotNull CommandMeta parentMeta,
             final @NotNull Class<?>[] classes
     ) {
-        final List<Command<S>> subCommands = new ArrayList<>();
+        final List<Command<S>> commands = new ArrayList<>();
         for (final Class<?> klass : classes) {
             // Ignore non-public methods
             if (!Modifier.isPublic(klass.getModifiers())) continue;
 
-            final String name = "";
+            final ParentCommandProcessor<S> processor = new ParentCommandProcessor<>(
+                    name,
+                    baseCommand,
+                    klass,
+                    registryContainer,
+                    commandExtensions,
+                    parentMeta
+            );
+
             // Not a command, ignore the method
-            if (name == null) continue;
+            if (processor.getName() == null) continue;
 
-            System.out.println("Sub boy -> " + name);
+            final ParentSubCommand<S> parent = new ParentSubCommand<>(processor);
 
-            // TODO THIS NEEDS TO BE A NEW META FROM PARENT, NOT CURRENT PARENT
-            subCommands.addAll(methodCommands(parentMeta, klass.getDeclaredMethods()));
-            subCommands.addAll(classCommands(parentMeta, klass.getDeclaredClasses()));
+            // Add children commands to parent
+            methodCommands(parent.getMeta(), klass.getDeclaredMethods()).forEach(it -> parent.addSubCommand(it, false));
+            classCommands(parent.getMeta(), klass.getDeclaredClasses()).forEach(it -> parent.addSubCommand(it, false));
+
+            // Add parent command to main list
+            commands.add(parent);
         }
 
-        return subCommands;
+        return commands;
     }
 
     private @NotNull String nameOf() {

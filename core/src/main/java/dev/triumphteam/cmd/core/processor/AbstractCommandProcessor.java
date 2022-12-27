@@ -41,8 +41,6 @@ import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
@@ -57,9 +55,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -111,42 +107,6 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         this.commandExtensions = commandExtensions;
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
         this.argumentRegistry = registryContainer.getArgumentRegistry();
-    }
-
-    /**
-     * Process all annotations for the specific {@link AnnotatedElement}.
-     *
-     * @param extensions The main extensions to get the processors from.
-     * @param element    The annotated element to process its annotations.
-     * @param target     The target of the annotation.
-     * @param meta       The meta builder that'll be passed to processors.
-     */
-    public static void processAnnotations(
-            final @NotNull CommandExtensions<?, ?> extensions,
-            final @NotNull AnnotatedElement element,
-            final @NotNull AnnotationTarget target,
-            final @NotNull CommandMeta.Builder meta
-    ) {
-        final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> processors
-                = extensions.getAnnotationProcessors();
-
-        for (final Annotation annotation : element.getAnnotations()) {
-            @SuppressWarnings("rawtypes") final AnnotationProcessor annotationProcessor
-                    = processors.get(annotation.annotationType());
-
-            // No processors available
-            if (annotationProcessor == null) continue;
-
-            annotationProcessor.process(annotation, target, meta);
-        }
-    }
-
-    public static void processCommandMethod(
-            final @NotNull CommandExtensions<?, ?> extensions,
-            final @NotNull Method method,
-            final @NotNull CommandMeta.Builder meta
-    ) {
-        extensions.getCommandMethodProcessors().forEach(it -> it.process(method, meta));
     }
 
     protected @NotNull CommandMeta getParentMeta() {

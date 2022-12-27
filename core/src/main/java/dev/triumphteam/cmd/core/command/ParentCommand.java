@@ -36,15 +36,13 @@ import java.util.Map;
  */
 public interface ParentCommand<S> extends Command<S> {
 
+    @NotNull String getName();
+
     @NotNull Map<String, Command<S>> getCommands();
 
     @NotNull Map<String, Command<S>> getCommandAliases();
 
-    void addSubCommand(
-            final @NotNull String name,
-            final @NotNull Command<S> subCommand,
-            final boolean isAlias
-    );
+    void addSubCommand(final @NotNull Command<S> subCommand, final boolean isAlias);
 
     default @Nullable Command<S> getSubCommand(final @NotNull List<String> args) {
         Command<S> subCommand = getDefaultSubCommand();

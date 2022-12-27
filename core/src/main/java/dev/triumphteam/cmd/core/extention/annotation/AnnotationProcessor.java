@@ -9,7 +9,7 @@ public interface AnnotationProcessor<A extends Annotation> {
 
     void process(
             final @NotNull A annotation,
-            final @NotNull AnnotationTarget target,
+            final @NotNull ProcessorTarget target,
             final @NotNull CommandMeta.Builder meta
     );
 }
