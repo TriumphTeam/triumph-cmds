@@ -23,10 +23,10 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.flag.Flags;
-import dev.triumphteam.cmd.core.flag.internal.FlagGroup;
-import dev.triumphteam.cmd.core.flag.internal.FlagOptions;
-import dev.triumphteam.cmd.core.flag.internal.FlagParser;
+import dev.triumphteam.cmd.core.argument.flag.Flags;
+import dev.triumphteam.cmd.core.argument.internal.FlagGroup;
+import dev.triumphteam.cmd.core.argument.internal.FlagOptions;
+import dev.triumphteam.cmd.core.argument.internal.FlagParser;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;

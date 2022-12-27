@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument.named;
 
+import dev.triumphteam.cmd.core.argument.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public interface Arguments {
+public interface Arguments extends Flags {
 
     /**
      * Gets an argument by name.

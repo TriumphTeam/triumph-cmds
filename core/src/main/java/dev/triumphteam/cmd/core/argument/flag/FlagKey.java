@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.flag;
+package dev.triumphteam.cmd.core.argument.flag;
 
 import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;

@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmds
 
-import dev.triumphteam.cmd.core.flag.Flags
+import dev.triumphteam.cmd.core.argument.flag.Flags
 
 /**
  * Checks if the flag key is present or not using operator function.

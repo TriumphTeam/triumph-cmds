@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.flag.internal;
+package dev.triumphteam.cmd.core.argument.internal;
 
 public final class EmptyFlagValue implements FlagValue {
 

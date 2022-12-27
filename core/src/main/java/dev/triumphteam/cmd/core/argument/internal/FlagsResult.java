@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.flag.internal;
+package dev.triumphteam.cmd.core.argument.internal;
 
-import dev.triumphteam.cmd.core.flag.Flags;
+import dev.triumphteam.cmd.core.argument.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,15 +45,15 @@ class FlagsResult<S> implements Flags {
 
     FlagsResult(
             final @NotNull S sender,
-            final @NotNull Map<@NotNull FlagOptions<S>, @NotNull String> flags,
-            final @NotNull List<@NotNull String> args
+            final @NotNull Map<FlagOptions<S>, String> flags,
+            final @NotNull List<String> args
     ) {
         this.sender = sender;
         flags.forEach(this::addFlag);
         this.args = args;
     }
 
-    void addFlag(final @NotNull FlagOptions<S> flag, final @Nullable String value) {
+    public void addFlag(final @NotNull FlagOptions<S> flag, final @Nullable String value) {
         final String shortFlag = flag.getFlag();
         final String longFlag = flag.getLongFlag();
 

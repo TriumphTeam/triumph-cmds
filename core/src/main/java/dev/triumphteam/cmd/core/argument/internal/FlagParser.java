@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.flag.internal;
+package dev.triumphteam.cmd.core.argument.internal;
 
 import com.google.common.collect.Maps;
-import dev.triumphteam.cmd.core.flag.Flags;
+import dev.triumphteam.cmd.core.argument.flag.Flags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -50,17 +50,17 @@ public final class FlagParser<S> {
         this.flagGroup = flagGroup;
     }
 
-    public @NotNull Map<@NotNull FlagOptions<S>, @NotNull String> parseFlags(final @NotNull List<@NotNull String> toParse) {
+    public @NotNull Map<FlagOptions<S>, String> parseFlags(final @NotNull List<String> toParse) {
         return parseInternal(toParse).getKey();
     }
 
-    public @NotNull Flags parse(final @NotNull S sender, final @NotNull List<@NotNull String> toParse) {
+    public @NotNull Flags parse(final @NotNull S sender, final @NotNull List<String> toParse) {
         final Map.Entry<Map<FlagOptions<S>, String>, List<String>> parsed = parseInternal(toParse);
         return new FlagsResult<>(sender, parsed.getKey(), parsed.getValue());
     }
 
-    private Map.@NotNull Entry<@NotNull Map<@NotNull FlagOptions<S>, @NotNull String>, @NotNull List<@NotNull String>> parseInternal(final @NotNull List<@NotNull String> toParse) {
-        final FlagScanner tokens = new FlagScanner(toParse);
+    private Map.Entry<Map<FlagOptions<S>, String>, List<String>> parseInternal(final @NotNull List<String> toParse) {
+        final ParserScanner tokens = new ParserScanner(toParse);
 
         final Map<FlagOptions<S>, String> flags = new LinkedHashMap<>();
         final List<String> args = new ArrayList<>();

@@ -32,11 +32,11 @@ import java.util.Optional;
 import java.util.Set;
 
 @SuppressWarnings("unchecked")
-public final class NamedArgumentResult implements Arguments {
+public final class NamedArgumentResult extends FlagsContainer {
 
     private final Map<String, Object> values;
 
-    public NamedArgumentResult(final @NotNull Map<@NotNull String, @NotNull Object> values) {
+    public NamedArgumentResult(final @NotNull Map<String, Object> values) {
         this.values = values;
     }
 

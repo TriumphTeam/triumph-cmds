@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.flag.internal;
+package dev.triumphteam.cmd.core.argument.internal;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,14 +30,14 @@ import java.util.List;
 /**
  * Simple util scanner for easier looping through the tokens.
  */
-public final class FlagScanner {
+public final class ParserScanner {
 
     private final List<String> tokens;
     private int pointer = -1;
 
     private String current = null;
 
-    public FlagScanner(final @NotNull List<@NotNull String> tokens) {
+    public ParserScanner(final @NotNull List<@NotNull String> tokens) {
         this.tokens = tokens;
     }
 
