@@ -59,8 +59,6 @@ public final class FlagParser<S> {
         return new FlagsResult<>(sender, parsed.getKey(), parsed.getValue());
     }
 
-    private List<String> hi;
-
     private Map.@NotNull Entry<@NotNull Map<@NotNull FlagOptions<S>, @NotNull String>, @NotNull List<@NotNull String>> parseInternal(final @NotNull List<@NotNull String> toParse) {
         final FlagScanner tokens = new FlagScanner(toParse);
 
