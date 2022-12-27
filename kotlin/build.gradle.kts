@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":triumph-cmd-core"))
+    api(projects.triumphCmdCore)
     api(kotlin("stdlib"))
 }
 

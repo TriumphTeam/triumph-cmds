@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.kotlin
+package dev.triumphteam.cmds
 
 import dev.triumphteam.cmd.core.flag.Flags
 

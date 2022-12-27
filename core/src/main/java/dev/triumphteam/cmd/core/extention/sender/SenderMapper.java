@@ -29,13 +29,13 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Interface for mapping a default send into a custom sender.
  *
- * @param <DS> The type of the default sender.
+ * @param <D> The type of the default sender.
  * @param <S>  The type of the custom sender.
  */
 @FunctionalInterface
-public interface SenderMapper<DS, S> {
+public interface SenderMapper<D, S> {
 
-    @Nullable S map(final @NotNull DS defaultSender);
+    @Nullable S map(final @NotNull D defaultSender);
 
     static <S> @NotNull SenderMapper<S, S> defaultMapper() {
         return defaultMapper -> defaultMapper;

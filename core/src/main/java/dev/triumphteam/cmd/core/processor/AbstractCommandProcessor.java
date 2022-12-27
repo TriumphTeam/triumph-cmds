@@ -31,11 +31,6 @@ import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.annotations.Join;
 import dev.triumphteam.cmd.core.annotations.Optional;
 import dev.triumphteam.cmd.core.annotations.Split;
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
 import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
@@ -45,6 +40,11 @@ import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
+import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
+import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.EnumSuggestion;
@@ -59,6 +59,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -138,6 +139,14 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
 
             annotationProcessor.process(annotation, target, meta);
         }
+    }
+
+    public static void processCommandMethod(
+            final @NotNull CommandExtensions<?, ?> extensions,
+            final @NotNull Method method,
+            final @NotNull CommandMeta.Builder meta
+    ) {
+        extensions.getCommandMethodProcessors().forEach(it -> it.process(method, meta));
     }
 
     protected @NotNull CommandMeta getParentMeta() {

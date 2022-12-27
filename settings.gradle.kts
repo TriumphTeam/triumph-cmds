@@ -9,14 +9,14 @@ rootProject.name = "triumph-cmd"
 
 listOf(
     "core",
-    "kotlin-extras",
+    "kotlin",
     "simple"
 ).forEach(::includeProject)
 
 listOf(
     // "minecraft/bukkit",
      "discord/jda-common",
-     "discord/jda-prefixed",
+    // "discord/jda-prefixed",
     // "discord/jda-slash",
 ).forEach {
     val (folder, name) = it.split('/')

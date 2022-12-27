@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public interface SenderExtension<DS, S> {
+public interface SenderExtension<D, S> {
 
     @NotNull Set<Class<? extends S>> getAllowedSenders();
 
@@ -17,5 +17,5 @@ public interface SenderExtension<DS, S> {
             final @NotNull S sender
     );
 
-    @Nullable S map(final @NotNull DS defaultSender);
+    @Nullable S map(final @NotNull D defaultSender);
 }

@@ -14,6 +14,8 @@ public interface CommandMeta {
 
     <V> boolean isPresent(final @NotNull MetaKey<V> metaKey);
 
+    public @Nullable CommandMeta getParentMeta();
+
     final class Builder {
         private final Map<MetaKey<?>, Object> dataMap = new HashMap<>();
 
@@ -36,7 +38,7 @@ public interface CommandMeta {
         }
 
         public CommandMeta build() {
-            return new ImmutableCommandMeta(Collections.unmodifiableMap(dataMap));
+            return new ImmutableCommandMeta(parentMeta, Collections.unmodifiableMap(dataMap));
         }
     }
 }

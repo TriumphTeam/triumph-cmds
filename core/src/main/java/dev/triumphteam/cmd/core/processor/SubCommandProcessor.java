@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationTarget;
+import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
@@ -82,6 +83,7 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
         final CommandMeta.Builder meta = new CommandMeta.Builder(getParentMeta());
         // Process all the class annotations
         processAnnotations(getCommandExtensions(), method, AnnotationTarget.COMMAND, meta);
+        processCommandMethod(getCommandExtensions(), method, meta);
         // Return modified meta
         return meta.build();
     }
@@ -148,9 +150,22 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
                     i
             );
 
-            // If validation is false ignore it
-            if (!getCommandExtensions().getArgumentValidator().validate(this, argument, i, last)) continue;
+            // Validating the argument
+            final CommandMeta meta = parameterMetas.get(parameter);
+            if (meta == null) {
+                throw createException("An error occurred while getting parameter meta data for parameter " + parameter.getName());
+            }
+            final ArgumentValidationResult result = getCommandExtensions().getArgumentValidator().validate(meta, argument, i, last);
 
+            // If the result is invalid we throw the exception with the passed message
+            if (result instanceof ArgumentValidationResult.Invalid) {
+                throw createException(((ArgumentValidationResult.Invalid) result).getMessage());
+            }
+
+            // If it's ignorable we ignore it and don't add to the argument list
+            if (result instanceof ArgumentValidationResult.Ignore) continue;
+
+            // If valid argument then add to list
             arguments.add(argument);
         }
 

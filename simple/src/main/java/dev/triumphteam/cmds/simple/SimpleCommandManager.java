@@ -28,8 +28,7 @@ import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
-import dev.triumphteam.cmd.core.extention.ExtensionBuilder;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
@@ -50,13 +49,13 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
     private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
-    private SimpleCommandManager(final @NotNull CommandExtensions<S, S> commandExtensions) {
-        super(commandExtensions);
+    private SimpleCommandManager(final @NotNull CommandOptions<S, S> commandOptions) {
+        super(commandOptions);
     }
 
     @Contract("_ -> new")
-    public static <S> @NotNull SimpleCommandManager<S> create(final @NotNull Consumer<ExtensionBuilder<S, S>> builder) {
-        final SimpleExtensionBuilder<S> extensionBuilder = new SimpleExtensionBuilder<>();
+    public static <S> @NotNull SimpleCommandManager<S> create(final @NotNull Consumer<SimpleCommandOptions.Builder<S>> builder) {
+        final SimpleCommandOptions.Builder<S> extensionBuilder = new SimpleCommandOptions.Builder<>();
         builder.accept(extensionBuilder);
         return new SimpleCommandManager<>(extensionBuilder.build());
     }
@@ -66,7 +65,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
                 baseCommand,
                 getRegistryContainer(),
-                getCommandExtensions()
+                getCommandOptions().getCommandExtensions()
         );
 
         final String name = processor.getName();

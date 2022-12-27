@@ -7,9 +7,14 @@ import java.util.Map;
 
 final class ImmutableCommandMeta implements CommandMeta {
 
+    private final CommandMeta parentMeta;
     private final Map<MetaKey<?>, Object> meta;
 
-    public ImmutableCommandMeta(final @NotNull Map<MetaKey<?>, Object> meta) {
+    public ImmutableCommandMeta(
+            final @Nullable CommandMeta parentMeta,
+            final @NotNull Map<MetaKey<?>, Object> meta
+    ) {
+        this.parentMeta = parentMeta;
         this.meta = meta;
     }
 
@@ -22,6 +27,11 @@ final class ImmutableCommandMeta implements CommandMeta {
     @Override
     public <V> boolean isPresent(final @NotNull MetaKey<V> metaKey) {
         return meta.containsKey(metaKey);
+    }
+
+    @Override
+    public @Nullable CommandMeta getParentMeta() {
+        return parentMeta;
     }
 
     @Override

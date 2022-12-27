@@ -26,7 +26,7 @@ package dev.triumphteam.cmd.core;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.named.Argument;
 import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.MessageResolver;
@@ -43,16 +43,16 @@ import java.util.List;
 /**
  * Base command manager for all platforms.
  *
- * @param <DS> The default sender type.
- * @param <S>  The sender type.
+ * @param <D> The default sender type.
+ * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-public abstract class CommandManager<DS, S> {
+public abstract class CommandManager<D, S> {
 
-    private final CommandExtensions<S, S> commandExtensions;
+    private final CommandOptions<D, S> commandOptions;
 
-    public CommandManager(final @NotNull CommandExtensions<S, S> commandExtensions) {
-        this.commandExtensions = commandExtensions;
+    public CommandManager(final @NotNull CommandOptions<D, S> commandOptions) {
+        this.commandOptions = commandOptions;
     }
 
     /**
@@ -148,7 +148,7 @@ public abstract class CommandManager<DS, S> {
 
     protected abstract @NotNull RegistryContainer<S> getRegistryContainer();
 
-    protected @NotNull CommandExtensions<S, S> getCommandExtensions() {
-        return commandExtensions;
+    protected @NotNull CommandOptions<D, S> getCommandOptions() {
+        return commandOptions;
     }
 }
