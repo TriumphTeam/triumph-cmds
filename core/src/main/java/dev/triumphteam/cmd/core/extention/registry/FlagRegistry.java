@@ -24,23 +24,23 @@
 package dev.triumphteam.cmd.core.extention.registry;
 
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public final class FlagRegistry<S> implements Registry {
+public final class FlagRegistry implements Registry {
 
-    private final Map<FlagKey, SuggestionResolver<S>> suggestions = new HashMap<>();
+    private final Map<FlagKey, List<Flag>> suggestions = new HashMap<>();
 
-
-    public void register(final @NotNull FlagKey key, final @NotNull SuggestionResolver<S> resolver) {
-        suggestions.put(key, resolver);
+    public void register(final @NotNull FlagKey key, final @NotNull List<Flag> flags) {
+        suggestions.put(key, flags);
     }
 
-    public @Nullable SuggestionResolver<S> getSuggestionResolver(final @NotNull FlagKey key) {
+    public @Nullable List<Flag> getFlags(final @NotNull FlagKey key) {
         return suggestions.get(key);
     }
 }

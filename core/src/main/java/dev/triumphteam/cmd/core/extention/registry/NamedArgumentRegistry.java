@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class NamedArgumentRegistry<S> implements Registry {
+public final class NamedArgumentRegistry implements Registry {
 
     private final Map<ArgumentKey, List<Argument>> namedArguments = new HashMap<>();
 
@@ -40,7 +40,7 @@ public final class NamedArgumentRegistry<S> implements Registry {
         namedArguments.put(key, arguments);
     }
 
-    public @Nullable List<Argument> getResolver(final @NotNull ArgumentKey key) {
+    public @Nullable List<Argument> getArguments(final @NotNull ArgumentKey key) {
         return namedArguments.get(key);
     }
 }

@@ -24,8 +24,12 @@
 package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
+import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.ContextualKey;
@@ -92,32 +96,73 @@ public abstract class CommandManager<D, S> {
     }
 
     /**
-     * Registers a custom internalArgument.
+     * Registers a custom argument.
      *
-     * @param clazz    The class of the internalArgument to be registered.
-     * @param resolver The {@link ArgumentResolver} with the internalArgument resolution.
+     * @param clazz    The class of the argument to be registered.
+     * @param resolver The {@link ArgumentResolver} with the argument resolution.
      */
     public final void registerArgument(final @NotNull Class<?> clazz, final @NotNull ArgumentResolver<S> resolver) {
         getRegistryContainer().getArgumentRegistry().register(clazz, resolver);
     }
 
-    // TODO: Comments
-    public void registerSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver<S> suggestionResolver) {
-        getRegistryContainer().getSuggestionRegistry().register(key, suggestionResolver);
+    /**
+     * Registers a suggestion to be used for specific arguments.
+     *
+     * @param key      The {@link SuggestionKey} that identifies the registered suggestion.
+     * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
+     */
+    public void registerSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver<S> resolver) {
+        getRegistryContainer().getSuggestionRegistry().register(key, resolver);
     }
 
-    // TODO: Comments
-    public void registerSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S> suggestionResolver) {
-        getRegistryContainer().getSuggestionRegistry().register(type, suggestionResolver);
+    /**
+     * Registers a suggestion to be used for all arguments of a specific type.
+     *
+     * @param type     Using specific {@link Class} types as target for suggestions instead of keys.
+     * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
+     */
+    public void registerSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S> resolver) {
+        getRegistryContainer().getSuggestionRegistry().register(type, resolver);
     }
 
-    // TODO: Comments
+    /**
+     * Registers a list of arguments to be used as named arguments in a command.
+     *
+     * @param key       The {@link ArgumentKey} to represent the list.
+     * @param arguments The list of arguments.
+     */
     public final void registerNamedArguments(final @NotNull ArgumentKey key, final @NotNull Argument @NotNull ... arguments) {
         registerNamedArguments(key, Arrays.asList(arguments));
     }
 
+    /**
+     * Registers a list of arguments to be used on a {@link Arguments} argument in a command.
+     *
+     * @param key       The {@link ArgumentKey} to represent the list.
+     * @param arguments The {@link List} of arguments.
+     */
     public final void registerNamedArguments(final @NotNull ArgumentKey key, final @NotNull List<Argument> arguments) {
         getRegistryContainer().getNamedArgumentRegistry().register(key, arguments);
+    }
+
+    /**
+     * Registers a list of flags to be used on a {@link Flags} argument or {@link Arguments} argument, in a command.
+     *
+     * @param key       The {@link FlagKey} to represent the list.
+     * @param flags The list of flags.
+     */
+    public final void registerFlags(final @NotNull FlagKey key, final @NotNull Flag @NotNull ... flags) {
+        registerFlags(key, Arrays.asList(flags));
+    }
+
+    /**
+     * Registers a list of flags to be used on a {@link Flags} argument or {@link Arguments} argument, in a command.
+     *
+     * @param key       The {@link FlagKey} to represent the list.
+     * @param flags The {@link List} of flags.
+     */
+    public final void registerFlags(final @NotNull FlagKey key, final @NotNull List<Flag> flags) {
+        getRegistryContainer().getFlagRegistry().register(key, flags);
     }
 
     /**

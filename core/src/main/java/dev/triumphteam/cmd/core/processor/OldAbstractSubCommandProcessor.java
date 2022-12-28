@@ -427,7 +427,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
     }
 
     private @NotNull Map<@NotNull String, @NotNull InternalArgument<S, ?>> collectNamedArgs(final @NotNull String key) {
-        final List<Argument> arguments = namedArgumentRegistry.getResolver(ArgumentKey.of(key));
+        final List<Argument> arguments = namedArgumentRegistry.getArguments(ArgumentKey.of(key));
         if (arguments == null || arguments.isEmpty()) {
             throw createException("No registered named arguments found for key \"" + key + "\"");
         }

@@ -29,7 +29,8 @@ import org.jetbrains.annotations.NotNull;
 public class RegistryContainer<S> {
 
     private final ArgumentRegistry<S> argumentRegistry = new ArgumentRegistry<>();
-    private final NamedArgumentRegistry<S> namedArgumentRegistry = new NamedArgumentRegistry<>();
+    private final NamedArgumentRegistry namedArgumentRegistry = new NamedArgumentRegistry();
+    private final FlagRegistry flagRegistry = new FlagRegistry();
     private final RequirementRegistry<S> requirementRegistry = new RequirementRegistry<>();
     private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
     private final SuggestionRegistry<S> suggestionRegistry = new SuggestionRegistry<>();
@@ -38,8 +39,12 @@ public class RegistryContainer<S> {
         return argumentRegistry;
     }
 
-    public @NotNull NamedArgumentRegistry<S> getNamedArgumentRegistry() {
+    public @NotNull NamedArgumentRegistry getNamedArgumentRegistry() {
         return namedArgumentRegistry;
+    }
+
+    public FlagRegistry getFlagRegistry() {
+        return flagRegistry;
     }
 
     public @NotNull RequirementRegistry<S> getRequirementRegistry() {
