@@ -27,18 +27,13 @@ import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
+/**
+ * Identifier for a list of registered flags.
+ */
 public final class FlagKey extends StringKey {
-
-    // Holds all registered keys, default and custom ones
-    private static final Set<FlagKey> REGISTERED_KEYS = new HashSet<>();
 
     private FlagKey(final @NotNull String key) {
         super(key);
-        REGISTERED_KEYS.add(this);
     }
 
     /**
@@ -50,10 +45,6 @@ public final class FlagKey extends StringKey {
     @Contract("_ -> new")
     public static @NotNull FlagKey of(final @NotNull String key) {
         return new FlagKey(key);
-    }
-
-    public static @NotNull Set<@NotNull FlagKey> getRegisteredKeys() {
-        return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override

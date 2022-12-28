@@ -27,7 +27,7 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class ListArgument implements Argument {
+final class ListArgument implements Argument {
 
     private final Class<?> collectionType;
     private final String separator;

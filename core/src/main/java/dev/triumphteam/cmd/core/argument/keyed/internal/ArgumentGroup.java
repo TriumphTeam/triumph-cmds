@@ -16,10 +16,11 @@ public interface ArgumentGroup<T> {
     /**
      * Static factory for creating a new flag {@link ArgumentGroup} of type {@link Flag}.
      *
+     * @param flags The {@link List} of {@link Flag}s.
      * @return A {@link FlagGroup} instance.
      */
-    static ArgumentGroup<Flag> flags() {
-        return new FlagGroup<>();
+    static ArgumentGroup<Flag> flags(final @NotNull List<Flag> flags) {
+        return new FlagGroup(flags);
     }
 
     /**
@@ -31,13 +32,6 @@ public interface ArgumentGroup<T> {
     static ArgumentGroup<Argument> named(final @NotNull List<Argument> arguments) {
         return new NamedGroup(arguments);
     }
-
-    /**
-     * Adds a new argument to the group.
-     *
-     * @param argument The argument {@link T} that should be added to the group.
-     */
-    void addArgument(final @NotNull T argument);
 
     /**
      * Gets the argument that matches the current token.

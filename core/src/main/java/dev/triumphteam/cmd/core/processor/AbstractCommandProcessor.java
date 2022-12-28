@@ -36,9 +36,15 @@ import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
 import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.JoinedStringInternalArgument;
+import dev.triumphteam.cmd.core.argument.KeyedInternalArgument;
 import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import dev.triumphteam.cmd.core.argument.keyed.Flags;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
+import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
@@ -137,6 +143,8 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
             final @NotNull Parameter parameter,
             final @NotNull List<String> argDescriptions,
             final @NotNull Map<Integer, Suggestion<S>> suggestions,
+            final @NotNull ArgumentGroup<Flag> flagGroup,
+            final @NotNull ArgumentGroup<Argument> argumentGroup,
             final int position
     ) {
         final Class<?> type = parameter.getType();
@@ -196,36 +204,23 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
             );
         }
 
-        // Handler for flags.
-        // TODO RE-ADD FLAGS AND NAMED ARGUMENTS AS A SINGLE TYPE
-        /*if (type == Flags.class) {
-            if (flagGroup.isEmpty()) {
-                throw createException("Flags internalArgument detected but no flag annotation declared");
+        // Handle flags and named arguments
+        if (Flags.class.isAssignableFrom(type)) {
+
+            if (type == Arguments.class) {
+                if (argumentGroup.isEmpty()) {
+                    throw createException("No named arguments found, if you want only Flags use the \"" + Flags.class.getSimpleName() + "\" argument instead");
+                }
+            } else if (type == Flags.class) {
+                if (flagGroup.isEmpty()) {
+                    throw createException("No declared flags found, make sure you have registered or declared some, or make sure the key is correct.");
+                }
             }
 
-            return new FlagInternalArgument<>(
-                    argumentName,
-                    argumentDescription,
-                    flagGroup,
-                    optional
-            );
+            return new KeyedInternalArgument<>(argumentName, argumentDescription, flagGroup, argumentGroup);
         }
 
-        // Handler for named arguments
-        if (type == Arguments.class) {
-            final NamedArguments namedArguments = annotatedElement.getAnnotation(NamedArguments.class);
-            if (namedArguments == null) {
-                throw createException("TODO");
-            }
-
-            return new NamedInternalArgument<>(
-                    argumentName,
-                    argumentDescription,
-                    collectNamedArgs(namedArguments.value()),
-                    optional
-            );
-        }*/
-
+        // No more exceptions found so now just create simple argument
         return createSimpleArgument(
                 type,
                 argumentName,

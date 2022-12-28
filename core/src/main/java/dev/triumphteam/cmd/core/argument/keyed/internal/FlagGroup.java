@@ -33,17 +33,18 @@ import java.util.Map;
 
 /**
  * Basically a holder that contains all the needed flags for the command.
- *
- * @param <S> The sender type.
  */
-final class FlagGroup<S> implements ArgumentGroup<Flag> {
+final class FlagGroup implements ArgumentGroup<Flag> {
 
     private final Map<String, Flag> flags = new HashMap<>();
     private final Map<String, Flag> longFlags = new HashMap<>();
 
     private final List<String> allFlags = new ArrayList<>();
 
-    @Override
+    public FlagGroup(final @NotNull List<Flag> flags) {
+        flags.forEach(this::addArgument);
+    }
+
     public void addArgument(final @NotNull Flag argument) {
         final String key = argument.getKey();
 
@@ -85,5 +86,12 @@ final class FlagGroup<S> implements ArgumentGroup<Flag> {
         if (token.startsWith("--")) return token.substring(2);
         if (token.startsWith("-")) return token.substring(1);
         return token;
+    }
+
+    @Override
+    public String toString() {
+        return "FlagGroup{" +
+                "allFlags=" + allFlags +
+                '}';
     }
 }

@@ -25,12 +25,21 @@ package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
+import dev.triumphteam.cmd.core.annotations.CommandFlags;
+import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
+import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.registry.FlagRegistry;
+import dev.triumphteam.cmd.core.extention.registry.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
@@ -64,6 +73,8 @@ import static java.util.Collections.singletonList;
 public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
 
     private final Method method;
+    private final NamedArgumentRegistry namedArgumentRegistry;
+    private final FlagRegistry flagRegistry;
 
     SubCommandProcessor(
             final @NotNull String parentName,
@@ -76,6 +87,8 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
         super(parentName, baseCommand, method, registryContainer, commandExtensions, parentMeta);
 
         this.method = method;
+        this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
+        this.flagRegistry = registryContainer.getFlagRegistry();
     }
 
     @Override
@@ -117,6 +130,12 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
         return (Class<? extends S>) type;
     }
 
+    /**
+     * Create all arguments necessary for the command to function.
+     *
+     * @param parentMeta The {@link CommandMeta} inherited from the parent command.
+     * @return A {@link List} of validated arguments.
+     */
     public @NotNull List<InternalArgument<S, ?>> arguments(final @NotNull CommandMeta parentMeta) {
         final Parameter[] parameters = method.getParameters();
 
@@ -133,6 +152,8 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
 
         final List<String> argDescriptions = argDescriptionFromMethodAnnotation();
         final Map<Integer, Suggestion<S>> suggestions = suggestionsFromMethodAnnotation();
+        final ArgumentGroup<Flag> flagGroup = flagGroupFromMethod(method);
+        final ArgumentGroup<Argument> argumentGroup = argumentGroupFromMethod(method);
 
         // Position of the last argument.
         final int last = parameters.length - 1;
@@ -147,6 +168,8 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
                     parameter,
                     argDescriptions,
                     suggestions,
+                    flagGroup,
+                    argumentGroup,
                     i
             );
 
@@ -170,6 +193,68 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
         }
 
         return arguments;
+    }
+
+    /**
+     * Create a named argument group from the values passed by the annotation.
+     *
+     * @param method The method to extract annotations from.
+     * @return The final group of named arguments or null if none was available.
+     */
+    private @NotNull ArgumentGroup<Argument> argumentGroupFromMethod(final @NotNull Method method) {
+        final NamedArguments namedAnnotation = method.getAnnotation(NamedArguments.class);
+        if (namedAnnotation == null) return ArgumentGroup.named(emptyList());
+
+        final List<Argument> argumentsFromRegistry = namedArgumentRegistry.getArguments(ArgumentKey.of(namedAnnotation.value()));
+        if (argumentsFromRegistry == null) return ArgumentGroup.named(emptyList());
+
+        return ArgumentGroup.named(argumentsFromRegistry);
+    }
+
+    /**
+     * Create a flag group from the values passed by the annotation.
+     *
+     * @param method The method to extract annotations from.
+     * @return The final group of flags or null if none was available.
+     */
+    private @NotNull ArgumentGroup<Flag> flagGroupFromMethod(final @NotNull Method method) {
+        final CommandFlags flagsAnnotation = method.getAnnotation(CommandFlags.class);
+
+        if (flagsAnnotation != null) {
+            final String key = flagsAnnotation.key();
+            // We give priority to keyed value from the registry
+            if (!key.isEmpty()) {
+                final List<Flag> flagsFromRegistry = flagRegistry.getFlags(FlagKey.of(key));
+                if (flagsFromRegistry != null) return ArgumentGroup.flags(flagsFromRegistry);
+            }
+
+            // If key not present, parse annotations into usable flag data
+            final List<Flag> flags = flagsFromRawFlags(Arrays.asList(flagsAnnotation.value()));
+            return ArgumentGroup.flags(flags);
+        }
+
+        final dev.triumphteam.cmd.core.annotations.Flag flagAnnotation = method.getAnnotation(dev.triumphteam.cmd.core.annotations.Flag.class);
+        if (flagAnnotation == null) return ArgumentGroup.flags(emptyList());
+        // Parse single annotation into usable flag data
+        final List<Flag> flags = flagsFromRawFlags(singletonList(flagAnnotation));
+        return ArgumentGroup.flags(flags);
+    }
+
+    /**
+     * Converts a flag annotation into usable flag data just like the one from the registry.
+     *
+     * @param rawFlags The raw flag annotations.
+     * @return The converted flag data.
+     */
+    private @NotNull List<Flag> flagsFromRawFlags(final @NotNull List<dev.triumphteam.cmd.core.annotations.Flag> rawFlags) {
+        return rawFlags.stream().map(it -> Flag.flag(it.flag())
+                .longFlag(it.longFlag())
+                .argument(it.argument())
+                .description(it.description())
+                .suggestion(SuggestionKey.of(it.suggestion()))
+                .build()
+        ).collect(Collectors.toList());
+
     }
 
     /**

@@ -28,25 +28,18 @@ import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Registry key, for more organized way of registering and getting things from the registries.
  */
 public abstract class ContextualKey<C extends MessageContext> extends StringKey {
 
-    // Holds all registered keys, default and custom ones
-    private static final Set<ContextualKey<? extends MessageContext>> REGISTERED_KEYS = new HashSet<>();
-
     private final Class<C> type;
 
     protected ContextualKey(final @NotNull String key, final @NotNull Class<C> type) {
         super(key);
         this.type = type;
-        REGISTERED_KEYS.add(this);
     }
 
     /**
@@ -56,15 +49,6 @@ public abstract class ContextualKey<C extends MessageContext> extends StringKey 
      */
     public @NotNull Class<C> getType() {
         return type;
-    }
-
-    /**
-     * Gets an immutable {@link Set} with all the registered keys.
-     *
-     * @return The keys {@link Set}.
-     */
-    public static @NotNull Set<@NotNull ContextualKey<? extends @NotNull MessageContext>> getRegisteredKeys() {
-        return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override

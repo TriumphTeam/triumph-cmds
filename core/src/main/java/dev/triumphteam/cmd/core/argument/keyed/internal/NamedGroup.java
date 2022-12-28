@@ -43,7 +43,6 @@ final class NamedGroup implements ArgumentGroup<Argument> {
         arguments.forEach(this::addArgument);
     }
 
-    @Override
     public void addArgument(final @NotNull Argument argument) {
         final String name = argument.getName();
         allArgumentNames.add(name);
@@ -63,5 +62,12 @@ final class NamedGroup implements ArgumentGroup<Argument> {
     @Override
     public @Nullable Argument getMatchingArgument(final @NotNull String token) {
         return arguments.get(token);
+    }
+
+    @Override
+    public String toString() {
+        return "NamedGroup{" +
+                "allArgumentNames=" + allArgumentNames +
+                '}';
     }
 }

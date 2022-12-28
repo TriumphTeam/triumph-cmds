@@ -27,13 +27,12 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class SimpleArgument implements Argument {
+final class SimpleArgument implements Argument {
 
     private final Class<?> type;
     private final String name;
     private final String description;
     private final SuggestionKey suggestionKey;
-
 
     public SimpleArgument(final @NotNull Argument.AbstractBuilder<?> argumentBuilder) {
         this.type = argumentBuilder.getType();

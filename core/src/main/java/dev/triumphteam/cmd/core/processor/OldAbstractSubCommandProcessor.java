@@ -55,7 +55,6 @@ import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
-import dev.triumphteam.cmd.core.argument.keyed.internal.ListArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
@@ -117,14 +116,14 @@ public abstract class OldAbstractSubCommandProcessor<S> {
     private final List<String> argDescriptions = new ArrayList<>();
     private final List<String> alias = new ArrayList<>();
     private final boolean isAsync;
-    private final ArgumentGroup<dev.triumphteam.cmd.core.argument.keyed.internal.Flag> flagGroup = ArgumentGroup.flags();
+    private final ArgumentGroup<dev.triumphteam.cmd.core.argument.keyed.internal.Flag> flagGroup = ArgumentGroup.flags(emptyList());
     private final List<Suggestion<S>> suggestionList = new ArrayList<>();
     private final List<InternalArgument<S, ?>> internalArguments = new ArrayList<>();
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
     private final RegistryContainer<S> registryContainer;
     private final SuggestionRegistry<S> suggestionRegistry;
     private final ArgumentRegistry<S> argumentRegistry;
-    private final NamedArgumentRegistry<S> namedArgumentRegistry;
+    private final NamedArgumentRegistry namedArgumentRegistry;
     private final RequirementRegistry<S> requirementRegistry;
     private final MessageRegistry<S> messageRegistry;
     private final SenderValidator<S> senderValidator;
@@ -435,31 +434,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
         // TODO: Handle list
         return arguments.stream().map(argument -> {
             final Suggestion<S> suggestion = createSuggestion(argument.getSuggestion(), argument.getType());
-
-            if (argument instanceof ListArgument) {
-                final ListArgument listArgument = (ListArgument) argument;
-
-                final InternalArgument<S, String> internalArgument = createSimpleArgument(
-                        listArgument.getType(),
-                        listArgument.getName(),
-                        listArgument.getDescription(),
-                        suggestion,
-                        true
-                );
-
-                return Maps.immutableEntry(
-                        listArgument.getName(),
-                        new SplitStringInternalArgument<>(
-                                listArgument.getName(),
-                                listArgument.getDescription(),
-                                listArgument.getSeparator(),
-                                internalArgument,
-                                listArgument.getType(),
-                                suggestion,
-                                true
-                        )
-                );
-            }
 
             return Maps.immutableEntry(
                     argument.getName(),

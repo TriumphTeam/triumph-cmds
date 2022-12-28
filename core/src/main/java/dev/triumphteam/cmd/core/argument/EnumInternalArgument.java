@@ -57,10 +57,6 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
         populateCache(type);
     }
 
-    public @NotNull Class<? extends Enum<?>> getEnumType() {
-        return enumType;
-    }
-
     /**
      * Resolves the argument type.
      *

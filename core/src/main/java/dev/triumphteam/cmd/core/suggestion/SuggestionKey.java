@@ -27,21 +27,13 @@ import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Key used to identify the {@link } in the {@link }.
  */
 public final class SuggestionKey extends StringKey {
 
-    // Holds all registered keys, default and custom ones
-    private static final Set<SuggestionKey> REGISTERED_KEYS = new HashSet<>();
-
     private SuggestionKey(final @NotNull String key) {
         super(key);
-        REGISTERED_KEYS.add(this);
     }
 
     /**
@@ -53,15 +45,6 @@ public final class SuggestionKey extends StringKey {
     @Contract("_ -> new")
     public static @NotNull SuggestionKey of(final @NotNull String key) {
         return new SuggestionKey(key);
-    }
-
-    /**
-     * Gets an immutable {@link Set} with all the registered keys.
-     *
-     * @return The keys {@link Set}.
-     */
-    public static @NotNull Set<@NotNull SuggestionKey> getRegisteredKeys() {
-        return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override

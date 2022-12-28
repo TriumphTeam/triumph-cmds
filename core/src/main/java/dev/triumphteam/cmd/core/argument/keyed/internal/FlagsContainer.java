@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class FlagsContainer implements Arguments {
+abstract class FlagsContainer implements Arguments {
 
     @Override
     public boolean hasFlag(final @NotNull String flag) {

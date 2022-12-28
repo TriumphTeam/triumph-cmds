@@ -27,14 +27,28 @@ import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Identifier for a list of registered named arguments.
+ */
 public class ArgumentKey extends StringKey {
 
     private ArgumentKey(final @NotNull String key) {
         super(key);
     }
 
+    /**
+     * Factory method for creating a {@link ArgumentKey}.
+     *
+     * @param key The value of the key, normally separated by <code>.</code>.
+     * @return A new {@link ArgumentKey}.
+     */
     @Contract("_ -> new")
     public static @NotNull ArgumentKey of(final @NotNull String key) {
         return new ArgumentKey(key);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "ArgumentKey{super=" + super.toString() + "}";
     }
 }

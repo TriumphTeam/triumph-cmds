@@ -22,6 +22,7 @@ public interface CommandProcessor {
      * @param target     The target of the annotation.
      * @param meta       The meta builder that'll be passed to processors.
      */
+    @SuppressWarnings("unchecked")
     default void processAnnotations(
             final @NotNull CommandExtensions<?, ?> extensions,
             final @NotNull AnnotatedElement element,

@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.annotations;
 
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -64,6 +65,15 @@ public @interface Flag {
      */
     @NotNull Class<?> argument() default void.class;
 
-    // TODO: Comments
+    /**
+     * The value for the {@link SuggestionKey} of a registered suggestion.
+     *
+     * @return The string key of a suggestion.
+     */
     @NotNull String suggestion() default "";
+
+    /**
+     * @return The flag's description.
+     */
+    @NotNull String description() default "";
 }
