@@ -21,30 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.named;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.argument.internal.FlagGroup;
-import dev.triumphteam.cmd.core.argument.internal.FlagOptions;
-import dev.triumphteam.cmd.core.argument.internal.ParserScanner;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.PrimitiveIterator;
-import java.util.Set;
 
-public final class ArgumentParser<S> {
-
-    private static final int SPACE = ' ';
-    private static final int ESCAPE_CHAR = '\\';
-    private static final int HYPHEN = '-';
+public final class ArgumentParser {
 
     private static final String LONG = "--";
     private static final String SHORT = "-";
@@ -53,80 +40,25 @@ public final class ArgumentParser<S> {
     private static final int ARGUMENT_SEPARATOR = ':';
     private static final int FLAG_SEPARATOR = '=';
 
-    private static final Set<Integer> ESCAPABLE_CHARS =
-            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(HYPHEN, ARGUMENT_SEPARATOR, FLAG_SEPARATOR)));
-
-    private final FlagGroup<S> flagGroup;
-    private final Map<String, InternalArgument<S, ?>> namedArguments;
+    private final ArgumentGroup<Flag> flagGroup;
+    private final ArgumentGroup<Argument> namedGroup;
 
     public ArgumentParser(
-            final @NotNull FlagGroup<S> flagGroup,
-            final @NotNull Map<String, InternalArgument<S, ?>> namedArguments
+            final @NotNull ArgumentGroup<Flag> flagGroup,
+            final @NotNull ArgumentGroup<Argument> namedGroup
     ) {
         this.flagGroup = flagGroup;
-        this.namedArguments = namedArguments;
+        this.namedGroup = namedGroup;
     }
 
-    public static Map<String, String> parse(final @NotNull String literal) {
-        final PrimitiveIterator.OfInt iterator = literal.chars().iterator();
-
-        final Map<String, String> args = new LinkedHashMap<>();
-        final StringBuilder builder = new StringBuilder();
-
-        // Control variables
-        boolean escape = false;
-        String argument = "";
-
-        while (iterator.hasNext()) {
-            final int current = iterator.next();
-
-            // Marks next character to be escaped
-            if (current == ESCAPE_CHAR && !argument.isEmpty()) {
-                escape = true;
-                continue;
-            }
-
-            // Found a separator
-            if (current == ARGUMENT_SEPARATOR && argument.isEmpty()) {
-                argument = builder.toString();
-                builder.setLength(0);
-                continue;
-            }
-
-            // Handling for spaces
-            // TODO: Scape
-            if (current == SPACE) {
-                // If no argument is found, discard values
-                if (argument.isEmpty()) {
-                    builder.setLength(0);
-                    continue;
-                }
-
-                // If argument is found, accept as value
-                args.put(argument, builder.toString());
-                builder.setLength(0);
-                argument = "";
-                continue;
-            }
-
-            // If no escapable token was found, aka :, re-append the backslash
-            if (escape) {
-                builder.appendCodePoint(ESCAPE_CHAR);
-                escape = false;
-            }
-
-            // Normal append character
-            builder.appendCodePoint(current);
-        }
-
-        // If end of string is reached and value was not closed, close it
-        if (!argument.isEmpty()) args.put(argument, builder.toString());
-
-        return args;
-    }
-
-    public void newParse(final @NotNull List<String> arguments) {
-        final ParserScanner tokens = new ParserScanner(arguments);
+    /**
+     * Parse the current {@link List} of raw arguments for {@link Flag}s and {@link Argument}.
+     *
+     * @param arguments A {@link List} of raw arguments.
+     * @return A {@link Result} object containing the raw results of the parse.
+     */
+    public Result parse(final @NotNull List<String> arguments) {
+        final Iterator<String> tokens = arguments.iterator();
 
         final Result result = new Result();
 
@@ -149,19 +81,8 @@ public final class ArgumentParser<S> {
                     continue;
                 }
 
-                // Splits the flag from `name:arg`
-                final String namedToken = token.substring(0, separator);
-                final String argToken = token.substring(separator + 1);
-
-                final InternalArgument<S, ?> internalArgument = namedArguments.get(namedToken);
-                // If there is no valid argument we ignore it
-                if (internalArgument == null) {
-                    result.addNonToken(token);
-                    continue;
-                }
-
-                result.addNamedArgument(namedToken, argToken);
-                result.setWaitingArgument(argToken.isEmpty());
+                // Handling of named arguments
+                handleNamed(result, token, separator);
                 continue;
             }
 
@@ -176,16 +97,51 @@ public final class ArgumentParser<S> {
             handleWithEquals(result, token, equals);
         }
 
-        result.test();
+        return result;
     }
 
+    /**
+     * Parser handler for named arguments.
+     *
+     * @param result    The results instance to add to.
+     * @param token     The current named argument token.
+     * @param separator The position of the separator.
+     */
+    private void handleNamed(
+            final @NotNull Result result,
+            final @NotNull String token,
+            final int separator
+    ) {
+        // Splits the flag from `name:arg`
+        final String namedToken = token.substring(0, separator);
+        final String argToken = token.substring(separator + 1);
+
+        final Argument argument = namedGroup.getMatchingArgument(namedToken);
+        // If there is no valid argument we ignore it
+        if (argument == null) {
+            result.addNonToken(token);
+            return;
+        }
+
+        result.addNamedArgument(namedToken, argToken);
+        result.setWaitingArgument(argToken.isEmpty());
+    }
+
+    /**
+     * Parser handler for flags without an equals.
+     * The argument would be the next iteration.
+     *
+     * @param tokens The tokens {@link Iterator} from the loop.
+     * @param result The results instance to add to.
+     * @param token  The current flag token.
+     */
     private void handleNoEquals(
-            final @NotNull ParserScanner tokens,
+            final @NotNull Iterator<String> tokens,
             final @NotNull Result result,
             final @NotNull String token
 
     ) {
-        final FlagOptions<S> flag = flagGroup.getMatchingFlag(token);
+        final Flag flag = flagGroup.getMatchingArgument(token);
         // No valid flag with the name, skip
         if (flag == null) {
             result.addNonToken(token);
@@ -211,6 +167,12 @@ public final class ArgumentParser<S> {
         result.addFlag(flag);
     }
 
+    /**
+     * Parser handler for flags with an equals.
+     *
+     * @param result The results instance to add to.
+     * @param token  The current flag token.
+     */
     private void handleWithEquals(
             final @NotNull Result result,
             final @NotNull String token,
@@ -220,7 +182,7 @@ public final class ArgumentParser<S> {
         final String flagToken = token.substring(0, equals);
         final String argToken = token.substring(equals + 1);
 
-        final FlagOptions<S> flag = flagGroup.getMatchingFlag(flagToken);
+        final Flag flag = flagGroup.getMatchingArgument(flagToken);
         // No valid flag with the name, skip
         if (flag == null) {
             result.addNonToken(token);
@@ -238,27 +200,23 @@ public final class ArgumentParser<S> {
         result.setWaitingArgument(argToken.isEmpty());
     }
 
-    public class Result {
+    public static class Result {
 
-        private final Map<FlagOptions<S>, String> flags = new HashMap<>();
+        private final Map<Flag, String> flags = new HashMap<>();
         private final Map<String, String> namedArguments = new HashMap<>();
         private final List<String> nonTokens = new ArrayList<>();
 
         private boolean waitingArgument = false;
 
-        public void addNamedArgument(final @NotNull String name) {
-            namedArguments.put(name, "");
-        }
-
         public void addNamedArgument(final @NotNull String name, final @NotNull String value) {
             namedArguments.put(name, value);
         }
 
-        public void addFlag(final @NotNull FlagOptions<S> flagOptions) {
+        public void addFlag(final @NotNull Flag flagOptions) {
             flags.put(flagOptions, "");
         }
 
-        public void addFlag(final @NotNull FlagOptions<S> flagOptions, final @NotNull String value) {
+        public void addFlag(final @NotNull Flag flagOptions, final @NotNull String value) {
             flags.put(flagOptions, value);
         }
 

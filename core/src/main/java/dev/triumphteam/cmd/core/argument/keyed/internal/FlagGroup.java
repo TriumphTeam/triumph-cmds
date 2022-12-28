@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.internal;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,62 +36,42 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public final class FlagGroup<S> {
+final class FlagGroup<S> implements ArgumentGroup<Flag> {
 
-    private final Map<String, FlagOptions<S>> flags = new HashMap<>();
-    private final Map<String, FlagOptions<S>> longFlags = new HashMap<>();
+    private final Map<String, Flag> flags = new HashMap<>();
+    private final Map<String, Flag> longFlags = new HashMap<>();
 
     private final List<String> allFlags = new ArrayList<>();
 
-    public @NotNull Map<@Nullable String, @NotNull FlagOptions<S>> getFlags() {
-        return flags;
-    }
+    @Override
+    public void addArgument(final @NotNull Flag argument) {
+        final String key = argument.getKey();
 
-    public @NotNull Map<@NotNull String, @NotNull FlagOptions<S>> getLongFlags() {
-        return longFlags;
-    }
-
-    /**
-     * Adds a new flag to the group.
-     *
-     * @param flagOptions The {@link FlagOptions} that should be added to the lis.
-     */
-    public void addFlag(final @NotNull FlagOptions<S> flagOptions) {
-        final String key = flagOptions.getKey();
-
-        final String longFlag = flagOptions.getLongFlag();
+        final String longFlag = argument.getLongFlag();
         if (longFlag != null) {
             allFlags.add("--" + longFlag);
-            longFlags.put(longFlag, flagOptions);
+            longFlags.put(longFlag, argument);
         }
 
         allFlags.add("-" + key);
-        flags.put(key, flagOptions);
+        flags.put(key, argument);
     }
 
-    public @NotNull List<@NotNull String> getAllFlags() {
+    @Override
+    public @NotNull List<String> getAllNames() {
         return allFlags;
     }
 
-    /**
-     * Checks if the flags are empty.
-     *
-     * @return Whether the flag lists are empty.
-     */
+    @Override
     public boolean isEmpty() {
         return flags.isEmpty() && longFlags.isEmpty();
     }
 
-    /**
-     * Gets the flag that matches the current token.
-     *
-     * @param token The current token, a flag name or not.
-     * @return The flag if found or null if not a valid flag.
-     */
-    public @Nullable FlagOptions<S> getMatchingFlag(final @NotNull String token) {
+    @Override
+    public @Nullable Flag getMatchingArgument(final @NotNull String token) {
         final String stripped = stripLeadingHyphens(token);
 
-        final FlagOptions<S> flag = flags.get(stripped);
+        final Flag flag = flags.get(stripped);
         return flag != null ? flag : longFlags.get(stripped);
     }
 

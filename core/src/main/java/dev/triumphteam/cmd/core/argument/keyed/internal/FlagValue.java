@@ -21,13 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.named;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-import org.jetbrains.annotations.NotNull;
-
-public final class ArgumentBuilder extends AbstractArgumentBuilder<ArgumentBuilder> {
-
-    public ArgumentBuilder(final @NotNull Class<?> type) {
-        super(type);
-    }
-}
+public interface FlagValue {}

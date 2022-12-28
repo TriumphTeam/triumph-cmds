@@ -21,71 +21,73 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.internal;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
+import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Contains all the "settings" for the flag.
- *
- * @param <S> The sender type.
  */
-public final class FlagOptions<S> {
+final class FlagOptions implements Flag {
 
     private final String flag;
     private final String longFlag;
+    private final String description;
+    private final Class<?> argument;
+    private final SuggestionKey suggestionKey;
 
-    // TODO: 9/16/2021 Check if flag description is needed.
-    private final StringInternalArgument<S> argument;
+    FlagOptions(final @NotNull Flag.Builder builder) {
 
-    public FlagOptions(
-            final @Nullable String flag,
-            final @Nullable String longFlag,
-            final @Nullable StringInternalArgument<S> argument
-    ) {
-        this.flag = flag;
-        this.longFlag = longFlag;
-        this.argument = argument;
+        final String flag = builder.getFlag();
+        final String longFlag = builder.getLongFlag();
+
+        this.flag = flag.isEmpty() ? null : flag;
+        this.longFlag = longFlag.isEmpty() ? null : longFlag;
+
+        this.description = builder.getDescription();
+        this.argument = builder.getArgument();
+        this.suggestionKey = builder.getSuggestionKey();
+
+        if (this.flag == null && this.longFlag == null) {
+            throw new CommandRegistrationException("Flag can't have both normal and long flag empty!");
+        }
+
+        FlagValidator.validate(flag);
+        FlagValidator.validate(longFlag);
     }
 
-    /**
-     * Gets the flag identifier.
-     *
-     * @return The flag identifier.
-     */
+    @Override
     public @Nullable String getFlag() {
         return flag;
     }
 
-    /**
-     * Gets the long flag identifier.
-     *
-     * @return The long flag identifier.
-     */
+    @Override
     public @Nullable String getLongFlag() {
         return longFlag;
     }
 
-    // TODO: Comments
-    public @Nullable StringInternalArgument<S> getArgument() {
-        return argument;
-    }
-
-    /**
-     * They key will either be the {@link FlagOptions#getFlag()} or the {@link FlagOptions#getLongFlag()}.
-     *
-     * @return The key that identifies the flag.
-     */
+    @Override
     public @NotNull String getKey() {
         // Will never happen.
         if (flag == null && longFlag == null) {
-            throw new CommandExecutionException("Both options can't be null.");
+            throw new CommandExecutionException("Both flag and long flag can't be null.");
         }
 
         return (flag == null) ? longFlag : flag;
+    }
+
+    @Override
+    public @NotNull String getDescription() {
+        return description;
+    }
+
+    @Override
+    public @Nullable SuggestionKey getSuggestion() {
+        return suggestionKey;
     }
 
     /**
@@ -93,6 +95,7 @@ public final class FlagOptions<S> {
      *
      * @return Whether it has an argument.
      */
+    @Override
     public boolean hasArgument() {
         return argument != null;
     }

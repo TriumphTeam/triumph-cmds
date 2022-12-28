@@ -1,5 +1,6 @@
-package dev.triumphteam.cmd.core.argument.named;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

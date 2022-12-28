@@ -21,36 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.internal;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+public final class EmptyFlagValue implements FlagValue {
 
-class ArgFlagValue<S> implements FlagValue {
-
-    private final String value;
-    private final StringInternalArgument<S> argument;
-
-    public ArgFlagValue(final @NotNull String value, final @NotNull StringInternalArgument<S> argument) {
-        this.value = value;
-        this.argument = argument;
-    }
-
-    public @Nullable Object getValue(final @NotNull S sender, final @NotNull Class<?> type) {
-        if (!type.equals(argument.getType())) return null;
-        return argument.resolve(sender, value);
-    }
-
-    public @NotNull String getAsString() {
-        return value;
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return "ArgFlagValue{" +
-                "value='" + value + '\'' +
-                ", argument=" + argument +
-                '}';
-    }
+    public static final EmptyFlagValue INSTANCE = new EmptyFlagValue();
 }

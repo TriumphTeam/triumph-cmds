@@ -39,7 +39,6 @@ import dev.triumphteam.cmd.core.annotations.Optional;
 import dev.triumphteam.cmd.core.annotations.Requirements;
 import dev.triumphteam.cmd.core.annotations.Split;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
-import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
 import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
@@ -51,26 +50,25 @@ import dev.triumphteam.cmd.core.argument.NamedInternalArgument;
 import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import dev.triumphteam.cmd.core.argument.named.Argument;
-import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
-import dev.triumphteam.cmd.core.argument.named.Arguments;
-import dev.triumphteam.cmd.core.argument.named.ListArgument;
-import dev.triumphteam.cmd.core.extention.registry.NamedArgumentRegistry;
+import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import dev.triumphteam.cmd.core.argument.keyed.Flags;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
+import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
+import dev.triumphteam.cmd.core.argument.keyed.internal.ListArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.argument.flag.Flags;
-import dev.triumphteam.cmd.core.argument.internal.FlagGroup;
-import dev.triumphteam.cmd.core.argument.internal.FlagOptions;
-import dev.triumphteam.cmd.core.argument.internal.FlagValidator;
-import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.registry.NamedArgumentRegistry;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
+import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
-import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
-import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.EnumSuggestion;
 import dev.triumphteam.cmd.core.suggestion.SimpleSuggestion;
@@ -119,7 +117,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
     private final List<String> argDescriptions = new ArrayList<>();
     private final List<String> alias = new ArrayList<>();
     private final boolean isAsync;
-    private final FlagGroup<S> flagGroup = new FlagGroup<>();
+    private final ArgumentGroup<dev.triumphteam.cmd.core.argument.keyed.internal.Flag> flagGroup = ArgumentGroup.flags();
     private final List<Suggestion<S>> suggestionList = new ArrayList<>();
     private final List<InternalArgument<S, ?>> internalArguments = new ArrayList<>();
     private final Set<Requirement<S, ?>> requirements = new HashSet<>();
@@ -602,7 +600,6 @@ public abstract class OldAbstractSubCommandProcessor<S> {
         for (final Flag flagAnnotation : flags) {
             String flag = flagAnnotation.flag();
             if (flag.isEmpty()) flag = null;
-            FlagValidator.validate(flag, annotatedElement, baseCommand);
 
             String longFlag = flagAnnotation.longFlag();
             if (longFlag.contains(" ")) {
@@ -644,13 +641,14 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                 }
             }
 
-            flagGroup.addFlag(
+            // TODO
+            /*flagGroup.addArgument(
                     new FlagOptions<>(
                             flag,
                             longFlag,
                             internalArgument
                     )
-            );
+            );*/
         }
     }
 

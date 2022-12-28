@@ -21,20 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.internal;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import org.jetbrains.annotations.NotNull;
+import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.AnnotatedElement;
 
 /**
  * Modified from commons-cli.
  * https://github.com/apache/commons-cli
  */
-public final class FlagValidator {
+final class FlagValidator {
 
     private FlagValidator() {
         throw new AssertionError("Util class must not be initialized.");
@@ -43,14 +39,9 @@ public final class FlagValidator {
     /**
      * Checks whether the flag contains illegal characters.
      *
-     * @param flag   The {@link String} flag.
-     * @param annotatedElement The method from the registration so that better error message can be thrown.
+     * @param flag The {@link String} flag.
      */
-    public static void validate(
-            final @Nullable String flag,
-            final @NotNull AnnotatedElement annotatedElement,
-            final @NotNull BaseCommand baseCommand
-    ) {
+    static void validate(final @Nullable String flag) {
         if (flag == null) return;
 
         // handle the single character flag
@@ -58,11 +49,7 @@ public final class FlagValidator {
             char character = flag.charAt(0);
 
             if (!isValidFlag(character)) {
-                throw new SubCommandRegistrationException(
-                        "Illegal flag name \"" + character + "\"",
-                        annotatedElement,
-                        baseCommand.getClass()
-                );
+                throw new CommandRegistrationException("Illegal flag name \"" + character + "\" on flag \"" + flag + "\".");
             }
 
             return;
@@ -71,11 +58,7 @@ public final class FlagValidator {
         // handle the multi character flag
         for (char character : flag.toCharArray()) {
             if (!isValidChar(character)) {
-                throw new SubCommandRegistrationException(
-                        "The flag \"" + flag + "\" contains an illegal character \"" + character + "\"",
-                        annotatedElement,
-                        baseCommand.getClass()
-                );
+                throw new CommandRegistrationException("The flag \"" + flag + "\" contains an illegal character \"" + character + "\".");
             }
         }
     }

@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.cmd.core.extention.registry;
 
-import dev.triumphteam.cmd.core.argument.named.Argument;
-import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
+import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,12 +36,11 @@ public final class NamedArgumentRegistry<S> implements Registry {
 
     private final Map<ArgumentKey, List<Argument>> namedArguments = new HashMap<>();
 
-    public void register(final @NotNull ArgumentKey key, final @NotNull List<@NotNull Argument> arguments) {
+    public void register(final @NotNull ArgumentKey key, final @NotNull List<Argument> arguments) {
         namedArguments.put(key, arguments);
     }
 
-    public @Nullable List<@NotNull Argument> getResolver(final @NotNull ArgumentKey key) {
+    public @Nullable List<Argument> getResolver(final @NotNull ArgumentKey key) {
         return namedArguments.get(key);
     }
-
 }

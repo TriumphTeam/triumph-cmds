@@ -21,43 +21,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.named;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-import dev.triumphteam.cmd.core.argument.flag.Flags;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
-public interface Arguments extends Flags {
+/**
+ * Basically a holder that contains all the needed arguments for the command.
+ */
+final class NamedGroup implements ArgumentGroup<Argument> {
 
-    /**
-     * Gets an argument by name.
-     * The argument will be an empty {@link Optional} if it does not exist or if the value is invalid.
-     *
-     * @param name The name of the argument.
-     * @param type The class of the type of the argument.
-     * @param <T>  The generic type of the argument.
-     * @return An {@link Optional} argument.
-     */
-    <T> @NotNull Optional<T> get(final @NotNull String name, final @NotNull Class<T> type);
+    private final Map<String, Argument> arguments = new HashMap<>();
+    private final List<String> allArgumentNames = new ArrayList<>();
 
+    NamedGroup(final @NotNull List<Argument> arguments) {
+        arguments.forEach(this::addArgument);
+    }
 
-    <T> @NotNull Optional<List<T>> getAsList(final @NotNull String name, final @NotNull Class<T> type);
+    @Override
+    public void addArgument(final @NotNull Argument argument) {
+        final String name = argument.getName();
+        allArgumentNames.add(name);
+        arguments.put(name, argument);
+    }
 
-    <T> @NotNull Optional<Set<T>> getAsSet(final @NotNull String name, final @NotNull Class<T> type);
+    @Override
+    public @NotNull List<String> getAllNames() {
+        return allArgumentNames;
+    }
 
-    /**
-     * Get all arguments passed to this command
-     * @return a {@link Map} of all arguments
-     */
-    @NotNull Map<String, Object> getArguments();
+    @Override
+    public boolean isEmpty() {
+        return arguments.isEmpty();
+    }
 
-    /**
-     * Check if no arguments are passed
-     * @return true if no arguments have been passed in the command
-     */
-    boolean isEmpty();
+    @Override
+    public @Nullable Argument getMatchingArgument(final @NotNull String token) {
+        return arguments.get(token);
+    }
 }

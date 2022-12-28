@@ -21,43 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.flag;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-import dev.triumphteam.cmd.core.extention.StringKey;
-import org.jetbrains.annotations.Contract;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+class ArgFlagValue<S> implements FlagValue {
 
-public final class FlagKey extends StringKey {
+    private final String value;
+    private final StringInternalArgument<S> argument;
 
-    // Holds all registered keys, default and custom ones
-    private static final Set<FlagKey> REGISTERED_KEYS = new HashSet<>();
-
-    private FlagKey(final @NotNull String key) {
-        super(key);
-        REGISTERED_KEYS.add(this);
+    public ArgFlagValue(final @NotNull String value, final @NotNull StringInternalArgument<S> argument) {
+        this.value = value;
+        this.argument = argument;
     }
 
-    /**
-     * Factory method for creating a {@link FlagKey}.
-     *
-     * @param key The value of the key, normally separated by <code>.</code>.
-     * @return A new {@link FlagKey}.
-     */
-    @Contract("_ -> new")
-    public static @NotNull FlagKey of(final @NotNull String key) {
-        return new FlagKey(key);
+    public @Nullable Object getValue(final @NotNull S sender, final @NotNull Class<?> type) {
+        if (!type.equals(argument.getType())) return null;
+        return argument.resolve(sender, value);
     }
 
-    public static @NotNull Set<@NotNull FlagKey> getRegisteredKeys() {
-        return Collections.unmodifiableSet(REGISTERED_KEYS);
+    public @NotNull String getAsString() {
+        return value;
     }
 
     @Override
     public @NotNull String toString() {
-        return "FlagKey{super=" + super.toString() + "}";
+        return "ArgFlagValue{" +
+                "value='" + value + '\'' +
+                ", argument=" + argument +
+                '}';
     }
 }

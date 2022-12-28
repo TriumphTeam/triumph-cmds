@@ -24,8 +24,8 @@
 package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.named.Argument;
-import dev.triumphteam.cmd.core.argument.named.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
+import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.ContextualKey;
@@ -116,7 +116,7 @@ public abstract class CommandManager<D, S> {
         registerNamedArguments(key, Arrays.asList(arguments));
     }
 
-    public final void registerNamedArguments(final @NotNull ArgumentKey key, final @NotNull List<@NotNull Argument> arguments) {
+    public final void registerNamedArguments(final @NotNull ArgumentKey key, final @NotNull List<Argument> arguments) {
         getRegistryContainer().getNamedArgumentRegistry().register(key, arguments);
     }
 

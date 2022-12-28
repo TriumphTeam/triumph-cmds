@@ -21,42 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.named;
+package dev.triumphteam.cmd.core.argument.keyed;
 
+import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public final class ListArgumentBuilder extends AbstractArgumentBuilder<ListArgumentBuilder> {
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-    private final Class<?> collectionType;
-    private String separator = ",";
+public final class FlagKey extends StringKey {
 
-    public ListArgumentBuilder(final @NotNull Class<?> collectionType, final @NotNull Class<?> type) {
-        super(type);
-        this.collectionType = collectionType;
-    }
+    // Holds all registered keys, default and custom ones
+    private static final Set<FlagKey> REGISTERED_KEYS = new HashSet<>();
 
-    @Contract("_ -> this")
-    public @NotNull ListArgumentBuilder separator(final @NotNull String separator) {
-        this.separator = separator;
-        return this;
+    private FlagKey(final @NotNull String key) {
+        super(key);
+        REGISTERED_KEYS.add(this);
     }
 
     /**
-     * Builds the argument.
+     * Factory method for creating a {@link FlagKey}.
      *
-     * @return A new {@link Argument} with the data from this builder.
+     * @param key The value of the key, normally separated by <code>.</code>.
+     * @return A new {@link FlagKey}.
      */
-    @Contract(" -> new")
-    public @NotNull Argument build() {
-        return new ListArgument(this);
+    @Contract("_ -> new")
+    public static @NotNull FlagKey of(final @NotNull String key) {
+        return new FlagKey(key);
     }
 
-    @NotNull Class<?> getCollectionType() {
-        return collectionType;
+    public static @NotNull Set<@NotNull FlagKey> getRegisteredKeys() {
+        return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
-    @NotNull String getSeparator() {
-        return separator;
+    @Override
+    public @NotNull String toString() {
+        return "FlagKey{super=" + super.toString() + "}";
     }
 }

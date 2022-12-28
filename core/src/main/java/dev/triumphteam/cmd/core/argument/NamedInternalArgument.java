@@ -23,9 +23,8 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.argument.named.Arguments;
-import dev.triumphteam.cmd.core.argument.named.ArgumentParser;
-import dev.triumphteam.cmd.core.argument.named.NamedArgumentResult;
+import dev.triumphteam.cmd.core.argument.keyed.internal.NamedArgumentResult;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +53,7 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
 
     @Override
     public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
-        final Map<String, String> parsedArgs = ArgumentParser.parse(String.join(" ", value));
+        final Map<String, String> parsedArgs = Collections.emptyMap();// ArgumentParser.parse(String.join(" ", value));
         final Map<String, Object> mapped = new HashMap<>(parsedArgs.size());
 
         for (final Map.Entry<String, String> entry : parsedArgs.entrySet()) {
@@ -74,7 +73,7 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
             final @NotNull List<@NotNull String> trimmed,
             final @NotNull SuggestionContext context
     ) {
-        final Map<String, String> parsedArgs = ArgumentParser.parse(String.join(" ", trimmed));
+        final Map<String, String> parsedArgs = Collections.emptyMap();// ArgumentParser.parse(String.join(" ", trimmed));
         final String current = trimmed.get(trimmed.size() - 1);
 
         final List<String> notUsed = arguments.keySet()

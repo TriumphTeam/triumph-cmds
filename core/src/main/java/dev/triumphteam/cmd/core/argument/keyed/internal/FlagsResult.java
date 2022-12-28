@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.internal;
+package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-import dev.triumphteam.cmd.core.argument.flag.Flags;
+import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +45,7 @@ class FlagsResult<S> implements Flags {
 
     FlagsResult(
             final @NotNull S sender,
-            final @NotNull Map<FlagOptions<S>, String> flags,
+            final @NotNull Map<Flag, String> flags,
             final @NotNull List<String> args
     ) {
         this.sender = sender;
@@ -53,11 +53,12 @@ class FlagsResult<S> implements Flags {
         this.args = args;
     }
 
-    public void addFlag(final @NotNull FlagOptions<S> flag, final @Nullable String value) {
+    public void addFlag(final @NotNull Flag flag, final @Nullable String value) {
         final String shortFlag = flag.getFlag();
         final String longFlag = flag.getLongFlag();
 
-        final FlagValue flagValue = value == null ? EmptyFlagValue.INSTANCE : new ArgFlagValue<>(value, flag.getArgument());
+        // TODO
+       /* final FlagValue flagValue = value == null ? EmptyFlagValue.INSTANCE : new ArgFlagValue<>(value, flag.getArgument());
 
         if (shortFlag != null) {
             flags.put(shortFlag, flagValue);
@@ -65,7 +66,7 @@ class FlagsResult<S> implements Flags {
 
         if (longFlag != null) {
             flags.put(longFlag, flagValue);
-        }
+        }*/
     }
 
     void addArg(final @NotNull String arg) {

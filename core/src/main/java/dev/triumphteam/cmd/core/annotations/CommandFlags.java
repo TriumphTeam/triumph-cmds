@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.annotations;
 
+import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -42,5 +43,12 @@ public @interface CommandFlags {
      *
      * @return Array of flags.
      */
-    @NotNull Flag[] value();
+    @NotNull Flag[] value() default {};
+
+    /**
+     * key to use flags from the registry instead of method declared.
+     *
+     * @return The {@link FlagKey} value.
+     */
+    @NotNull String key() default "";
 }

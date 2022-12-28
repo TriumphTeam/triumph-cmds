@@ -23,17 +23,15 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.argument.flag.Flags;
-import dev.triumphteam.cmd.core.argument.internal.FlagGroup;
-import dev.triumphteam.cmd.core.argument.internal.FlagOptions;
-import dev.triumphteam.cmd.core.argument.internal.FlagParser;
+import dev.triumphteam.cmd.core.argument.keyed.Flags;
+import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
+import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,18 +46,18 @@ import java.util.stream.Collectors;
  */
 public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> {
 
-    private final FlagGroup<S> flagGroup;
-    private final FlagParser<S> flagParser;
+    private final ArgumentGroup<Flag> flagGroup;
+    // private final FlagParser<S> flagParser;
 
     public FlagInternalArgument(
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull FlagGroup<S> flagGroup,
+            final @NotNull ArgumentGroup<Flag> flagGroup,
             final boolean isOptional
     ) {
         super(name, description, Flags.class, new EmptySuggestion<>(), isOptional);
         this.flagGroup = flagGroup;
-        this.flagParser = new FlagParser<>(flagGroup);
+        // this.flagParser = new FlagParser<>(flagGroup);
     }
 
     /**
@@ -71,7 +69,7 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
      */
     @Override
     public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
-        return flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
+        return null;// flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
     }
 
     @Override
@@ -84,16 +82,17 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
         final String current = trimmed.get(size - 1);
 
         // TODO: Show flags before long flags.
-        final List<String> flags = flagGroup.getAllFlags();
+        final List<String> flags = flagGroup.getAllNames();
 
         // Parses all the arguments to get the flags that have been used
-        final List<Map.Entry<FlagOptions<S>, String>> parsed = new ArrayList<>(flagParser.parseFlags(trimmed).entrySet());
+        // flagParser.parseFlags(trimmed).entrySet()
+        final List<Map.Entry<Flag, String>> parsed = new ArrayList<>();
         final List<String> used = new ArrayList<>();
 
         // Due to long flags and normal flags being together, loop through them to collect the used ones
         // Could have been done with stream but too complex for my brain right now
-        for (final Map.Entry<FlagOptions<S>, String> entry : parsed) {
-            final FlagOptions<S> options = entry.getKey();
+        for (final Map.Entry<Flag, String> entry : parsed) {
+            final Flag options = entry.getKey();
             final String flag = options.getFlag();
             final String longFlag = options.getLongFlag();
 
@@ -104,8 +103,8 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
         // If something was parsed we enter to check for arguments
         if (!parsed.isEmpty()) {
             // Get the last used flag
-            final Map.Entry<FlagOptions<S>, String> last = parsed.get(parsed.size() - 1);
-            final FlagOptions<S> flagOptions = last.getKey();
+            final Map.Entry<Flag, String> last = parsed.get(parsed.size() - 1);
+            final Flag flagOptions = last.getKey();
 
             // Checking for arguments that doesn't use `=`
             if (!current.contains("=")) {
@@ -113,7 +112,8 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
                 if (size > 1) {
                     // If the flag has arguments and the previous arg was a flag we get its suggestion
                     if (flagOptions.hasArgument() && flags.contains(trimmed.get(size - 2))) {
-                        return flagOptions.getArgument().suggestions(sender, Collections.singletonList(current), context);
+                        // TODO
+                        return Collections.emptyList();// flagOptions.getArgument().suggestions(sender, Collections.singletonList(current), context);
                     }
                 }
             } else {
@@ -127,12 +127,14 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
 
                 // If the flag has arguments we get suggestions and append the flag and `=` to the suggestion
                 if (flagOptions.hasArgument()) {
-                    return flagOptions
+                    // TODO
+                    return Collections.emptyList();
+                    /*return flagOptions
                             .getArgument()
                             .suggestions(sender, Collections.singletonList(arg), context)
                             .stream()
                             .map(it -> flag + "=" + it)
-                            .collect(Collectors.toList());
+                            .collect(Collectors.toList());*/
                 }
             }
         }

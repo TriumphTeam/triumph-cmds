@@ -21,6 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
-public interface FlagValue {}
+import dev.triumphteam.cmd.core.extention.StringKey;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
+public class ArgumentKey extends StringKey {
+
+    private ArgumentKey(final @NotNull String key) {
+        super(key);
+    }
+
+    @Contract("_ -> new")
+    public static @NotNull ArgumentKey of(final @NotNull String key) {
+        return new ArgumentKey(key);
+    }
+}
