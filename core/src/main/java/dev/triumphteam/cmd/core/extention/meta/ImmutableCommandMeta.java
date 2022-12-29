@@ -20,7 +20,7 @@ final class ImmutableCommandMeta implements CommandMeta {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <V> @Nullable V get(final @NotNull MetaKey<V> metaKey) {
+    public <V> @Nullable V getNullable(final @NotNull MetaKey<V> metaKey) {
         return (V) meta.get(metaKey);
     }
 

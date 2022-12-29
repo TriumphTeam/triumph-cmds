@@ -25,10 +25,8 @@ package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Joined string argument, a {@link LimitlessInternalArgument}.
@@ -61,20 +59,6 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
     @Override
     public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
         return String.join(delimiter, value);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final JoinedStringInternalArgument<?> that = (JoinedStringInternalArgument<?>) o;
-        return delimiter.equals(that.delimiter);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), delimiter);
     }
 
     @Override

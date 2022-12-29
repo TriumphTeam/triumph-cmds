@@ -48,4 +48,11 @@ public final class UnknownInternalArgument<S> implements InternalArgument<S, Str
     public @NotNull List<@NotNull String> suggestions(@NotNull final S sender, final @NotNull List<@NotNull String> trimmed, final @NotNull SuggestionContext context) {
         return Collections.emptyList();
     }
+
+    @Override
+    public String toString() {
+        return "UnknownInternalArgument{" +
+                "type=" + type +
+                '}';
+    }
 }

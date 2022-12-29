@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 
 import static dev.triumphteam.cmd.core.util.EnumUtils.getEnumConstants;
 import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
@@ -69,20 +68,6 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
         final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
         if (reference == null) return null;
         return reference.get();
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final EnumInternalArgument<?> that = (EnumInternalArgument<?>) o;
-        return enumType.equals(that.enumType);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), enumType);
     }
 
     @Override

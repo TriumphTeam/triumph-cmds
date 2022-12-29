@@ -25,10 +25,8 @@ package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,20 +67,6 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
         final Stream<Object> stream = value.stream().map(arg -> internalArgument.resolve(sender, arg));
         if (collectionType == Set.class) return stream.collect(Collectors.toSet());
         return stream.collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final CollectionInternalArgument<?> that = (CollectionInternalArgument<?>) o;
-        return collectionType.equals(that.collectionType);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), collectionType);
     }
 
     @Override

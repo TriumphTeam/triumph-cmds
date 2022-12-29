@@ -12,6 +12,11 @@ import java.util.Map;
 
 public interface CommandProcessor {
 
+    /**
+     * Create a new meta and handle some processing before it's fully created.
+     *
+     * @return The immutable {@link CommandMeta} instance.
+     */
     @NotNull CommandMeta createMeta();
 
     /**

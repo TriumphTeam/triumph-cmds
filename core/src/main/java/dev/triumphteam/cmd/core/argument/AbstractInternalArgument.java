@@ -26,10 +26,8 @@ package dev.triumphteam.cmd.core.argument;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Command internalArgument.
@@ -109,19 +107,6 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
 
     protected @NotNull Suggestion<S> getSuggestion() {
         return suggestion;
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final AbstractInternalArgument<?, ?> internalArgument = (AbstractInternalArgument<?, ?>) o;
-        return optional == internalArgument.optional && name.equals(internalArgument.name) && type.equals(internalArgument.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, type, optional);
     }
 
     @Override

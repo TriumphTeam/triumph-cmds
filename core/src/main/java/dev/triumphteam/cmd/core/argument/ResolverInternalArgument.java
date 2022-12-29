@@ -28,8 +28,6 @@ import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 /**
  * Normal {@link StringInternalArgument}.
  * Basically the main implementation.
@@ -64,20 +62,6 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
     @Override
     public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
         return resolver.resolve(sender, value);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final ResolverInternalArgument<?> that = (ResolverInternalArgument<?>) o;
-        return resolver.equals(that.resolver);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), resolver);
     }
 
     @Override
