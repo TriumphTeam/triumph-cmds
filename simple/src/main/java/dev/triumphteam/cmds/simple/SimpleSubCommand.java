@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import org.jetbrains.annotations.NotNull;
 

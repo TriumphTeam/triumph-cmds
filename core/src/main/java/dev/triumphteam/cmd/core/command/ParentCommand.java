@@ -30,43 +30,83 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Command interface which all platforms will implement.
+ * A parent command means it's a simple holder of other commands.
+ * The commands can either be a parent as well or simple sub commands.
  *
  * @param <S> The sender type.
  */
-public interface ParentCommand<S> extends Command<S> {
+public interface ParentCommand<S> extends Command {
 
-    @NotNull String getName();
+    /**
+     * @return The map with all the commands it holds.
+     */
+    @NotNull Map<String, ExecutableCommand<S>> getCommands();
 
-    @NotNull Map<String, Command<S>> getCommands();
+    /**
+     * @return The map with all the command alias it holds.
+     */
+    @NotNull Map<String, ExecutableCommand<S>> getCommandAliases();
 
-    @NotNull Map<String, Command<S>> getCommandAliases();
+    /**
+     * @return A parent command with arguments as a sub command. Null if none exists.
+     */
+    @Nullable ExecutableCommand<S> getParentCommandWithArgument();
 
-    void addSubCommand(final @NotNull Command<S> subCommand, final boolean isAlias);
+    /**
+     * Add a new command to the maps.
+     *
+     * @param subCommand The sub command to be added.
+     * @param isAlias    Whether it is an alias.
+     */
+    void addSubCommand(final @NotNull ExecutableCommand<S> subCommand, final boolean isAlias);
 
-    default @Nullable Command<S> getSubCommand(final @NotNull List<String> args) {
-        Command<S> subCommand = getDefaultSubCommand();
+    @Override
+    default boolean isDefault() {
+        return false;
+    }
 
-        String subCommandName = "";
-        if (args.size() > 0) subCommandName = args.get(0).toLowerCase();
-        if (subCommand == null || subCommandExists(subCommandName)) {
-            subCommand = getSubCommand(subCommandName);
+    @Override
+    default boolean hasArguments() {
+        return !getCommands().isEmpty();
+    }
+
+    /**
+     * Small abstraction to reduce repetition in the execution.
+     *
+     * @param name The name of the command, normally from {@link #nameFromArguments}.
+     * @param size The size of arguments passed to the execution.
+     * @return The default command, a sub command, or a parent command with arguments, and lastly null if none exist.
+     */
+    default @Nullable ExecutableCommand<S> getSubCommand(final @NotNull String name, final int size) {
+        ExecutableCommand<S> subCommand = getDefaultSubCommand();
+
+        if (subCommand == null || subCommandExists(name)) {
+            subCommand = getSubCommand(name);
         }
 
-        // TODO
-        /*if (subCommand == null || (args.size() > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
-            return null;
-        }*/
+        if (subCommand == null || (size > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
+            return getParentCommandWithArgument();
+        }
 
         return subCommand;
     }
 
-    default @Nullable Command<S> getDefaultSubCommand() {
+    /**
+     * Gets the name of the command from the arguments given.
+     *
+     * @param arguments The list of arguments.
+     * @return The name or an empty string if there are no arguments.
+     */
+    default @NotNull String nameFromArguments(final @NotNull List<String> arguments) {
+        return arguments.size() > 0 ? arguments.get(0) : "";
+    }
+
+    default @Nullable ExecutableCommand<S> getDefaultSubCommand() {
         return getCommands().get(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
     }
 
-    default @Nullable Command<S> getSubCommand(final @NotNull String key) {
-        final Command<S> subCommand = getCommands().get(key);
+    default @Nullable ExecutableCommand<S> getSubCommand(final @NotNull String key) {
+        final ExecutableCommand<S> subCommand = getCommands().get(key);
         if (subCommand != null) return subCommand;
         return getCommandAliases().get(key);
     }

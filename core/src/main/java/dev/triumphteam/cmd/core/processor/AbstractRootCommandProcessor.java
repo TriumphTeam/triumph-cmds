@@ -24,8 +24,12 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
-import dev.triumphteam.cmd.core.command.Command;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
+import dev.triumphteam.cmd.core.command.ExecutableCommand;
 import dev.triumphteam.cmd.core.command.ParentSubCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
@@ -36,11 +40,16 @@ import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractRootCommandProcessor<S> implements CommandProcessor {
@@ -93,21 +102,21 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
         return meta.build();
     }
 
-    public @NotNull List<Command<S>> commands(final @NotNull CommandMeta parentMeta) {
+    public @NotNull List<ExecutableCommand<S>> commands(final @NotNull CommandMeta parentMeta) {
         final Class<? extends BaseCommand> klass = baseCommand.getClass();
 
-        final List<Command<S>> subCommands = new ArrayList<>();
+        final List<ExecutableCommand<S>> subCommands = new ArrayList<>();
         subCommands.addAll(methodCommands(parentMeta, klass.getDeclaredMethods()));
         subCommands.addAll(classCommands(parentMeta, klass.getDeclaredClasses()));
 
         return subCommands;
     }
 
-    private @NotNull List<Command<S>> methodCommands(
+    private @NotNull List<ExecutableCommand<S>> methodCommands(
             final @NotNull CommandMeta parentMeta,
             final @NotNull Method[] methods
     ) {
-        final List<Command<S>> commands = new ArrayList<>();
+        final List<ExecutableCommand<S>> commands = new ArrayList<>();
         for (final Method method : methods) {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) continue;
@@ -125,17 +134,17 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
             if (processor.getName() == null) continue;
 
             // Add new command
-            commands.add(new SubCommand<>(processor));
+            commands.add(new SubCommand<>(baseCommand, method, processor));
         }
 
         return commands;
     }
 
-    private @NotNull List<Command<S>> classCommands(
+    private @NotNull List<ExecutableCommand<S>> classCommands(
             final @NotNull CommandMeta parentMeta,
             final @NotNull Class<?>[] classes
     ) {
-        final List<Command<S>> commands = new ArrayList<>();
+        final List<ExecutableCommand<S>> commands = new ArrayList<>();
         for (final Class<?> klass : classes) {
             // Ignore non-public methods
             if (!Modifier.isPublic(klass.getModifiers())) continue;
@@ -152,7 +161,47 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
             // Not a command, ignore the method
             if (processor.getName() == null) continue;
 
-            final ParentSubCommand<S> parent = new ParentSubCommand<>(processor);
+            // Validation for allowed constructor
+            final Constructor<?>[] constructors = klass.getConstructors();
+            if (constructors.length != 1) {
+                throw new CommandRegistrationException("Inner command class can only have a single constructor, " + constructors.length + " found", klass);
+            }
+
+            // Validation for allowed arguments
+            final Constructor<?> constructor = constructors[0];
+            final Parameter[] parameters = constructor.getParameters();
+
+            final boolean isStatic = Modifier.isStatic(klass.getModifiers());
+            final int arguments = (isStatic ? parameters.length : parameters.length - 1);
+            final boolean hasArgument = arguments != 0;
+
+            if (arguments > 1) {
+                throw new CommandRegistrationException("Inner command class can only have a maximum of 1 argument, " + arguments + " found", klass);
+            }
+
+            final InternalArgument<S, ?> argument;
+            if (!hasArgument) argument = null;
+            else {
+                if (!Command.DEFAULT_CMD_NAME.equals(processor.getName())) {
+                    throw new CommandRegistrationException("Inner command class with argument must not have a name", klass);
+                }
+
+                final Parameter parameter = isStatic ? parameters[0] : parameters[1];
+                argument = processor.createArgument(
+                        parameter,
+                        emptyList(),
+                        emptyMap(),
+                        ArgumentGroup.flags(emptyList()),
+                        ArgumentGroup.named(emptyList()),
+                        0
+                );
+
+                if (!(argument instanceof StringInternalArgument)) {
+                    throw new CommandRegistrationException("Inner command class with argument must not be limitless, only single string argument is allowed", klass);
+                }
+            }
+
+            final ParentSubCommand<S> parent = new ParentSubCommand<>(baseCommand, constructor, isStatic, (StringInternalArgument<S>) argument, processor);
 
             // Add children commands to parent
             methodCommands(parent.getMeta(), klass.getDeclaredMethods()).forEach(it -> parent.addSubCommand(it, false));

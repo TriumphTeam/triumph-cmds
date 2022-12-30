@@ -25,9 +25,9 @@ package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
-import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.command.execution.AsyncExecutionProvider;
+import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
+import dev.triumphteam.cmd.core.command.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.MessageKey;
@@ -78,12 +78,12 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
         // Command does not exist, proceed to add new!
         final SimpleCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
-        processor.commands(newCommand.getMeta());
+        processor.commands(newCommand.getMeta()).forEach(it -> newCommand.addSubCommand(it, false));
 
         processor.getAlias().forEach(it -> {
             final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
             // Adding sub commands.
-            // TODO: ADD SUBCOMMANDS
+            processor.commands(newCommand.getMeta()).forEach(sub -> aliasCommand.addSubCommand(sub, false));
         });
     }
 

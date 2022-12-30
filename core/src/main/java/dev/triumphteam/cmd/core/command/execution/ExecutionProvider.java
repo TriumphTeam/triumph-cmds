@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.execution;
+package dev.triumphteam.cmd.core.command.execution;
 
 import org.jetbrains.annotations.NotNull;
 

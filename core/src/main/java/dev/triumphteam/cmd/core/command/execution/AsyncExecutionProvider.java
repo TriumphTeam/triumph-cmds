@@ -21,14 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.execution;
+package dev.triumphteam.cmd.core.command.execution;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class SyncExecutionProvider implements ExecutionProvider {
+import java.util.concurrent.CompletableFuture;
 
+/**
+ * Implementation of asynchronous execution, not necessarily used in all platforms.
+ */
+public final class AsyncExecutionProvider implements ExecutionProvider {
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void execute(final @NotNull Runnable command) {
-        command.run();
+        CompletableFuture.runAsync(command);
     }
 }

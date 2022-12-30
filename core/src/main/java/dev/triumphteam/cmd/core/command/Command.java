@@ -26,7 +26,25 @@ package dev.triumphteam.cmd.core.command;
 import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
 import org.jetbrains.annotations.NotNull;
 
-public interface Command<S> extends CommandMetaContainer {
+/**
+ * Representation of a command.
+ * Not all commands are executable directly.
+ * Some implementations will have listeners inside that'll trigger the execution.
+ */
+public interface Command extends CommandMetaContainer {
 
+    /**
+     * @return The name of the comamnd.
+     */
     @NotNull String getName();
+
+    /**
+     * @return Whether this is a "default" command, meaning it represents the class itself and is not separate.
+     */
+    boolean isDefault();
+
+    /**
+     * @return Whether the command has arguments.
+     */
+    boolean hasArguments();
 }

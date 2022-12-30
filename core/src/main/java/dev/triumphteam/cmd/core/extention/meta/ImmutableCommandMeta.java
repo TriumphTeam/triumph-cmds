@@ -4,7 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Optional;
 
+@SuppressWarnings("unchecked")
 final class ImmutableCommandMeta implements CommandMeta {
 
     private final CommandMeta parentMeta;
@@ -18,10 +20,19 @@ final class ImmutableCommandMeta implements CommandMeta {
         this.meta = meta;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public @NotNull <V> Optional<V> get(final @NotNull MetaKey<V> metaKey) {
+        return Optional.ofNullable(getNullable(metaKey));
+    }
+
     @Override
     public <V> @Nullable V getNullable(final @NotNull MetaKey<V> metaKey) {
         return (V) meta.get(metaKey);
+    }
+
+    @Override
+    public <V> V getOrDefault(final @NotNull MetaKey<V> metaKey, @Nullable final V def) {
+        return (V) meta.getOrDefault(metaKey, def);
     }
 
     @Override

@@ -90,6 +90,8 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
     private final String name;
     private final AnnotatedElement annotatedElement;
 
+    private final RegistryContainer<S> registryContainer;
+
     private final SuggestionRegistry<S> suggestionRegistry;
     private final ArgumentRegistry<S> argumentRegistry;
 
@@ -111,8 +113,13 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         this.parentMeta = parentMeta;
 
         this.commandExtensions = commandExtensions;
+        this.registryContainer = registryContainer;
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
         this.argumentRegistry = registryContainer.getArgumentRegistry();
+    }
+
+    public @NotNull RegistryContainer<S> getRegistryContainer() {
+        return registryContainer;
     }
 
     protected @NotNull CommandMeta getParentMeta() {

@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
@@ -65,9 +64,5 @@ public final class ParentCommandProcessor<S> extends AbstractCommandProcessor<S>
         processCommandMeta(getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);
         // Return modified meta
         return meta.build();
-    }
-
-    public InternalArgument<S, ?> argument(final @NotNull CommandMeta parentMeta) {
-        return null;
     }
 }

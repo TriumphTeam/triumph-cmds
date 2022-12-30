@@ -1,6 +1,6 @@
 package dev.triumphteam.cmd.core.extention.sender;
 
-import dev.triumphteam.cmd.core.command.Command;
+import dev.triumphteam.cmd.core.command.ExecutableCommand;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ public interface SenderExtension<D, S> {
 
     boolean validate(
             final @NotNull MessageRegistry<S> messageRegistry,
-            final @NotNull Command<S> command,
+            final @NotNull ExecutableCommand<S> command,
             final @NotNull S sender
     );
 

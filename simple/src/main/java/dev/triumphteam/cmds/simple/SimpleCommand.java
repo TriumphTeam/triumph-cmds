@@ -23,11 +23,16 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.command.Command;
+import dev.triumphteam.cmd.core.command.ExecutableCommand;
 import dev.triumphteam.cmd.core.command.ParentCommand;
+import dev.triumphteam.cmd.core.command.ParentSubCommand;
+import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,10 +44,11 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
 
     private final MessageRegistry<S> messageRegistry;
 
-    private final Map<String, Command<S>> subCommands = new HashMap<>();
-    private final Map<String, Command<S>> subCommandAliases = new HashMap<>();
+    private final Map<String, ExecutableCommand<S>> subCommands = new HashMap<>();
+    private final Map<String, ExecutableCommand<S>> subCommandAliases = new HashMap<>();
 
     private final CommandMeta meta;
+    private ExecutableCommand<S> parentCommandWithArgument;
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
@@ -55,43 +61,58 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
         this.messageRegistry = messageRegistry;
     }
 
-    // TODO: Comments
-    public void execute(
-            final @NotNull S sender,
-            final @NotNull List<@NotNull String> arguments
-    ) {
-        final int argumentSize = arguments.size();
+    @Override
+    public void addSubCommand(final @NotNull ExecutableCommand<S> subCommand, final boolean isAlias) {
+        // If it's a parent command with argument we add it
+        if (subCommand instanceof ParentSubCommand && subCommand.hasArguments()) {
+            if (parentCommandWithArgument != null) {
+                throw new CommandRegistrationException("Only one inner command with argument is allowed per command.", subCommand.getBaseCommand().getClass());
+            }
 
-        final Command<S> subCommand = getSubCommand(arguments);
-
-        // TODO
-        /*if (subCommand == null || (argumentSize > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
-            final String name = argumentSize == 0 ? dev.triumphteam.cmd.core.annotation.Command.DEFAULT_CMD_NAME : arguments.get(0);
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(this.name, name));
+            parentCommandWithArgument = subCommand;
             return;
         }
 
-        subCommand.execute(sender, !subCommand.isDefault() ? arguments.subList(1, argumentSize) : arguments);*/
+        // Normal commands are added here
+
+        subCommands.put(subCommand.getName(), subCommand);
+        // TODO ALIAS
+    }
+
+    public void execute(
+            final @NotNull S sender,
+            final @NotNull List<String> arguments
+    ) {
+
+        final String commandName = nameFromArguments(arguments);
+        final ExecutableCommand<S> subCommand = getSubCommand(commandName, arguments.size());
+
+        if (subCommand == null) {
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(name, commandName));
+            return;
+        }
+
+        subCommand.execute(sender, commandName, null, !subCommand.isDefault() ? arguments.subList(1, arguments.size()) : arguments);
     }
 
     @Override
     public @NotNull String getName() {
-        return null;
+        return name;
     }
 
     @Override
-    public @NotNull Map<String, Command<S>> getCommands() {
+    public @Nullable ExecutableCommand<S> getParentCommandWithArgument() {
+        return parentCommandWithArgument;
+    }
+
+    @Override
+    public @NotNull Map<String, ExecutableCommand<S>> getCommands() {
         return subCommands;
     }
 
     @Override
-    public @NotNull Map<String, Command<S>> getCommandAliases() {
+    public @NotNull Map<String, ExecutableCommand<S>> getCommandAliases() {
         return subCommandAliases;
-    }
-
-    @Override
-    public void addSubCommand(final @NotNull Command<S> subCommand, final boolean isAlias) {
-
     }
 
     @Override
