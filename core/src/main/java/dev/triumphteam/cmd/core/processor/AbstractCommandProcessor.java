@@ -121,13 +121,17 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         return registryContainer;
     }
 
+    public @NotNull CommandExtensions<?, S> getCommandExtensions() {
+        return commandExtensions;
+    }
+
     protected @NotNull CommandMeta getParentMeta() {
         return parentMeta;
     }
 
     @Contract("_ -> new")
     @NotNull
-    public SubCommandRegistrationException createException(final @NotNull String message) {
+    protected SubCommandRegistrationException createException(final @NotNull String message) {
         return new SubCommandRegistrationException(message, annotatedElement, invocationInstance.getClass());
     }
 
@@ -143,8 +147,8 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
     public @Nullable String getName() {
         return name;
     }
-
     // TODO COMMENTS
+
     protected @NotNull InternalArgument<S, ?> createArgument(
             final @NotNull Parameter parameter,
             final @NotNull List<String> argDescriptions,
@@ -351,9 +355,5 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         if (suggestion == null) return new EmptySuggestion<>();
 
         return suggestion;
-    }
-
-    protected @NotNull CommandExtensions<?, S> getCommandExtensions() {
-        return commandExtensions;
     }
 }
