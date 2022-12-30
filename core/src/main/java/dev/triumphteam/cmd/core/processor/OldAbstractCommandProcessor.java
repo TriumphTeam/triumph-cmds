@@ -24,18 +24,16 @@
 package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.AnnotatedCommand;
-import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
+import dev.triumphteam.cmd.core.command.ParentCommand;
+import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
 import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
 import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
-import dev.triumphteam.cmd.core.subcommand.invoker.Invoker;
-import dev.triumphteam.cmd.core.subcommand.invoker.MethodInvoker;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.AnnotatedElement;
@@ -47,7 +45,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -100,7 +97,6 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
     // TODO: Comments
     public void addSubCommands(final @NotNull ParentCommand<S> command) {
         // Method sub commands
-        collectMethodSubCommands(command, commandClass, method -> new MethodInvoker(instanceSupplier, method));
 
         // Classes sub commands
         for (final Class<?> klass : commandClass.getDeclaredClasses()) {
@@ -139,15 +135,13 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
 
     private void collectMethodSubCommands(
             final @NotNull ParentCommand<S> command,
-            final @NotNull Class<?> klass,
-            final @NotNull Function<Method, Invoker> invokerFunction
+            final @NotNull Class<?> klass
     ) {
         // Method sub commands
         for (final Method method : klass.getDeclaredMethods()) {
             // TODO: ALLOW PRIVATE
             if (Modifier.isPrivate(method.getModifiers())) continue;
 
-            final Invoker invoker = invokerFunction.apply(method);
 
             final P processor = createSubProcessor(method);
             final String subCommandName = processor.getName();

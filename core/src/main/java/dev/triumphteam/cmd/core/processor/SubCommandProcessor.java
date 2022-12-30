@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.processor;
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
+import dev.triumphteam.cmd.core.annotations.Requirements;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
@@ -40,7 +41,14 @@ import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.FlagRegistry;
 import dev.triumphteam.cmd.core.extention.registry.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.message.context.MessageContext;
+import dev.triumphteam.cmd.core.requirement.Requirement;
+import dev.triumphteam.cmd.core.requirement.RequirementKey;
+import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
@@ -73,6 +81,7 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
 
     private final Method method;
     private final NamedArgumentRegistry namedArgumentRegistry;
+    private final RequirementRegistry<S> requirementRegistry;
     private final FlagRegistry flagRegistry;
 
     SubCommandProcessor(
@@ -87,6 +96,7 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
 
         this.method = method;
         this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
+        this.requirementRegistry = registryContainer.getRequirementRegistry();
         this.flagRegistry = registryContainer.getFlagRegistry();
     }
 
@@ -192,6 +202,44 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
         }
 
         return arguments;
+    }
+
+    /**
+     * Get all the requirements for the class.
+     *
+     * @return A {@link List} of requirements needed to run the command.
+     */
+    public @NotNull List<Requirement<S, ?>> requirements() {
+        final List<Requirement<S, ?>> requirements = new ArrayList<>();
+        for (final dev.triumphteam.cmd.core.annotations.Requirement requirementAnnotation : getRequirementsFromAnnotations()) {
+            final RequirementKey requirementKey = RequirementKey.of(requirementAnnotation.value());
+            final String messageKeyValue = requirementAnnotation.messageKey();
+
+            final MessageKey<MessageContext> messageKey;
+            if (messageKeyValue.isEmpty()) messageKey = null;
+            else messageKey = MessageKey.of(messageKeyValue, MessageContext.class);
+
+            final RequirementResolver<S> resolver = requirementRegistry.getRequirement(requirementKey);
+            if (resolver == null) {
+                throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
+            }
+
+            requirements.add(new Requirement<>(resolver, messageKey, DefaultMessageContext::new, requirementAnnotation.invert()));
+        }
+
+        return Collections.unmodifiableList(requirements);
+    }
+
+    /**
+     * @return The list of requirements annotations.
+     */
+    private @NotNull List<dev.triumphteam.cmd.core.annotations.@NotNull Requirement> getRequirementsFromAnnotations() {
+        final Requirements requirements = method.getAnnotation(Requirements.class);
+        if (requirements != null) return Arrays.asList(requirements.value());
+
+        final dev.triumphteam.cmd.core.annotations.Requirement requirement = method.getAnnotation(dev.triumphteam.cmd.core.annotations.Requirement.class);
+        if (requirement == null) return Collections.emptyList();
+        return Collections.singletonList(requirement);
     }
 
     /**

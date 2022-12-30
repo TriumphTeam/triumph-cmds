@@ -11,6 +11,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
+import dev.triumphteam.cmd.core.requirement.Requirement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,8 +24,9 @@ import java.util.function.Supplier;
 
 public class SubCommand<S> implements ExecutableCommand<S> {
 
-    private final List<InternalArgument<S, ?>> arguments;
     private final Class<? extends S> senderType;
+    private final List<InternalArgument<S, ?>> arguments;
+    private final List<Requirement<S, ?>> requirements;
 
     private final String name;
     private final CommandMeta meta;
@@ -46,6 +48,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
         this.meta = processor.createMeta();
         this.senderType = processor.senderType();
         this.arguments = processor.arguments(meta);
+        this.requirements = processor.requirements();
 
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderExtension = processor.getCommandExtensions().getSenderExtension();
@@ -59,7 +62,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
             final @NotNull List<String> arguments
     ) {
         if (!senderExtension.validate(messageRegistry, this, sender)) return;
-        // if (!meetRequirements(sender)) return;
+        if (!meetRequirements(sender)) return;
 
         // Creates the invoking arguments list
         final List<java.lang.Object> invokeArguments = new ArrayList<>();
@@ -122,7 +125,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
                 final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
                 final List<String> leftOvers = leftOvers(commandArgs, i);
 
-                final java.lang.Object result = limitlessArgument.resolve(sender, leftOvers);
+                final Object result = limitlessArgument.resolve(sender, leftOvers);
 
                 if (result == null) {
                     return false;
@@ -133,7 +136,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
             }
 
             if (!(internalArgument instanceof StringInternalArgument)) {
-                throw new CommandExecutionException("Found unsupported internalArgument", "", name);
+                throw new CommandExecutionException("Found unsupported argument", "", name);
             }
 
             final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
@@ -149,7 +152,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
                 return false;
             }
 
-            final java.lang.Object result = stringArgument.resolve(sender, arg);
+            final Object result = stringArgument.resolve(sender, arg);
             if (result == null) {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
@@ -160,6 +163,23 @@ public class SubCommand<S> implements ExecutableCommand<S> {
             }
 
             invokeArguments.add(result);
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if the requirements to run the command are met.
+     *
+     * @param sender The sender of the command.
+     * @return Whether all requirements are met.
+     */
+    private boolean meetRequirements(@NotNull final S sender) {
+        for (final Requirement<S, ?> requirement : requirements) {
+            if (!requirement.isMet(sender)) {
+                requirement.sendMessage(messageRegistry, sender, "", name);
+                return false;
+            }
         }
 
         return true;
