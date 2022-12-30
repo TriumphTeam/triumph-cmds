@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.annotations;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,6 +33,7 @@ import java.lang.annotation.Target;
  * Marks the argument as optional, so if a user doesn't type it, it'll be null.
  * Argument must be nullable in Kotlin.
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Optional {}

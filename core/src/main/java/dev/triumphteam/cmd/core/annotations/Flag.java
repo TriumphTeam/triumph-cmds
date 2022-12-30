@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.annotations;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -36,6 +37,7 @@ import java.lang.annotation.Target;
  * Flag annotation. Contains all the "data" for the flag.
  * To be used inside the {@link CommandFlags} annotation.
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Repeatable(CommandFlags.class)

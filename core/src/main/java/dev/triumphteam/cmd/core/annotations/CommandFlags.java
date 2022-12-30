@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.annotations;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,6 +35,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation for declaring all the {@link Flag}s needed for the command.
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface CommandFlags {

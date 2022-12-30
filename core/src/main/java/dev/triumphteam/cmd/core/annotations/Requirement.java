@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.annotations;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -35,6 +36,7 @@ import java.lang.annotation.Target;
  * Requirement annotation. Holds all the requirement's data.
  * To be used inside {@link Requirements}.
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Repeatable(Requirements.class)
