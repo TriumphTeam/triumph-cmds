@@ -130,8 +130,7 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
     }
 
     @Contract("_ -> new")
-    @NotNull
-    protected SubCommandRegistrationException createException(final @NotNull String message) {
+    protected @NotNull SubCommandRegistrationException createException(final @NotNull String message) {
         return new SubCommandRegistrationException(message, annotatedElement, invocationInstance.getClass());
     }
 

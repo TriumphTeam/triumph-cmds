@@ -111,9 +111,9 @@ public class SubCommand<S> implements ExecutableCommand<S> {
      */
     @SuppressWarnings("unchecked")
     private boolean validateAndCollectArguments(
-            @NotNull final S sender,
-            @NotNull final List<java.lang.Object> invokeArguments,
-            @NotNull final List<String> commandArgs
+            final @NotNull S sender,
+            final @NotNull List<java.lang.Object> invokeArguments,
+            final @NotNull List<String> commandArgs
     ) {
         for (int i = 0; i < arguments.size(); i++) {
             final InternalArgument<S, ?> internalArgument = arguments.get(i);
@@ -172,8 +172,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
      * @param index The current index of the internalArgument.
      * @return The internalArgument name or null.
      */
-    @Nullable
-    private String valueOrNull(@NotNull final List<String> list, final int index) {
+    private @Nullable String valueOrNull(final @NotNull List<String> list, final int index) {
         if (index >= list.size()) return null;
         return list.get(index);
     }
@@ -185,8 +184,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
      * @param from The index from which should start removing.
      * @return A list with the leftover arguments.
      */
-    @NotNull
-    private List<String> leftOvers(@NotNull final List<String> list, final int from) {
+    private @NotNull List<String> leftOvers(final @NotNull List<String> list, final int from) {
         if (from > list.size()) return Collections.emptyList();
         return list.subList(from, list.size());
     }
