@@ -1,6 +1,5 @@
 package dev.triumphteam.cmd.core.command;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
@@ -31,7 +30,7 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
     private final Map<String, ExecutableCommand<S>> commandAliases = new HashMap<>();
     private final String name;
     private final CommandMeta meta;
-    private final BaseCommand baseCommand;
+    private final Object invocationInstance;
     private final Constructor<?> constructor;
     private final boolean isStatic;
     private final StringInternalArgument<S> argument;
@@ -42,13 +41,13 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
     private ExecutableCommand<S> parentCommandWithArgument;
 
     public ParentSubCommand(
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull Object invocationInstance,
             final @NotNull Constructor<?> constructor,
             final boolean isStatic,
             final @Nullable StringInternalArgument<S> argument,
             final @NotNull ParentCommandProcessor<S> processor
     ) {
-        this.baseCommand = baseCommand;
+        this.invocationInstance = invocationInstance;
         this.constructor = constructor;
         this.isStatic = isStatic;
         this.argument = argument;
@@ -64,7 +63,7 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
         // If it's a parent command with argument we add it
         if (subCommand instanceof ParentSubCommand && subCommand.hasArguments()) {
             if (parentCommandWithArgument != null) {
-                throw new CommandRegistrationException("Only one inner command with argument is allowed per command", baseCommand.getClass());
+                throw new CommandRegistrationException("Only one inner command with argument is allowed per command", invocationInstance.getClass());
             }
 
             parentCommandWithArgument = subCommand;
@@ -125,10 +124,10 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
             // If there is no argument don't pass anything
             // A bit annoying but if the method has no parameters, "null" is a valid parameter so this check is needed
             if (!hasArgument) {
-                return constructor.newInstance(instanceSupplier == null ? baseCommand : instanceSupplier.get());
+                return constructor.newInstance(instanceSupplier == null ? invocationInstance : instanceSupplier.get());
             }
 
-            return constructor.newInstance(instanceSupplier == null ? baseCommand : instanceSupplier.get(), argumentValue);
+            return constructor.newInstance(instanceSupplier == null ? invocationInstance : instanceSupplier.get(), argumentValue);
         }
 
         if (!hasArgument) constructor.newInstance();
@@ -141,8 +140,8 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
     }
 
     @Override
-    public @NotNull BaseCommand getBaseCommand() {
-        return baseCommand;
+    public @NotNull Object getInvocationInstance() {
+        return invocationInstance;
     }
 
     @Override

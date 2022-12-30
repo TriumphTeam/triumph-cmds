@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
@@ -78,13 +77,13 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
 
     SubCommandProcessor(
             final @NotNull String parentName,
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull CommandExtensions<?, S> commandExtensions,
             final @NotNull CommandMeta parentMeta
     ) {
-        super(parentName, baseCommand, method, registryContainer, commandExtensions, parentMeta);
+        super(parentName, invocationInstance, method, registryContainer, commandExtensions, parentMeta);
 
         this.method = method;
         this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();

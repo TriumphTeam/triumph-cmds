@@ -66,7 +66,7 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
         // If it's a parent command with argument we add it
         if (subCommand instanceof ParentSubCommand && subCommand.hasArguments()) {
             if (parentCommandWithArgument != null) {
-                throw new CommandRegistrationException("Only one inner command with argument is allowed per command.", subCommand.getBaseCommand().getClass());
+                throw new CommandRegistrationException("Only one inner command with argument is allowed per command.", subCommand.getInvocationInstance().getClass());
             }
 
             parentCommandWithArgument = subCommand;

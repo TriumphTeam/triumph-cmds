@@ -1,6 +1,6 @@
 package dev.triumphteam.cmd.core.extention.annotation;
 
-import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.AnnotatedCommand;
 
 import java.lang.reflect.Method;
 
@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 public enum ProcessorTarget {
 
     /**
-     * The original command, normally the {@link Class} that extends {@link BaseCommand} or a child of it.
+     * The original command, normally the {@link Class} that extends {@link AnnotatedCommand} or a child of it.
      * <pre>{@code
      * @Command("foo")
      * @ExampleCustomAnnotation
@@ -22,7 +22,7 @@ public enum ProcessorTarget {
      */
     ROOT_COMMAND,
     /**
-     * A command "holder". the "sub-command" {@link Class}, normally does not extend {@link BaseCommand} or anything.
+     * A command "holder". the "sub-command" {@link Class}, normally does not extend {@link AnnotatedCommand} or anything.
      * <pre>{@code
      * @Command("foo")
      * class MyCommand extends BaseCommand() {

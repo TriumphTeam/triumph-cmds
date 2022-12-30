@@ -25,12 +25,11 @@ package dev.triumphteam.cmd.core.processor;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Maps;
-import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.AnnotatedCommand;
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.ArgName;
 import dev.triumphteam.cmd.core.annotations.Async;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
-import dev.triumphteam.cmd.core.annotations.Default;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.annotations.Flag;
 import dev.triumphteam.cmd.core.annotations.Join;
@@ -110,7 +109,7 @@ import static java.util.Collections.singletonList;
 public abstract class OldAbstractSubCommandProcessor<S> {
 
     private static final Set<Class<?>> COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
-    private final BaseCommand baseCommand;
+    private final AnnotatedCommand annotatedCommand;
     private final String parentName;
     private final AnnotatedElement annotatedElement;
     private final List<String> argDescriptions = new ArrayList<>();
@@ -135,13 +134,13 @@ public abstract class OldAbstractSubCommandProcessor<S> {
     private Class<? extends S> senderType;
 
     protected OldAbstractSubCommandProcessor(
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull AnnotatedCommand annotatedCommand,
             final @NotNull String parentName,
             final @NotNull AnnotatedElement annotatedElement,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull SenderValidator<S> senderValidator
     ) {
-        this.baseCommand = baseCommand;
+        this.annotatedCommand = annotatedCommand;
         this.parentName = parentName;
 
         this.annotatedElement = annotatedElement;
@@ -188,7 +187,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
 
     /**
      * Used for the child factories to get the sub command name.
-     * It's nullable because a method might not have a {@link dev.triumphteam.cmd.core.annotations.SubCommand} or {@link Default} annotation.
+     * It's nullable because a method might not have a annotation.
      *
      * @return The sub command name.
      */
@@ -238,12 +237,12 @@ public abstract class OldAbstractSubCommandProcessor<S> {
     }
 
     /**
-     * Gets the {@link BaseCommand} instance, so it can be used later to invoke.
+     * Gets the {@link AnnotatedCommand} instance, so it can be used later to invoke.
      *
      * @return The base command instance.
      */
-    public @NotNull BaseCommand getBaseCommand() {
-        return baseCommand;
+    public @NotNull AnnotatedCommand getBaseCommand() {
+        return annotatedCommand;
     }
 
     // TODO comments
@@ -286,7 +285,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
      */
     @Contract("_ -> new")
     protected @NotNull SubCommandRegistrationException createException(final @NotNull String message) {
-        return new SubCommandRegistrationException(message, annotatedElement, baseCommand.getClass());
+        return new SubCommandRegistrationException(message, annotatedElement, annotatedCommand.getClass());
     }
 
     /**
@@ -546,22 +545,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
      * Extracts the data from the method to retrieve the sub command name or the default name.
      */
     private void extractSubCommandNames() {
-        final Default defaultAnnotation = annotatedElement.getAnnotation(Default.class);
-        final dev.triumphteam.cmd.core.annotations.SubCommand subCommandAnnotation = annotatedElement.getAnnotation(dev.triumphteam.cmd.core.annotations.SubCommand.class);
 
-        if (defaultAnnotation == null && subCommandAnnotation == null) {
-            return;
-        }
-
-        if (defaultAnnotation != null) {
-            name = Default.DEFAULT_CMD_NAME;
-            alias.addAll(Arrays.stream(defaultAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
-            isDefault = true;
-            return;
-        }
-
-        name = subCommandAnnotation.value().toLowerCase();
-        alias.addAll(Arrays.stream(subCommandAnnotation.alias()).map(String::toLowerCase).collect(Collectors.toList()));
     }
 
     /**

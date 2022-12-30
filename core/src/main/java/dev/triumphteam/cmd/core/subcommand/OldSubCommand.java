@@ -23,8 +23,7 @@
  */
 package dev.triumphteam.cmd.core.subcommand;
 
-import dev.triumphteam.cmd.core.BaseCommand;
-import dev.triumphteam.cmd.core.annotations.Default;
+import dev.triumphteam.cmd.core.AnnotatedCommand;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
@@ -57,7 +56,7 @@ import java.util.stream.Collectors;
  */
 public abstract class OldSubCommand<S> {
 
-    private final BaseCommand baseCommand;
+    private final AnnotatedCommand annotatedCommand;
     private final Method method = null;
 
     private final String parentName;
@@ -83,7 +82,7 @@ public abstract class OldSubCommand<S> {
             @NotNull final String parentName,
             @NotNull final ExecutionProvider executionProvider
     ) {
-        this.baseCommand = processor.getBaseCommand();
+        this.annotatedCommand = processor.getBaseCommand();
         // this.method = processor.getAnnotatedElement();
         this.name = processor.getName();
         this.alias = processor.getAlias();
@@ -105,7 +104,7 @@ public abstract class OldSubCommand<S> {
 
     /**
      * Checks if the sub command is default.
-     * Can also just check if the name is {@link Default#DEFAULT_CMD_NAME}.
+     * Can also just check if the name is .
      *
      * @return Whether the sub command is default.
      */
@@ -174,7 +173,7 @@ public abstract class OldSubCommand<S> {
 
         executionProvider.execute(() -> {
             try {
-                method.invoke(baseCommand, invokeArguments.toArray());
+                method.invoke(annotatedCommand, invokeArguments.toArray());
             } catch (IllegalAccessException | InvocationTargetException exception) {
                 throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
                         .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
@@ -329,7 +328,7 @@ public abstract class OldSubCommand<S> {
     @NotNull @Override
     public String toString() {
         return "SimpleSubCommand{" +
-                "baseCommand=" + baseCommand +
+                "baseCommand=" + annotatedCommand +
                 ", method=" + method +
                 ", name='" + name + '\'' +
                 ", alias=" + alias +

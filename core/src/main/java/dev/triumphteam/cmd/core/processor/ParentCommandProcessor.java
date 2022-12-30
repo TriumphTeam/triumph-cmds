@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
@@ -45,13 +44,13 @@ public final class ParentCommandProcessor<S> extends AbstractCommandProcessor<S>
 
     ParentCommandProcessor(
             final @NotNull String parentName,
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull Object invocationInstance,
             final @NotNull Class<?> klass,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull CommandExtensions<?, S> commandExtensions,
             final @NotNull CommandMeta parentMeta
     ) {
-        super(parentName, baseCommand, klass, registryContainer, commandExtensions, parentMeta);
+        super(parentName, invocationInstance, klass, registryContainer, commandExtensions, parentMeta);
 
         this.klass = klass;
     }

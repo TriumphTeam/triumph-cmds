@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.subcommand.invoker;
 
-import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.AnnotatedCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,13 +33,13 @@ import java.lang.reflect.Method;
 
 public class ClassInvoker implements Invoker {
 
-    private final BaseCommand parent;
+    private final AnnotatedCommand parent;
     private final Constructor<?> constructor;
     private final Method method;
     private final boolean isStatic;
 
     public ClassInvoker(
-            final @NotNull BaseCommand parent,
+            final @NotNull AnnotatedCommand parent,
             final @NotNull Constructor<?> constructor,
             final @NotNull Method method,
             final boolean isStatic

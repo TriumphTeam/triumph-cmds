@@ -32,32 +32,32 @@ import java.util.List;
 /**
  * Class in which all commands need to extend.
  */
-public abstract class BaseCommand {
+public abstract class AnnotatedCommand {
 
     private final String command;
     private final List<String> alias = new ArrayList<>();
     private final String description;
 
 
-    public BaseCommand() {
+    public AnnotatedCommand() {
         this(null, null, null);
     }
 
-    public BaseCommand(final @Nullable List<@NotNull String> alias) {
+    public AnnotatedCommand(final @Nullable List<String> alias) {
         this(null, alias, null);
     }
 
-    public BaseCommand(final @Nullable String command) {
+    public AnnotatedCommand(final @Nullable String command) {
         this(command, null, null);
     }
 
-    public BaseCommand(final @Nullable String command, final @Nullable String description) {
+    public AnnotatedCommand(final @Nullable String command, final @Nullable String description) {
         this(command, null, description);
     }
 
-    public BaseCommand(
+    public AnnotatedCommand(
             final @Nullable String command,
-            final @Nullable List<@NotNull String> alias,
+            final @Nullable List<String> alias,
             final @Nullable String description
     ) {
         this.command = command;

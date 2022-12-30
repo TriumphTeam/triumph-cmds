@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.command.execution.AsyncExecutionProvider;
 import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
@@ -61,29 +60,29 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     }
 
     @Override
-    public void registerCommand(final @NotNull BaseCommand baseCommand) {
+    public void registerCommand(final @NotNull Object command) {
         final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
-                baseCommand,
+                command,
                 getRegistryContainer(),
                 getCommandOptions().getCommandExtensions()
         );
 
         final String name = processor.getName();
 
-        final SimpleCommand<S> command = commands.get(name);
-        if (command != null) {
+        final SimpleCommand<S> simpleCommand = commands.get(name);
+        if (simpleCommand != null) {
             // TODO: Command exists, only care about adding subs
             return;
         }
 
         // Command does not exist, proceed to add new!
-        final SimpleCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
-        processor.commands(newCommand.getMeta()).forEach(it -> newCommand.addSubCommand(it, false));
+        final SimpleCommand<S> newSimpleCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
+        processor.commands(newSimpleCommand.getMeta()).forEach(it -> newSimpleCommand.addSubCommand(it, false));
 
         processor.getAlias().forEach(it -> {
             final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
             // Adding sub commands.
-            processor.commands(newCommand.getMeta()).forEach(sub -> aliasCommand.addSubCommand(sub, false));
+            processor.commands(newSimpleCommand.getMeta()).forEach(sub -> aliasCommand.addSubCommand(sub, false));
         });
     }
 
@@ -96,7 +95,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     }
 
     @Override
-    public void unregisterCommand(final @NotNull BaseCommand command) {
+    public void unregisterCommand(final @NotNull Object command) {
         // TODO add a remove functionality
     }
 

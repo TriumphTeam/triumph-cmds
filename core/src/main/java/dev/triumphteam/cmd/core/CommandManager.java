@@ -60,19 +60,19 @@ public abstract class CommandManager<D, S> {
     }
 
     /**
-     * Registers a {@link BaseCommand} into the manager.
+     * Registers a command into the manager.
      *
-     * @param baseCommand The {@link BaseCommand} to be registered.
+     * @param command The instance of the command to be registered.
      */
-    public abstract void registerCommand(final @NotNull BaseCommand baseCommand);
+    public abstract void registerCommand(final @NotNull Object command);
 
     /**
-     * Registers {@link BaseCommand}s.
+     * Registers commands.
      *
-     * @param baseCommands A list of baseCommands to be registered.
+     * @param commands A list of commands to be registered.
      */
-    public final void registerCommand(final @NotNull BaseCommand @NotNull ... baseCommands) {
-        for (final BaseCommand command : baseCommands) {
+    public final void registerCommand(final @NotNull Object @NotNull ... commands) {
+        for (final Object command : commands) {
             registerCommand(command);
         }
     }
@@ -80,17 +80,17 @@ public abstract class CommandManager<D, S> {
     /**
      * Main method for unregistering commands to be implemented in other platform command managers.
      *
-     * @param command The {@link BaseCommand} to be unregistered.
+     * @param command The command to be unregistered.
      */
-    public abstract void unregisterCommand(final @NotNull BaseCommand command);
+    public abstract void unregisterCommand(final @NotNull Object command);
 
     /**
      * Method to unregister commands with vararg.
      *
      * @param commands A list of commands to be unregistered.
      */
-    public final void unregisterCommands(final @NotNull BaseCommand @NotNull ... commands) {
-        for (final BaseCommand command : commands) {
+    public final void unregisterCommands(final @NotNull Object @NotNull ... commands) {
+        for (final Object command : commands) {
             unregisterCommand(command);
         }
     }
@@ -148,7 +148,7 @@ public abstract class CommandManager<D, S> {
     /**
      * Registers a list of flags to be used on a {@link Flags} argument or {@link Arguments} argument, in a command.
      *
-     * @param key       The {@link FlagKey} to represent the list.
+     * @param key   The {@link FlagKey} to represent the list.
      * @param flags The list of flags.
      */
     public final void registerFlags(final @NotNull FlagKey key, final @NotNull Flag @NotNull ... flags) {
@@ -158,7 +158,7 @@ public abstract class CommandManager<D, S> {
     /**
      * Registers a list of flags to be used on a {@link Flags} argument or {@link Arguments} argument, in a command.
      *
-     * @param key       The {@link FlagKey} to represent the list.
+     * @param key   The {@link FlagKey} to represent the list.
      * @param flags The {@link List} of flags.
      */
     public final void registerFlags(final @NotNull FlagKey key, final @NotNull List<Flag> flags) {

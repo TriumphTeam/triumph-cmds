@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.subcommand.invoker;
 
-import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.AnnotatedCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,10 +33,10 @@ import java.util.function.Supplier;
 
 public class MethodInvoker implements Invoker {
 
-    private final Supplier<BaseCommand> instanceSupplier;
+    private final Supplier<AnnotatedCommand> instanceSupplier;
     private final Method method;
 
-    public MethodInvoker(final @NotNull Supplier<BaseCommand> instanceSupplier, final @NotNull Method method) {
+    public MethodInvoker(final @NotNull Supplier<AnnotatedCommand> instanceSupplier, final @NotNull Method method) {
         this.instanceSupplier = instanceSupplier;
         this.method = method;
     }

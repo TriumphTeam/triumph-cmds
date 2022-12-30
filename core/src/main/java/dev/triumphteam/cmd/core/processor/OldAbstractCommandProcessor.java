@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
-import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.AnnotatedCommand;
 import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
@@ -67,8 +67,8 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
     private final Map<String, SC> subCommands = new HashMap<>();
     private final Map<String, SC> subCommandsAlias = new HashMap<>();
 
-    private final Class<? extends BaseCommand> commandClass;
-    private final Supplier<BaseCommand> instanceSupplier;
+    private final Class<? extends AnnotatedCommand> commandClass;
+    private final Supplier<AnnotatedCommand> instanceSupplier;
     private final RegistryContainer<S> registryContainer;
     private final SenderMapper<DS, S> senderMapper;
     private final SenderValidator<S> senderValidator;
@@ -77,8 +77,8 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
     private final ExecutionProvider asyncExecutionProvider;
 
     protected OldAbstractCommandProcessor(
-            final @NotNull Class<? extends BaseCommand> commandClass,
-            final @NotNull Supplier<BaseCommand> instanceSupplier,
+            final @NotNull Class<? extends AnnotatedCommand> commandClass,
+            final @NotNull Supplier<AnnotatedCommand> instanceSupplier,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull SenderMapper<DS, S> senderMapper,
             final @NotNull SenderValidator<S> senderValidator,
@@ -156,7 +156,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
 
             if (subCommandName.isEmpty()) {
                 throw new SubCommandRegistrationException(
-                        "@" + dev.triumphteam.cmd.core.annotations.SubCommand.class.getSimpleName() + " name must not be empty",
+                        "@ name must not be empty",
                         method,
                         klass
                 );
@@ -250,7 +250,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
 
         alias.addAll(baseCommand.getAlias());*/
         if (name.isEmpty()) {
-            throw new CommandRegistrationException("Command name must not be empty", BaseCommand.class);
+            throw new CommandRegistrationException("Command name must not be empty", AnnotatedCommand.class);
         }
     }
 

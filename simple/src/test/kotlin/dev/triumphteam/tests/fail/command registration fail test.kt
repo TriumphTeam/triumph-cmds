@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.tests.fail
 
-import dev.triumphteam.cmd.core.BaseCommand
+import dev.triumphteam.cmd.core.AnnotatedCommand
 import dev.triumphteam.cmd.core.annotations.Command
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException
 import dev.triumphteam.cmds.simple.SimpleCommandManager
@@ -67,9 +67,9 @@ class `command registration fail test` {
     }
 }
 
-class NoCommand : BaseCommand()
+class NoCommand : AnnotatedCommand()
 
 @Command
-class EmptyCommandAnnotation : BaseCommand()
+class EmptyCommandAnnotation : AnnotatedCommand()
 
-class EmptyCommandSuper : BaseCommand("")
+class EmptyCommandSuper : AnnotatedCommand("")

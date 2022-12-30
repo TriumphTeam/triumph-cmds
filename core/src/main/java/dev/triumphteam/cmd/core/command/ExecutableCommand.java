@@ -1,6 +1,5 @@
 package dev.triumphteam.cmd.core.command;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +29,7 @@ public interface ExecutableCommand<S> extends Command {
     );
 
     /**
-     * @return The instance of the original base command class where the command belongs to.
+     * @return The instance of the original command instance where the command belongs to.
      */
-    @NotNull BaseCommand getBaseCommand();
+    @NotNull Object getInvocationInstance();
 }

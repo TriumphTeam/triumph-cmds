@@ -42,7 +42,7 @@ import java.lang.annotation.Target;
 public @interface Command {
 
     // Default commands use this name.
-    String DEFAULT_CMD_NAME = "TH_DEFAULT";
+    String DEFAULT_CMD_NAME = "th-default";
 
     /**
      * Command's name.

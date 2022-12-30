@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.AnnotatedCommand;
 import dev.triumphteam.cmd.core.processor.OldAbstractSubCommandProcessor;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
@@ -34,12 +34,12 @@ import java.lang.reflect.Method;
 final class SimpleSubCommandProcessor<S> extends OldAbstractSubCommandProcessor<S> {
 
     public SimpleSubCommandProcessor(
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull AnnotatedCommand annotatedCommand,
             final @NotNull String parentName,
             final @NotNull Method method,
             final @NotNull RegistryContainer<S> registries,
             final @NotNull SenderValidator<S> senderValidator
     ) {
-        super(baseCommand, parentName, method, registries, senderValidator);
+        super(annotatedCommand, parentName, method, registries, senderValidator);
     }
 }

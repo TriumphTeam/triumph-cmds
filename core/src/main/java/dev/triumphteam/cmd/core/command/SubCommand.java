@@ -1,6 +1,5 @@
 package dev.triumphteam.cmd.core.command;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
@@ -20,15 +19,15 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     private final String name;
     private final CommandMeta meta;
 
-    private final BaseCommand baseCommand;
+    private final Object invocationInstance;
     private final Method method;
 
     public SubCommand(
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull SubCommandProcessor<S> processor
     ) {
-        this.baseCommand = baseCommand;
+        this.invocationInstance = invocationInstance;
         this.method = method;
         this.name = processor.getName();
         this.meta = processor.createMeta();
@@ -44,7 +43,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
             final @NotNull List<String> arguments
     ) {
         try {
-            method.invoke(instanceSupplier == null ? baseCommand : instanceSupplier.get(), sender);
+            method.invoke(instanceSupplier == null ? invocationInstance : instanceSupplier.get(), sender);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -61,8 +60,8 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     }
 
     @Override
-    public @NotNull BaseCommand getBaseCommand() {
-        return baseCommand;
+    public @NotNull Object getInvocationInstance() {
+        return invocationInstance;
     }
 
     @Override

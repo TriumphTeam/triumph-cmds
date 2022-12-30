@@ -23,7 +23,8 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
-import dev.triumphteam.cmd.core.BaseCommand;
+import com.google.common.base.CaseFormat;
+import dev.triumphteam.cmd.core.AnnotatedCommand;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
@@ -47,6 +48,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -54,7 +56,7 @@ import static java.util.Collections.emptyMap;
 @SuppressWarnings("unchecked")
 public abstract class AbstractRootCommandProcessor<S> implements CommandProcessor {
 
-    private final BaseCommand baseCommand;
+    private final Object invocationInstance;
 
     private final String name;
     private final List<String> alias;
@@ -64,11 +66,11 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
     private final RegistryContainer<S> registryContainer;
 
     public AbstractRootCommandProcessor(
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull Object invocationInstance,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull CommandExtensions<?, S> commandExtensions
     ) {
-        this.baseCommand = baseCommand;
+        this.invocationInstance = invocationInstance;
 
         this.name = nameOf();
         this.alias = aliasOf();
@@ -95,7 +97,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
     public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(null);
         // Process all the class annotations
-        final Class<?> klass = baseCommand.getClass();
+        final Class<?> klass = invocationInstance.getClass();
         processAnnotations(commandExtensions, klass, ProcessorTarget.ROOT_COMMAND, meta);
         processCommandMeta(commandExtensions, klass, ProcessorTarget.PARENT_COMMAND, meta);
         // Return modified meta
@@ -103,7 +105,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
     }
 
     public @NotNull List<ExecutableCommand<S>> commands(final @NotNull CommandMeta parentMeta) {
-        final Class<? extends BaseCommand> klass = baseCommand.getClass();
+        final Class<?> klass = invocationInstance.getClass();
 
         final List<ExecutableCommand<S>> subCommands = new ArrayList<>();
         subCommands.addAll(methodCommands(parentMeta, klass.getDeclaredMethods()));
@@ -123,7 +125,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
 
             final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
                     name,
-                    baseCommand,
+                    invocationInstance,
                     method,
                     registryContainer,
                     commandExtensions,
@@ -134,7 +136,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
             if (processor.getName() == null) continue;
 
             // Add new command
-            commands.add(new SubCommand<>(baseCommand, method, processor));
+            commands.add(new SubCommand<>(invocationInstance, method, processor));
         }
 
         return commands;
@@ -151,7 +153,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
 
             final ParentCommandProcessor<S> processor = new ParentCommandProcessor<>(
                     name,
-                    baseCommand,
+                    invocationInstance,
                     klass,
                     registryContainer,
                     commandExtensions,
@@ -201,7 +203,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
                 }
             }
 
-            final ParentSubCommand<S> parent = new ParentSubCommand<>(baseCommand, constructor, isStatic, (StringInternalArgument<S>) argument, processor);
+            final ParentSubCommand<S> parent = new ParentSubCommand<>(invocationInstance, constructor, isStatic, (StringInternalArgument<S>) argument, processor);
 
             // Add children commands to parent
             methodCommands(parent.getMeta(), klass.getDeclaredMethods()).forEach(it -> parent.addSubCommand(it, false));
@@ -215,35 +217,54 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
     }
 
     private @NotNull String nameOf() {
-        final Class<? extends @NotNull BaseCommand> commandClass = baseCommand.getClass();
-        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation = commandClass.getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);
+        final Class<?> commandClass = invocationInstance.getClass();
+        final Command commandAnnotation = commandClass.getAnnotation(Command.class);
 
-        final String name;
-        if (commandAnnotation == null) {
-            final String commandName = baseCommand.getCommand();
-            if (commandName == null) {
-                throw new CommandRegistrationException("Command name or \"@" + dev.triumphteam.cmd.core.annotations.Command.class.getSimpleName() + "\" annotation missing", baseCommand.getClass());
-            }
-
-            name = commandName;
-        } else {
+        String name = null;
+        if (commandAnnotation != null) {
             name = commandAnnotation.value();
+        } else if (AnnotatedCommand.class.isAssignableFrom(commandClass)) {
+            name = ((AnnotatedCommand) invocationInstance).getCommand();
         }
 
-        if (name.isEmpty() || name.equals(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME)) {
-            throw new CommandRegistrationException("Command name must not be empty", baseCommand.getClass());
+        if (name == null) {
+            throw new CommandRegistrationException("No \"@" + Command.class.getSimpleName() + "\" annotation found or class doesn't extend \"" + AnnotatedCommand.class.getSimpleName() + "\"", invocationInstance.getClass());
         }
 
-        return name;
+        if (name.isEmpty() || name.equals(Command.DEFAULT_CMD_NAME)) {
+            throw new CommandRegistrationException("Command name must not be empty", invocationInstance.getClass());
+        }
+
+        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, name);
     }
 
     private @NotNull List<String> aliasOf() {
-        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation = baseCommand.getClass().getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);
-        return commandAnnotation == null ? baseCommand.getAlias() : Arrays.asList(commandAnnotation.alias());
+        final Class<?> commandClass = invocationInstance.getClass();
+        final Command commandAnnotation = commandClass.getAnnotation(Command.class);
+
+        List<String> aliases = null;
+        if (commandAnnotation != null) {
+            aliases = Arrays.asList(commandAnnotation.alias());
+        } else if (AnnotatedCommand.class.isAssignableFrom(commandClass)) {
+            aliases = ((AnnotatedCommand) invocationInstance).getAlias();
+        }
+
+        return aliases == null ? emptyList() : aliases.stream()
+                .map(name -> CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, name))
+                .collect(Collectors.toList());
     }
 
     private @NotNull String descriptionOf() {
-        final Description commandAnnotation = baseCommand.getClass().getAnnotation(Description.class);
-        return commandAnnotation == null ? baseCommand.getDescription() : commandAnnotation.value();
+        final Class<?> commandClass = invocationInstance.getClass();
+        final Description descriptionAnnotation = commandClass.getAnnotation(Description.class);
+
+        String description = "";
+        if (descriptionAnnotation != null) {
+            description = descriptionAnnotation.value();
+        } else if (AnnotatedCommand.class.isAssignableFrom(commandClass)) {
+            description = ((AnnotatedCommand) invocationInstance).getDescription();
+        }
+
+        return description;
     }
 }

@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.processor.AbstractRootCommandProcessor;
@@ -32,10 +31,10 @@ import org.jetbrains.annotations.NotNull;
 public final class SimpleCommandProcessor<S> extends AbstractRootCommandProcessor<S> {
 
     public SimpleCommandProcessor(
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull Object invocationInstance,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull CommandExtensions<?, S> commandExtensions
     ) {
-        super(baseCommand, registryContainer, commandExtensions);
+        super(invocationInstance, registryContainer, commandExtensions);
     }
 }

@@ -24,7 +24,6 @@
 package dev.triumphteam.cmd.core.processor;
 
 import com.google.common.base.CaseFormat;
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotations.ArgName;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
@@ -86,7 +85,7 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
     private static final Set<Class<?>> SUPPORTED_COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
     private final String parentName;
-    private final BaseCommand baseCommand;
+    private final Object invocationInstance;
     private final String name;
     private final AnnotatedElement annotatedElement;
 
@@ -100,14 +99,14 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
 
     AbstractCommandProcessor(
             final @NotNull String parentName,
-            final @NotNull BaseCommand baseCommand,
+            final @NotNull Object invocationInstance,
             final @NotNull AnnotatedElement annotatedElement,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull CommandExtensions<?, S> commandExtensions,
             final @NotNull CommandMeta parentMeta
     ) {
         this.parentName = parentName;
-        this.baseCommand = baseCommand;
+        this.invocationInstance = invocationInstance;
         this.annotatedElement = annotatedElement;
         this.name = nameOf();
         this.parentMeta = parentMeta;
@@ -129,7 +128,7 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
     @Contract("_ -> new")
     @NotNull
     public SubCommandRegistrationException createException(final @NotNull String message) {
-        return new SubCommandRegistrationException(message, annotatedElement, baseCommand.getClass());
+        return new SubCommandRegistrationException(message, annotatedElement, invocationInstance.getClass());
     }
 
     private @Nullable String nameOf() {
@@ -138,7 +137,7 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         // Not a command element
         if (commandAnnotation == null) return null;
 
-        return commandAnnotation.value();
+        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, commandAnnotation.value());
     }
 
     public @Nullable String getName() {
