@@ -27,7 +27,6 @@ import dev.triumphteam.cmd.core.AnnotatedCommand;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
@@ -36,7 +35,6 @@ import dev.triumphteam.cmd.core.requirement.Requirement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +65,6 @@ public abstract class OldSubCommand<S> {
     private final Set<Requirement<S, ?>> requirements;
 
     private final MessageRegistry<S> messageRegistry;
-    private final ExecutionProvider executionProvider;
 
     private final SenderValidator<S> senderValidator;
 
@@ -76,8 +73,7 @@ public abstract class OldSubCommand<S> {
 
     public OldSubCommand(
             @NotNull final OldAbstractSubCommandProcessor<S> processor,
-            @NotNull final String parentName,
-            @NotNull final ExecutionProvider executionProvider
+            @NotNull final String parentName
     ) {
         this.annotatedCommand = processor.getBaseCommand();
         // this.method = processor.getAnnotatedElement();
@@ -92,8 +88,6 @@ public abstract class OldSubCommand<S> {
         this.senderType = processor.getSenderType();
 
         this.parentName = parentName;
-
-        this.executionProvider = executionProvider;
 
         this.hasArguments = !internalArguments.isEmpty();
         this.containsLimitless = internalArguments.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
@@ -167,14 +161,6 @@ public abstract class OldSubCommand<S> {
             return;
         }
 
-        executionProvider.execute(() -> {
-            try {
-                method.invoke(annotatedCommand, invokeArguments.toArray());
-            } catch (IllegalAccessException | InvocationTargetException exception) {
-                throw new CommandExecutionException("An error occurred while executing the command", parentName, name)
-                        .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
-            }
-        });
     }
 
     /**

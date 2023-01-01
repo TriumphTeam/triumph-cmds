@@ -3,7 +3,6 @@ package dev.triumphteam.cmd.core.command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -28,7 +27,7 @@ public interface ExecutableCommand<S> extends Command {
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
-    ) throws InvocationTargetException, InstantiationException, IllegalAccessException;
+    ) throws Throwable;
 
     /**
      * @return The instance of the original command instance where the command belongs to.

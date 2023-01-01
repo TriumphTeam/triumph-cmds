@@ -3,6 +3,7 @@ package dev.triumphteam.cmds.simple;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
+import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import org.jetbrains.annotations.NotNull;
 
 public final class SimpleCommandOptions<S> extends CommandOptions<S, S> {
@@ -16,6 +17,7 @@ public final class SimpleCommandOptions<S> extends CommandOptions<S, S> {
         public Builder() {
             super(builder -> {
                 builder.setArgumentValidator(new DefaultArgumentValidator<>());
+                builder.setCommandExecutor(new DefaultCommandExecutor());
             });
         }
 

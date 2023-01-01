@@ -24,9 +24,6 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.CommandManager;
-import dev.triumphteam.cmd.core.command.execution.AsyncExecutionProvider;
-import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.command.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.MessageKey;
@@ -46,9 +43,6 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
     private final Map<String, SimpleCommand<S>> commands = new HashMap<>();
 
     private final RegistryContainer<S> registryContainer = new RegistryContainer<>();
-
-    private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
-    private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
 
     private SimpleCommandManager(final @NotNull CommandOptions<S, S> commandOptions) {
         super(commandOptions);

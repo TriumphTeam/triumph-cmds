@@ -1,9 +1,11 @@
 package dev.triumphteam.cmd.core.extention;
 
-import dev.triumphteam.cmd.core.exceptions.TriumphCmdException;
+import dev.triumphteam.cmd.core.command.execution.CommandExecutor;
+import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor;
+import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +21,9 @@ public final class ExtensionBuilder<D, S> {
     private final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors = new HashMap<>();
     private final List<CommandMetaProcessor> commandMetaProcessors = new ArrayList<>();
 
-    private SenderExtension<D, S> senderExtension;
-    private ArgumentValidator<S> argumentValidator;
+    private SenderExtension<D, S> senderExtension = null;
+    private ArgumentValidator<S> argumentValidator = null;
+    private CommandExecutor commandExecutor = null;
 
     @Contract("_, _ -> this")
     public <A extends Annotation> @NotNull ExtensionBuilder<D, S> addAnnotationProcessor(
@@ -49,20 +52,31 @@ public final class ExtensionBuilder<D, S> {
         return this;
     }
 
+    @Contract("_ -> this")
+    public @NotNull ExtensionBuilder<D, S> setCommandExecutor(final @NotNull CommandExecutor commandExecutor) {
+        this.commandExecutor = commandExecutor;
+        return this;
+    }
+
     public @NotNull CommandExtensions<D, S> build() {
         if (senderExtension == null) {
-            throw new TriumphCmdException("No sender extension was added to Command Manager.");
+            throw new CommandRegistrationException("No sender extension was added to Command Manager.");
         }
 
         if (argumentValidator == null) {
-            throw new TriumphCmdException("No argument validator was added to Command Manager.");
+            throw new CommandRegistrationException("No argument validator was added to Command Manager.");
+        }
+
+        if (commandExecutor == null) {
+            throw new CommandRegistrationException("No command executor was added to Command Manager.");
         }
 
         return new CommandExtensions<>(
                 annotationProcessors,
                 commandMetaProcessors,
                 senderExtension,
-                argumentValidator
+                argumentValidator,
+                new DefaultCommandExecutor()
         );
     }
 }

@@ -3,6 +3,7 @@ package dev.triumphteam.cmd.core.command;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.command.execution.CommandExecutor;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
@@ -15,7 +16,6 @@ import dev.triumphteam.cmd.core.requirement.Requirement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +34,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
 
     private final Object invocationInstance;
     private final Method method;
+    private final CommandExecutor commandExecutor;
 
     private final SenderExtension<?, S> senderExtension;
     private final MessageRegistry<S> messageRegistry;
@@ -55,6 +56,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
 
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderExtension = processor.getCommandExtensions().getSenderExtension();
+        this.commandExecutor = processor.getCommandExtensions().getCommandExecutor();
     }
 
     @Override
@@ -64,7 +66,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
-    ) throws InvocationTargetException, IllegalAccessException {
+    ) throws Throwable {
         if (!senderExtension.validate(messageRegistry, this, sender)) return;
         if (!meetRequirements(sender, commandPath, arguments)) return;
 
@@ -81,7 +83,12 @@ public class SubCommand<S> implements ExecutableCommand<S> {
             return;
         }
 
-        method.invoke(instanceSupplier == null ? invocationInstance : instanceSupplier.get(), invokeArguments.toArray());
+        commandExecutor.execute(
+                meta,
+                instanceSupplier == null ? invocationInstance : instanceSupplier.get(),
+                method,
+                invokeArguments
+        );
     }
 
     @Override

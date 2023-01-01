@@ -85,7 +85,7 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
-    ) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    ) throws Throwable {
         final int argumentSize = arguments.size();
 
         final String commandName = nameFromArguments(arguments);

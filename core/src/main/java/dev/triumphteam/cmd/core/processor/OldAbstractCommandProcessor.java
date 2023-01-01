@@ -27,7 +27,6 @@ import dev.triumphteam.cmd.core.AnnotatedCommand;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.command.ParentCommand;
-import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
@@ -70,25 +69,18 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
     private final SenderMapper<DS, S> senderMapper;
     private final SenderValidator<S> senderValidator;
 
-    private final ExecutionProvider syncExecutionProvider;
-    private final ExecutionProvider asyncExecutionProvider;
-
     protected OldAbstractCommandProcessor(
             final @NotNull Class<? extends AnnotatedCommand> commandClass,
             final @NotNull Supplier<AnnotatedCommand> instanceSupplier,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull SenderMapper<DS, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator,
-            final @NotNull ExecutionProvider syncExecutionProvider,
-            final @NotNull ExecutionProvider asyncExecutionProvider
+            final @NotNull SenderValidator<S> senderValidator
     ) {
         this.commandClass = commandClass;
         this.instanceSupplier = instanceSupplier;
         this.registryContainer = registryContainer;
         this.senderMapper = senderMapper;
         this.senderValidator = senderValidator;
-        this.syncExecutionProvider = syncExecutionProvider;
-        this.asyncExecutionProvider = asyncExecutionProvider;
 
         extractCommandNames();
         extractDescription();
@@ -156,9 +148,6 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
                 );
             }
 
-            final ExecutionProvider executionProvider = processor.isAsync() ? asyncExecutionProvider : syncExecutionProvider;
-
-            final SC subCommand = createSubCommand(processor, executionProvider);
             // command.addSubCommand(subCommandName, subCommand);
 
             // processor.getAlias().forEach(alias -> command.addSubCommandAlias(alias, subCommand));
@@ -167,7 +156,7 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
 
     protected abstract @NotNull P createSubProcessor(final @NotNull AnnotatedElement method);
 
-    protected abstract @NotNull SC createSubCommand(final @NotNull P processor, final @NotNull ExecutionProvider executionProvider);
+    protected abstract @NotNull SC createSubCommand(final @NotNull P processor);
 
     /**
      * Used for the child processors to get the command name.
@@ -204,14 +193,6 @@ public abstract class OldAbstractCommandProcessor<DS, S, SC extends OldSubComman
     // TODO: 2/4/2022 comments
     public @NotNull SenderValidator<S> getSenderValidator() {
         return senderValidator;
-    }
-
-    public @NotNull ExecutionProvider getSyncExecutionProvider() {
-        return syncExecutionProvider;
-    }
-
-    public @NotNull ExecutionProvider getAsyncExecutionProvider() {
-        return asyncExecutionProvider;
     }
 
     /**

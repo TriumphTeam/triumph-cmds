@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.command.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,9 +30,8 @@ public final class SimpleSubCommand<S> extends OldSubCommand<S> {
 
     public SimpleSubCommand(
             final @NotNull SimpleSubCommandProcessor<S> processor,
-            final @NotNull String parentName,
-            final @NotNull ExecutionProvider executionProvider
+            final @NotNull String parentName
     ) {
-        super(processor, parentName, executionProvider);
+        super(processor, parentName);
     }
 }
