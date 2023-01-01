@@ -1,4 +1,4 @@
-package dev.triumphteam.cmd.core.command.execution;
+package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;

@@ -1,6 +1,6 @@
 package dev.triumphteam.cmd.core.extention;
 
-import dev.triumphteam.cmd.core.command.execution.CommandExecutor;
+import dev.triumphteam.cmd.core.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor;

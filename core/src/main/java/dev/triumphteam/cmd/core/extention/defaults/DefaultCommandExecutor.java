@@ -1,6 +1,6 @@
 package dev.triumphteam.cmd.core.extention.defaults;
 
-import dev.triumphteam.cmd.core.command.execution.CommandExecutor;
+import dev.triumphteam.cmd.core.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
