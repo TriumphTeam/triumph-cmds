@@ -50,7 +50,6 @@ import java.util.List;
  * @param <D> The default sender type.
  * @param <S> The sender type.
  */
-@SuppressWarnings("unchecked")
 public abstract class CommandManager<D, S> {
 
     private final CommandOptions<D, S> commandOptions;

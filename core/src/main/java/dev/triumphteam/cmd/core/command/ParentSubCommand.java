@@ -5,7 +5,8 @@ import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
 import dev.triumphteam.cmd.core.processor.ParentCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 /**
  * A parent sub command is basically a holder of other sub commands.
@@ -79,33 +83,44 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
             final @NotNull S sender,
             final @NotNull String command,
             final @Nullable Supplier<Object> instanceSupplier,
+            final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
-    ) {
+    ) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         final int argumentSize = arguments.size();
 
         final String commandName = nameFromArguments(arguments);
         final ExecutableCommand<S> subCommand = getSubCommand(commandName, argumentSize);
 
         if (subCommand == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(name, commandName));
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(commandPath, emptyList(), commandName));
             return;
         }
 
-        try {
-            final Object argumentValue;
-            if (hasArgument) argumentValue = argument.resolve(sender, command);
-            else argumentValue = null;
+        commandPath.add(subCommand.getName());
 
-            if (hasArgument && argumentValue == null) {
-                // TODO INVALID ARGUMENT HERE
-                return;
-            }
+        final Object argumentValue;
+        if (hasArgument) argumentValue = argument.resolve(sender, command);
+        else argumentValue = null;
 
-            final Object instance = createInstance(instanceSupplier, argumentValue);
-            subCommand.execute(sender, commandName, () -> instance, !subCommand.isDefault() ? arguments.subList(1, argumentSize) : arguments);
-        } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+        if (hasArgument && argumentValue == null) {
+            messageRegistry.sendMessage(MessageKey.INVALID_ARGUMENT, sender, new InvalidArgumentContext(
+                    commandPath,
+                    singletonList(commandName),
+                    commandName,
+                    argument.getName(),
+                    argument.getType()
+            ));
+            return;
         }
+
+        final Object instance = createInstance(instanceSupplier, argumentValue);
+
+        subCommand.execute(
+                sender, commandName,
+                () -> instance,
+                commandPath,
+                !subCommand.isDefault() ? arguments.subList(1, arguments.size()) : arguments
+        );
     }
 
     /**

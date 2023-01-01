@@ -62,7 +62,6 @@ import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
@@ -641,7 +640,7 @@ public abstract class OldAbstractSubCommandProcessor<S> {
                 throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
             }
 
-            addRequirement(new Requirement<>(resolver, messageKey, DefaultMessageContext::new, requirementAnnotation.invert()));
+            // addRequirement(new Requirement<>(resolver, messageKey, DefaultMessageContext::new, requirementAnnotation.invert()));
         }
     }
 

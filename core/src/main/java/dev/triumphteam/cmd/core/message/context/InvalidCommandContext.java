@@ -25,17 +25,18 @@ package dev.triumphteam.cmd.core.message.context;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
- * The default most keys will use, only contains the most basic data.
+ * Context for when user types an invalid argument based on its type.
  */
-public final class DefaultMessageContext extends AbstractMessageContext {
+public final class InvalidCommandContext extends InvalidInputContext {
 
-    public DefaultMessageContext(final @NotNull String command, final @NotNull String subCommand) {
-        super(command, subCommand);
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return "DefaultMessageContext{super=" + super.toString() + "}";
+    public InvalidCommandContext(
+            final @NotNull List<String> commandPath,
+            final @NotNull List<String> argumentPath,
+            final @NotNull String invalidInput
+    ) {
+        super(commandPath, argumentPath, invalidInput);
     }
 }

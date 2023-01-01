@@ -23,12 +23,27 @@
  */
 package dev.triumphteam.cmd.core.message.context;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-@FunctionalInterface
-public interface MessageContextFactory<C extends MessageContext> {
+import java.util.List;
 
-    @Contract("_, _ -> new")
-    @NotNull C create(final @NotNull String command, final @NotNull String subCommand);
+/**
+ * Context with an invalid input.
+ */
+public abstract class InvalidInputContext extends BasicMessageContext {
+
+    private final String invalidInput;
+
+    public InvalidInputContext(
+            final @NotNull List<String> commandPath,
+            final @NotNull List<String> argumentPath,
+            final @NotNull String invalidInput
+    ) {
+        super(commandPath, argumentPath);
+        this.invalidInput = invalidInput;
+    }
+
+    public @NotNull String getInvalidInput() {
+        return invalidInput;
+    }
 }

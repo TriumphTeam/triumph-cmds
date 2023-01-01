@@ -23,27 +23,16 @@
  */
 package dev.triumphteam.cmd.core.message.context;
 
-import dev.triumphteam.cmd.core.annotations.Default;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * Contains specific data for error handling.
  */
 public interface MessageContext {
 
-    /**
-     * Gets the command in which the error occurred.
-     *
-     * @return The command name.
-     */
-    @NotNull String getCommand();
+    @NotNull List<String> getCommandPath();
 
-    /**
-     * Gets the sub command in which the error occurred.
-     * If the command is default its value will be {@link Default#DEFAULT_CMD_NAME}.
-     *
-     * @return The sub command name.
-     */
-    @NotNull String getSubCommand();
-
+    @NotNull List<String> getArgumentPath();
 }

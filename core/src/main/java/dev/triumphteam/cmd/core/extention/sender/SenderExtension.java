@@ -18,4 +18,6 @@ public interface SenderExtension<D, S> {
     );
 
     @Nullable S map(final @NotNull D defaultSender);
+
+    @Nullable D reMap(final @NotNull S defaultSender);
 }

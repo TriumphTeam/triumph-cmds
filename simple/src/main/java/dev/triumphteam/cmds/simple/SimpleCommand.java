@@ -26,17 +26,22 @@ package dev.triumphteam.cmds.simple;
 import dev.triumphteam.cmd.core.command.ExecutableCommand;
 import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.command.ParentSubCommand;
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.emptyList;
 
 public final class SimpleCommand<S> implements ParentCommand<S> {
 
@@ -87,12 +92,28 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
         final String commandName = nameFromArguments(arguments);
         final ExecutableCommand<S> subCommand = getSubCommand(commandName, arguments.size());
 
+        final List<String> commandPath = new ArrayList<>();
+
         if (subCommand == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(name, commandName));
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(commandPath, emptyList(), commandName));
             return;
         }
 
-        subCommand.execute(sender, commandName, null, !subCommand.isDefault() ? arguments.subList(1, arguments.size()) : arguments);
+        // Add itself as beginning of path
+        commandPath.add(subCommand.getName());
+
+        // Executing the subcommand.
+        try {
+            subCommand.execute(
+                    sender, commandName,
+                    null,
+                    commandPath,
+                    !subCommand.isDefault() ? arguments.subList(1, arguments.size()) : arguments
+            );
+        } catch (final @NotNull Throwable exception) {
+            throw new CommandExecutionException("An error occurred while executing the command")
+                    .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
+        }
     }
 
     @Override

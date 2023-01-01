@@ -8,7 +8,7 @@ import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.message.context.BasicMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
@@ -30,6 +30,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
 
     private final String name;
     private final CommandMeta meta;
+    private final boolean containsLimitless;
 
     private final Object invocationInstance;
     private final Method method;
@@ -50,6 +51,8 @@ public class SubCommand<S> implements ExecutableCommand<S> {
         this.arguments = processor.arguments(meta);
         this.requirements = processor.requirements();
 
+        this.containsLimitless = arguments.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
+
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderExtension = processor.getCommandExtensions().getSenderExtension();
     }
@@ -59,24 +62,26 @@ public class SubCommand<S> implements ExecutableCommand<S> {
             final @NotNull S sender,
             final @NotNull String command,
             final @Nullable Supplier<Object> instanceSupplier,
+            final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
-    ) {
+    ) throws InvocationTargetException, IllegalAccessException {
         if (!senderExtension.validate(messageRegistry, this, sender)) return;
-        if (!meetRequirements(sender)) return;
+        if (!meetRequirements(sender, commandPath, arguments)) return;
 
         // Creates the invoking arguments list
         final List<java.lang.Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
-        if (!validateAndCollectArguments(sender, invokeArguments, arguments)) {
+        if (!validateAndCollectArguments(sender, commandPath, invokeArguments, arguments)) {
             return;
         }
 
-        try {
-            method.invoke(instanceSupplier == null ? invocationInstance : instanceSupplier.get(), invokeArguments.toArray());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        if ((!containsLimitless) && arguments.size() >= invokeArguments.size()) {
+            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new BasicMessageContext(commandPath, arguments));
+            return;
         }
+
+        method.invoke(instanceSupplier == null ? invocationInstance : instanceSupplier.get(), invokeArguments.toArray());
     }
 
     @Override
@@ -115,7 +120,8 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     @SuppressWarnings("unchecked")
     private boolean validateAndCollectArguments(
             final @NotNull S sender,
-            final @NotNull List<java.lang.Object> invokeArguments,
+            final @NotNull List<String> commandPath,
+            final @NotNull List<Object> invokeArguments,
             final @NotNull List<String> commandArgs
     ) {
         for (int i = 0; i < arguments.size(); i++) {
@@ -148,7 +154,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
                     continue;
                 }
 
-                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new DefaultMessageContext("", name));
+                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new BasicMessageContext(commandPath, commandArgs));
                 return false;
             }
 
@@ -157,7 +163,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
-                        new InvalidArgumentContext("", name, arg, internalArgument.getName(), internalArgument.getType())
+                        new InvalidArgumentContext(commandPath, commandArgs, arg, internalArgument.getName(), internalArgument.getType())
                 );
                 return false;
             }
@@ -174,10 +180,14 @@ public class SubCommand<S> implements ExecutableCommand<S> {
      * @param sender The sender of the command.
      * @return Whether all requirements are met.
      */
-    private boolean meetRequirements(@NotNull final S sender) {
+    private boolean meetRequirements(
+            final @NotNull S sender,
+            final @NotNull List<String> commandPath,
+            final @NotNull List<String> argumentPath
+    ) {
         for (final Requirement<S, ?> requirement : requirements) {
             if (!requirement.isMet(sender)) {
-                requirement.sendMessage(messageRegistry, sender, "", name);
+                requirement.sendMessage(messageRegistry, sender, commandPath, argumentPath);
                 return false;
             }
         }

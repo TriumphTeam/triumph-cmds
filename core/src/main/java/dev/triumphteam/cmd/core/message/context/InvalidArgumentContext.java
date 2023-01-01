@@ -24,81 +24,34 @@
 package dev.triumphteam.cmd.core.message.context;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  * Context for when user types an invalid argument based on its type.
  */
-public final class InvalidArgumentContext extends AbstractMessageContext {
+public final class InvalidArgumentContext extends InvalidInputContext {
 
-    private final String argument;
     private final String name;
     private final Class<?> type;
 
     public InvalidArgumentContext(
-            final @NotNull String command,
-            final @NotNull String subCommand,
-            final @NotNull String argument,
+            final @NotNull List<String> commandPath,
+            final @NotNull List<String> argumentPath,
+            final @NotNull String invalidInput,
             final @NotNull String name,
             final @NotNull Class<?> type
     ) {
-        super(command, subCommand);
-        this.argument = argument;
+        super(commandPath, argumentPath, invalidInput);
         this.name = name;
         this.type = type;
     }
 
-    /**
-     * Gets the invalid argument the user typed.
-     *
-     * @return The invalid argument.
-     */
-    public @NotNull String getTypedArgument() {
-        return argument;
-    }
-
-    /**
-     * Gets the name of the argument.
-     * If compiled with <code>-parameters</code> argument, it'll show the actual parameter name.
-     * If not compiled with it, names will look like <code>arg1, arg2, arg3</code>, etc.
-     *
-     * @return The argument name, should be equal to the parameter name.
-     */
-    public @NotNull String getName() {
+    public @NotNull String getArgumentName() {
         return name;
     }
 
-    /**
-     * Gets the expected argument type.
-     *
-     * @return The argument type the user should have used.
-     */
     public @NotNull Class<?> getArgumentType() {
         return type;
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final InvalidArgumentContext that = (InvalidArgumentContext) o;
-        return argument.equals(that.argument) && name.equals(that.name) && type.equals(that.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), argument, name, type);
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return "InvalidArgumentContext{" +
-                "argument='" + argument + '\'' +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                ", super=" + super.toString() + "}";
     }
 }

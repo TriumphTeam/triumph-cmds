@@ -38,5 +38,4 @@ public interface ExecutionProvider {
      * @param command The command to execute.
      */
     void execute(final @NotNull Runnable command);
-
 }

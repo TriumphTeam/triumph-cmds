@@ -44,7 +44,7 @@ import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.message.context.BasicMessageContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
@@ -224,7 +224,7 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
                 throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
             }
 
-            requirements.add(new Requirement<>(resolver, messageKey, DefaultMessageContext::new, requirementAnnotation.invert()));
+            requirements.add(new Requirement<>(resolver, messageKey, BasicMessageContext::new, requirementAnnotation.invert()));
         }
 
         return Collections.unmodifiableList(requirements);

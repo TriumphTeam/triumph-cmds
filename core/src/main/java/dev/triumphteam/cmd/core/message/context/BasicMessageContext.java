@@ -24,61 +24,46 @@
 package dev.triumphteam.cmd.core.message.context;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  * The default most keys will use, only contains the most basic data.
  */
-public abstract class AbstractMessageContext implements MessageContext {
+public class BasicMessageContext implements MessageContext {
 
-    private final String command;
-    private final String subCommand;
+    private final List<String> commandPath;
+    private final List<String> argumentPath;
 
-    public AbstractMessageContext(final @NotNull String command, final @NotNull String subCommand) {
-        this.command = command;
-        this.subCommand = subCommand;
+    public BasicMessageContext(
+            final @NotNull List<String> commandPath,
+            final @NotNull List<String> argumentPath
+    ) {
+        this.commandPath = commandPath;
+        this.argumentPath = argumentPath;
     }
 
     /**
-     * Gets the command in which the error occurred.
-     *
-     * @return The command name.
+     * {@inheritDoc}
      */
     @Override
-    public @NotNull String getCommand() {
-        return command;
+    public @NotNull List<String> getCommandPath() {
+        return commandPath;
     }
 
     /**
-     * Gets the sub command in which the error occurred.
-     *
-     * @return The sub command name.
+     * {@inheritDoc}
      */
     @Override
-    public @NotNull String getSubCommand() {
-        return subCommand;
+    public @NotNull List<String> getArgumentPath() {
+        return argumentPath;
     }
 
     @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final AbstractMessageContext that = (AbstractMessageContext) o;
-        return command.equals(that.command) && Objects.equals(subCommand, that.subCommand);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(command, subCommand);
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return "AbstractMessageContext{" +
-                "command='" + command + '\'' +
-                ", subCommand='" + subCommand + '\'' +
+    public String toString() {
+        return "BasicMessageContext{" +
+                "commandPath=" + commandPath +
+                ", argumentPath=" + argumentPath +
                 '}';
     }
 }

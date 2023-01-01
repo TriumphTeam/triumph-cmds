@@ -30,7 +30,7 @@ import dev.triumphteam.cmd.core.command.execution.SyncExecutionProvider;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import static java.util.Collections.emptyList;
 
 public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
@@ -114,7 +116,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
             registryContainer.getMessageRegistry().sendMessage(
                     MessageKey.UNKNOWN_COMMAND,
                     sender,
-                    new DefaultMessageContext(commandName, "")
+                    new InvalidCommandContext(emptyList(), emptyList(), commandName)
             );
             return;
         }
