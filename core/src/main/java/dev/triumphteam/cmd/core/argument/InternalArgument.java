@@ -79,9 +79,9 @@ public interface InternalArgument<S, T> {
     @Nullable Object resolve(final @NotNull S sender, final @NotNull T value);
 
     // TODO: Comments
-    @NotNull List<@NotNull String> suggestions(
+    @NotNull List<String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> trimmed,
+            final @NotNull List<String> trimmed,
             final @NotNull SuggestionContext context
     );
 

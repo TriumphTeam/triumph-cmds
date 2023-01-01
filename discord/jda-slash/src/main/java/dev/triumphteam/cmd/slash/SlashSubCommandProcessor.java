@@ -78,11 +78,11 @@ final class SlashSubCommandProcessor<S> extends OldAbstractSubCommandProcessor<S
     }
 
     @Override
-    protected @NotNull List<@NotNull BiConsumer<@NotNull Boolean, @NotNull InternalArgument<S, ?>>> getArgValidations() {
+    protected @NotNull List<BiConsumer<Boolean, @NotNull InternalArgument<S, ?>>> getArgValidations() {
         return Collections.singletonList(validateLimitless());
     }
 
-    public @NotNull List<@NotNull Choice> getChoices() {
+    public @NotNull List<Choice> getChoices() {
         return choices;
     }
 
@@ -110,7 +110,7 @@ final class SlashSubCommandProcessor<S> extends OldAbstractSubCommandProcessor<S
         return super.createSimpleArgument(type, parameterName, argumentDescription, suggestion, position, optional);
     }
 
-    public @NotNull List<@NotNull Choice> extractChoices(
+    public @NotNull List<Choice> extractChoices(
             final @NotNull Method method,
             final @NotNull Class<? extends BaseCommand> commandClass
     ) {
@@ -138,7 +138,7 @@ final class SlashSubCommandProcessor<S> extends OldAbstractSubCommandProcessor<S
 
     private void extractSuggestionFromParams(
             final @NotNull Method method,
-            final @NotNull List<@NotNull Choice> choiceList,
+            final @NotNull List<Choice> choiceList,
             final @NotNull Class<? extends BaseCommand> commandClass
     ) {
         final Parameter[] parameters = method.getParameters();
@@ -170,7 +170,7 @@ final class SlashSubCommandProcessor<S> extends OldAbstractSubCommandProcessor<S
     }
 
     private void setOrAdd(
-            final @NotNull List<@NotNull Choice> choiceList,
+            final @NotNull List<Choice> choiceList,
             final int index,
             final @Nullable Choice choice
     ) {

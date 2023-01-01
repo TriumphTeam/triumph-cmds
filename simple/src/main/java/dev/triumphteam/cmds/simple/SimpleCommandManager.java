@@ -101,7 +101,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
      * @param sender The provided sender.
      * @param args   The provided arguments.
      */
-    public void executeCommand(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
+    public void executeCommand(final @NotNull S sender, final @NotNull List<String> args) {
         if (args.isEmpty()) return;
         final String commandName = args.get(0);
 

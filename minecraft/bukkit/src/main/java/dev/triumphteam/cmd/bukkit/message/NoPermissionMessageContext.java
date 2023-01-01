@@ -42,7 +42,7 @@ public final class NoPermissionMessageContext extends AbstractMessageContext {
         this.permission = permission;
     }
 
-    public @NotNull List<@NotNull String> getNodes() {
+    public @NotNull List<String> getNodes() {
         return permission.getNodes();
     }
 }

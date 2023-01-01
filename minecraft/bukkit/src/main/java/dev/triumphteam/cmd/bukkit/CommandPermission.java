@@ -45,7 +45,7 @@ public final class CommandPermission {
     private final String description;
 
     public CommandPermission(
-            final @NotNull List<@NotNull String> nodes,
+            final @NotNull List<String> nodes,
             final @NotNull String description,
             final @NotNull PermissionDefault permissionDefault
     ) {
@@ -75,7 +75,7 @@ public final class CommandPermission {
     }
 
     public @NotNull CommandPermission child(
-            final @NotNull List<@NotNull String> nodes,
+            final @NotNull List<String> nodes,
             final @NotNull String description,
             final @NotNull PermissionDefault permissionDefault
     ) {
@@ -106,7 +106,7 @@ public final class CommandPermission {
      *
      * @return The permission nodes.
      */
-    public @NotNull List<@NotNull String> getNodes() {
+    public @NotNull List<String> getNodes() {
         return nodes;
     }
 

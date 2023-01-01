@@ -35,11 +35,11 @@ public final class ChoiceRegistry {
 
     private final Map<ChoiceKey, Supplier<List<String>>> suggestions = new HashMap<>();
 
-    public void register(final @NotNull ChoiceKey key, final @NotNull Supplier<@NotNull List<@NotNull String>> resolver) {
+    public void register(final @NotNull ChoiceKey key, final @NotNull Supplier<List<String>> resolver) {
         suggestions.put(key, resolver);
     }
 
-    public @Nullable Supplier<@NotNull List<@NotNull String>> getChoiceResolver(final @NotNull ChoiceKey key) {
+    public @Nullable Supplier<List<String>> getChoiceResolver(final @NotNull ChoiceKey key) {
         return suggestions.get(key);
     }
 

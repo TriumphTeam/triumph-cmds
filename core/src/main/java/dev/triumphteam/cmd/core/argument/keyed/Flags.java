@@ -83,5 +83,5 @@ public interface Flags {
      *
      * @return A {@link List} with the typed arguments.
      */
-    @NotNull List<@NotNull String> getArgs();
+    @NotNull List<String> getArgs();
 }

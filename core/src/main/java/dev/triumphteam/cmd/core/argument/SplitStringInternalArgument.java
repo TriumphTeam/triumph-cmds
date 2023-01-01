@@ -75,9 +75,9 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
     }
 
     @Override
-    public @NotNull List<@NotNull String> suggestions(
+    public @NotNull List<String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> trimmed,
+            final @NotNull List<String> trimmed,
             final @NotNull SuggestionContext context
     ) {
         final List<String> split = Arrays.asList(trimmed.get(trimmed.size() - 1).split(regex));

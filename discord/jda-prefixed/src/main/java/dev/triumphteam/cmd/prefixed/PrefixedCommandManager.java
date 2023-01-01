@@ -294,7 +294,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      *
      * @return A {@link Set} with all the registered prefixes.
      */
-    @NotNull Set<@NotNull String> getPrefixes() {
+    @NotNull Set<String> getPrefixes() {
         return prefixes;
     }
 
@@ -303,7 +303,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
      *
      * @return A {@link Set} with all the registered prefixes regexes.
      */
-    @NotNull Set<@NotNull Pattern> getPrefixesRegexes() {
+    @NotNull Set<Pattern> getPrefixesRegexes() {
         return prefixesRegexes;
     }
 

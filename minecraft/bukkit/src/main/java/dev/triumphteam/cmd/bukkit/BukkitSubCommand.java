@@ -46,7 +46,7 @@ public final class BukkitSubCommand<S> extends OldSubCommand<S> {
         if (this.permission != null) this.permission.register();
     }
 
-    public @NotNull List<@NotNull String> getSuggestions(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
+    public @NotNull List<String> getSuggestions(final @NotNull S sender, final @NotNull List<String> args) {
         final int index = args.size() - 1;
         final InternalArgument<S, ?> internalArgument = getArgument(index);
         if (internalArgument == null) return emptyList();

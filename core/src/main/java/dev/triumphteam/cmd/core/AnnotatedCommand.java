@@ -81,7 +81,7 @@ public abstract class AnnotatedCommand {
      *
      * @return The {@link #alias}.
      */
-    public @NotNull List<@NotNull String> getAlias() {
+    public @NotNull List<String> getAlias() {
         return alias;
     }
 

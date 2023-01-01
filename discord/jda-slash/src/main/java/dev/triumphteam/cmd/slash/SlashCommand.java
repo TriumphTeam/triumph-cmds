@@ -69,7 +69,7 @@ final class SlashCommand<S> implements ParentCommand<S, SlashSubCommand<S>> {
 
     public SlashCommand(
             final @NotNull SlashCommandProcessor<S> processor,
-            final @NotNull List<@NotNull Permission> allow,
+            final @NotNull List<Permission> allow,
             final @NotNull ExecutionProvider syncExecutionProvider,
             final @NotNull ExecutionProvider asyncExecutionProvider
     ) {
@@ -85,7 +85,7 @@ final class SlashCommand<S> implements ParentCommand<S, SlashSubCommand<S>> {
         this.asyncExecutionProvider = asyncExecutionProvider;
     }
 
-    public @NotNull List<@NotNull Permission> getAllowed() {
+    public @NotNull List<Permission> getAllowed() {
         return allow;
     }
 
@@ -123,7 +123,7 @@ final class SlashCommand<S> implements ParentCommand<S, SlashSubCommand<S>> {
     public void execute(
             final @NotNull S sender,
             final @NotNull String subCommandName,
-            final @NotNull Map<@NotNull String, @NotNull String> args
+            final @NotNull Map<String, @NotNull String> args
     ) {
         final SlashSubCommand<S> subCommand = getSubCommand(subCommandName);
         if (subCommand == null) return;

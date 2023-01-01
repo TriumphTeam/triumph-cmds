@@ -125,7 +125,7 @@ class FlagsResult<S> implements Flags {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull List<@NotNull String> getArgs() {
+    public @NotNull List<String> getArgs() {
         return Collections.unmodifiableList(args);
     }
 

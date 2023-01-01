@@ -64,7 +64,7 @@ final class BukkitCommandProcessor<S> extends AbstractRootCommandProcessor<S> {
 
     static CommandPermission createPermission(
             final @Nullable CommandPermission parent,
-            final @NotNull List<@NotNull String> nodes,
+            final @NotNull List<String> nodes,
             final @NotNull String description,
             final @NotNull PermissionDefault permissionDefault
     ) {

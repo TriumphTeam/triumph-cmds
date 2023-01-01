@@ -72,7 +72,7 @@ final class SlashCommandProcessor<S>
      *
      * @return The enabled permissions.
      */
-    public @NotNull List<@NotNull Permission> getEnabledPermissions() {
+    public @NotNull List<Permission> getEnabledPermissions() {
         return enabledPermissions;
     }
 
@@ -91,7 +91,7 @@ final class SlashCommandProcessor<S>
      * @param klass The class to get from.
      * @return List with all the roles annotations.
      */
-    private @NotNull List<@NotNull Roles> getRolesFromAnnotations(final @NotNull Class<?> klass) {
+    private @NotNull List<Roles> getRolesFromAnnotations(final @NotNull Class<?> klass) {
         final Privileges privileges = klass.getAnnotation(Privileges.class);
         if (privileges != null) return Arrays.asList(privileges.value());
 

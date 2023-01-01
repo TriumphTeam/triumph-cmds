@@ -34,7 +34,7 @@ public final class EmptyChoice implements Choice {
     public static final EmptyChoice INSTANCE = new EmptyChoice();
 
     @Override
-    public @NotNull List<@NotNull String> getChoices() {
+    public @NotNull List<String> getChoices() {
         return emptyList();
     }
 

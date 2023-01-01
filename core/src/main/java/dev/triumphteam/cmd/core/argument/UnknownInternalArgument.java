@@ -40,12 +40,12 @@ public final class UnknownInternalArgument<S> implements InternalArgument<S, Str
     }
 
     @Override
-    public @Nullable Object resolve(@NotNull final S sender, final @NotNull String value) {
+    public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
         return null;
     }
 
     @Override
-    public @NotNull List<@NotNull String> suggestions(@NotNull final S sender, final @NotNull List<@NotNull String> trimmed, final @NotNull SuggestionContext context) {
+    public @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull List<String> trimmed, final @NotNull SuggestionContext context) {
         return Collections.emptyList();
     }
 

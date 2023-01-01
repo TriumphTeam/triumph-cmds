@@ -145,7 +145,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
      */
     public void registerCommand(
             final @NotNull BaseCommand baseCommand,
-            final @NotNull List<@NotNull Permission> enabledPermissions) {
+            final @NotNull List<Permission> enabledPermissions) {
         addCommand(null, baseCommand, enabledPermissions);
     }
 
@@ -159,7 +159,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
     public void registerCommand(
             final @NotNull Guild guild,
             final @NotNull BaseCommand baseCommand,
-            final @NotNull List<@NotNull Permission> enabledPermissions) {
+            final @NotNull List<Permission> enabledPermissions) {
         addCommand(guild, baseCommand, enabledPermissions);
     }
 
@@ -175,7 +175,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
         }
     }
 
-    public void registerChoices(final @NotNull ChoiceKey key, final @NotNull Supplier<@NotNull List<@NotNull String>> choiceSupplier) {
+    public void registerChoices(final @NotNull ChoiceKey key, final @NotNull Supplier<List<String>> choiceSupplier) {
         registryContainer.getChoiceRegistry().register(key, choiceSupplier);
     }
 
@@ -219,7 +219,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
     private void addCommand(
             final @Nullable Guild guild,
             final @NotNull BaseCommand baseCommand,
-            final @NotNull List<@NotNull Permission> enabledPermissions
+            final @NotNull List<Permission> enabledPermissions
     ) {
         final SlashCommandProcessor<S> processor = new SlashCommandProcessor<>(
                 baseCommand,

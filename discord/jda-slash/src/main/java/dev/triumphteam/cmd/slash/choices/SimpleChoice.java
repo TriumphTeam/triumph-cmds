@@ -34,12 +34,12 @@ public final class SimpleChoice implements Choice {
 
     private final Supplier<List<String>> resolver;
 
-    public SimpleChoice(final @NotNull Supplier<@NotNull List<@NotNull String>> resolver) {
+    public SimpleChoice(final @NotNull Supplier<List<String>> resolver) {
         this.resolver = resolver;
     }
 
     @Override
-    public @NotNull List<@NotNull String> getChoices() {
+    public @NotNull List<String> getChoices() {
         return resolver.get();
     }
 

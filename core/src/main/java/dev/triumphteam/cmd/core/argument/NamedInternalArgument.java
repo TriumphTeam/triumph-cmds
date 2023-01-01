@@ -52,7 +52,7 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
     }
 
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
         final Map<String, String> parsedArgs = Collections.emptyMap();// ArgumentParser.parse(String.join(" ", value));
         final Map<String, Object> mapped = new HashMap<>(parsedArgs.size());
 
@@ -68,9 +68,9 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
     }
 
     @Override
-    public @NotNull List<@NotNull String> suggestions(
+    public @NotNull List<String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> trimmed,
+            final @NotNull List<String> trimmed,
             final @NotNull SuggestionContext context
     ) {
         final Map<String, String> parsedArgs = Collections.emptyMap();// ArgumentParser.parse(String.join(" ", trimmed));

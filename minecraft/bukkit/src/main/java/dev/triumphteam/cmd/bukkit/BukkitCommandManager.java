@@ -205,7 +205,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         }
     }
 
-    private static @NotNull Map<@NotNull String, org.bukkit.command.@NotNull Command> getBukkitCommands(final @NotNull CommandMap commandMap) {
+    private static @NotNull Map<String, org.bukkit.command.@NotNull Command> getBukkitCommands(final @NotNull CommandMap commandMap) {
         try {
             final Field bukkitCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
             bukkitCommands.setAccessible(true);

@@ -64,7 +64,7 @@ final class SlashSubCommand<S> extends OldSubCommand<S> {
         return null;
     }
 
-    public @NotNull List<@NotNull OptionData> getJdaOptions() {
+    public @NotNull List<OptionData> getJdaOptions() {
         final List<OptionData> options = new ArrayList<>();
         final List<InternalArgument<S, ?>> internalArguments = getArguments();
 

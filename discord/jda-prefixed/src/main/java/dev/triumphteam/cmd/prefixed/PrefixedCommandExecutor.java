@@ -84,7 +84,7 @@ final class PrefixedCommandExecutor<S> {
     public void execute(
             final @NotNull String commandName,
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> args
+            final @NotNull List<String> args
     ) {
 
         final PrefixedCommand<S> command = commands.get(commandName);

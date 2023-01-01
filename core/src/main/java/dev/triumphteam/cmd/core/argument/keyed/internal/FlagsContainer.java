@@ -34,7 +34,7 @@ abstract class FlagsContainer implements Arguments {
     }
 
     @Override
-    public @NotNull List<@NotNull String> getArgs() {
+    public @NotNull List<String> getArgs() {
         return null;
     }
 }

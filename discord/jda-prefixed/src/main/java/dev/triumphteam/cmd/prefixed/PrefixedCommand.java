@@ -78,7 +78,7 @@ final class PrefixedCommand<S> implements ParentCommand<S> {
      * @param sender The sender.
      * @param args   The command arguments.
      */
-    public void execute(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
+    public void execute(final @NotNull S sender, final @NotNull List<String> args) {
         /*OldSubCommand<S> subCommand = getDefaultSubCommand();
 
         String subCommandName = "";

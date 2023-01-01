@@ -41,7 +41,7 @@ class PrefixedSenderValidator implements SenderValidator<PrefixedSender> {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Set<@NotNull Class<? extends PrefixedSender>> getAllowedSenders() {
+    public @NotNull Set<Class<? extends PrefixedSender>> getAllowedSenders() {
         return ImmutableSet.of(PrefixedSender.class);
     }
 

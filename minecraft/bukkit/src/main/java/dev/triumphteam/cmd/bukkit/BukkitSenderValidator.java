@@ -45,7 +45,7 @@ class BukkitSenderValidator implements SenderValidator<CommandSender> {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Set<@NotNull Class<? extends @NotNull CommandSender>> getAllowedSenders() {
+    public @NotNull Set<Class<? extends @NotNull CommandSender>> getAllowedSenders() {
         return ImmutableSet.of(CommandSender.class, ConsoleCommandSender.class, Player.class);
     }
 

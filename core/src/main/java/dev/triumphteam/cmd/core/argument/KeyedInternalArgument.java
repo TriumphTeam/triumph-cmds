@@ -62,23 +62,19 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
      * @return A {@link Flags} which contains the flags and leftovers.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
+
         return null;// flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
     }
 
     @Override
-    public @NotNull List<@NotNull String> suggestions(
+    public @NotNull List<String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> trimmed,
+            final @NotNull List<String> trimmed,
             final @NotNull SuggestionContext context
     ) {
         return Collections.emptyList();
     }
 
-    @Override
-    public @NotNull String toString() {
-        return "FlagArgument{" +
-                "flagGroup=" + flagGroup +
-                ", super=" + super.toString() + "}";
-    }
+
 }

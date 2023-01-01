@@ -112,7 +112,7 @@ public final class OldBukkitCommand<S> extends org.bukkit.command.Command implem
     }
 
     @Override
-    public @NotNull List<@NotNull String> tabComplete(final @NotNull CommandSender sender, final @NotNull String alias, final @NotNull String @NotNull [] args) throws IllegalArgumentException {
+    public @NotNull List<String> tabComplete(final @NotNull CommandSender sender, final @NotNull String alias, final @NotNull String @NotNull [] args) throws IllegalArgumentException {
         if (args.length == 0) return emptyList();
         return emptyList();
         /*BukkitSubCommand<S> subCommand = getDefaultSubCommand();

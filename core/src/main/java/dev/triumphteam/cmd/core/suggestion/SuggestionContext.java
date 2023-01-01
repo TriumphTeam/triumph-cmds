@@ -35,7 +35,7 @@ public final class SuggestionContext {
     private final String subCommand;
 
     public SuggestionContext(
-            final @NotNull List<@NotNull String> args,
+            final @NotNull List<String> args,
             final @NotNull String command,
             final @NotNull String subCommand
     ) {
@@ -44,7 +44,7 @@ public final class SuggestionContext {
         this.subCommand = subCommand;
     }
 
-    public @NotNull List<@NotNull String> getArgs() {
+    public @NotNull List<String> getArgs() {
         return Collections.unmodifiableList(args);
     }
 

@@ -29,6 +29,6 @@ import java.util.List;
 
 public interface Choice {
 
-    @NotNull List<@NotNull String> getChoices();
+    @NotNull List<String> getChoices();
 
 }

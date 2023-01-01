@@ -60,7 +60,7 @@ public final class ChoiceKey extends RegistryKey {
      *
      * @return The keys {@link Set}.
      */
-    public static @NotNull Set<@NotNull ChoiceKey> getRegisteredKeys() {
+    public static @NotNull Set<ChoiceKey> getRegisteredKeys() {
         return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 

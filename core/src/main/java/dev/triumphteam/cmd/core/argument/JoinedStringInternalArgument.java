@@ -57,7 +57,7 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
      * @return A single {@link String} with the joined {@link List}.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
+    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
         return String.join(delimiter, value);
     }
 

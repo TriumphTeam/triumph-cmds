@@ -43,7 +43,7 @@ public final class EnumChoice implements Choice {
     }
 
     @Override
-    public @NotNull List<@NotNull String> getChoices() {
+    public @NotNull List<String> getChoices() {
         return EnumUtils.getEnumConstants(enumType)
                 .values()
                 .stream()
