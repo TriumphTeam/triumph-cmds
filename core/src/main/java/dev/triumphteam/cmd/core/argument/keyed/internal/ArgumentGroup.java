@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * A group of argument data.
@@ -44,14 +45,17 @@ public interface ArgumentGroup<T> {
     /**
      * Gets a list with all possible argument names.
      *
-     * @return A {@link List} of names.
+     * @return A {@link Set} of names.
      */
-    @NotNull List<String> getAllNames();
+    @NotNull Set<String> getAllNames();
 
     /**
-     * Checks if the group is empty.
-     *
      * @return Whether the group is empty.
      */
     boolean isEmpty();
+
+    /**
+     * @return Gets a set with all the arguments of type {@link T}.
+     */
+    @NotNull Set<T> getAll();
 }

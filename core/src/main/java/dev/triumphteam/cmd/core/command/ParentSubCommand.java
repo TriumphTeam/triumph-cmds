@@ -1,12 +1,16 @@
 package dev.triumphteam.cmd.core.command;
 
+import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
+import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import dev.triumphteam.cmd.core.processor.ParentCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,10 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 /**
  * A parent sub command is basically a holder of other sub commands.
@@ -32,8 +34,11 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
 
     private final Map<String, ExecutableCommand<S>> commands = new HashMap<>();
     private final Map<String, ExecutableCommand<S>> commandAliases = new HashMap<>();
+
     private final String name;
+    private final String syntax;
     private final CommandMeta meta;
+
     private final Object invocationInstance;
     private final Constructor<?> constructor;
     private final boolean isStatic;
@@ -49,7 +54,8 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
             final @NotNull Constructor<?> constructor,
             final boolean isStatic,
             final @Nullable StringInternalArgument<S> argument,
-            final @NotNull ParentCommandProcessor<S> processor
+            final @NotNull ParentCommandProcessor<S> processor,
+            final @NotNull Command parentCommand
     ) {
         this.invocationInstance = invocationInstance;
         this.constructor = constructor;
@@ -60,6 +66,8 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
         this.name = processor.getName();
         this.meta = processor.createMeta();
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
+
+        this.syntax = createSyntax(parentCommand, processor);
     }
 
     @Override
@@ -92,34 +100,45 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
         final ExecutableCommand<S> subCommand = getSubCommand(commandName, argumentSize);
 
         if (subCommand == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(commandPath, emptyList(), commandName));
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, commandName));
             return;
         }
 
         commandPath.add(subCommand.getName());
 
-        final Object argumentValue;
-        if (hasArgument) argumentValue = argument.resolve(sender, command);
-        else argumentValue = null;
+        final Object instance;
 
-        if (hasArgument && argumentValue == null) {
-            messageRegistry.sendMessage(MessageKey.INVALID_ARGUMENT, sender, new InvalidArgumentContext(
-                    commandPath,
-                    singletonList(commandName),
-                    commandName,
-                    argument.getName(),
-                    argument.getType()
-            ));
-            return;
+        if (hasArgument) {
+            final @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> result =
+                    argument.resolve(sender, command);
+
+            if (result instanceof Result.Failure) {
+                messageRegistry.sendMessage(
+                        MessageKey.INVALID_ARGUMENT,
+                        sender,
+                        ((Result.Failure<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result)
+                                .getFail()
+                                .apply(meta, syntax)
+                );
+                return;
+            }
+
+            if (!(result instanceof Result.Success)) {
+                throw new CommandExecutionException("An error occurred resolving arguments", "", name);
+            }
+
+            instance = createInstanceWithArgument(
+                    instanceSupplier, ((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result).getValue()
+            );
+        } else {
+            instance = createInstance(instanceSupplier);
         }
-
-        final Object instance = createInstance(instanceSupplier, argumentValue);
 
         subCommand.execute(
                 sender, commandName,
                 () -> instance,
                 commandPath,
-                !subCommand.isDefault() ? arguments.subList(1, arguments.size()) : arguments
+                !subCommand.isDefault() && !arguments.isEmpty() ? arguments.subList(1, arguments.size()) : arguments
         );
     }
 
@@ -127,31 +146,59 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
      * Creates a new instance to be passed down to the child commands.
      *
      * @param instanceSupplier The instance supplier from parents.
-     * @param argumentValue    The value of the argument to pass if there is an argument.
      * @return An instance of this command for execution.
      */
     private @NotNull Object createInstance(
+            final @Nullable Supplier<Object> instanceSupplier
+    ) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        // Non-static classes required parent instance
+        if (!isStatic) {
+            return constructor.newInstance(instanceSupplier == null ? invocationInstance : instanceSupplier.get());
+        }
+
+        return constructor.newInstance();
+    }
+
+    /**
+     * Creates a new instance to be passed down to the child commands.
+     *
+     * @param instanceSupplier The instance supplier from parents.
+     * @param argumentValue    The argument value.
+     * @return An instance of this command for execution.
+     */
+    private @NotNull Object createInstanceWithArgument(
             final @Nullable Supplier<Object> instanceSupplier,
             final @Nullable Object argumentValue
     ) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         // Non-static classes required parent instance
         if (!isStatic) {
-            // If there is no argument don't pass anything
-            // A bit annoying but if the method has no parameters, "null" is a valid parameter so this check is needed
-            if (!hasArgument) {
-                return constructor.newInstance(instanceSupplier == null ? invocationInstance : instanceSupplier.get());
-            }
-
             return constructor.newInstance(instanceSupplier == null ? invocationInstance : instanceSupplier.get(), argumentValue);
         }
 
-        if (!hasArgument) constructor.newInstance();
         return constructor.newInstance(argumentValue);
+    }
+
+    private @NotNull String createSyntax(final @NotNull Command parentCommand, final @NotNull CommandProcessor processor) {
+        final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
+        if (syntaxAnnotation != null) return syntaxAnnotation.value();
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append(parentCommand.getSyntax()).append(" ");
+
+        if (hasArgument) builder.append("<").append(argument.getName()).append(">");
+        else builder.append(name);
+
+        return builder.toString();
     }
 
     @Override
     public @NotNull String getName() {
         return name;
+    }
+
+    @Override
+    public @NotNull String getSyntax() {
+        return syntax;
     }
 
     @Override

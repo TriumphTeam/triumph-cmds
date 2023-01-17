@@ -41,11 +41,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.emptyList;
-
 public final class SimpleCommand<S> implements ParentCommand<S> {
 
     private final String name;
+    private final String syntax;
 
     private final MessageRegistry<S> messageRegistry;
 
@@ -64,6 +63,7 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
         this.meta = processor.createMeta();
 
         this.messageRegistry = messageRegistry;
+        this.syntax = "/" + name;
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
         final List<String> commandPath = new ArrayList<>();
 
         if (subCommand == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(commandPath, emptyList(), commandName));
+            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, commandName));
             return;
         }
 
@@ -119,6 +119,11 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
     @Override
     public @NotNull String getName() {
         return name;
+    }
+
+    @Override
+    public @NotNull String getSyntax() {
+        return syntax;
     }
 
     @Override

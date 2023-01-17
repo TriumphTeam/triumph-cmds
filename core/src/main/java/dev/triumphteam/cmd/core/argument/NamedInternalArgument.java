@@ -23,8 +23,10 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.argument.keyed.internal.NamedArgumentResult;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S> {
@@ -52,7 +55,10 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
     }
 
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull List<String> value
+    ) {
         final Map<String, String> parsedArgs = Collections.emptyMap();// ArgumentParser.parse(String.join(" ", value));
         final Map<String, Object> mapped = new HashMap<>(parsedArgs.size());
 
@@ -64,7 +70,7 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
             mapped.put(key, resolved);
         }
 
-        return new NamedArgumentResult(mapped);
+        return null;
     }
 
     @Override

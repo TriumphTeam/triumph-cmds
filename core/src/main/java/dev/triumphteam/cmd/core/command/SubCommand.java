@@ -1,15 +1,18 @@
 package dev.triumphteam.cmd.core.command;
 
+import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
+import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.BasicMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class SubCommand<S> implements ExecutableCommand<S> {
@@ -28,6 +32,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     private final List<Requirement<S, ?>> requirements;
 
     private final String name;
+    private final String syntax;
     private final CommandMeta meta;
     private final boolean containsLimitless;
 
@@ -41,7 +46,8 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     public SubCommand(
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
-            final @NotNull SubCommandProcessor<S> processor
+            final @NotNull SubCommandProcessor<S> processor,
+            final @NotNull Command parentCommand
     ) {
         this.invocationInstance = invocationInstance;
         this.method = method;
@@ -56,6 +62,10 @@ public class SubCommand<S> implements ExecutableCommand<S> {
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderExtension = processor.getCommandExtensions().getSenderExtension();
         this.commandExecutor = processor.getCommandExtensions().getCommandExecutor();
+
+        this.syntax = createSyntax(parentCommand, processor);
+
+        System.out.println(syntax);
     }
 
     @Override
@@ -67,7 +77,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
             final @NotNull List<String> arguments
     ) throws Throwable {
         if (!senderExtension.validate(messageRegistry, this, sender)) return;
-        if (!meetRequirements(sender, commandPath, arguments)) return;
+        if (!meetRequirements(sender)) return;
 
         // Creates the invoking arguments list
         final List<java.lang.Object> invokeArguments = new ArrayList<>();
@@ -78,7 +88,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
         }
 
         if ((!containsLimitless) && arguments.size() >= invokeArguments.size()) {
-            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new BasicMessageContext(commandPath, arguments));
+            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new BasicMessageContext(meta));
             return;
         }
 
@@ -98,6 +108,11 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     @Override
     public @NotNull String getName() {
         return name;
+    }
+
+    @Override
+    public @NotNull String getSyntax() {
+        return syntax;
     }
 
     @Override
@@ -137,13 +152,10 @@ public class SubCommand<S> implements ExecutableCommand<S> {
                 final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
                 final List<String> leftOvers = leftOvers(commandArgs, i);
 
-                final Object result = limitlessArgument.resolve(sender, leftOvers);
-
-                if (result == null) {
-                    return false;
-                }
-
-                invokeArguments.add(result);
+                limitlessArgument.resolve(sender, leftOvers).fold(
+                        invokeArguments::add,
+                        context -> {}
+                );
                 return true;
             }
 
@@ -160,21 +172,27 @@ public class SubCommand<S> implements ExecutableCommand<S> {
                     continue;
                 }
 
-                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new BasicMessageContext(commandPath, commandArgs));
+                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new BasicMessageContext(meta));
                 return false;
             }
 
-            final Object result = stringArgument.resolve(sender, arg);
-            if (result == null) {
+            final @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> result
+                    = stringArgument.resolve(sender, arg);
+
+            if (result instanceof Result.Failure) {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
-                        new InvalidArgumentContext(commandPath, commandArgs, arg, internalArgument.getName(), internalArgument.getType())
+                        ((Result.Failure<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>>) result)
+                                .getFail()
+                                .apply(meta, syntax)
                 );
                 return false;
             }
 
-            invokeArguments.add(result);
+            if (result instanceof Result.Success) {
+                invokeArguments.add(((Result.Success<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>>) result).getValue());
+            }
         }
 
         return true;
@@ -186,14 +204,10 @@ public class SubCommand<S> implements ExecutableCommand<S> {
      * @param sender The sender of the command.
      * @return Whether all requirements are met.
      */
-    private boolean meetRequirements(
-            final @NotNull S sender,
-            final @NotNull List<String> commandPath,
-            final @NotNull List<String> argumentPath
-    ) {
+    private boolean meetRequirements(final @NotNull S sender) {
         for (final Requirement<S, ?> requirement : requirements) {
             if (!requirement.isMet(sender)) {
-                requirement.sendMessage(messageRegistry, sender, commandPath, argumentPath);
+                requirement.sendMessage(messageRegistry, sender, meta);
                 return false;
             }
         }
@@ -223,5 +237,20 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     private @NotNull List<String> leftOvers(final @NotNull List<String> list, final int from) {
         if (from > list.size()) return Collections.emptyList();
         return list.subList(from, list.size());
+    }
+
+    private @NotNull String createSyntax(final @NotNull Command parentCommand, final @NotNull CommandProcessor processor) {
+        final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
+        if (syntaxAnnotation != null) return syntaxAnnotation.value();
+
+        final StringBuilder builder = new StringBuilder(parentCommand.getSyntax());
+
+        if (!dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME.equals(name)) {
+            builder.append(" ").append(name);
+        }
+
+        arguments.forEach(argument -> builder.append(" ").append("<").append(argument.getName()).append(">"));
+
+        return builder.toString();
     }
 }

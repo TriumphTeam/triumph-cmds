@@ -23,11 +23,14 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
+import java.util.function.BiFunction;
 
 import static dev.triumphteam.cmd.core.util.EnumUtils.getEnumConstants;
 import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
@@ -64,10 +67,22 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
      * @return An {@link Enum} value of the correct type.
      */
     @Override
-    public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
+    public @NotNull Result<Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull String value
+    ) {
         final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
-        if (reference == null) return null;
-        return reference.get();
+
+        if (reference == null) {
+            return invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, value, getName(), getType()));
+        }
+
+        final Enum<?> enumValue = reference.get();
+        if (enumValue == null) {
+            return invalid((commands, arguments) -> new InvalidArgumentContext(commands, arguments, value, getName(), getType()));
+        }
+
+        return success(enumValue);
     }
 
     @Override

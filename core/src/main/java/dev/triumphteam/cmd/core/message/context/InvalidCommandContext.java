@@ -23,9 +23,8 @@
  */
 package dev.triumphteam.cmd.core.message.context;
 
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 /**
  * Context for when user types an invalid argument based on its type.
@@ -33,10 +32,9 @@ import java.util.List;
 public final class InvalidCommandContext extends InvalidInputContext {
 
     public InvalidCommandContext(
-            final @NotNull List<String> commandPath,
-            final @NotNull List<String> argumentPath,
+            final @NotNull CommandMeta meta,
             final @NotNull String invalidInput
     ) {
-        super(commandPath, argumentPath, invalidInput);
+        super(meta, invalidInput);
     }
 }

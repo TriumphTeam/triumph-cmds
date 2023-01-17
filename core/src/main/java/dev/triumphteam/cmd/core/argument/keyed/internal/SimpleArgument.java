@@ -27,6 +27,8 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 final class SimpleArgument implements Argument {
 
     private final Class<?> type;
@@ -59,5 +61,18 @@ final class SimpleArgument implements Argument {
     @Override
     public @Nullable SuggestionKey getSuggestion() {
         return suggestionKey;
+    }
+
+    @Override
+    public boolean equals(final @Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final SimpleArgument that = (SimpleArgument) o;
+        return type.equals(that.type) && name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, name);
     }
 }

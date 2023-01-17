@@ -23,14 +23,19 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,10 +73,13 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
      * @return A collection of the split strings.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull String value) {
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull String value
+    ) {
         final Stream<Object> stream = Arrays.stream(value.split(regex)).map(arg -> internalArgument.resolve(sender, arg));
-        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
-        return stream.collect(Collectors.toList());
+        if (collectionType == Set.class) return success(stream.collect(Collectors.toSet()));
+        return success(stream.collect(Collectors.toList()));
     }
 
     @Override

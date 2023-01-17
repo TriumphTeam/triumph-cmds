@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.processor;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,14 +44,13 @@ public final class ParentCommandProcessor<S> extends AbstractCommandProcessor<S>
     private final Class<?> klass;
 
     ParentCommandProcessor(
-            final @NotNull String parentName,
             final @NotNull Object invocationInstance,
             final @NotNull Class<?> klass,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull CommandExtensions<?, S> commandExtensions,
             final @NotNull CommandMeta parentMeta
     ) {
-        super(parentName, invocationInstance, klass, registryContainer, commandExtensions, parentMeta);
+        super(invocationInstance, klass, registryContainer, commandExtensions, parentMeta);
 
         this.klass = klass;
     }
@@ -58,6 +58,11 @@ public final class ParentCommandProcessor<S> extends AbstractCommandProcessor<S>
     @Override
     public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(getParentMeta());
+
+        // Defaults
+        meta.add(MetaKey.NAME, getName());
+        meta.add(MetaKey.DESCRIPTION, getDescription());
+
         // Process all the class annotations
         processAnnotations(getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);
         processCommandMeta(getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);

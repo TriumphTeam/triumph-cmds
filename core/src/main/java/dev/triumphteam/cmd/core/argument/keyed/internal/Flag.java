@@ -61,6 +61,11 @@ public interface Flag {
     boolean hasArgument();
 
     /**
+     * @return Gets the argument if there is one.
+     */
+    @Nullable Class<?> getArgument();
+
+    /**
      * Simple builder for creating new {@link Flag}s.
      */
     final class Builder {

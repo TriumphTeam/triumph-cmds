@@ -23,16 +23,16 @@
  */
 package dev.triumphteam.cmd.core.message.context;
 
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 /**
  * Contains specific data for error handling.
  */
 public interface MessageContext {
 
-    @NotNull List<String> getCommandPath();
-
-    @NotNull List<String> getArgumentPath();
+    /**
+     * @return The command's meta.
+     */
+    @NotNull CommandMeta getMeta();
 }

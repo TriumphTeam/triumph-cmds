@@ -39,7 +39,7 @@ import java.util.Optional;
 @SuppressWarnings("unchecked")
 class FlagsResult<S> implements Flags {
 
-    private final Map<String, FlagValue> flags = new HashMap<>();
+    private final Map<String, ArgumentValue> flags = new HashMap<>();
     private final List<String> args;
     private final S sender;
 
@@ -86,11 +86,12 @@ class FlagsResult<S> implements Flags {
      */
     @Override
     public <T> @NotNull Optional<T> getValue(final @NotNull String flag, final @NotNull Class<T> type) {
-        final FlagValue flagValue = flags.get(flag);
+        final ArgumentValue flagValue = flags.get(flag);
         if (flagValue == null) return Optional.empty();
-        if (!(flagValue instanceof ArgFlagValue)) return Optional.empty();
-        final ArgFlagValue<S> argFlagValue = (ArgFlagValue<S>) flagValue;
-        return Optional.ofNullable((T) argFlagValue.getValue(sender, type));
+        if (!(flagValue instanceof SimpleArgumentValue)) return Optional.empty();
+       /* final SimpleArgumentValue<S> argFlagValue = (SimpleArgumentValue<S>) flagValue;
+        return Optional.ofNullable((T) argFlagValue.getValue(sender, type));*/
+        return Optional.empty();
     }
 
     /**
@@ -98,10 +99,10 @@ class FlagsResult<S> implements Flags {
      */
     @Override
     public @NotNull Optional<String> getValue(final @NotNull String flag) {
-        final FlagValue flagValue = flags.get(flag);
+        final ArgumentValue flagValue = flags.get(flag);
         if (flagValue == null) return Optional.empty();
-        if (!(flagValue instanceof ArgFlagValue)) return Optional.empty();
-        final ArgFlagValue<S> argFlagValue = (ArgFlagValue<S>) flagValue;
+        if (!(flagValue instanceof SimpleArgumentValue)) return Optional.empty();
+        final SimpleArgumentValue argFlagValue = (SimpleArgumentValue) flagValue;
         return Optional.of(argFlagValue.getAsString());
     }
 

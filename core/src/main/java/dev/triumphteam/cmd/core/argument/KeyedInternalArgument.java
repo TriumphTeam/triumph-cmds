@@ -28,16 +28,23 @@ import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
 import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentParser;
 import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Map;
+import java.util.function.BiFunction;
 
 public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S> {
 
+    private final Map<Flag, InternalArgument<S, ?>> flagInternalArguments;
+    private final Map<Argument, InternalArgument<S, ?>> argumentInternalArguments;
     private final ArgumentGroup<Argument> argumentGroup;
     private final ArgumentGroup<Flag> flagGroup;
     private final ArgumentParser argumentParser;
@@ -45,10 +52,14 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
     public KeyedInternalArgument(
             final @NotNull String name,
             final @NotNull String description,
+            final @NotNull Map<Flag, InternalArgument<S, ?>> flagInternalArguments,
+            final @NotNull Map<Argument, InternalArgument<S, ?>> argumentInternalArguments,
             final @NotNull ArgumentGroup<Flag> flagGroup,
             final @NotNull ArgumentGroup<Argument> argumentGroup
     ) {
         super(name, description, Flags.class, new EmptySuggestion<>(), true);
+        this.flagInternalArguments = flagInternalArguments;
+        this.argumentInternalArguments = argumentInternalArguments;
         this.flagGroup = flagGroup;
         this.argumentGroup = argumentGroup;
         this.argumentParser = new ArgumentParser(flagGroup, argumentGroup);
@@ -62,7 +73,12 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
      * @return A {@link Flags} which contains the flags and leftovers.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull List<String> value
+    ) {
+        final ArgumentParser.Result result = argumentParser.parse(value);
+        
 
         return null;// flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
     }
@@ -75,6 +91,4 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
     ) {
         return Collections.emptyList();
     }
-
-
 }

@@ -29,6 +29,8 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 /**
  * Contains all the "settings" for the flag.
  */
@@ -90,13 +92,26 @@ final class FlagOptions implements Flag {
         return suggestionKey;
     }
 
-    /**
-     * Checks if the flag has argument or not.
-     *
-     * @return Whether it has an argument.
-     */
     @Override
     public boolean hasArgument() {
         return argument != null;
+    }
+
+    @Override
+    public @Nullable Class<?> getArgument() {
+        return argument;
+    }
+
+    @Override
+    public boolean equals(final @Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final FlagOptions that = (FlagOptions) o;
+        return Objects.equals(flag, that.flag) && Objects.equals(longFlag, that.longFlag) && Objects.equals(argument, that.argument);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(flag, longFlag, argument);
     }
 }

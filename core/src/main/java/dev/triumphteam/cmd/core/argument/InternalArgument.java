@@ -23,11 +23,15 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * Command argument.
@@ -74,9 +78,12 @@ public interface InternalArgument<S, T> {
      *
      * @param sender The sender to resolve to.
      * @param value  The argument value.
-     * @return An object with the resolved value.
+     * @return A resolve {@link Result}.
      */
-    @Nullable Object resolve(final @NotNull S sender, final @NotNull T value);
+    @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull T value
+    );
 
     // TODO: Comments
     @NotNull List<String> suggestions(
@@ -85,4 +92,15 @@ public interface InternalArgument<S, T> {
             final @NotNull SuggestionContext context
     );
 
+    default Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> success(
+            final @NotNull Object value
+    ) {
+        return new Result.Success<>(value);
+    }
+
+    default Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> invalid(
+            final @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> context
+    ) {
+        return new Result.Failure<>(context);
+    }
 }

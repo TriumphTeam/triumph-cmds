@@ -26,10 +26,11 @@ package dev.triumphteam.cmd.core.argument.keyed.internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Basically a holder that contains all the needed arguments for the command.
@@ -37,21 +38,18 @@ import java.util.Map;
 final class NamedGroup implements ArgumentGroup<Argument> {
 
     private final Map<String, Argument> arguments = new HashMap<>();
-    private final List<String> allArgumentNames = new ArrayList<>();
 
     NamedGroup(final @NotNull List<Argument> arguments) {
         arguments.forEach(this::addArgument);
     }
 
     public void addArgument(final @NotNull Argument argument) {
-        final String name = argument.getName();
-        allArgumentNames.add(name);
-        arguments.put(name, argument);
+        arguments.put(argument.getName(), argument);
     }
 
     @Override
-    public @NotNull List<String> getAllNames() {
-        return allArgumentNames;
+    public @NotNull Set<String> getAllNames() {
+        return arguments.keySet();
     }
 
     @Override
@@ -65,9 +63,7 @@ final class NamedGroup implements ArgumentGroup<Argument> {
     }
 
     @Override
-    public String toString() {
-        return "NamedGroup{" +
-                "allArgumentNames=" + allArgumentNames +
-                '}';
+    public @NotNull Set<Argument> getAll() {
+        return new HashSet<>(arguments.values());
     }
 }

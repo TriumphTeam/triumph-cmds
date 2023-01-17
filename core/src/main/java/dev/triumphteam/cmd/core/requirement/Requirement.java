@@ -23,15 +23,15 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Contains the data for the requirement.
@@ -42,13 +42,13 @@ public final class Requirement<S, C extends MessageContext> {
 
     private final RequirementResolver<S> resolver;
     private final ContextualKey<C> messageKey;
-    private final BiFunction<List<String>, List<String>, C> contextFactory;
+    private final Function<CommandMeta, C> contextFactory;
     private final boolean invert;
 
     public Requirement(
             final @NotNull RequirementResolver<S> resolver,
             final @Nullable ContextualKey<C> messageKey,
-            final @NotNull BiFunction<List<String>, List<String>, C> contextFactory,
+            final @NotNull Function<CommandMeta, C> contextFactory,
             final boolean invert
     ) {
         this.resolver = resolver;
@@ -67,14 +67,13 @@ public final class Requirement<S, C extends MessageContext> {
     }
 
     // TODO
-    public <ST> void sendMessage(
-            final @NotNull MessageRegistry<ST> registry,
-            final @NotNull ST sender,
-            final @NotNull List<String> commandPath,
-            final @NotNull List<String> argumentPath
+    public void sendMessage(
+            final @NotNull MessageRegistry<S> registry,
+            final @NotNull S sender,
+            final @NotNull CommandMeta meta
     ) {
         if (messageKey == null) return;
-        registry.sendMessage(messageKey, sender, contextFactory.apply(commandPath, argumentPath));
+        registry.sendMessage(messageKey, sender, contextFactory.apply(meta));
     }
 
     /**

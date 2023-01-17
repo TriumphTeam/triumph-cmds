@@ -1,10 +1,12 @@
 package dev.triumphteam.cmd.core.processor;
 
+import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -18,6 +20,8 @@ public interface CommandProcessor {
      * @return The immutable {@link CommandMeta} instance.
      */
     @NotNull CommandMeta createMeta();
+
+    @Nullable Syntax getSyntaxAnnotation();
 
     /**
      * Process all annotations for the specific {@link AnnotatedElement}.

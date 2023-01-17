@@ -26,10 +26,11 @@ package dev.triumphteam.cmd.core.argument.keyed.internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Basically a holder that contains all the needed flags for the command.
@@ -39,7 +40,7 @@ final class FlagGroup implements ArgumentGroup<Flag> {
     private final Map<String, Flag> flags = new HashMap<>();
     private final Map<String, Flag> longFlags = new HashMap<>();
 
-    private final List<String> allFlags = new ArrayList<>();
+    private final Map<String, Flag> allFlags = new HashMap<>();
 
     public FlagGroup(final @NotNull List<Flag> flags) {
         flags.forEach(this::addArgument);
@@ -50,17 +51,17 @@ final class FlagGroup implements ArgumentGroup<Flag> {
 
         final String longFlag = argument.getLongFlag();
         if (longFlag != null) {
-            allFlags.add("--" + longFlag);
+            allFlags.put("--" + longFlag, argument);
             longFlags.put(longFlag, argument);
         }
 
-        allFlags.add("-" + key);
+        allFlags.put("-" + key, argument);
         flags.put(key, argument);
     }
 
     @Override
-    public @NotNull List<String> getAllNames() {
-        return allFlags;
+    public @NotNull Set<String> getAllNames() {
+        return allFlags.keySet();
     }
 
     @Override
@@ -74,6 +75,11 @@ final class FlagGroup implements ArgumentGroup<Flag> {
 
         final Flag flag = flags.get(stripped);
         return flag != null ? flag : longFlags.get(stripped);
+    }
+
+    @Override
+    public @NotNull Set<Flag> getAll() {
+        return new HashSet<>(flags.values());
     }
 
     /**

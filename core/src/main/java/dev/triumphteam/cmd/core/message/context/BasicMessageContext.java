@@ -23,47 +23,22 @@
  */
 package dev.triumphteam.cmd.core.message.context;
 
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 /**
  * The default most keys will use, only contains the most basic data.
  */
 public class BasicMessageContext implements MessageContext {
 
-    private final List<String> commandPath;
-    private final List<String> argumentPath;
+    private final CommandMeta meta;
 
-    public BasicMessageContext(
-            final @NotNull List<String> commandPath,
-            final @NotNull List<String> argumentPath
-    ) {
-        this.commandPath = commandPath;
-        this.argumentPath = argumentPath;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull List<String> getCommandPath() {
-        return commandPath;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull List<String> getArgumentPath() {
-        return argumentPath;
+    public BasicMessageContext(final @NotNull CommandMeta meta) {
+        this.meta = meta;
     }
 
     @Override
-    public String toString() {
-        return "BasicMessageContext{" +
-                "commandPath=" + commandPath +
-                ", argumentPath=" + argumentPath +
-                '}';
+    public @NotNull CommandMeta getMeta() {
+        return meta;
     }
 }

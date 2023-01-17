@@ -27,8 +27,10 @@ import com.google.common.base.CaseFormat;
 import dev.triumphteam.cmd.core.AnnotatedCommand;
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
+import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
 import dev.triumphteam.cmd.core.command.ExecutableCommand;
 import dev.triumphteam.cmd.core.command.ParentSubCommand;
@@ -37,9 +39,10 @@ import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -59,6 +62,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
     private final Object invocationInstance;
 
     private final String name;
+    private final Syntax syntax;
     private final List<String> alias;
     private final String description;
 
@@ -78,6 +82,8 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
 
         this.registryContainer = registryContainer;
         this.commandExtensions = commandExtensions;
+
+        this.syntax = invocationInstance.getClass().getAnnotation(Syntax.class);
     }
 
     public String getName() {
@@ -92,10 +98,19 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
         return description;
     }
 
-    @Contract(" -> new")
+    @Override
+    public @Nullable Syntax getSyntaxAnnotation() {
+        return syntax;
+    }
+
     @Override
     public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(null);
+
+        // Defaults
+        meta.add(MetaKey.NAME, getName());
+        meta.add(MetaKey.DESCRIPTION, getDescription());
+
         // Process all the class annotations
         final Class<?> klass = invocationInstance.getClass();
         processAnnotations(commandExtensions, klass, ProcessorTarget.ROOT_COMMAND, meta);
@@ -104,18 +119,18 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
         return meta.build();
     }
 
-    public @NotNull List<ExecutableCommand<S>> commands(final @NotNull CommandMeta parentMeta) {
+    public @NotNull List<ExecutableCommand<S>> commands(final @NotNull dev.triumphteam.cmd.core.command.Command parentCommand) {
         final Class<?> klass = invocationInstance.getClass();
 
         final List<ExecutableCommand<S>> subCommands = new ArrayList<>();
-        subCommands.addAll(methodCommands(parentMeta, klass.getDeclaredMethods()));
-        subCommands.addAll(classCommands(parentMeta, klass.getDeclaredClasses()));
+        subCommands.addAll(methodCommands(parentCommand, klass.getDeclaredMethods()));
+        subCommands.addAll(classCommands(parentCommand, klass.getDeclaredClasses()));
 
         return subCommands;
     }
 
     private @NotNull List<ExecutableCommand<S>> methodCommands(
-            final @NotNull CommandMeta parentMeta,
+            final @NotNull dev.triumphteam.cmd.core.command.Command parentCommand,
             final @NotNull Method[] methods
     ) {
         final List<ExecutableCommand<S>> commands = new ArrayList<>();
@@ -124,26 +139,25 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
             final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
-                    name,
                     invocationInstance,
                     method,
                     registryContainer,
                     commandExtensions,
-                    parentMeta
+                    parentCommand.getMeta()
             );
 
             // Not a command, ignore the method
             if (processor.getName() == null) continue;
 
             // Add new command
-            commands.add(new SubCommand<>(invocationInstance, method, processor));
+            commands.add(new SubCommand<>(invocationInstance, method, processor, parentCommand));
         }
 
         return commands;
     }
 
     private @NotNull List<ExecutableCommand<S>> classCommands(
-            final @NotNull CommandMeta parentMeta,
+            final @NotNull dev.triumphteam.cmd.core.command.Command parentCommand,
             final @NotNull Class<?>[] classes
     ) {
         final List<ExecutableCommand<S>> commands = new ArrayList<>();
@@ -152,12 +166,11 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
             if (!Modifier.isPublic(klass.getModifiers())) continue;
 
             final ParentCommandProcessor<S> processor = new ParentCommandProcessor<>(
-                    name,
                     invocationInstance,
                     klass,
                     registryContainer,
                     commandExtensions,
-                    parentMeta
+                    parentCommand.getMeta()
             );
 
             // Not a command, ignore the method
@@ -189,7 +202,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
                 }
 
                 final Parameter parameter = isStatic ? parameters[0] : parameters[1];
-                argument = processor.createArgument(
+                argument = processor.argumentFromParameter(
                         parameter,
                         emptyList(),
                         emptyMap(),
@@ -199,15 +212,27 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
                 );
 
                 if (!(argument instanceof StringInternalArgument)) {
+                    // Unknown types by default throw
+                    if (argument instanceof UnknownInternalArgument) {
+                        throw new CommandRegistrationException("No internalArgument of type \"" + argument.getType().getName() + "\" registered", klass);
+                    }
+
                     throw new CommandRegistrationException("Inner command class with argument must not be limitless, only single string argument is allowed", klass);
                 }
             }
 
-            final ParentSubCommand<S> parent = new ParentSubCommand<>(invocationInstance, constructor, isStatic, (StringInternalArgument<S>) argument, processor);
+            final ParentSubCommand<S> parent = new ParentSubCommand<>(
+                    invocationInstance,
+                    constructor,
+                    isStatic,
+                    (StringInternalArgument<S>) argument,
+                    processor,
+                    parentCommand
+            );
 
             // Add children commands to parent
-            methodCommands(parent.getMeta(), klass.getDeclaredMethods()).forEach(it -> parent.addSubCommand(it, false));
-            classCommands(parent.getMeta(), klass.getDeclaredClasses()).forEach(it -> parent.addSubCommand(it, false));
+            methodCommands(parent, klass.getDeclaredMethods()).forEach(it -> parent.addSubCommand(it, false));
+            classCommands(parent, klass.getDeclaredClasses()).forEach(it -> parent.addSubCommand(it, false));
 
             // Add parent command to main list
             commands.add(parent);

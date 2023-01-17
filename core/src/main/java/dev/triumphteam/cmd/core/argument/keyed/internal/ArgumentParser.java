@@ -123,7 +123,7 @@ public final class ArgumentParser {
             return;
         }
 
-        result.addNamedArgument(namedToken, argToken);
+        result.addNamedArgument(argument, argToken);
         result.setWaitingArgument(argToken.isEmpty());
     }
 
@@ -203,13 +203,13 @@ public final class ArgumentParser {
     public static class Result {
 
         private final Map<Flag, String> flags = new HashMap<>();
-        private final Map<String, String> namedArguments = new HashMap<>();
+        private final Map<Argument, String> namedArguments = new HashMap<>();
         private final List<String> nonTokens = new ArrayList<>();
 
         private boolean waitingArgument = false;
 
-        public void addNamedArgument(final @NotNull String name, final @NotNull String value) {
-            namedArguments.put(name, value);
+        public void addNamedArgument(final @NotNull Argument argument, final @NotNull String value) {
+            namedArguments.put(argument, value);
         }
 
         public void addFlag(final @NotNull Flag flagOptions) {
@@ -224,15 +224,24 @@ public final class ArgumentParser {
             nonTokens.add(token);
         }
 
-        public void setWaitingArgument(final boolean value) {
-            this.waitingArgument = value;
+        public Map<Flag, String> getFlags() {
+            return flags;
         }
 
-        public void test() {
-            System.out.println(flags);
-            System.out.println(namedArguments);
-            System.out.println(nonTokens);
-            System.out.println(waitingArgument);
+        public Map<Argument, String> getNamedArguments() {
+            return namedArguments;
+        }
+
+        public List<String> getNonTokens() {
+            return nonTokens;
+        }
+
+        public boolean isWaitingArgument() {
+            return waitingArgument;
+        }
+
+        public void setWaitingArgument(final boolean value) {
+            this.waitingArgument = value;
         }
     }
 }

@@ -25,6 +25,7 @@ package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
@@ -35,8 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import static java.util.Collections.emptyList;
 
 public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
@@ -73,12 +72,12 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
         // Command does not exist, proceed to add new!
         final SimpleCommand<S> newSimpleCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
-        processor.commands(newSimpleCommand.getMeta()).forEach(it -> newSimpleCommand.addSubCommand(it, false));
+        processor.commands(newSimpleCommand).forEach(it -> newSimpleCommand.addSubCommand(it, false));
 
         processor.getAlias().forEach(it -> {
             final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
             // Adding sub commands.
-            processor.commands(newSimpleCommand.getMeta()).forEach(sub -> aliasCommand.addSubCommand(sub, false));
+            processor.commands(aliasCommand).forEach(sub -> aliasCommand.addSubCommand(sub, false));
         });
     }
 
@@ -110,7 +109,8 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
             registryContainer.getMessageRegistry().sendMessage(
                     MessageKey.UNKNOWN_COMMAND,
                     sender,
-                    new InvalidCommandContext(emptyList(), emptyList(), commandName)
+                    // Empty meta
+                    new InvalidCommandContext(new CommandMeta.Builder(null).build(), commandName)
             );
             return;
         }

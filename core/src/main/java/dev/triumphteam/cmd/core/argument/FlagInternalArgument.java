@@ -26,6 +26,9 @@ package dev.triumphteam.cmd.core.argument;
 import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
 import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +39,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +73,10 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
      * @return A {@link Flags} which contains the flags and leftovers.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull List<String> value
+    ) {
         return null;// flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
     }
 
@@ -82,7 +90,7 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
         final String current = trimmed.get(size - 1);
 
         // TODO: Show flags before long flags.
-        final List<String> flags = flagGroup.getAllNames();
+        final Set<String> flags = flagGroup.getAllNames();
 
         // Parses all the arguments to get the flags that have been used
         // flagParser.parseFlags(trimmed).entrySet()

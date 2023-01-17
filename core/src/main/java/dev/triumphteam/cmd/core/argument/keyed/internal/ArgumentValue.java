@@ -23,4 +23,4 @@
  */
 package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-public interface FlagValue {}
+interface ArgumentValue {}

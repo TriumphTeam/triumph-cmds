@@ -11,6 +11,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class MetaKey<V> extends StringKey {
 
+    public static final MetaKey<String> NAME = new MetaKey<>("command.name", String.class);
+    public static final MetaKey<String> DESCRIPTION = new MetaKey<>("command.description", String.class);
+
     private final Class<V> valueType;
 
     private MetaKey(

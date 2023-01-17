@@ -47,4 +47,9 @@ public interface Command extends CommandMetaContainer {
      * @return Whether the command has arguments.
      */
     boolean hasArguments();
+
+    /**
+     * @return The command's syntax.
+     */
+    @NotNull String getSyntax();
 }

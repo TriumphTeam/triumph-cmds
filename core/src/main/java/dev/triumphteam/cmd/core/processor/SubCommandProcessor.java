@@ -38,6 +38,7 @@ import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.FlagRegistry;
 import dev.triumphteam.cmd.core.extention.registry.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
@@ -85,14 +86,13 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
     private final FlagRegistry flagRegistry;
 
     SubCommandProcessor(
-            final @NotNull String parentName,
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull CommandExtensions<?, S> commandExtensions,
             final @NotNull CommandMeta parentMeta
     ) {
-        super(parentName, invocationInstance, method, registryContainer, commandExtensions, parentMeta);
+        super(invocationInstance, method, registryContainer, commandExtensions, parentMeta);
 
         this.method = method;
         this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
@@ -103,6 +103,11 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
     @Override
     public @NotNull CommandMeta createMeta() {
         final CommandMeta.Builder meta = new CommandMeta.Builder(getParentMeta());
+
+        // Defaults
+        meta.add(MetaKey.NAME, getName());
+        meta.add(MetaKey.DESCRIPTION, getDescription());
+
         // Process all the class annotations
         processAnnotations(getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
         processCommandMeta(getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
@@ -173,7 +178,7 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
         for (int i = 1; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
 
-            final InternalArgument<S, ?> argument = createArgument(
+            final InternalArgument<S, ?> argument = argumentFromParameter(
                     parameter,
                     argDescriptions,
                     suggestions,

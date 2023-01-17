@@ -23,10 +23,15 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * Joined string argument, a {@link LimitlessInternalArgument}.
@@ -57,8 +62,11 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
      * @return A single {@link String} with the joined {@link List}.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<String> value) {
-        return String.join(delimiter, value);
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull List<String> value
+    ) {
+        return success(String.join(delimiter, value));
     }
 
     @Override

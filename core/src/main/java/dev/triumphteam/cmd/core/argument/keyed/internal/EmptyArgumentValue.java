@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument.keyed.internal;
 
-public final class EmptyFlagValue implements FlagValue {
+final class EmptyArgumentValue implements ArgumentValue {
 
-    public static final EmptyFlagValue INSTANCE = new EmptyFlagValue();
+    static final EmptyArgumentValue INSTANCE = new EmptyArgumentValue();
 }
