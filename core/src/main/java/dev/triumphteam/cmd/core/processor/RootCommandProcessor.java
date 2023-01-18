@@ -57,7 +57,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 @SuppressWarnings("unchecked")
-public abstract class AbstractRootCommandProcessor<S> implements CommandProcessor {
+public class RootCommandProcessor<S> implements CommandProcessor {
 
     private final Object invocationInstance;
 
@@ -69,7 +69,7 @@ public abstract class AbstractRootCommandProcessor<S> implements CommandProcesso
     private final CommandExtensions<?, S> commandExtensions;
     private final RegistryContainer<S> registryContainer;
 
-    public AbstractRootCommandProcessor(
+    public RootCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull RegistryContainer<S> registryContainer,
             final @NotNull CommandExtensions<?, S> commandExtensions

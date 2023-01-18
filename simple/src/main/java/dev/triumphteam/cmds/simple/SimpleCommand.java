@@ -32,6 +32,7 @@ import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
+import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +57,7 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
-            final @NotNull SimpleCommandProcessor<S> processor,
+            final @NotNull RootCommandProcessor<S> processor,
             final @NotNull MessageRegistry<S> messageRegistry
     ) {
         this.name = processor.getName();

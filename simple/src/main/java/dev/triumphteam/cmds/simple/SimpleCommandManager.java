@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
+import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +57,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
     @Override
     public void registerCommand(final @NotNull Object command) {
-        final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
+        final RootCommandProcessor<S> processor = new RootCommandProcessor<>(
                 command,
                 getRegistryContainer(),
                 getCommandOptions().getCommandExtensions()
