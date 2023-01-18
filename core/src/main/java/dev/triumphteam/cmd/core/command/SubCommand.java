@@ -64,8 +64,6 @@ public class SubCommand<S> implements ExecutableCommand<S> {
         this.commandExecutor = processor.getCommandExtensions().getCommandExecutor();
 
         this.syntax = createSyntax(parentCommand, processor);
-
-        System.out.println(syntax);
     }
 
     @Override
@@ -148,37 +146,33 @@ public class SubCommand<S> implements ExecutableCommand<S> {
         for (int i = 0; i < arguments.size(); i++) {
             final InternalArgument<S, ?> internalArgument = arguments.get(i);
 
+            final @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> result;
             if (internalArgument instanceof LimitlessInternalArgument) {
                 final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
                 final List<String> leftOvers = leftOvers(commandArgs, i);
 
-                limitlessArgument.resolve(sender, leftOvers).fold(
-                        invokeArguments::add,
-                        context -> {}
-                );
-                return true;
-            }
+                result = limitlessArgument.resolve(sender, leftOvers);
+            } else if (internalArgument instanceof StringInternalArgument) {
+                final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
+                final String arg = valueOrNull(commandArgs, i);
 
-            if (!(internalArgument instanceof StringInternalArgument)) {
+                if (arg == null || arg.isEmpty()) {
+                    if (internalArgument.isOptional()) {
+                        invokeArguments.add(null);
+                        continue;
+                    }
+
+                    messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new BasicMessageContext(meta));
+                    return false;
+                }
+
+                result = stringArgument.resolve(sender, arg);
+            } else {
+                // Should never happen, this should be a sealed type ... but hey, it's Java 8
                 throw new CommandExecutionException("Found unsupported argument", "", name);
             }
 
-            final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
-            final String arg = valueOrNull(commandArgs, i);
-
-            if (arg == null || arg.isEmpty()) {
-                if (internalArgument.isOptional()) {
-                    invokeArguments.add(null);
-                    continue;
-                }
-
-                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new BasicMessageContext(meta));
-                return false;
-            }
-
-            final @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> result
-                    = stringArgument.resolve(sender, arg);
-
+            // In case of failure we send the Sender a message
             if (result instanceof Result.Failure) {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
@@ -190,6 +184,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
                 return false;
             }
 
+            // In case of success we add the results
             if (result instanceof Result.Success) {
                 invokeArguments.add(((Result.Success<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>>) result).getValue());
             }

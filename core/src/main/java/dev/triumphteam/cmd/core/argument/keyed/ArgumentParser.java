@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.keyed.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public final class ArgumentParser {
+final class ArgumentParser {
 
     private static final String LONG = "--";
     private static final String SHORT = "-";

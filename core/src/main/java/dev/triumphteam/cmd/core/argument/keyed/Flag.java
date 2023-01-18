@@ -1,4 +1,4 @@
-package dev.triumphteam.cmd.core.argument.keyed.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;

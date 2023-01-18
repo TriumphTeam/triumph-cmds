@@ -21,13 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument;
+package dev.triumphteam.cmd.core.argument.keyed;
 
-import dev.triumphteam.cmd.core.argument.keyed.Flags;
-import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
-import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
-import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentParser;
-import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
+import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
@@ -37,23 +34,26 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
 public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S> {
 
-    private final Map<Flag, InternalArgument<S, ?>> flagInternalArguments;
-    private final Map<Argument, InternalArgument<S, ?>> argumentInternalArguments;
+    private final Map<Flag, StringInternalArgument<S>> flagInternalArguments;
+    private final Map<Argument, StringInternalArgument<S>> argumentInternalArguments;
+
     private final ArgumentGroup<Argument> argumentGroup;
     private final ArgumentGroup<Flag> flagGroup;
+
     private final ArgumentParser argumentParser;
 
     public KeyedInternalArgument(
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull Map<Flag, InternalArgument<S, ?>> flagInternalArguments,
-            final @NotNull Map<Argument, InternalArgument<S, ?>> argumentInternalArguments,
+            final @NotNull Map<Flag, StringInternalArgument<S>> flagInternalArguments,
+            final @NotNull Map<Argument, StringInternalArgument<S>> argumentInternalArguments,
             final @NotNull ArgumentGroup<Flag> flagGroup,
             final @NotNull ArgumentGroup<Argument> argumentGroup
     ) {
@@ -78,9 +78,61 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
             final @NotNull List<String> value
     ) {
         final ArgumentParser.Result result = argumentParser.parse(value);
-        
 
-        return null;// flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
+        // Parsing and validating named arguments
+        final Map<String, ArgumentValue> arguments = new HashMap<>();
+        for (final Map.Entry<Argument, String> entry : result.getNamedArguments().entrySet()) {
+            final Argument argument = entry.getKey();
+            final String raw = entry.getValue();
+
+            final StringInternalArgument<S> internalArgument = argumentInternalArguments.get(argument);
+            if (internalArgument == null) continue;
+
+            final Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolved =
+                    internalArgument.resolve(sender, entry.getValue());
+
+            if (resolved instanceof Result.Failure) {
+                return resolved;
+            }
+
+            if (resolved instanceof Result.Success) {
+                final Object resolvedValue = ((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) resolved).getValue();
+                arguments.put(argument.getName(), new SimpleArgumentValue(raw, resolvedValue));
+            }
+        }
+
+        // Parsing and validating flags
+        final Map<String, ArgumentValue> flags = new HashMap<>();
+        for (final Map.Entry<Flag, String> entry : result.getFlags().entrySet()) {
+            final Flag flag = entry.getKey();
+            final String raw = entry.getValue();
+
+            if (!flag.hasArgument()) {
+                flags.put(flag.getFlag(), EmptyArgumentValue.INSTANCE);
+                flags.put(flag.getLongFlag(), EmptyArgumentValue.INSTANCE);
+                continue;
+            }
+
+            final StringInternalArgument<S> internalArgument = flagInternalArguments.get(flag);
+            if (internalArgument == null) continue;
+
+            final Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolved =
+                    internalArgument.resolve(sender, entry.getValue());
+
+            if (resolved instanceof Result.Failure) {
+                return resolved;
+            }
+
+            if (resolved instanceof Result.Success) {
+                final Object resolvedValue = ((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) resolved).getValue();
+
+                final ArgumentValue argumentValue = new SimpleArgumentValue(raw, resolvedValue);
+                flags.put(flag.getFlag(), argumentValue);
+                flags.put(flag.getLongFlag(), argumentValue);
+            }
+        }
+
+        return success(new KeyedArguments(arguments, flags, result.getNonTokens()));
     }
 
     @Override

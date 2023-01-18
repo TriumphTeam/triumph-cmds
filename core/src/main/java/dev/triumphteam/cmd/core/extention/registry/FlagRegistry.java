@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.core.extention.registry;
 
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
-import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
+import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

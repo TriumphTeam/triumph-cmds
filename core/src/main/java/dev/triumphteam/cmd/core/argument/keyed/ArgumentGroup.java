@@ -1,4 +1,4 @@
-package dev.triumphteam.cmd.core.argument.keyed.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

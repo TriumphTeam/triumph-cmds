@@ -36,16 +36,18 @@ import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
 import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.JoinedStringInternalArgument;
-import dev.triumphteam.cmd.core.argument.KeyedInternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.argument.keyed.Keyed;
+import dev.triumphteam.cmd.core.argument.keyed.KeyedInternalArgument;
 import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import dev.triumphteam.cmd.core.argument.keyed.Flags;
-import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
-import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
-import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
-import dev.triumphteam.cmd.core.argument.keyed.internal.ListArgument;
+import dev.triumphteam.cmd.core.argument.keyed.Argument;
+import dev.triumphteam.cmd.core.argument.keyed.ArgumentGroup;
+import dev.triumphteam.cmd.core.argument.keyed.Flag;
+import dev.triumphteam.cmd.core.argument.keyed.ListArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
@@ -228,7 +230,7 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         }
 
         // Handle flags and named arguments
-        if (Flags.class.isAssignableFrom(type)) {
+        if (Keyed.class.isAssignableFrom(type)) {
 
             if (type == Arguments.class) {
                 if (argumentGroup.isEmpty()) {
@@ -260,7 +262,7 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         );
     }
 
-    protected @NotNull InternalArgument<S, String> createSimpleArgument(
+    protected @NotNull StringInternalArgument<S> createSimpleArgument(
             final @NotNull Class<?> type,
             final @NotNull String name,
             final @NotNull String description,
@@ -294,8 +296,8 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         );
     }
 
-    private Map<Flag, InternalArgument<S, ?>> createFlagInternals(final @NotNull ArgumentGroup<Flag> group) {
-        final Map<Flag, InternalArgument<S, ?>> internalArguments = new HashMap<>();
+    private Map<Flag, StringInternalArgument<S>> createFlagInternals(final @NotNull ArgumentGroup<Flag> group) {
+        final Map<Flag, StringInternalArgument<S>> internalArguments = new HashMap<>();
 
         for (final Flag flag : group.getAll()) {
             final Class<?> argType = flag.getArgument();
@@ -318,8 +320,8 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         return internalArguments;
     }
 
-    private Map<Argument, InternalArgument<S, ?>> createNamedArgumentInternals(final @NotNull ArgumentGroup<Argument> group) {
-        final Map<Argument, InternalArgument<S, ?>> internalArguments = new HashMap<>();
+    private Map<Argument, StringInternalArgument<S>> createNamedArgumentInternals(final @NotNull ArgumentGroup<Argument> group) {
+        final Map<Argument, StringInternalArgument<S>> internalArguments = new HashMap<>();
 
         for (final Argument argument : group.getAll()) {
             final Class<?> argType = argument.getType();
@@ -431,7 +433,7 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
     }
 
     protected @NotNull Suggestion<S> createSuggestion(final @Nullable SuggestionKey suggestionKey, final @NotNull Class<?> type) {
-        if (suggestionKey == null) {
+        if (suggestionKey == null || suggestionKey.getKey().isEmpty()) {
             if (Enum.class.isAssignableFrom(type)) return new EnumSuggestion<>((Class<? extends Enum<?>>) type);
 
             final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(type);

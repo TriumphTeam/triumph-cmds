@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.keyed.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
@@ -29,18 +29,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-final class SimpleArgument implements Argument {
+public final class ListArgument implements Argument {
 
-    private final Class<?> type;
     private final String name;
+    private final Class<?> collectionType;
+    private final String separator;
+    private final Class<?> type;
     private final String description;
     private final SuggestionKey suggestionKey;
 
-    public SimpleArgument(final @NotNull Argument.AbstractBuilder<?> argumentBuilder) {
+
+    public ListArgument(final @NotNull Argument.CollectionBuilder argumentBuilder) {
         this.type = argumentBuilder.getType();
         this.name = argumentBuilder.getName();
         this.description = argumentBuilder.getDescription();
         this.suggestionKey = argumentBuilder.getSuggestionKey();
+        this.collectionType = argumentBuilder.getCollectionType();
+        this.separator = argumentBuilder.getSeparator();
     }
 
     @Override
@@ -63,16 +68,34 @@ final class SimpleArgument implements Argument {
         return suggestionKey;
     }
 
+    public @NotNull Class<?> getCollectionType() {
+        return collectionType;
+    }
+
+    public @NotNull String getSeparator() {
+        return separator;
+    }
+
     @Override
     public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final SimpleArgument that = (SimpleArgument) o;
-        return type.equals(that.type) && name.equals(that.name);
+        final ListArgument that = (ListArgument) o;
+        return collectionType.equals(that.collectionType) && separator.equals(that.separator) && type.equals(that.type) && name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, name);
+        return Objects.hash(collectionType, separator, type, name);
+    }
+
+    @Override
+    public String toString() {
+        return "ListArgument{" +
+                "name='" + name + '\'' +
+                ", collectionType=" + collectionType +
+                ", separator='" + separator + '\'' +
+                ", type=" + type +
+                '}';
     }
 }

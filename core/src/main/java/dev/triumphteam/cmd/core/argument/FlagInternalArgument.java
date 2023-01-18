@@ -24,8 +24,8 @@
 package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.argument.keyed.Flags;
-import dev.triumphteam.cmd.core.argument.keyed.internal.ArgumentGroup;
-import dev.triumphteam.cmd.core.argument.keyed.internal.Flag;
+import dev.triumphteam.cmd.core.argument.keyed.ArgumentGroup;
+import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;

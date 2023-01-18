@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.keyed.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import org.jetbrains.annotations.Nullable;

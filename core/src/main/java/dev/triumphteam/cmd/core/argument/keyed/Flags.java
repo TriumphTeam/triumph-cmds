@@ -25,19 +25,19 @@ package dev.triumphteam.cmd.core.argument.keyed;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Contains all the command flags that was typed by the user in an easy-to-access way.
  */
-public interface Flags {
+public interface Flags extends Keyed {
 
     /**
      * Checks if the flag key is present or not.
      * Useful for simple flags like <code>-l</code>.
      * Where you just want to check if the flag was added or not.
-     * For flag with values recommended {@link Flags#getValue(String, Class)}.
+     * For flag with values recommended {@link Flags#getFlagValue(String, Class)}.
      *
      * @param flag The flag to check.
      * @return Whether the flag is present in the command or not.
@@ -53,35 +53,26 @@ public interface Flags {
      * @param <T>  The value type, based on the class from before.
      * @return The flag's value.
      */
-    <T> @NotNull Optional<T> getValue(final @NotNull String flag, final @NotNull Class<T> type);
+    <T> @NotNull Optional<T> getFlagValue(final @NotNull String flag, final @NotNull Class<T> type);
 
     /**
      * Instead of converting the value to the desired type, simply get it as string.
      * If flag is not present then optional will be empty.
+     *
      * @param flag The flag to get the value from.
      * @return The flag's value.
      */
-    @NotNull Optional<String> getValue(final @NotNull String flag);
+    @NotNull Optional<String> getFlagValue(final @NotNull String flag);
 
     /**
-     * Gets the arguments typed without the flags, joined to string.
-     *
-     * @return The arguments joined to string.
+     * @return A {@link Set} with the present Flags.
      */
-    @NotNull String getText();
+    @NotNull Set<String> getAllFlags();
 
     /**
-     * Gets the arguments typed without the flags, joined to string.
+     * Check if flags were typed.
      *
-     * @param delimiter The delimiter of the joining.
-     * @return The arguments joined to string with a delimiter.
+     * @return true if any flag was typed in the command.
      */
-    @NotNull String getText(final @NotNull String delimiter);
-
-    /**
-     * Gets the arguments typed without the flags.
-     *
-     * @return A {@link List} with the typed arguments.
-     */
-    @NotNull List<String> getArgs();
+    boolean hasFlags();
 }

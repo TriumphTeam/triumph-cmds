@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.extention.registry;
 
-import dev.triumphteam.cmd.core.argument.keyed.internal.Argument;
+import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

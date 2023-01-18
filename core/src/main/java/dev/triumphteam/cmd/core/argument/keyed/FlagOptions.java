@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.keyed.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
@@ -94,7 +94,7 @@ final class FlagOptions implements Flag {
 
     @Override
     public boolean hasArgument() {
-        return argument != null;
+        return argument != null && argument != Void.TYPE;
     }
 
     @Override
@@ -113,5 +113,12 @@ final class FlagOptions implements Flag {
     @Override
     public int hashCode() {
         return Objects.hash(flag, longFlag, argument);
+    }
+
+    @Override
+    public String toString() {
+        return "FlagOptions{" +
+                "flag='" + getKey() + '\'' +
+                '}';
     }
 }

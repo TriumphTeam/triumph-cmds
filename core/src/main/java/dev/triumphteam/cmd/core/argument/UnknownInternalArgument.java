@@ -3,6 +3,7 @@ package dev.triumphteam.cmd.core.argument;
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,32 +16,10 @@ import java.util.function.BiFunction;
  * This argument type is always ignored by the creator.
  * This is only used for arguments that are meant to be hidden and not actually part of a command.
  */
-public final class UnknownInternalArgument<S> implements InternalArgument<S, String> {
-
-    private final Class<?> type;
+public final class UnknownInternalArgument<S> extends StringInternalArgument<S> {
 
     public UnknownInternalArgument(final @NotNull Class<?> type) {
-        this.type = type;
-    }
-
-    @Override
-    public @NotNull String getName() {
-        return "unknown";
-    }
-
-    @Override
-    public @NotNull String getDescription() {
-        return "Unknown.";
-    }
-
-    @Override
-    public @NotNull Class<?> getType() {
-        return type;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return false;
+        super("unknown", "unknown.", type, new EmptySuggestion<>(), false);
     }
 
     @Override
@@ -54,9 +33,7 @@ public final class UnknownInternalArgument<S> implements InternalArgument<S, Str
     }
 
     @Override
-    public String toString() {
-        return "UnknownInternalArgument{" +
-                "type=" + type +
-                '}';
+    public @NotNull String toString() {
+        return "UnknownInternalArgument{} " + super.toString();
     }
 }

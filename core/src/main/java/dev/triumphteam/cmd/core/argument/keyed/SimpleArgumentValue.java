@@ -21,49 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.keyed.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+class SimpleArgumentValue implements ArgumentValue {
 
-/**
- * Basically a holder that contains all the needed arguments for the command.
- */
-final class NamedGroup implements ArgumentGroup<Argument> {
+    private final String rawValue;
+    private final Object value;
 
-    private final Map<String, Argument> arguments = new HashMap<>();
-
-    NamedGroup(final @NotNull List<Argument> arguments) {
-        arguments.forEach(this::addArgument);
+    public SimpleArgumentValue(final @NotNull String rawValue, final @NotNull Object value) {
+        this.rawValue = rawValue;
+        this.value = value;
     }
 
-    public void addArgument(final @NotNull Argument argument) {
-        arguments.put(argument.getName(), argument);
+    public @Nullable Object getValue() {
+        return value;
+    }
+
+    public @NotNull String getAsString() {
+        return rawValue;
     }
 
     @Override
-    public @NotNull Set<String> getAllNames() {
-        return arguments.keySet();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return arguments.isEmpty();
-    }
-
-    @Override
-    public @Nullable Argument getMatchingArgument(final @NotNull String token) {
-        return arguments.get(token);
-    }
-
-    @Override
-    public @NotNull Set<Argument> getAll() {
-        return new HashSet<>(arguments.values());
+    public String toString() {
+        return "Simple{" +
+                "rawValue='" + rawValue + '\'' +
+                ", value=" + value +
+                '}';
     }
 }

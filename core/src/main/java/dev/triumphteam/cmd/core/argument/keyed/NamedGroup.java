@@ -21,56 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.argument.keyed.internal;
+package dev.triumphteam.cmd.core.argument.keyed;
 
-import com.google.common.collect.ImmutableMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
-@SuppressWarnings("unchecked")
-public final class KeyedArguments extends FlagsContainer {
+/**
+ * Basically a holder that contains all the needed arguments for the command.
+ */
+final class NamedGroup implements ArgumentGroup<Argument> {
 
-    private final Map<String, Object> values;
+    private final Map<String, Argument> arguments = new HashMap<>();
 
-    public KeyedArguments(final @NotNull Map<String, Object> values) {
-        this.values = values;
+    NamedGroup(final @NotNull List<Argument> arguments) {
+        arguments.forEach(this::addArgument);
+    }
+
+    public void addArgument(final @NotNull Argument argument) {
+        arguments.put(argument.getName(), argument);
     }
 
     @Override
-    public <T> @NotNull Optional<T> get(final @NotNull String name, final @NotNull Class<T> type) {
-        return (Optional<T>) Optional.ofNullable(values.get(name));
-    }
-
-    @Override
-    public <T> @NotNull Optional<List<T>> getAsList(final @NotNull String name, final @NotNull Class<T> type) {
-        final List<T> value = (List<T>) values.get(name);
-        return Optional.ofNullable(value);
-    }
-
-    @Override
-    public <T> @NotNull Optional<Set<T>> getAsSet(final @NotNull String name, final @NotNull Class<T> type) {
-        final Set<T> value = (Set<T>) values.get(name);
-        return Optional.ofNullable(value);
-    }
-
-    @Override
-    public @NotNull Map<String, Object> getArguments() {
-        return ImmutableMap.copyOf(values);
+    public @NotNull Set<String> getAllNames() {
+        return arguments.keySet();
     }
 
     @Override
     public boolean isEmpty() {
-        return values.isEmpty();
+        return arguments.isEmpty();
     }
 
     @Override
-    public @NotNull String toString() {
-        return "Arguments{" +
-                "values=" + values +
-                '}';
+    public @Nullable Argument getMatchingArgument(final @NotNull String token) {
+        return arguments.get(token);
+    }
+
+    @Override
+    public @NotNull Set<Argument> getAll() {
+        return new HashSet<>(arguments.values());
     }
 }
