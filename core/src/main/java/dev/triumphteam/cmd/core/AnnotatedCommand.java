@@ -29,9 +29,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Class in which all commands need to extend.
- */
 public abstract class AnnotatedCommand {
 
     private final String command;

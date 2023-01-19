@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.extention.sender;
 
 import org.jetbrains.annotations.NotNull;
 
+// TODO Comments
 public interface SenderMapper<D, S> {
 
     @NotNull S map(final @NotNull D defaultSender);

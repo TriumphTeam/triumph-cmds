@@ -28,7 +28,6 @@ import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor;
-import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -99,7 +98,7 @@ public final class ExtensionBuilder<D, S> {
                 commandMetaProcessors,
                 senderExtension,
                 argumentValidator,
-                new DefaultCommandExecutor()
+                commandExecutor
         );
     }
 }

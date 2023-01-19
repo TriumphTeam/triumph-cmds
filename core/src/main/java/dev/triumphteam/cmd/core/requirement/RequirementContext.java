@@ -4,6 +4,7 @@ import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
 import org.jetbrains.annotations.NotNull;
 
+// TODO comments
 public interface RequirementContext<D, S> {
 
     @NotNull CommandMeta getMeta();

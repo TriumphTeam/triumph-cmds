@@ -55,7 +55,6 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
     private final CommandMeta meta;
     private ExecutableCommand<S> parentCommandWithArgument;
 
-    @SuppressWarnings("unchecked")
     public SimpleCommand(
             final @NotNull RootCommandProcessor<S, S> processor,
             final @NotNull MessageRegistry<S> messageRegistry

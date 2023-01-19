@@ -26,6 +26,7 @@ package dev.triumphteam.cmds
 import dev.triumphteam.cmd.core.argument.InternalArgument
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument
+import dev.triumphteam.cmd.core.command.CommandExecutor
 import dev.triumphteam.cmd.core.extention.ExtensionBuilder
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult
@@ -33,17 +34,30 @@ import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator
 import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta
 import dev.triumphteam.cmd.core.extention.meta.MetaKey
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.full.callSuspend
+import kotlin.reflect.jvm.kotlinFunction
 
-public fun <S, B : ExtensionBuilder<*, S>> B.useCoroutines() {
-    val kotlinArgumentExtension = CoroutinesCommandExtension<S>()
+public fun <S, B : ExtensionBuilder<*, S>> B.useCoroutines(
+    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    coroutineContext: CoroutineContext = Dispatchers.Default,
+) {
+    val kotlinArgumentExtension = CoroutinesCommandExtension<S>(coroutineScope, coroutineContext)
     addCommandMetaProcessor(kotlinArgumentExtension)
     setArgumentValidator(kotlinArgumentExtension)
+    setCommandExecutor(kotlinArgumentExtension)
 }
 
-public class CoroutinesCommandExtension<S> : CommandMetaProcessor, ArgumentValidator<S> {
+public class CoroutinesCommandExtension<S>(
+    private val coroutineScope: CoroutineScope,
+    private val coroutineContext: CoroutineContext,
+) : CommandMetaProcessor, ArgumentValidator<S>, CommandExecutor {
 
     private companion object {
         /** The key that'll represent a suspending function. */
@@ -104,5 +118,17 @@ public class CoroutinesCommandExtension<S> : CommandMetaProcessor, ArgumentValid
 
         // If everything goes well, we now have valid argument
         return valid()
+    }
+
+    /** Executes the command with normal reflection or call suspending if the method is suspending. */
+    override fun execute(meta: CommandMeta, instance: Any, method: Method, arguments: MutableList<Any>) {
+        if (meta.isPresent(SUSPEND_META_KEY)) {
+            coroutineScope.launch(coroutineContext) {
+                method.kotlinFunction?.callSuspend(instance, *arguments.toTypedArray())
+            }
+            return
+        }
+
+        method.invoke(instance, *arguments.toTypedArray())
     }
 }
