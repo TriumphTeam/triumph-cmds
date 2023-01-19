@@ -85,7 +85,7 @@ import java.util.Set;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-abstract class AbstractCommandProcessor<S> implements CommandProcessor {
+abstract class AbstractCommandProcessor<D, S> implements CommandProcessor {
 
     private static final Set<Class<?>> SUPPORTED_COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
@@ -95,19 +95,19 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
     private final Syntax syntax;
     private final AnnotatedElement annotatedElement;
 
-    private final RegistryContainer<S> registryContainer;
+    private final RegistryContainer<D, S> registryContainer;
 
     private final SuggestionRegistry<S> suggestionRegistry;
     private final ArgumentRegistry<S> argumentRegistry;
 
-    private final CommandExtensions<?, S> commandExtensions;
+    private final CommandExtensions<D, S> commandExtensions;
     private final CommandMeta parentMeta;
 
     AbstractCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull AnnotatedElement annotatedElement,
-            final @NotNull RegistryContainer<S> registryContainer,
-            final @NotNull CommandExtensions<?, S> commandExtensions,
+            final @NotNull RegistryContainer<D, S> registryContainer,
+            final @NotNull CommandExtensions<D, S> commandExtensions,
             final @NotNull CommandMeta parentMeta
     ) {
         this.invocationInstance = invocationInstance;
@@ -124,11 +124,11 @@ abstract class AbstractCommandProcessor<S> implements CommandProcessor {
         this.syntax = annotatedElement.getAnnotation(Syntax.class);
     }
 
-    public @NotNull RegistryContainer<S> getRegistryContainer() {
+    public @NotNull RegistryContainer<D, S> getRegistryContainer() {
         return registryContainer;
     }
 
-    public @NotNull CommandExtensions<?, S> getCommandExtensions() {
+    public @NotNull CommandExtensions<D, S> getCommandExtensions() {
         return commandExtensions;
     }
 

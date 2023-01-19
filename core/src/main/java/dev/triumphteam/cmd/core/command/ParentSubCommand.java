@@ -53,7 +53,7 @@ import java.util.function.Supplier;
  *
  * @param <S> The sender type to be used.
  */
-public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<S> {
+public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableCommand<S> {
 
     private final Map<String, ExecutableCommand<S>> commands = new HashMap<>();
     private final Map<String, ExecutableCommand<S>> commandAliases = new HashMap<>();
@@ -77,7 +77,7 @@ public class ParentSubCommand<S> implements ParentCommand<S>, ExecutableCommand<
             final @NotNull Constructor<?> constructor,
             final boolean isStatic,
             final @Nullable StringInternalArgument<S> argument,
-            final @NotNull ParentCommandProcessor<S> processor,
+            final @NotNull ParentCommandProcessor<D, S> processor,
             final @NotNull Command parentCommand
     ) {
         this.invocationInstance = invocationInstance;

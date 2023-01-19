@@ -48,11 +48,11 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class SubCommand<S> implements ExecutableCommand<S> {
+public class SubCommand<D, S> implements ExecutableCommand<S> {
 
     private final Class<? extends S> senderType;
     private final List<InternalArgument<S, ?>> arguments;
-    private final List<Requirement<S, ?>> requirements;
+    private final List<Requirement<D, S, ?>> requirements;
 
     private final String name;
     private final String syntax;
@@ -63,13 +63,13 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     private final Method method;
     private final CommandExecutor commandExecutor;
 
-    private final SenderExtension<?, S> senderExtension;
+    private final SenderExtension<D, S> senderExtension;
     private final MessageRegistry<S> messageRegistry;
 
     public SubCommand(
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
-            final @NotNull SubCommandProcessor<S> processor,
+            final @NotNull SubCommandProcessor<D, S> processor,
             final @NotNull Command parentCommand
     ) {
         this.invocationInstance = invocationInstance;
@@ -104,12 +104,12 @@ public class SubCommand<S> implements ExecutableCommand<S> {
         final List<java.lang.Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
-        if (!validateAndCollectArguments(sender, commandPath, invokeArguments, arguments)) {
+        if (!validateAndCollectArguments(sender, invokeArguments, arguments)) {
             return;
         }
 
         if ((!containsLimitless) && arguments.size() >= invokeArguments.size()) {
-            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new BasicMessageContext(meta));
+            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new BasicMessageContext(meta, syntax));
             return;
         }
 
@@ -162,7 +162,6 @@ public class SubCommand<S> implements ExecutableCommand<S> {
     @SuppressWarnings("unchecked")
     private boolean validateAndCollectArguments(
             final @NotNull S sender,
-            final @NotNull List<String> commandPath,
             final @NotNull List<Object> invokeArguments,
             final @NotNull List<String> commandArgs
     ) {
@@ -185,7 +184,7 @@ public class SubCommand<S> implements ExecutableCommand<S> {
                         continue;
                     }
 
-                    messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new BasicMessageContext(meta));
+                    messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new BasicMessageContext(meta, syntax));
                     return false;
                 }
 
@@ -223,9 +222,9 @@ public class SubCommand<S> implements ExecutableCommand<S> {
      * @return Whether all requirements are met.
      */
     private boolean meetRequirements(final @NotNull S sender) {
-        for (final Requirement<S, ?> requirement : requirements) {
-            if (!requirement.isMet(sender)) {
-                requirement.sendMessage(messageRegistry, sender, meta);
+        for (final Requirement<D, S, ?> requirement : requirements) {
+            if (!requirement.isMet(sender, meta, senderExtension)) {
+                requirement.sendMessage(messageRegistry, sender, meta, syntax);
                 return false;
             }
         }

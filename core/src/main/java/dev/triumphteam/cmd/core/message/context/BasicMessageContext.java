@@ -29,16 +29,19 @@ import org.jetbrains.annotations.NotNull;
 /**
  * The default most keys will use, only contains the most basic data.
  */
-public class BasicMessageContext implements MessageContext {
+public class BasicMessageContext extends SimpleMetaMessageContext {
 
-    private final CommandMeta meta;
+    private final String syntax;
 
-    public BasicMessageContext(final @NotNull CommandMeta meta) {
-        this.meta = meta;
+    public BasicMessageContext(
+            final @NotNull CommandMeta meta,
+            final @NotNull String syntax
+    ) {
+        super(meta);
+        this.syntax = syntax;
     }
 
-    @Override
-    public @NotNull CommandMeta getMeta() {
-        return meta;
+    public @NotNull String getSyntax() {
+        return syntax;
     }
 }

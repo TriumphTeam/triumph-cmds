@@ -57,7 +57,7 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
 
     @SuppressWarnings("unchecked")
     public SimpleCommand(
-            final @NotNull RootCommandProcessor<S> processor,
+            final @NotNull RootCommandProcessor<S, S> processor,
             final @NotNull MessageRegistry<S> messageRegistry
     ) {
         this.name = processor.getName();

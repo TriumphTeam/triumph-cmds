@@ -21,27 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.message.context;
+package dev.triumphteam.cmd.core.extention.sender;
 
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * Context with an invalid input.
- */
-abstract class InvalidInputContext extends SimpleMetaMessageContext {
+public interface SenderMapper<D, S> {
 
-    private final String invalidInput;
+    @Nullable S map(final @NotNull D defaultSender);
 
-    public InvalidInputContext(
-            final @NotNull CommandMeta meta,
-            final @NotNull String invalidInput
-    ) {
-        super(meta);
-        this.invalidInput = invalidInput;
-    }
-
-    public @NotNull String getInvalidInput() {
-        return invalidInput;
-    }
+    @Nullable D reMap(final @NotNull S defaultSender);
 }

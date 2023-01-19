@@ -78,18 +78,18 @@ import static java.util.Collections.singletonList;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
+public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D, S> {
 
     private final Method method;
     private final NamedArgumentRegistry namedArgumentRegistry;
-    private final RequirementRegistry<S> requirementRegistry;
+    private final RequirementRegistry<D, S> requirementRegistry;
     private final FlagRegistry flagRegistry;
 
     SubCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
-            final @NotNull RegistryContainer<S> registryContainer,
-            final @NotNull CommandExtensions<?, S> commandExtensions,
+            final @NotNull RegistryContainer<D, S> registryContainer,
+            final @NotNull CommandExtensions<D, S> commandExtensions,
             final @NotNull CommandMeta parentMeta
     ) {
         super(invocationInstance, method, registryContainer, commandExtensions, parentMeta);
@@ -214,8 +214,8 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
      *
      * @return A {@link List} of requirements needed to run the command.
      */
-    public @NotNull List<Requirement<S, ?>> requirements() {
-        final List<Requirement<S, ?>> requirements = new ArrayList<>();
+    public @NotNull List<Requirement<D, S, ?>> requirements() {
+        final List<Requirement<D, S, ?>> requirements = new ArrayList<>();
         for (final dev.triumphteam.cmd.core.annotations.Requirement requirementAnnotation : getRequirementsFromAnnotations()) {
             final RequirementKey requirementKey = RequirementKey.of(requirementAnnotation.value());
             final String messageKeyValue = requirementAnnotation.messageKey();
@@ -224,7 +224,7 @@ public final class SubCommandProcessor<S> extends AbstractCommandProcessor<S> {
             if (messageKeyValue.isEmpty()) messageKey = null;
             else messageKey = MessageKey.of(messageKeyValue, MessageContext.class);
 
-            final RequirementResolver<S> resolver = requirementRegistry.getRequirement(requirementKey);
+            final RequirementResolver<D, S> resolver = requirementRegistry.getRequirement(requirementKey);
             if (resolver == null) {
                 throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
             }

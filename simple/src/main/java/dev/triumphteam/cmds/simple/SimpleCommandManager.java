@@ -42,7 +42,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
     private final Map<String, SimpleCommand<S>> commands = new HashMap<>();
 
-    private final RegistryContainer<S> registryContainer = new RegistryContainer<>();
+    private final RegistryContainer<S, S> registryContainer = new RegistryContainer<>();
 
     private SimpleCommandManager(final @NotNull CommandOptions<S, S> commandOptions) {
         super(commandOptions);
@@ -57,7 +57,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
     @Override
     public void registerCommand(final @NotNull Object command) {
-        final RootCommandProcessor<S> processor = new RootCommandProcessor<>(
+        final RootCommandProcessor<S, S> processor = new RootCommandProcessor<>(
                 command,
                 getRegistryContainer(),
                 getCommandOptions().getCommandExtensions()
@@ -86,7 +86,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull RegistryContainer<S> getRegistryContainer() {
+    protected @NotNull RegistryContainer<S, S> getRegistryContainer() {
         return registryContainer;
     }
 

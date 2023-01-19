@@ -57,7 +57,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 @SuppressWarnings("unchecked")
-public class RootCommandProcessor<S> implements CommandProcessor {
+public class RootCommandProcessor<D, S> implements CommandProcessor {
 
     private final Object invocationInstance;
 
@@ -66,13 +66,13 @@ public class RootCommandProcessor<S> implements CommandProcessor {
     private final List<String> alias;
     private final String description;
 
-    private final CommandExtensions<?, S> commandExtensions;
-    private final RegistryContainer<S> registryContainer;
+    private final CommandExtensions<D, S> commandExtensions;
+    private final RegistryContainer<D, S> registryContainer;
 
     public RootCommandProcessor(
             final @NotNull Object invocationInstance,
-            final @NotNull RegistryContainer<S> registryContainer,
-            final @NotNull CommandExtensions<?, S> commandExtensions
+            final @NotNull RegistryContainer<D, S> registryContainer,
+            final @NotNull CommandExtensions<D, S> commandExtensions
     ) {
         this.invocationInstance = invocationInstance;
 
@@ -138,7 +138,7 @@ public class RootCommandProcessor<S> implements CommandProcessor {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
-            final SubCommandProcessor<S> processor = new SubCommandProcessor<>(
+            final SubCommandProcessor<D, S> processor = new SubCommandProcessor<>(
                     invocationInstance,
                     method,
                     registryContainer,
@@ -165,7 +165,7 @@ public class RootCommandProcessor<S> implements CommandProcessor {
             // Ignore non-public methods
             if (!Modifier.isPublic(klass.getModifiers())) continue;
 
-            final ParentCommandProcessor<S> processor = new ParentCommandProcessor<>(
+            final ParentCommandProcessor<D, S> processor = new ParentCommandProcessor<>(
                     invocationInstance,
                     klass,
                     registryContainer,
@@ -221,7 +221,7 @@ public class RootCommandProcessor<S> implements CommandProcessor {
                 }
             }
 
-            final ParentSubCommand<S> parent = new ParentSubCommand<>(
+            final ParentSubCommand<D, S> parent = new ParentSubCommand<>(
                     invocationInstance,
                     constructor,
                     isStatic,

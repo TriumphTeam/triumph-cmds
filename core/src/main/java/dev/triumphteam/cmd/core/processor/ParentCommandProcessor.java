@@ -39,15 +39,15 @@ import org.jetbrains.annotations.NotNull;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-public final class ParentCommandProcessor<S> extends AbstractCommandProcessor<S> {
+public final class ParentCommandProcessor<D, S> extends AbstractCommandProcessor<D, S> {
 
     private final Class<?> klass;
 
     ParentCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull Class<?> klass,
-            final @NotNull RegistryContainer<S> registryContainer,
-            final @NotNull CommandExtensions<?, S> commandExtensions,
+            final @NotNull RegistryContainer<D, S> registryContainer,
+            final @NotNull CommandExtensions<D, S> commandExtensions,
             final @NotNull CommandMeta parentMeta
     ) {
         super(invocationInstance, klass, registryContainer, commandExtensions, parentMeta);

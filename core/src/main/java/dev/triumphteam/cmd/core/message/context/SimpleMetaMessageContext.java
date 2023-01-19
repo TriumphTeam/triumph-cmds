@@ -26,22 +26,17 @@ package dev.triumphteam.cmd.core.message.context;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Context with an invalid input.
- */
-abstract class InvalidInputContext extends SimpleMetaMessageContext {
 
-    private final String invalidInput;
+abstract class SimpleMetaMessageContext implements MessageContext {
 
-    public InvalidInputContext(
-            final @NotNull CommandMeta meta,
-            final @NotNull String invalidInput
-    ) {
-        super(meta);
-        this.invalidInput = invalidInput;
+    private final CommandMeta meta;
+
+    public SimpleMetaMessageContext(final @NotNull CommandMeta meta) {
+        this.meta = meta;
     }
 
-    public @NotNull String getInvalidInput() {
-        return invalidInput;
+    @Override
+    public @NotNull CommandMeta getMeta() {
+        return meta;
     }
 }

@@ -185,12 +185,12 @@ public abstract class CommandManager<D, S> {
      */
     public final void registerRequirement(
             final @NotNull RequirementKey key,
-            final @NotNull RequirementResolver<S> resolver
+            final @NotNull RequirementResolver<D, S> resolver
     ) {
         getRegistryContainer().getRequirementRegistry().register(key, resolver);
     }
 
-    protected abstract @NotNull RegistryContainer<S> getRegistryContainer();
+    protected abstract @NotNull RegistryContainer<D, S> getRegistryContainer();
 
     protected @NotNull CommandOptions<D, S> getCommandOptions() {
         return commandOptions;

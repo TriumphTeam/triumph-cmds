@@ -25,30 +25,31 @@ package dev.triumphteam.cmd.core.requirement;
 
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Contains the data for the requirement.
  *
  * @param <S> The sender type.
  */
-public final class Requirement<S, C extends MessageContext> {
+public final class Requirement<D, S, C extends MessageContext> {
 
-    private final RequirementResolver<S> resolver;
+    private final RequirementResolver<D, S> resolver;
     private final ContextualKey<C> messageKey;
-    private final Function<CommandMeta, C> contextFactory;
+    private final BiFunction<CommandMeta, String, C> contextFactory;
     private final boolean invert;
 
     public Requirement(
-            final @NotNull RequirementResolver<S> resolver,
+            final @NotNull RequirementResolver<D, S> resolver,
             final @Nullable ContextualKey<C> messageKey,
-            final @NotNull Function<CommandMeta, C> contextFactory,
+            final @NotNull BiFunction<CommandMeta, String, C> contextFactory,
             final boolean invert
     ) {
         this.resolver = resolver;
@@ -70,10 +71,11 @@ public final class Requirement<S, C extends MessageContext> {
     public void sendMessage(
             final @NotNull MessageRegistry<S> registry,
             final @NotNull S sender,
-            final @NotNull CommandMeta meta
+            final @NotNull CommandMeta meta,
+            final @NotNull String syntax
     ) {
         if (messageKey == null) return;
-        registry.sendMessage(messageKey, sender, contextFactory.apply(meta));
+        registry.sendMessage(messageKey, sender, contextFactory.apply(meta, syntax));
     }
 
     /**
@@ -82,15 +84,19 @@ public final class Requirement<S, C extends MessageContext> {
      * @param sender The sender which will be needed to check if the requirement is met or not.
      * @return Whether the requirement is met.
      */
-    public boolean isMet(final @NotNull S sender) {
-        return resolver.resolve(sender) != invert;
+    public boolean isMet(
+            final @NotNull S sender,
+            final @NotNull CommandMeta meta,
+            final @NotNull SenderMapper<D, S> senderMapper
+    ) {
+        return resolver.resolve(sender, new SimpleRequirementContext<>(meta, senderMapper)) != invert;
     }
 
     @Override
     public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final Requirement<?, ?> that = (Requirement<?, ?>) o;
+        final Requirement<?, ?, ?> that = (Requirement<?, ?, ?>) o;
         return resolver.equals(that.resolver) && Objects.equals(messageKey, that.messageKey);
     }
 

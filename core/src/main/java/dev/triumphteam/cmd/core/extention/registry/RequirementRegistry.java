@@ -36,9 +36,9 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public final class RequirementRegistry<S> implements Registry {
+public final class RequirementRegistry<D, S> implements Registry {
 
-    private final Map<RequirementKey, RequirementResolver<S>> requirements = new HashMap<>();
+    private final Map<RequirementKey, RequirementResolver<D, S>> requirements = new HashMap<>();
 
     /**
      * Registers a new {@link RequirementResolver} for the specific Key.
@@ -46,7 +46,7 @@ public final class RequirementRegistry<S> implements Registry {
      * @param key      The requirement key.
      * @param resolver The resolver to check if the requirement is met.
      */
-    public void register(final @NotNull RequirementKey key, final @NotNull RequirementResolver<S> resolver) {
+    public void register(final @NotNull RequirementKey key, final @NotNull RequirementResolver<D, S> resolver) {
         requirements.put(key, resolver);
     }
 
@@ -56,8 +56,7 @@ public final class RequirementRegistry<S> implements Registry {
      * @param key The specific key.
      * @return A saved {@link RequirementResolver}.
      */
-    public @Nullable RequirementResolver<S> getRequirement(final @NotNull RequirementKey key) {
+    public @Nullable RequirementResolver<D, S> getRequirement(final @NotNull RequirementKey key) {
         return requirements.get(key);
     }
-
 }
