@@ -13,7 +13,7 @@ listOf(
 ).forEach(::includeProject)
 
 listOf(
-    // "minecraft/bukkit" to "bukkit",
+     "minecraft/bukkit" to "bukkit",
      "discord/jda-common" to "jda-common",
     // "discord/jda-prefixed" to "jda-prefixed",
     // "discord/jda-slash" to "jda-slash",
