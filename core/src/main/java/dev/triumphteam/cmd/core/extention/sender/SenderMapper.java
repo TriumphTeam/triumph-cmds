@@ -24,11 +24,10 @@
 package dev.triumphteam.cmd.core.extention.sender;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public interface SenderMapper<D, S> {
 
-    @Nullable S map(final @NotNull D defaultSender);
+    @NotNull S map(final @NotNull D defaultSender);
 
-    @Nullable D reMap(final @NotNull S defaultSender);
+    @NotNull D mapBackwards(final @NotNull S sender);
 }
