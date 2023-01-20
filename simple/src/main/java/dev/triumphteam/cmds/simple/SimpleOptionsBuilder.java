@@ -27,7 +27,7 @@ import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import org.jetbrains.annotations.NotNull;
 
-final class SimpleOptionsBuilder<S> extends CommandOptions.Builder<S, S, CommandOptions<S, S>, SimpleOptionsBuilder<S>> {
+public final class SimpleOptionsBuilder<S> extends CommandOptions.Builder<S, S, CommandOptions<S, S>, SimpleOptionsBuilder<S>> {
 
     @Override
     public @NotNull CommandOptions<S, S> build(final @NotNull SenderExtension<S, S> senderExtension) {
