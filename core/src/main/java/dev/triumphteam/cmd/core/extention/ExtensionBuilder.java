@@ -43,7 +43,6 @@ public final class ExtensionBuilder<D, S> {
     private final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors = new HashMap<>();
     private final List<CommandMetaProcessor> commandMetaProcessors = new ArrayList<>();
 
-    private SenderExtension<D, S> senderExtension = null;
     private ArgumentValidator<S> argumentValidator = null;
     private CommandExecutor commandExecutor = null;
 
@@ -63,12 +62,6 @@ public final class ExtensionBuilder<D, S> {
     }
 
     @Contract("_ -> this")
-    public @NotNull ExtensionBuilder<D, S> setSenderExtension(final @NotNull SenderExtension<D, S> senderExtension) {
-        this.senderExtension = senderExtension;
-        return this;
-    }
-
-    @Contract("_ -> this")
     public @NotNull ExtensionBuilder<D, S> setArgumentValidator(final @NotNull ArgumentValidator<S> argumentValidator) {
         this.argumentValidator = argumentValidator;
         return this;
@@ -81,10 +74,6 @@ public final class ExtensionBuilder<D, S> {
     }
 
     public @NotNull CommandExtensions<D, S> build() {
-        if (senderExtension == null) {
-            throw new CommandRegistrationException("No sender extension was added to Command Manager.");
-        }
-
         if (argumentValidator == null) {
             throw new CommandRegistrationException("No argument validator was added to Command Manager.");
         }
@@ -96,7 +85,6 @@ public final class ExtensionBuilder<D, S> {
         return new CommandExtensions<>(
                 annotationProcessors,
                 commandMetaProcessors,
-                senderExtension,
                 argumentValidator,
                 commandExecutor
         );

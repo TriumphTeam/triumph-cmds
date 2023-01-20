@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.extention;
 
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -31,10 +32,13 @@ import java.util.function.Consumer;
 public class CommandOptions<D, S> {
 
     private final CommandExtensions<D, S> commandExtensions;
+    private final SenderExtension<D, S> senderExtension;
 
     public CommandOptions(
+            final @NotNull SenderExtension<D, S> senderExtension,
             final @NotNull CommandExtensions<D, S> commandExtensions
     ) {
+        this.senderExtension = senderExtension;
         this.commandExtensions = commandExtensions;
     }
 
@@ -42,21 +46,20 @@ public class CommandOptions<D, S> {
         return commandExtensions;
     }
 
+    public @NotNull SenderExtension<D, S> getSenderExtension() {
+        return senderExtension;
+    }
+
     public static abstract class Builder<D, S, O extends CommandOptions<D, S>, B extends Builder<D, S, O, B>> {
 
         private final ExtensionBuilder<D, S> extensionBuilder = new ExtensionBuilder<>();
-
-        public Builder(final @NotNull Consumer<ExtensionBuilder<D, S>> defaultExtensions) {
-            // Adding all defaults first so they can be overridden
-            defaultExtensions.accept(extensionBuilder);
-        }
 
         public @NotNull B extensions(final @NotNull Consumer<ExtensionBuilder<D, S>> consumer) {
             consumer.accept(extensionBuilder);
             return (B) this;
         }
 
-        public abstract @NotNull O build();
+        public abstract @NotNull O build(final @NotNull SenderExtension<D, S> senderExtension);
 
         protected @NotNull CommandExtensions<D, S> getCommandExtensions() {
             return extensionBuilder.build();

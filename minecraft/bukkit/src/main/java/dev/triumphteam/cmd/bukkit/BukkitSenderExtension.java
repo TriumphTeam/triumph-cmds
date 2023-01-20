@@ -24,11 +24,9 @@
 package dev.triumphteam.cmd.bukkit;
 
 import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.command.ExecutableCommand;
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -39,11 +37,8 @@ import java.util.Set;
 /**
  * Simple mapper than returns itself.
  */
-class BukkitSenderValidator implements SenderValidator<CommandSender> {
+class BukkitSenderExtension implements SenderExtension.Default<CommandSender> {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public @NotNull Set<Class<? extends @NotNull CommandSender>> getAllowedSenders() {
         return ImmutableSet.of(CommandSender.class, ConsoleCommandSender.class, Player.class);
@@ -52,29 +47,9 @@ class BukkitSenderValidator implements SenderValidator<CommandSender> {
     @Override
     public boolean validate(
             final @NotNull MessageRegistry<CommandSender> messageRegistry,
-            final @NotNull OldSubCommand<CommandSender> subCommand,
+            final @NotNull ExecutableCommand<CommandSender> command,
             final @NotNull CommandSender sender
     ) {
-        final Class<? extends CommandSender> senderClass = subCommand.getSenderType();
-
-        if (Player.class.isAssignableFrom(senderClass) && !(sender instanceof Player)) {
-            messageRegistry.sendMessage(
-                    BukkitMessageKey.PLAYER_ONLY,
-                    sender,
-                    new DefaultMessageContext(subCommand.getParentName(), subCommand.getName())
-            );
-            return false;
-        }
-
-        if (ConsoleCommandSender.class.isAssignableFrom(senderClass) && !(sender instanceof ConsoleCommandSender)) {
-            messageRegistry.sendMessage(
-                    BukkitMessageKey.CONSOLE_ONLY,
-                    sender,
-                    new DefaultMessageContext(subCommand.getParentName(), subCommand.getName())
-            );
-            return false;
-        }
-
         return true;
     }
 }

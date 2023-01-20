@@ -25,8 +25,11 @@ package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
+import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
+import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
@@ -48,11 +51,20 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         super(commandOptions);
     }
 
-    @Contract("_ -> new")
-    public static <S> @NotNull SimpleCommandManager<S> create(final @NotNull Consumer<SimpleCommandOptions.Builder<S>> builder) {
-        final SimpleCommandOptions.Builder<S> extensionBuilder = new SimpleCommandOptions.Builder<>();
+    @Contract("_, _ -> new")
+    public static <S> @NotNull SimpleCommandManager<S> create(
+            final @NotNull SenderExtension<S, S> senderExtension,
+            final @NotNull Consumer<SimpleOptionsBuilder<S>> builder
+    ) {
+        final SimpleOptionsBuilder<S> extensionBuilder = new SimpleOptionsBuilder<>();
+
+        extensionBuilder.extensions(extension -> {
+            extension.setArgumentValidator(new DefaultArgumentValidator<>());
+            extension.setCommandExecutor(new DefaultCommandExecutor());
+        });
+
         builder.accept(extensionBuilder);
-        return new SimpleCommandManager<>(extensionBuilder.build());
+        return new SimpleCommandManager<>(extensionBuilder.build(senderExtension));
     }
 
     @Override

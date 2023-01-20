@@ -38,4 +38,17 @@ public interface SenderExtension<D, S> extends SenderMapper<D, S> {
             final @NotNull ExecutableCommand<S> command,
             final @NotNull S sender
     );
+
+    interface Default<S> extends SenderExtension<S, S> {
+
+        @Override
+        default @NotNull S map(@NotNull final S defaultSender) {
+            return defaultSender;
+        }
+
+        @Override
+        default @NotNull S mapBackwards(@NotNull final S sender) {
+            return sender;
+        }
+    }
 }
