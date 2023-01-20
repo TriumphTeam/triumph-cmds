@@ -50,6 +50,7 @@ class BukkitSenderExtension implements SenderExtension.Default<CommandSender> {
             final @NotNull ExecutableCommand<CommandSender> command,
             final @NotNull CommandSender sender
     ) {
+        // TODO
         return true;
     }
 }

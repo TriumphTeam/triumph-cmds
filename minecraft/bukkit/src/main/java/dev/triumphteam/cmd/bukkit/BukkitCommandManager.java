@@ -82,7 +82,6 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
     /**
      * Creates a new instance of the {@link BukkitCommandManager}.
-     * This factory adds all the defaults based on the default sender {@link CommandSender}.
      *
      * @param plugin The {@link Plugin} instance created.
      * @return A new instance of the {@link BukkitCommandManager}.
@@ -210,7 +209,9 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         return registryContainer;
     }
 
-    private @NotNull BukkitCommand<S> createAndRegisterCommand(final @NotNull String name, final @NotNull BukkitCommandProcessor<S> processor) {
+    private @NotNull BukkitCommand<S> createAndRegisterCommand(
+            final @NotNull String name
+    ) {
         // From ACF (https://github.com/aikar/commands)
         // To allow commands to be registered on the plugin.yml
         final org.bukkit.command.Command oldCommand = commandMap.getCommand(name);
