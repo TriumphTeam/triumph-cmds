@@ -114,7 +114,6 @@ public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableComma
             final @NotNull S sender,
             final @NotNull String command,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
     ) throws Throwable {
         final int argumentSize = arguments.size();
@@ -126,8 +125,6 @@ public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableComma
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, commandName));
             return;
         }
-
-        commandPath.add(subCommand.getName());
 
         final Object instance;
 
@@ -158,9 +155,9 @@ public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableComma
         }
 
         subCommand.execute(
-                sender, commandName,
+                sender,
+                commandName,
                 () -> instance,
-                commandPath,
                 !subCommand.isDefault() && !arguments.isEmpty() ? arguments.subList(1, arguments.size()) : arguments
         );
     }

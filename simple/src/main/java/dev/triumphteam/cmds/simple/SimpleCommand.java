@@ -105,9 +105,9 @@ public final class SimpleCommand<S> implements ParentCommand<S> {
         // Executing the subcommand.
         try {
             subCommand.execute(
-                    sender, commandName,
+                    sender,
+                    commandName,
                     null,
-                    commandPath,
                     !subCommand.isDefault() ? arguments.subList(1, arguments.size()) : arguments
             );
         } catch (final @NotNull Throwable exception) {

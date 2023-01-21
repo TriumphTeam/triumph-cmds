@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
@@ -35,7 +36,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Map;
 
-public interface CommandProcessor {
+public interface CommandProcessor<D, S> {
 
     /**
      * Create a new meta and handle some processing before it's fully created.
@@ -43,6 +44,8 @@ public interface CommandProcessor {
      * @return The immutable {@link CommandMeta} instance.
      */
     @NotNull CommandMeta createMeta();
+
+    @NotNull CommandOptions<D, S> getCommandOptions();
 
     @Nullable Syntax getSyntaxAnnotation();
 

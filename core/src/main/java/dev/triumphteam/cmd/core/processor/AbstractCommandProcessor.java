@@ -85,7 +85,7 @@ import java.util.Set;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-abstract class AbstractCommandProcessor<D, S> implements CommandProcessor {
+abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> {
 
     private static final Set<Class<?>> SUPPORTED_COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
@@ -128,6 +128,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor {
         return registryContainer;
     }
 
+    @Override
     public @NotNull CommandOptions<D, S> getCommandOptions() {
         return commandOptions;
     }

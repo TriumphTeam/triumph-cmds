@@ -99,7 +99,6 @@ public class SubCommand<D, S> implements ExecutableCommand<S> {
             final @NotNull S sender,
             final @NotNull String command,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
     ) throws Throwable {
         final ValidationResult<MessageKey<MessageContext>> validationResult = senderExtension.validate(meta, senderType, sender);

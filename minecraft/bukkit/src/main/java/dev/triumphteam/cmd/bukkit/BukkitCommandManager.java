@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -175,18 +176,27 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     }
 
     @Override
-    public void registerCommand(final @NotNull Object baseCommand) {
-        final String name = "nameOf(baseCommand)";
+    public void registerCommand(final @NotNull Object command) {
+        final RootCommandProcessor<CommandSender, S> processor = new RootCommandProcessor<>(
+                command,
+                getRegistryContainer(),
+                getCommandOptions()
+        );
 
-        final BukkitCommand<S> command = commands.get(name);
-        if (command != null) {
+        final String name = processor.getName();
+
+        final BukkitCommand<S> bukkitCommand = commands.get(name);
+        if (bukkitCommand != null) {
             // TODO: Command exists, only care about adding subs
             return;
         }
 
+        final BukkitCommand<S> newBukkitCommand = createAndRegisterCommand(processor, name);
+        processor.commands(newBukkitCommand).forEach(it -> newBukkitCommand.addSubCommand(it, false));
+
         // Command does not exist, proceed to add new!
 
-        // final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(name, baseCommand, basePermission);
+        // final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(name, command, basePermission);
 
         // final BukkitCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> createAndRegisterCommand(it, processor));
 
@@ -210,6 +220,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     }
 
     private @NotNull BukkitCommand<S> createAndRegisterCommand(
+            final @NotNull RootCommandProcessor<CommandSender, S> processor,
             final @NotNull String name
     ) {
         // From ACF (https://github.com/aikar/commands)
@@ -220,9 +231,8 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             oldCommand.unregister(commandMap);
         }
 
-        /*final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, getSenderMapper(), registryContainer.getMessageRegistry());
+        final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, registryContainer.getMessageRegistry());
         commandMap.register(plugin.getName(), newCommand);
-        return newCommand;*/
-        return null;
+        return newCommand;
     }
 }

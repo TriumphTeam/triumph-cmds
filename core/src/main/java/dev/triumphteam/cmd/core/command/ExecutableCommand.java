@@ -48,7 +48,6 @@ public interface ExecutableCommand<S> extends Command {
             final @NotNull S sender,
             final @NotNull String command,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
     ) throws Throwable;
 
