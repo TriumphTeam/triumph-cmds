@@ -28,8 +28,8 @@ import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument
 import dev.triumphteam.cmd.core.command.CommandExecutor
 import dev.triumphteam.cmd.core.extention.ExtensionBuilder
+import dev.triumphteam.cmd.core.extention.ValidationResult
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget
-import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator
 import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta
@@ -82,7 +82,7 @@ public class CoroutinesCommandExtension<S>(
         argument: InternalArgument<S, *>,
         position: Int,
         last: Int,
-    ): ArgumentValidationResult {
+    ): ValidationResult<String> {
         // If we're dealing with a suspending function, the meta will be present
         val suspend = meta.parentMeta?.isPresent(SUSPEND_META_KEY) ?: false
 

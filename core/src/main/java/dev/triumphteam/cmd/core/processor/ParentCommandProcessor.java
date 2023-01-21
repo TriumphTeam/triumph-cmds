@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
@@ -47,10 +47,10 @@ public final class ParentCommandProcessor<D, S> extends AbstractCommandProcessor
             final @NotNull Object invocationInstance,
             final @NotNull Class<?> klass,
             final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandExtensions<D, S> commandExtensions,
+            final @NotNull CommandOptions<D, S> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
-        super(invocationInstance, klass, registryContainer, commandExtensions, parentMeta);
+        super(invocationInstance, klass, registryContainer, commandOptions, parentMeta);
 
         this.klass = klass;
     }
@@ -64,8 +64,8 @@ public final class ParentCommandProcessor<D, S> extends AbstractCommandProcessor
         meta.add(MetaKey.DESCRIPTION, getDescription());
 
         // Process all the class annotations
-        processAnnotations(getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);
-        processCommandMeta(getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);
+        processAnnotations(getCommandOptions().getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);
+        processCommandMeta(getCommandOptions().getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);
         // Return modified meta
         return meta.build();
     }

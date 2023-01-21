@@ -24,9 +24,12 @@
 package dev.triumphteam.cmd.bukkit;
 
 import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.command.ExecutableCommand;
-import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
+import dev.triumphteam.cmd.core.extention.ValidationResult;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -45,12 +48,19 @@ class BukkitSenderExtension implements SenderExtension.Default<CommandSender> {
     }
 
     @Override
-    public boolean validate(
-            final @NotNull MessageRegistry<CommandSender> messageRegistry,
-            final @NotNull ExecutableCommand<CommandSender> command,
+    public @NotNull ValidationResult<@NotNull MessageKey<@NotNull MessageContext>> validate(
+            final @NotNull CommandMeta meta,
+            final @NotNull Class<?> allowedSender,
             final @NotNull CommandSender sender
     ) {
-        // TODO
-        return true;
+        if (Player.class.isAssignableFrom(allowedSender) && !(sender instanceof Player)) {
+            return SenderExtension.invalid(BukkitMessageKey.PLAYER_ONLY);
+        }
+
+        if (ConsoleCommandSender.class.isAssignableFrom(allowedSender) && !(sender instanceof ConsoleCommandSender)) {
+            return SenderExtension.invalid(BukkitMessageKey.CONSOLE_ONLY);
+        }
+
+        return SenderExtension.valid();
     }
 }

@@ -24,27 +24,28 @@
 package dev.triumphteam.cmd.core.extention.argument;
 
 import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.extention.ValidationResult;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
 public interface ArgumentValidator<S> {
 
-    ArgumentValidationResult validate(
+    ValidationResult<String> validate(
             final @NotNull CommandMeta meta,
             final @NotNull InternalArgument<S, ?> argument,
             final int position,
             final int last
     );
 
-    default ArgumentValidationResult invalid(final @NotNull String message) {
-        return new ArgumentValidationResult.Invalid(message);
+    default ValidationResult<String> invalid(final @NotNull String message) {
+        return new ValidationResult.Invalid<>(message);
     }
 
-    default ArgumentValidationResult valid() {
-        return new ArgumentValidationResult.Valid();
+    default ValidationResult<String> valid() {
+        return new ValidationResult.Valid<>();
     }
 
-    default ArgumentValidationResult ignore() {
-        return new ArgumentValidationResult.Ignore();
+    default ValidationResult<String> ignore() {
+        return new ValidationResult.Ignore<>();
     }
 }

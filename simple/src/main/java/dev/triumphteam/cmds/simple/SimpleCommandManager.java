@@ -72,7 +72,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         final RootCommandProcessor<S, S> processor = new RootCommandProcessor<>(
                 command,
                 getRegistryContainer(),
-                getCommandOptions().getCommandExtensions()
+                getCommandOptions()
         );
 
         final String name = processor.getName();

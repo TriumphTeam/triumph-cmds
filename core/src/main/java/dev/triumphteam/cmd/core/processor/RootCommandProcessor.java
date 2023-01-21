@@ -36,7 +36,7 @@ import dev.triumphteam.cmd.core.command.ExecutableCommand;
 import dev.triumphteam.cmd.core.command.ParentSubCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
@@ -66,13 +66,13 @@ public class RootCommandProcessor<D, S> implements CommandProcessor {
     private final List<String> alias;
     private final String description;
 
-    private final CommandExtensions<D, S> commandExtensions;
+    private final CommandOptions<D, S> commandOptions;
     private final RegistryContainer<D, S> registryContainer;
 
     public RootCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandExtensions<D, S> commandExtensions
+            final @NotNull CommandOptions<D, S> commandOptions
     ) {
         this.invocationInstance = invocationInstance;
 
@@ -81,7 +81,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor {
         this.description = descriptionOf();
 
         this.registryContainer = registryContainer;
-        this.commandExtensions = commandExtensions;
+        this.commandOptions = commandOptions;
 
         this.syntax = invocationInstance.getClass().getAnnotation(Syntax.class);
     }
@@ -113,8 +113,8 @@ public class RootCommandProcessor<D, S> implements CommandProcessor {
 
         // Process all the class annotations
         final Class<?> klass = invocationInstance.getClass();
-        processAnnotations(commandExtensions, klass, ProcessorTarget.ROOT_COMMAND, meta);
-        processCommandMeta(commandExtensions, klass, ProcessorTarget.PARENT_COMMAND, meta);
+        processAnnotations(commandOptions.getCommandExtensions(), klass, ProcessorTarget.ROOT_COMMAND, meta);
+        processCommandMeta(commandOptions.getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);
         // Return modified meta
         return meta.build();
     }
@@ -142,7 +142,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor {
                     invocationInstance,
                     method,
                     registryContainer,
-                    commandExtensions,
+                    commandOptions,
                     parentCommand.getMeta()
             );
 
@@ -169,7 +169,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor {
                     invocationInstance,
                     klass,
                     registryContainer,
-                    commandExtensions,
+                    commandOptions,
                     parentCommand.getMeta()
             );
 

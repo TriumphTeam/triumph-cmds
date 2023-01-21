@@ -29,14 +29,14 @@ import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.annotations.Requirements;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
-import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentGroup;
+import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
+import dev.triumphteam.cmd.core.extention.ValidationResult;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.FlagRegistry;
@@ -89,10 +89,10 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandExtensions<D, S> commandExtensions,
+            final @NotNull CommandOptions<D, S> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
-        super(invocationInstance, method, registryContainer, commandExtensions, parentMeta);
+        super(invocationInstance, method, registryContainer, commandOptions, parentMeta);
 
         this.method = method;
         this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
@@ -109,8 +109,8 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
         meta.add(MetaKey.DESCRIPTION, getDescription());
 
         // Process all the class annotations
-        processAnnotations(getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
-        processCommandMeta(getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
+        processAnnotations(getCommandOptions().getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
+        processCommandMeta(getCommandOptions().getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
         // Return modified meta
         return meta.build();
     }
@@ -128,7 +128,7 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
         }
 
         final Class<?> type = parameters[0].getType();
-        final Set<Class<? extends S>> allowedSenders = getCommandExtensions().getSenderExtension().getAllowedSenders();
+        final Set<Class<? extends S>> allowedSenders = getCommandOptions().getSenderExtension().getAllowedSenders();
 
         if (!allowedSenders.contains(type)) {
             throw createException(
@@ -157,7 +157,7 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
         final Map<Parameter, CommandMeta> parameterMetas = new HashMap<>();
         for (final Parameter parameter : parameters) {
             final CommandMeta.Builder meta = new CommandMeta.Builder(parentMeta);
-            processAnnotations(getCommandExtensions(), parameter, ProcessorTarget.ARGUMENT, meta);
+            processAnnotations(getCommandOptions().getCommandExtensions(), parameter, ProcessorTarget.ARGUMENT, meta);
             parameterMetas.put(parameter, meta.build());
         }
 
@@ -192,15 +192,15 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
             if (meta == null) {
                 throw createException("An error occurred while getting parameter meta data for parameter " + parameter.getName());
             }
-            final ArgumentValidationResult result = getCommandExtensions().getArgumentValidator().validate(meta, argument, i, last);
+            final ValidationResult<String> result = getCommandOptions().getCommandExtensions().getArgumentValidator().validate(meta, argument, i, last);
 
             // If the result is invalid we throw the exception with the passed message
-            if (result instanceof ArgumentValidationResult.Invalid) {
-                throw createException(((ArgumentValidationResult.Invalid) result).getMessage());
+            if (result instanceof ValidationResult.Invalid) {
+                throw createException(((ValidationResult.Invalid<String>) result).getMessage());
             }
 
             // If it's ignorable we ignore it and don't add to the argument list
-            if (result instanceof ArgumentValidationResult.Ignore) continue;
+            if (result instanceof ValidationResult.Ignore) continue;
 
             // If valid argument then add to list
             arguments.add(argument);

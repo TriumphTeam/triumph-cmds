@@ -36,20 +36,20 @@ import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
 import dev.triumphteam.cmd.core.argument.EnumInternalArgument;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.JoinedStringInternalArgument;
-import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import dev.triumphteam.cmd.core.argument.keyed.Keyed;
-import dev.triumphteam.cmd.core.argument.keyed.KeyedInternalArgument;
 import dev.triumphteam.cmd.core.argument.ResolverInternalArgument;
 import dev.triumphteam.cmd.core.argument.SplitStringInternalArgument;
+import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
-import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentGroup;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
+import dev.triumphteam.cmd.core.argument.keyed.Flags;
+import dev.triumphteam.cmd.core.argument.keyed.Keyed;
+import dev.triumphteam.cmd.core.argument.keyed.KeyedInternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.ListArgument;
 import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
@@ -100,14 +100,14 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor {
     private final SuggestionRegistry<S> suggestionRegistry;
     private final ArgumentRegistry<S> argumentRegistry;
 
-    private final CommandExtensions<D, S> commandExtensions;
+    private final CommandOptions<D, S> commandOptions;
     private final CommandMeta parentMeta;
 
     AbstractCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull AnnotatedElement annotatedElement,
             final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandExtensions<D, S> commandExtensions,
+            final @NotNull CommandOptions<D, S> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         this.invocationInstance = invocationInstance;
@@ -116,7 +116,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor {
         this.description = descriptionOf();
         this.parentMeta = parentMeta;
 
-        this.commandExtensions = commandExtensions;
+        this.commandOptions = commandOptions;
         this.registryContainer = registryContainer;
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
         this.argumentRegistry = registryContainer.getArgumentRegistry();
@@ -128,8 +128,8 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor {
         return registryContainer;
     }
 
-    public @NotNull CommandExtensions<D, S> getCommandExtensions() {
-        return commandExtensions;
+    public @NotNull CommandOptions<D, S> getCommandOptions() {
+        return commandOptions;
     }
 
     protected @NotNull CommandMeta getParentMeta() {

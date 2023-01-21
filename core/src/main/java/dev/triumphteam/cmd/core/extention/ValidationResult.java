@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,25 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.extention.argument;
+package dev.triumphteam.cmd.core.extention;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface ArgumentValidationResult {
+public interface ValidationResult<E> {
 
-    class Valid implements ArgumentValidationResult {}
+    class Valid<E> implements ValidationResult<E> {}
 
-    class Ignore implements ArgumentValidationResult {}
+    class Ignore<E> implements ValidationResult<E> {}
 
-    class Invalid implements ArgumentValidationResult {
+    class Invalid<E> implements ValidationResult<E> {
 
-        private final String message;
+        private final E message;
 
-        public Invalid(final @NotNull String message) {
+        public Invalid(final @NotNull E message) {
             this.message = message;
         }
 
-        public @NotNull String getMessage() {
+        public @NotNull E getMessage() {
             return message;
         }
     }

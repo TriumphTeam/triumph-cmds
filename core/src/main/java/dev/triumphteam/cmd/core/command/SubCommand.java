@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,13 +28,16 @@ import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.ValidationResult;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.BasicMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
@@ -82,9 +85,11 @@ public class SubCommand<D, S> implements ExecutableCommand<S> {
 
         this.containsLimitless = arguments.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
 
+        final CommandOptions<D, S> commandOptions = processor.getCommandOptions();
+
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
-        this.senderExtension = processor.getCommandExtensions().getSenderExtension();
-        this.commandExecutor = processor.getCommandExtensions().getCommandExecutor();
+        this.senderExtension = commandOptions.getSenderExtension();
+        this.commandExecutor = commandOptions.getCommandExtensions().getCommandExecutor();
 
         this.syntax = createSyntax(parentCommand, processor);
     }
@@ -97,7 +102,19 @@ public class SubCommand<D, S> implements ExecutableCommand<S> {
             final @NotNull List<String> commandPath,
             final @NotNull List<String> arguments
     ) throws Throwable {
-        if (!senderExtension.validate(messageRegistry, this, sender)) return;
+        final ValidationResult<MessageKey<MessageContext>> validationResult = senderExtension.validate(meta, senderType, sender);
+
+        // If the result is invalid for a reason given by the validator, we stop the execution and use its key to send
+        // a message to the sender
+        if (validationResult instanceof ValidationResult.Invalid) {
+            messageRegistry.sendMessage(
+                    ((ValidationResult.Invalid<MessageKey<MessageContext>>) validationResult).getMessage(),
+                    sender,
+                    new BasicMessageContext(meta, syntax)
+            );
+            return;
+        }
+
         if (!meetRequirements(sender)) return;
 
         // Creates the invoking arguments list

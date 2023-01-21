@@ -26,7 +26,7 @@ package dev.triumphteam.cmd.core.extention.defaults;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument;
-import dev.triumphteam.cmd.core.extention.argument.ArgumentValidationResult;
+import dev.triumphteam.cmd.core.extention.ValidationResult;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 public class DefaultArgumentValidator<S> implements ArgumentValidator<S> {
 
     @Override
-    public ArgumentValidationResult validate(
+    public ValidationResult validate(
             final @NotNull CommandMeta data,
             final @NotNull InternalArgument<S, ?> argument,
             final int position,
