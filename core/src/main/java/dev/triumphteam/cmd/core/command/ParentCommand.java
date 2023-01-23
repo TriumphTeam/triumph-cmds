@@ -42,15 +42,15 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public abstract class ParentCommand<D, S> implements Command {
+public abstract class ParentCommand<D, S> implements Command<S> {
 
-    private final Map<String, ExecutableCommand<S>> commands = new HashMap<>();
-    private final Map<String, ExecutableCommand<S>> commandAliases = new HashMap<>();
+    private final Map<String, Command<S>> commands = new HashMap<>();
+    private final Map<String, Command<S>> commandAliases = new HashMap<>();
 
     private final CommandMeta meta;
 
     // Single parent command with argument
-    private ExecutableCommand<S> parentCommandWithArgument;
+    private Command<S> parentCommandWithArgument;
 
     private final MessageRegistry<S> messageRegistry;
 
@@ -62,14 +62,19 @@ public abstract class ParentCommand<D, S> implements Command {
     /**
      * Add a new command to the maps.
      *
-     * @param command The sub command to be added.
-     * @param isAlias Whether it is an alias.
+     * @param instance The instance of the command the commands came from.
+     * @param command  The sub command to be added.
+     * @param isAlias  Whether it is an alias.
      */
-    public void addSubCommand(final @NotNull ExecutableCommand<S> command, final boolean isAlias) {
+    public void addCommand(
+            final @NotNull Object instance,
+            final @NotNull Command<S> command,
+            final boolean isAlias
+    ) {
         // If it's a parent command with argument we add it
         if (command instanceof ParentSubCommand && command.hasArguments()) {
             if (parentCommandWithArgument != null) {
-                throw new CommandRegistrationException("Only one inner command with argument is allowed per command", command.getInvocationInstance().getClass());
+                throw new CommandRegistrationException("Only one inner command with argument is allowed per command", instance.getClass());
             }
 
             parentCommandWithArgument = command;
@@ -87,14 +92,14 @@ public abstract class ParentCommand<D, S> implements Command {
         return false;
     }
 
-    protected @Nullable ExecutableCommand<S> findCommand(
+    protected @Nullable Command<S> findCommand(
             final @NotNull S sender,
             final @NotNull Deque<String> arguments
     ) {
         final String name = arguments.peek();
 
         // Instant check for default
-        final ExecutableCommand<S> defaultCommand = getDefaultCommand();
+        final Command<S> defaultCommand = getDefaultCommand();
 
         // No argument passed
         if (name == null) {
@@ -107,7 +112,7 @@ public abstract class ParentCommand<D, S> implements Command {
             return defaultCommand;
         }
 
-        final ExecutableCommand<S> command = getCommandByName(name);
+        final Command<S> command = getCommandByName(name);
         if (command != null) {
             // Pop command out of arguments list and returns it
             arguments.pop();
@@ -128,11 +133,11 @@ public abstract class ParentCommand<D, S> implements Command {
         return defaultCommand;
     }
 
-    protected @Nullable ExecutableCommand<S> getDefaultCommand() {
+    protected @Nullable Command<S> getDefaultCommand() {
         return commands.get(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
     }
 
-    protected @Nullable ExecutableCommand<S> getCommandByName(final @NotNull String key) {
+    protected @Nullable Command<S> getCommandByName(final @NotNull String key) {
         return commands.getOrDefault(key, commandAliases.get(key));
     }
 

@@ -33,7 +33,7 @@ import java.util.Deque;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class RootCommand<D, S> extends ParentCommand<D, S> implements ExecutableCommand<S> {
+public class RootCommand<D, S> extends ParentCommand<D, S> {
 
     private final String name;
     private final String syntax;
@@ -52,7 +52,7 @@ public class RootCommand<D, S> extends ParentCommand<D, S> implements Executable
             final @NotNull Deque<String> arguments,
             final @NotNull Map<String, Object> extra
     ) {
-        final ExecutableCommand<S> command = findCommand(sender, arguments);
+        final Command<S> command = findCommand(sender, arguments);
         if (command == null) return;
 
         // Executing the command and catch all exceptions to rethrow with better message
@@ -77,11 +77,6 @@ public class RootCommand<D, S> extends ParentCommand<D, S> implements Executable
     @Override
     public @NotNull String getSyntax() {
         return syntax;
-    }
-
-    @Override
-    public @NotNull Object getInvocationInstance() {
-        return null;
     }
 
     @Override

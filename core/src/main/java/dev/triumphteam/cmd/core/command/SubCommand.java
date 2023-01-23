@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class SubCommand<D, S> implements ExecutableCommand<S> {
+public class SubCommand<D, S> implements Command<S> {
 
     private final Class<? extends S> senderType;
     private final List<InternalArgument<S, ?>> arguments;
@@ -75,7 +75,7 @@ public class SubCommand<D, S> implements ExecutableCommand<S> {
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull SubCommandProcessor<D, S> processor,
-            final @NotNull Command parentCommand
+            final @NotNull Command<S> parentCommand
     ) {
         this.invocationInstance = invocationInstance;
         this.method = method;
@@ -152,11 +152,6 @@ public class SubCommand<D, S> implements ExecutableCommand<S> {
     @Override
     public @NotNull String getSyntax() {
         return syntax;
-    }
-
-    @Override
-    public @NotNull Object getInvocationInstance() {
-        return invocationInstance;
     }
 
     @Override

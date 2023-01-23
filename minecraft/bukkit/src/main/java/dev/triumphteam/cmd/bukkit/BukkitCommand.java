@@ -23,42 +23,27 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
+import dev.triumphteam.cmd.core.command.RootCommand;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collections;
 
 final class BukkitCommand<S> extends Command {
-    protected BukkitCommand(@NotNull final String name, @NotNull final String description, @NotNull final String usageMessage, @NotNull final List<String> aliases) {
-        super(name, description, usageMessage, aliases);
-    }
 
-    @Override
-    public boolean execute(@NotNull final CommandSender sender, @NotNull final String commandLabel, @NotNull final String[] args) {
-        return false;
-    }
+    private final RootCommand<CommandSender, S> rootCommand;
+    private final SenderExtension<CommandSender, S> senderExtension;
 
-    /*private final Map<String, ExecutableCommand<S>> commands = new HashMap<>();
+    BukkitCommand(final @NotNull RootCommandProcessor<CommandSender, S> processor) {
+        super(processor.getName(), processor.getDescription(), "", processor.getAlias());
 
-    private final MessageRegistry<S> messageRegistry;
-    private final String syntax;
-
-    private final CommandMeta meta;
-    private ExecutableCommand<S> parentCommandWithArgument;
-    private SenderExtension<CommandSender, S> senderExtension;
-
-    BukkitCommand(
-            final @NotNull RootCommandProcessor<CommandSender, S> processor,
-            final @NotNull MessageRegistry<S> messageRegistry
-    ) {
-        super(processor.getName());
-
-        this.messageRegistry = messageRegistry;
-        this.meta = processor.createMeta();
+        this.rootCommand = new RootCommand<>(processor);
         this.senderExtension = processor.getCommandOptions().getSenderExtension();
-
-        this.syntax = "/" + getName();
     }
 
     @Override
@@ -67,58 +52,16 @@ final class BukkitCommand<S> extends Command {
             @NotNull final String commandLabel,
             @NotNull final String[] args
     ) {
-        final List<String> arguments = Arrays.asList(args);
-
-        // TODO COMPOSITION OVER INHERITANCE TO REDUCE REPETITION
-
-        final String commandName = nameFromArguments(arguments);
-        final ExecutableCommand<S> subCommand = getSubCommand(commandName, arguments.size());
-
-        final S mappedSender = senderExtension.map(sender);
-
-        if (subCommand == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new InvalidCommandContext(meta, commandName));
-            return true;
-        }
-
-        // Executing the subcommand.
-        try {
-            subCommand.execute(
-                    mappedSender,
-                    commandName,
-                    null,
-                    !subCommand.isDefault() ? arguments.subList(1, arguments.size()) : arguments
-            );
-        } catch (final @NotNull Throwable exception) {
-            throw new CommandExecutionException("An error occurred while executing the command")
-                    .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
-        }
-
+        rootCommand.execute(
+                senderExtension.map(sender),
+                null,
+                new ArrayDeque<>(Arrays.asList(args)),
+                Collections.emptyMap()
+        );
         return true;
     }
 
-    @Override
-    public @NotNull String getSyntax() {
-        return syntax;
+    public @NotNull RootCommand<CommandSender, S> getRootCommand() {
+        return rootCommand;
     }
-
-    @Override
-    public @NotNull Map<String, ExecutableCommand<S>> getCommands() {
-        return commands;
-    }
-
-    @Override
-    public @NotNull Map<String, ExecutableCommand<S>> getCommandAliases() {
-        return commands;
-    }
-
-    @Override
-    public @Nullable ExecutableCommand<S> getParentCommandWithArgument() {
-        return parentCommandWithArgument;
-    }
-
-    @Override
-    public @NotNull CommandMeta getMeta() {
-        return meta;
-    }*/
 }

@@ -25,13 +25,26 @@ package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Deque;
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Representation of a command.
  * Not all commands are executable directly.
  * Some implementations will have listeners inside that'll trigger the execution.
  */
-public interface Command extends CommandMetaContainer {
+public interface Command<S> extends CommandMetaContainer {
+
+    // TODO
+    void execute(
+            final @NotNull S sender,
+            final @Nullable Supplier<Object> instanceSupplier,
+            final @NotNull Deque<String> arguments,
+            final @NotNull Map<String, Object> extra
+    ) throws Throwable;
 
     /**
      * @return The name of the comamnd.

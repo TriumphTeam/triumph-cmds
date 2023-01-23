@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.CommandManager;
+import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
@@ -192,7 +193,8 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         }
 
         final BukkitCommand<S> newBukkitCommand = createAndRegisterCommand(processor, name);
-        // processor.commands(newBukkitCommand).forEach(it -> newBukkitCommand.addSubCommand(it, false));
+        final RootCommand<CommandSender, S> rootCommand = newBukkitCommand.getRootCommand();
+        processor.commands(rootCommand).forEach(it -> rootCommand.addCommand(command, it, false));
 
         // Command does not exist, proceed to add new!
 
@@ -231,9 +233,8 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             oldCommand.unregister(commandMap);
         }
 
-        /*final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, registryContainer.getMessageRegistry());
+        final BukkitCommand<S> newCommand = new BukkitCommand<>(processor);
         commandMap.register(plugin.getName(), newCommand);
-        return newCommand;*/
-        return null;
+        return newCommand;
     }
 }

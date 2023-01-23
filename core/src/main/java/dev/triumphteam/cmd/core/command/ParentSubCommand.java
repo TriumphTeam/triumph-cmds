@@ -49,7 +49,7 @@ import java.util.function.Supplier;
  *
  * @param <S> The sender type to be used.
  */
-public class ParentSubCommand<D, S> extends ParentCommand<D, S> implements ExecutableCommand<S> {
+public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
 
     private final String name;
     private final String syntax;
@@ -117,7 +117,7 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> implements Execu
             instance = createInstance(instanceSupplier);
         }
 
-        final ExecutableCommand<S> command = findCommand(sender, arguments);
+        final Command<S> command = findCommand(sender, arguments);
         if (command == null) return;
 
         // Simply execute the command with the given instance
@@ -187,11 +187,6 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> implements Execu
     @Override
     public @NotNull String getSyntax() {
         return syntax;
-    }
-
-    @Override
-    public @NotNull Object getInvocationInstance() {
-        return invocationInstance;
     }
 
     @Override

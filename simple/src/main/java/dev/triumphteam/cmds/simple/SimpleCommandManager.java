@@ -88,12 +88,12 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
         // Command does not exist, proceed to add new!
         final RootCommand<S, S> newSimpleCommand = commands.computeIfAbsent(processor.getName(), it -> new RootCommand<>(processor));
-        processor.commands(newSimpleCommand).forEach(it -> newSimpleCommand.addSubCommand(it, false));
+        processor.commands(newSimpleCommand).forEach(it -> newSimpleCommand.addCommand(command, it, false));
 
         processor.getAlias().forEach(it -> {
             final RootCommand<S, S> aliasCommand = commands.computeIfAbsent(it, ignored -> new RootCommand<>(processor));
             // Adding sub commands.
-            processor.commands(aliasCommand).forEach(sub -> aliasCommand.addSubCommand(sub, false));
+            processor.commands(aliasCommand).forEach(sub -> aliasCommand.addCommand(command, sub, false));
         });
     }
 
