@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ import java.util.List;
  *
  * @param <S> The sender type.
  */
-public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, List<String>> {
+public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, Collection<String>> {
 
     public LimitlessInternalArgument(
             final @NotNull String name,

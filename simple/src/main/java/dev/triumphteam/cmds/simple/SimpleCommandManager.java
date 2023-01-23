@@ -36,6 +36,8 @@ import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,11 +86,11 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         }
 
         // Command does not exist, proceed to add new!
-        final SimpleCommand<S> newSimpleCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
+        final SimpleCommand<S> newSimpleCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor));
         processor.commands(newSimpleCommand).forEach(it -> newSimpleCommand.addSubCommand(it, false));
 
         processor.getAlias().forEach(it -> {
-            final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor, getRegistryContainer().getMessageRegistry()));
+            final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor));
             // Adding sub commands.
             processor.commands(aliasCommand).forEach(sub -> aliasCommand.addSubCommand(sub, false));
         });
@@ -128,6 +130,6 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
             return;
         }
 
-        command.execute(sender, args.subList(1, args.size()));
+        command.execute(sender, null, new ArrayDeque<>(args.subList(1, args.size())), Collections.emptyMap());
     }
 }

@@ -30,6 +30,7 @@ import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -70,7 +71,7 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull List<String> value
+            final @NotNull Collection<String> value
     ) {
         final Stream<Object> stream = value.stream().map(arg -> internalArgument.resolve(sender, arg));
         if (collectionType == Set.class) return success(stream.collect(Collectors.toSet()));

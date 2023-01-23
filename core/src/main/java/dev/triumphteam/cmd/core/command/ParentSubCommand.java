@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,13 +26,10 @@ package dev.triumphteam.cmd.core.command;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import dev.triumphteam.cmd.core.processor.ParentCommandProcessor;
 import org.jetbrains.annotations.NotNull;
@@ -40,8 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Deque;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -53,24 +49,16 @@ import java.util.function.Supplier;
  *
  * @param <S> The sender type to be used.
  */
-public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableCommand<S> {
-
-    private final Map<String, ExecutableCommand<S>> commands = new HashMap<>();
-    private final Map<String, ExecutableCommand<S>> commandAliases = new HashMap<>();
+public class ParentSubCommand<D, S> extends ParentCommand<D, S> implements ExecutableCommand<S> {
 
     private final String name;
     private final String syntax;
-    private final CommandMeta meta;
 
     private final Object invocationInstance;
     private final Constructor<?> constructor;
     private final boolean isStatic;
     private final StringInternalArgument<S> argument;
     private final boolean hasArgument;
-    private final MessageRegistry<S> messageRegistry;
-
-    // Single parent command with argument
-    private ExecutableCommand<S> parentCommandWithArgument;
 
     public ParentSubCommand(
             final @NotNull Object invocationInstance,
@@ -80,6 +68,8 @@ public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableComma
             final @NotNull ParentCommandProcessor<D, S> processor,
             final @NotNull Command parentCommand
     ) {
+        super(processor);
+
         this.invocationInstance = invocationInstance;
         this.constructor = constructor;
         this.isStatic = isStatic;
@@ -87,58 +77,31 @@ public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableComma
         this.hasArgument = argument != null;
 
         this.name = processor.getName();
-        this.meta = processor.createMeta();
-        this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
-
         this.syntax = createSyntax(parentCommand, processor);
-    }
-
-    @Override
-    public void addSubCommand(final @NotNull ExecutableCommand<S> subCommand, final boolean isAlias) {
-        // If it's a parent command with argument we add it
-        if (subCommand instanceof ParentSubCommand && subCommand.hasArguments()) {
-            if (parentCommandWithArgument != null) {
-                throw new CommandRegistrationException("Only one inner command with argument is allowed per command", invocationInstance.getClass());
-            }
-
-            parentCommandWithArgument = subCommand;
-            return;
-        }
-
-        // Normal commands are added here
-        commands.put(subCommand.getName(), subCommand);
     }
 
     @Override
     public void execute(
             final @NotNull S sender,
-            final @NotNull String command,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull List<String> arguments
+            final @NotNull Deque<String> arguments,
+            final @NotNull Map<String, Object> extra
     ) throws Throwable {
-        final int argumentSize = arguments.size();
-
-        final String commandName = nameFromArguments(arguments);
-        final ExecutableCommand<S> subCommand = getSubCommand(commandName, argumentSize);
-
-        if (subCommand == null) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, commandName));
-            return;
-        }
-
+        // First we handle the argument if there is any
         final Object instance;
-
         if (hasArgument) {
-            final @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> result =
-                    argument.resolve(sender, command);
+            final String argumentName = arguments.peek() == null ? "" : arguments.pop();
+
+            final @NotNull Result<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>> result =
+                    argument.resolve(sender, argumentName);
 
             if (result instanceof Result.Failure) {
-                messageRegistry.sendMessage(
+                getMessageRegistry().sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
                         ((Result.Failure<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result)
                                 .getFail()
-                                .apply(meta, syntax)
+                                .apply(getMeta(), syntax)
                 );
                 return;
             }
@@ -154,11 +117,15 @@ public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableComma
             instance = createInstance(instanceSupplier);
         }
 
-        subCommand.execute(
+        final ExecutableCommand<S> command = findCommand(sender, arguments);
+        if (command == null) return;
+
+        // Simply execute the command with the given instance
+        command.execute(
                 sender,
-                commandName,
                 () -> instance,
-                !subCommand.isDefault() && !arguments.isEmpty() ? arguments.subList(1, arguments.size()) : arguments
+                arguments,
+                extra
         );
     }
 
@@ -198,7 +165,8 @@ public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableComma
         return constructor.newInstance(argumentValue);
     }
 
-    private @NotNull String createSyntax(final @NotNull Command parentCommand, final @NotNull CommandProcessor processor) {
+    private @NotNull String createSyntax(final @NotNull Command parentCommand,
+            final @NotNull CommandProcessor<D, S> processor) {
         final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
         if (syntaxAnnotation != null) return syntaxAnnotation.value();
 
@@ -227,27 +195,7 @@ public class ParentSubCommand<D, S> implements ParentCommand<S>, ExecutableComma
     }
 
     @Override
-    public @Nullable ExecutableCommand<S> getParentCommandWithArgument() {
-        return parentCommandWithArgument;
-    }
-
-    @Override
     public boolean hasArguments() {
         return argument != null;
-    }
-
-    @Override
-    public @NotNull Map<String, ExecutableCommand<S>> getCommands() {
-        return commands;
-    }
-
-    @Override
-    public @NotNull Map<String, ExecutableCommand<S>> getCommandAliases() {
-        return commandAliases;
-    }
-
-    @Override
-    public @NotNull CommandMeta getMeta() {
-        return meta;
     }
 }

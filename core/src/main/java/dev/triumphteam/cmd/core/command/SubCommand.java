@@ -47,7 +47,9 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -97,9 +99,9 @@ public class SubCommand<D, S> implements ExecutableCommand<S> {
     @Override
     public void execute(
             final @NotNull S sender,
-            final @NotNull String command,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull List<String> arguments
+            final @NotNull Deque<String> arguments,
+            final @NotNull Map<String, Object> extra
     ) throws Throwable {
         final ValidationResult<MessageKey<MessageContext>> validationResult = senderExtension.validate(meta, senderType, sender);
 
@@ -179,20 +181,18 @@ public class SubCommand<D, S> implements ExecutableCommand<S> {
     private boolean validateAndCollectArguments(
             final @NotNull S sender,
             final @NotNull List<Object> invokeArguments,
-            final @NotNull List<String> commandArgs
+            final @NotNull Deque<String> commandArgs
     ) {
-        for (int i = 0; i < arguments.size(); i++) {
-            final InternalArgument<S, ?> internalArgument = arguments.get(i);
-
+        for (final InternalArgument<S, ?> internalArgument : arguments) {
             final @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> result;
             if (internalArgument instanceof LimitlessInternalArgument) {
                 final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
-                final List<String> leftOvers = leftOvers(commandArgs, i);
 
-                result = limitlessArgument.resolve(sender, leftOvers);
+                // From this point on [commandArgs] is treated as a simple Collection instead of Deque
+                result = limitlessArgument.resolve(sender, commandArgs);
             } else if (internalArgument instanceof StringInternalArgument) {
                 final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
-                final String arg = valueOrNull(commandArgs, i);
+                final String arg = commandArgs.peek();
 
                 if (arg == null || arg.isEmpty()) {
                     if (internalArgument.isOptional()) {
@@ -204,6 +204,8 @@ public class SubCommand<D, S> implements ExecutableCommand<S> {
                     return false;
                 }
 
+                // Pop the command out
+                commandArgs.pop();
                 result = stringArgument.resolve(sender, arg);
             } else {
                 // Should never happen, this should be a sealed type ... but hey, it's Java 8

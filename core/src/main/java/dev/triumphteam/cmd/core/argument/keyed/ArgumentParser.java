@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.argument.keyed;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +58,7 @@ final class ArgumentParser {
      * @param arguments A {@link List} of raw arguments.
      * @return A {@link Result} object containing the raw results of the parse.
      */
-    public Result parse(final @NotNull List<String> arguments) {
+    public Result parse(final @NotNull Collection<String> arguments) {
         final Iterator<String> tokens = arguments.iterator();
 
         final Result result = new Result();

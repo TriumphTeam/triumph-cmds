@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.message.context;
 
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Context for when user types an invalid argument based on its type.
@@ -38,7 +39,7 @@ public final class InvalidArgumentContext extends InvalidInputContext {
     public InvalidArgumentContext(
             final @NotNull CommandMeta meta,
             final @NotNull String syntax,
-            final @NotNull String invalidInput,
+            final @Nullable String invalidInput,
             final @NotNull String name,
             final @NotNull Class<?> type
     ) {

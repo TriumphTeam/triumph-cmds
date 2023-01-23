@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +58,7 @@ public final class NamedInternalArgument<S> extends LimitlessInternalArgument<S>
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull List<String> value
+            final @NotNull Collection<String> value
     ) {
         final Map<String, String> parsedArgs = Collections.emptyMap();// ArgumentParser.parse(String.join(" ", value));
         final Map<String, Object> mapped = new HashMap<>(parsedArgs.size());

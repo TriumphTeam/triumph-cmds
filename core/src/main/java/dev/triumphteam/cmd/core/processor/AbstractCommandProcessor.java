@@ -124,6 +124,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         this.syntax = annotatedElement.getAnnotation(Syntax.class);
     }
 
+    @Override
     public @NotNull RegistryContainer<D, S> getRegistryContainer() {
         return registryContainer;
     }

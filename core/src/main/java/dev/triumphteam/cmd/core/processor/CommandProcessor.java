@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +47,8 @@ public interface CommandProcessor<D, S> {
     @NotNull CommandMeta createMeta();
 
     @NotNull CommandOptions<D, S> getCommandOptions();
+
+    @NotNull RegistryContainer<D, S> getRegistryContainer();
 
     @Nullable Syntax getSyntaxAnnotation();
 

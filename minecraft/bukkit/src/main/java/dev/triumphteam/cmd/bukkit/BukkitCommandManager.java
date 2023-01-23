@@ -192,7 +192,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         }
 
         final BukkitCommand<S> newBukkitCommand = createAndRegisterCommand(processor, name);
-        processor.commands(newBukkitCommand).forEach(it -> newBukkitCommand.addSubCommand(it, false));
+        // processor.commands(newBukkitCommand).forEach(it -> newBukkitCommand.addSubCommand(it, false));
 
         // Command does not exist, proceed to add new!
 
@@ -231,8 +231,9 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             oldCommand.unregister(commandMap);
         }
 
-        final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, registryContainer.getMessageRegistry());
+        /*final BukkitCommand<S> newCommand = new BukkitCommand<>(processor, registryContainer.getMessageRegistry());
         commandMap.register(plugin.getName(), newCommand);
-        return newCommand;
+        return newCommand;*/
+        return null;
     }
 }

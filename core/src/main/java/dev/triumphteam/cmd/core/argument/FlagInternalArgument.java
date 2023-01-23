@@ -23,9 +23,9 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentGroup;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
+import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public final class FlagInternalArgument<S> extends LimitlessInternalArgument<S> 
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull List<String> value
+            final @NotNull Collection<String> value
     ) {
         return null;// flagParser.parse(sender, value.size() == 1 ? Arrays.asList(value.get(0).split(" ")) : value);
     }

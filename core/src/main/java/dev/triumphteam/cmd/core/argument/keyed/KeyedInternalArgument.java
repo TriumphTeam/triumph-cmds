@@ -33,6 +33,7 @@ import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +76,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull List<String> value
+            final @NotNull Collection<String> value
     ) {
         final ArgumentParser.Result result = argumentParser.parse(value);
 

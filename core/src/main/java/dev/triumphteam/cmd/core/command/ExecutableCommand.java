@@ -26,7 +26,8 @@ package dev.triumphteam.cmd.core.command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Deque;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -40,15 +41,14 @@ public interface ExecutableCommand<S> extends Command {
      * Executes this command.
      *
      * @param sender           The sender of the command.
-     * @param command          The command typed.
      * @param instanceSupplier The instance supplier for execution.
      * @param arguments        The list of arguments passed.
      */
     void execute(
             final @NotNull S sender,
-            final @NotNull String command,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull List<String> arguments
+            final @NotNull Deque<String> arguments,
+            final @NotNull Map<String, Object> extra
     ) throws Throwable;
 
     /**

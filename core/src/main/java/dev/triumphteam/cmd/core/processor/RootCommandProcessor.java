@@ -104,6 +104,11 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
     }
 
     @Override
+    public @NotNull RegistryContainer<D, S> getRegistryContainer() {
+        return registryContainer;
+    }
+
+    @Override
     public @Nullable Syntax getSyntaxAnnotation() {
         return syntax;
     }
