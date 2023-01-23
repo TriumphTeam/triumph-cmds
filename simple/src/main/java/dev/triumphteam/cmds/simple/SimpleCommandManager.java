@@ -24,6 +24,7 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.CommandManager;
+import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
@@ -45,7 +46,7 @@ import java.util.function.Consumer;
 
 public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
-    private final Map<String, SimpleCommand<S>> commands = new HashMap<>();
+    private final Map<String, RootCommand<S, S>> commands = new HashMap<>();
 
     private final RegistryContainer<S, S> registryContainer = new RegistryContainer<>();
 
@@ -79,18 +80,18 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
         final String name = processor.getName();
 
-        final SimpleCommand<S> simpleCommand = commands.get(name);
+        final RootCommand<S, S> simpleCommand = commands.get(name);
         if (simpleCommand != null) {
             // TODO: Command exists, only care about adding subs
             return;
         }
 
         // Command does not exist, proceed to add new!
-        final SimpleCommand<S> newSimpleCommand = commands.computeIfAbsent(processor.getName(), it -> new SimpleCommand<>(processor));
+        final RootCommand<S, S> newSimpleCommand = commands.computeIfAbsent(processor.getName(), it -> new RootCommand<>(processor));
         processor.commands(newSimpleCommand).forEach(it -> newSimpleCommand.addSubCommand(it, false));
 
         processor.getAlias().forEach(it -> {
-            final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> new SimpleCommand<>(processor));
+            final RootCommand<S, S> aliasCommand = commands.computeIfAbsent(it, ignored -> new RootCommand<>(processor));
             // Adding sub commands.
             processor.commands(aliasCommand).forEach(sub -> aliasCommand.addSubCommand(sub, false));
         });
@@ -119,7 +120,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
         if (args.isEmpty()) return;
         final String commandName = args.get(0);
 
-        final SimpleCommand<S> command = commands.get(commandName);
+        final RootCommand<S, S> command = commands.get(commandName);
         if (command == null) {
             registryContainer.getMessageRegistry().sendMessage(
                     MessageKey.UNKNOWN_COMMAND,
