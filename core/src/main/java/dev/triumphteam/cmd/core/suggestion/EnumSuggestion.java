@@ -42,7 +42,11 @@ public final class EnumSuggestion<S> implements Suggestion<S> {
     }
 
     @Override
-    public @NotNull List<String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
+    public @NotNull List<String> getSuggestions(
+            final @NotNull S sender,
+            final @NotNull String current,
+            final @NotNull List<String> arguments
+    ) {
         return EnumUtils.getEnumConstants(enumType)
                 .values()
                 .stream()
@@ -60,7 +64,7 @@ public final class EnumSuggestion<S> implements Suggestion<S> {
     public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final EnumSuggestion that = (EnumSuggestion) o;
+        final EnumSuggestion<?> that = (EnumSuggestion<?>) o;
         return enumType.equals(that.enumType);
     }
 

@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,7 +23,9 @@
  */
 package dev.triumphteam.cmd.core.argument.keyed;
 
+import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +65,19 @@ final class ArgumentParser {
 
         final Result result = new Result();
 
+        boolean pendingResultReset = false;
+
         while (tokens.hasNext()) {
+            // Reset waiting argument because it's a new token
+            result.setArgumentWaiting(null);
+            result.setCurrent("");
+
+            // Reset the flag argument that is pending
+            if (pendingResultReset) {
+                pendingResultReset = false;
+                result.setFlagWaiting(null);
+            }
+
             final String token = tokens.next();
 
             // If escaping the flag then just, skip
@@ -72,12 +86,28 @@ final class ArgumentParser {
                 continue;
             }
 
-            // Checks if it's a flag, if not then skip
+            final Pair<Flag, Result.FlagType> waitingFlag = result.getFlagWaiting();
+            if (waitingFlag != null) {
+                // Threat token as an argument
+                result.addFlag(waitingFlag.first(), token);
+                result.setCurrent(token);
+
+                // Mark for result reset after
+                pendingResultReset = true;
+                continue;
+            }
+
+            // Checks if it's a flag, if not then it could be named
             if ((!token.startsWith(LONG) || LONG.equals(token)) && (!token.startsWith(SHORT) || SHORT.equals(token))) {
                 final int separator = token.indexOf(ARGUMENT_SEPARATOR);
 
                 // Not a flag nor a named argument, so just ignore
                 if (separator == -1) {
+                    final Argument partial = namedGroup.matchPartialSingle(token);
+                    if (partial != null) {
+                        result.setArgumentWaiting(partial);
+                    }
+
                     result.addNonToken(token);
                     continue;
                 }
@@ -90,12 +120,13 @@ final class ArgumentParser {
             final int equals = token.indexOf(FLAG_SEPARATOR);
             // No equals char was found
             if (equals == -1) {
-                handleNoEquals(tokens, result, token);
+                handleNoEquals(result, token);
                 continue;
             }
 
             // Handling of arguments with equals
             handleWithEquals(result, token, equals);
+            pendingResultReset = true;
         }
 
         return result;
@@ -117,7 +148,7 @@ final class ArgumentParser {
         final String namedToken = token.substring(0, separator);
         final String argToken = token.substring(separator + 1);
 
-        final Argument argument = namedGroup.getMatchingArgument(namedToken);
+        final Argument argument = namedGroup.matchExact(namedToken);
         // If there is no valid argument we ignore it
         if (argument == null) {
             result.addNonToken(token);
@@ -125,24 +156,23 @@ final class ArgumentParser {
         }
 
         result.addNamedArgument(argument, argToken);
-        result.setWaitingArgument(argToken.isEmpty());
+        result.setCurrent(argToken);
+        result.setArgumentWaiting(argument);
     }
 
     /**
      * Parser handler for flags without an equals.
      * The argument would be the next iteration.
      *
-     * @param tokens The tokens {@link Iterator} from the loop.
      * @param result The results instance to add to.
      * @param token  The current flag token.
      */
     private void handleNoEquals(
-            final @NotNull Iterator<String> tokens,
             final @NotNull Result result,
             final @NotNull String token
 
     ) {
-        final Flag flag = flagGroup.getMatchingArgument(token);
+        final Flag flag = flagGroup.matchExact(token);
         // No valid flag with the name, skip
         if (flag == null) {
             result.addNonToken(token);
@@ -151,16 +181,10 @@ final class ArgumentParser {
 
         // Checks if the flag needs argument
         if (flag.hasArgument()) {
-            // If an argument is needed and no more tokens present, then just append empty as value
-            if (!tokens.hasNext()) {
-                result.addFlag(flag);
-                result.setWaitingArgument(true);
-                return;
-            }
-
-            // Value found so append
-            result.addFlag(flag, tokens.next());
-            result.setWaitingArgument(false);
+            // Waiting with a type
+            final Result.FlagType type = token.startsWith("--") ? Result.FlagType.LONG_NO_EQUALS : Result.FlagType.FLAG_NO_EQUALS;
+            result.setFlagWaiting(new Pair<>(flag, type));
+            result.setCurrent(token);
             return;
         }
 
@@ -183,7 +207,7 @@ final class ArgumentParser {
         final String flagToken = token.substring(0, equals);
         final String argToken = token.substring(equals + 1);
 
-        final Flag flag = flagGroup.getMatchingArgument(flagToken);
+        final Flag flag = flagGroup.matchExact(flagToken);
         // No valid flag with the name, skip
         if (flag == null) {
             result.addNonToken(token);
@@ -198,7 +222,10 @@ final class ArgumentParser {
 
         // Add flag normally
         result.addFlag(flag, argToken);
-        result.setWaitingArgument(argToken.isEmpty());
+        result.setCurrent(argToken);
+        // Waiting with a type
+        final Result.FlagType type = token.startsWith("--") ? Result.FlagType.LONG : Result.FlagType.FLAG;
+        result.setFlagWaiting(new Pair<>(flag, type), true);
     }
 
     public static class Result {
@@ -207,7 +234,9 @@ final class ArgumentParser {
         private final Map<Argument, String> namedArguments = new HashMap<>();
         private final List<String> nonTokens = new ArrayList<>();
 
-        private boolean waitingArgument = false;
+        private String current = "";
+        private Argument argumentWaiting = null;
+        private Pair<Flag, FlagType> flagWaiting = null;
 
         public void addNamedArgument(final @NotNull Argument argument, final @NotNull String value) {
             namedArguments.put(argument, value);
@@ -237,12 +266,51 @@ final class ArgumentParser {
             return nonTokens;
         }
 
-        public boolean isWaitingArgument() {
-            return waitingArgument;
+        public @Nullable Argument getArgumentWaiting() {
+            return argumentWaiting;
         }
 
-        public void setWaitingArgument(final boolean value) {
-            this.waitingArgument = value;
+        public void setArgumentWaiting(final @Nullable Argument argumentWaiting) {
+            this.argumentWaiting = argumentWaiting;
+        }
+
+        public @Nullable Pair<Flag, FlagType> getFlagWaiting() {
+            return flagWaiting;
+        }
+
+        public void setFlagWaiting(final @Nullable Pair<Flag, FlagType> flagWaiting) {
+            setFlagWaiting(flagWaiting, false);
+        }
+
+        public void setFlagWaiting(final @Nullable Pair<Flag, FlagType> flagWaiting, final boolean ignore) {
+            if (!ignore && (flagWaiting != null && flags.containsKey(flagWaiting.first()))) {
+                return;
+            }
+            this.flagWaiting = flagWaiting;
+        }
+
+        public @NotNull String getCurrent() {
+            return current;
+        }
+
+        public void setCurrent(final @NotNull String current) {
+            this.current = current;
+        }
+
+        public enum FlagType {
+            FLAG,
+            FLAG_NO_EQUALS,
+
+            LONG,
+            LONG_NO_EQUALS;
+
+            public boolean isLong() {
+                return this == LONG || this == LONG_NO_EQUALS;
+            }
+
+            public boolean hasEquals() {
+                return this == FLAG || this == LONG;
+            }
         }
     }
 }

@@ -41,22 +41,26 @@ import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
 import dev.triumphteam.cmd.core.requirement.Requirement;
+import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 public class SubCommand<D, S> implements Command<S> {
 
     private final Class<? extends S> senderType;
-    private final List<InternalArgument<S, ?>> arguments;
+    private final List<InternalArgument<S, ?>> argumentList;
+    private final Map<String, InternalArgument<S, ?>> argumentMap;
     private final List<Requirement<D, S, ?>> requirements;
 
     private final String name;
@@ -82,10 +86,15 @@ public class SubCommand<D, S> implements Command<S> {
         this.name = processor.getName();
         this.meta = processor.createMeta();
         this.senderType = processor.senderType();
-        this.arguments = processor.arguments(meta);
+
+        this.argumentList = processor.arguments(meta);
+        this.argumentMap = this.argumentList.stream()
+                .map(argument -> new Pair<>(argument.getName(), argument))
+                .collect(Collectors.toMap(Pair::first, Pair::second));
+
         this.requirements = processor.requirements();
 
-        this.containsLimitless = arguments.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
+        this.containsLimitless = argumentList.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
 
         final CommandOptions<D, S> commandOptions = processor.getCommandOptions();
 
@@ -140,28 +149,33 @@ public class SubCommand<D, S> implements Command<S> {
     }
 
     @Override
-    public @NotNull CommandMeta getMeta() {
-        return meta;
+    public @NotNull List<String> suggestions(
+            final @NotNull S sender,
+            final @NotNull Deque<String> arguments
+    ) {
+        if (arguments.isEmpty()) return emptyList();
+
+        final int index = arguments.size() - 1;
+        final InternalArgument<S, ?> argument = getArgumentFromIndex(index);
+        if (argument == null) return emptyList();
+
+        return argument.suggestions(sender, arguments);
     }
 
-    @Override
-    public @NotNull String getName() {
-        return name;
+    public @Nullable InternalArgument<S, ?> getArgumentFromIndex(final int index) {
+        if (!hasArguments()) return null;
+        final int size = argumentList.size();
+        if (index >= size) {
+            final InternalArgument<S, ?> last = argumentList.get(size - 1);
+            if (last instanceof LimitlessInternalArgument) return last;
+            return null;
+        }
+
+        return argumentList.get(index);
     }
 
-    @Override
-    public @NotNull String getSyntax() {
-        return syntax;
-    }
-
-    @Override
-    public boolean isDefault() {
-        return name.equals(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
-    }
-
-    @Override
-    public boolean hasArguments() {
-        return !arguments.isEmpty();
+    public @Nullable InternalArgument<S, ?> getArgumentFromName(final @NotNull String name) {
+        return argumentMap.get(name);
     }
 
     /**
@@ -178,8 +192,8 @@ public class SubCommand<D, S> implements Command<S> {
             final @NotNull List<Object> invokeArguments,
             final @NotNull Deque<String> commandArgs
     ) {
-        for (final InternalArgument<S, ?> internalArgument : arguments) {
-            final @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> result;
+        for (final InternalArgument<S, ?> internalArgument : argumentList) {
+            final Result<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>> result;
             if (internalArgument instanceof LimitlessInternalArgument) {
                 final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
 
@@ -212,7 +226,7 @@ public class SubCommand<D, S> implements Command<S> {
                 messageRegistry.sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
-                        ((Result.Failure<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>>) result)
+                        ((Result.Failure<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result)
                                 .getFail()
                                 .apply(meta, syntax)
                 );
@@ -221,7 +235,7 @@ public class SubCommand<D, S> implements Command<S> {
 
             // In case of success we add the results
             if (result instanceof Result.Success) {
-                invokeArguments.add(((Result.Success<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>>) result).getValue());
+                invokeArguments.add(((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result).getValue());
             }
         }
 
@@ -245,31 +259,10 @@ public class SubCommand<D, S> implements Command<S> {
         return true;
     }
 
-    /**
-     * Gets an internalArgument value or null.
-     *
-     * @param list  The list to check from.
-     * @param index The current index of the internalArgument.
-     * @return The internalArgument name or null.
-     */
-    private @Nullable String valueOrNull(final @NotNull List<String> list, final int index) {
-        if (index >= list.size()) return null;
-        return list.get(index);
-    }
-
-    /**
-     * Gets the left over of the arguments.
-     *
-     * @param list The list with all the arguments.
-     * @param from The index from which should start removing.
-     * @return A list with the leftover arguments.
-     */
-    private @NotNull List<String> leftOvers(final @NotNull List<String> list, final int from) {
-        if (from > list.size()) return Collections.emptyList();
-        return list.subList(from, list.size());
-    }
-
-    private @NotNull String createSyntax(final @NotNull Command parentCommand, final @NotNull CommandProcessor processor) {
+    private @NotNull String createSyntax(
+            final @NotNull Command<S> parentCommand,
+            final @NotNull CommandProcessor<D, S> processor
+    ) {
         final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
         if (syntaxAnnotation != null) return syntaxAnnotation.value();
 
@@ -279,8 +272,33 @@ public class SubCommand<D, S> implements Command<S> {
             builder.append(" ").append(name);
         }
 
-        arguments.forEach(argument -> builder.append(" ").append("<").append(argument.getName()).append(">"));
+        argumentList.forEach(argument -> builder.append(" ").append("<").append(argument.getName()).append(">"));
 
         return builder.toString();
+    }
+
+    @Override
+    public @NotNull CommandMeta getMeta() {
+        return meta;
+    }
+
+    @Override
+    public @NotNull String getName() {
+        return name;
+    }
+
+    @Override
+    public @NotNull String getSyntax() {
+        return syntax;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return name.equals(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
+    }
+
+    @Override
+    public boolean hasArguments() {
+        return !argumentList.isEmpty();
     }
 }

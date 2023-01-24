@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -63,7 +63,15 @@ public interface ArgumentGroup<T> {
      * @param token The current token, an argument name or not.
      * @return The argument if found or null if not a valid argument name.
      */
-    @Nullable T getMatchingArgument(final @NotNull String token);
+    @Nullable T matchExact(final @NotNull String token);
+
+    /**
+     * Get the argument that partially matches a single {@link T} element.
+     *
+     * @param token The token to verify.
+     * @return A partially matched T or null.
+     */
+    @Nullable T matchPartialSingle(final @NotNull String token);
 
     /**
      * Gets a list with all possible argument names.

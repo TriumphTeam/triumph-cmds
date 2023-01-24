@@ -39,9 +39,13 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
     }
 
     @Override
-    public @NotNull List<String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
+    public @NotNull List<String> getSuggestions(
+            final @NotNull S sender,
+            final @NotNull String current,
+            final @NotNull List<String> arguments
+    ) {
         return resolver
-                .resolve(sender, context)
+                .resolve(sender, arguments)
                 .stream()
                 .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
                 .collect(Collectors.toList());

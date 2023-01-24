@@ -24,9 +24,10 @@
 package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
-import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -61,10 +62,10 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     @Override
     public @NotNull List<String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<String> trimmed,
-            final @NotNull SuggestionContext context
+            final @NotNull Deque<String> arguments
     ) {
-        return suggestion.getSuggestions(sender, trimmed.get(0), context);
+        final String current = arguments.peekLast();
+        return getSuggestion().getSuggestions(sender, current == null ? "" : current, new ArrayList<>(arguments));
     }
 
     /**

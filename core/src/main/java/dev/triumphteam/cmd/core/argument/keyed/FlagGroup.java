@@ -70,11 +70,16 @@ final class FlagGroup implements ArgumentGroup<Flag> {
     }
 
     @Override
-    public @Nullable Flag getMatchingArgument(final @NotNull String token) {
+    public @Nullable Flag matchExact(final @NotNull String token) {
         final String stripped = stripLeadingHyphens(token);
 
         final Flag flag = flags.get(stripped);
         return flag != null ? flag : longFlags.get(stripped);
+    }
+
+    @Override
+    public @Nullable Flag matchPartialSingle(final @NotNull String token) {
+        return null;
     }
 
     @Override

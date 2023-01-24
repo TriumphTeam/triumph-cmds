@@ -44,12 +44,12 @@ public interface SenderExtension<D, S> extends SenderMapper<D, S> {
     interface Default<S> extends SenderExtension<S, S> {
 
         @Override
-        default @NotNull S map(@NotNull final S defaultSender) {
+        default @NotNull S map(final @NotNull S defaultSender) {
             return defaultSender;
         }
 
         @Override
-        default @NotNull S mapBackwards(@NotNull final S sender) {
+        default @NotNull S mapBackwards(final @NotNull S sender) {
             return sender;
         }
     }

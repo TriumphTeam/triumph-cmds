@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -45,6 +46,11 @@ public interface Command<S> extends CommandMetaContainer {
             final @NotNull Deque<String> arguments,
             final @NotNull Map<String, Object> extra
     ) throws Throwable;
+
+    @NotNull List<String> suggestions(
+            final @NotNull S sender,
+            final @NotNull Deque<String> arguments
+    );
 
     /**
      * @return The name of the comamnd.

@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 final class BukkitCommand<S> extends Command {
 
@@ -48,9 +49,9 @@ final class BukkitCommand<S> extends Command {
 
     @Override
     public boolean execute(
-            @NotNull final CommandSender sender,
-            @NotNull final String commandLabel,
-            @NotNull final String[] args
+            final @NotNull CommandSender sender,
+            final @NotNull String commandLabel,
+            final @NotNull String[] args
     ) {
         rootCommand.execute(
                 senderExtension.map(sender),
@@ -59,6 +60,15 @@ final class BukkitCommand<S> extends Command {
                 Collections.emptyMap()
         );
         return true;
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(
+            final @NotNull CommandSender sender,
+            final @NotNull String alias,
+            final @NotNull String[] args
+    ) {
+        return rootCommand.suggestions(senderExtension.map(sender), new ArrayDeque<>(Arrays.asList(args)));
     }
 
     public @NotNull RootCommand<CommandSender, S> getRootCommand() {

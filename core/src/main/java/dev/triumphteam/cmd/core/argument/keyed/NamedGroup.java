@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Basically a holder that contains all the needed arguments for the command.
@@ -58,8 +59,21 @@ final class NamedGroup implements ArgumentGroup<Argument> {
     }
 
     @Override
-    public @Nullable Argument getMatchingArgument(final @NotNull String token) {
+    public @Nullable Argument matchExact(final @NotNull String token) {
         return arguments.get(token);
+    }
+
+    @Override
+    public @Nullable Argument matchPartialSingle(final @NotNull String token) {
+        final List<Argument> arguments = this.arguments.entrySet()
+                .stream()
+                .filter(it -> it.getKey().startsWith(token))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
+        if (arguments.size() != 1) return null;
+
+        return arguments.get(0);
     }
 
     @Override

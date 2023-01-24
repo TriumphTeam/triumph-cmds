@@ -34,7 +34,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 /**
  * A parent command means it's a simple holder of other commands.
@@ -57,6 +61,27 @@ public abstract class ParentCommand<D, S> implements Command<S> {
     public ParentCommand(final @NotNull CommandProcessor<D, S> processor) {
         this.meta = processor.createMeta();
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
+    }
+
+    @Override
+    public @NotNull List<String> suggestions(
+            final @NotNull S sender,
+            final @NotNull Deque<String> arguments
+    ) {
+        final String argument = arguments.peek();
+        if (argument == null) return emptyList();
+
+        final Command<S> command = findCommand(sender, arguments);
+
+        if (command == null) {
+            return commands.entrySet().stream()
+                    .filter(it -> !it.getValue().isDefault())
+                    .filter(it -> it.getKey().startsWith(argument))
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+        }
+
+        return command.suggestions(sender, arguments);
     }
 
     /**
@@ -85,11 +110,6 @@ public abstract class ParentCommand<D, S> implements Command<S> {
         commands.put(command.getName(), command);
 
         // TODO ALIAS
-    }
-
-    @Override
-    public boolean isDefault() {
-        return false;
     }
 
     protected @Nullable Command<S> findCommand(
@@ -131,6 +151,11 @@ public abstract class ParentCommand<D, S> implements Command<S> {
 
         // Default command is never null here
         return defaultCommand;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return false;
     }
 
     protected @Nullable Command<S> getDefaultCommand() {

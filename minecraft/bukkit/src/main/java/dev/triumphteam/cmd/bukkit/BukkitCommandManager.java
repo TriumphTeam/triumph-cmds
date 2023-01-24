@@ -79,7 +79,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         registerArgument(Player.class, (sender, arg) -> Bukkit.getPlayer(arg));
         registerArgument(World.class, (sender, arg) -> Bukkit.getWorld(arg));
 
-        registerSuggestion(Player.class, (sender, context) -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
+        registerSuggestion(Player.class, (sender, arguments) -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()));
     }
 
     /**
@@ -148,34 +148,6 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         manager.registerMessage(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by the console."));*/
     }
 
-    /**
-     * Gets the Command Map to register the commands
-     *
-     * @return The Command Map
-     */
-    private static @NotNull CommandMap getCommandMap() {
-        try {
-            final Server server = Bukkit.getServer();
-            final Method getCommandMap = server.getClass().getDeclaredMethod("getCommandMap");
-            getCommandMap.setAccessible(true);
-
-            return (CommandMap) getCommandMap.invoke(server);
-        } catch (final Exception ignored) {
-            throw new CommandRegistrationException("Unable get Command Map. Commands will not be registered!");
-        }
-    }
-
-    private static @NotNull Map<String, org.bukkit.command.@NotNull Command> getBukkitCommands(final @NotNull CommandMap commandMap) {
-        try {
-            final Field bukkitCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
-            bukkitCommands.setAccessible(true);
-            //noinspection unchecked
-            return (Map<String, org.bukkit.command.Command>) bukkitCommands.get(commandMap);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new CommandRegistrationException("Unable get Bukkit commands. Commands might not be registered correctly!");
-        }
-    }
-
     @Override
     public void registerCommand(final @NotNull Object command) {
         final RootCommandProcessor<CommandSender, S> processor = new RootCommandProcessor<>(
@@ -236,5 +208,31 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         final BukkitCommand<S> newCommand = new BukkitCommand<>(processor);
         commandMap.register(plugin.getName(), newCommand);
         return newCommand;
+    }
+
+    /**
+     * @return Bukkit's {@link CommandMap} to register commands to.
+     */
+    private static @NotNull CommandMap getCommandMap() {
+        try {
+            final Server server = Bukkit.getServer();
+            final Method getCommandMap = server.getClass().getDeclaredMethod("getCommandMap");
+            getCommandMap.setAccessible(true);
+
+            return (CommandMap) getCommandMap.invoke(server);
+        } catch (final Exception ignored) {
+            throw new CommandRegistrationException("Unable get Command Map. Commands will not be registered!");
+        }
+    }
+
+    private static @NotNull Map<String, org.bukkit.command.@NotNull Command> getBukkitCommands(final @NotNull CommandMap commandMap) {
+        try {
+            final Field bukkitCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            bukkitCommands.setAccessible(true);
+            //noinspection unchecked
+            return (Map<String, org.bukkit.command.Command>) bukkitCommands.get(commandMap);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new CommandRegistrationException("Unable get Bukkit commands. Commands might not be registered correctly!");
+        }
     }
 }
