@@ -38,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -66,7 +67,7 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
             final boolean isStatic,
             final @Nullable StringInternalArgument<S> argument,
             final @NotNull ParentCommandProcessor<D, S> processor,
-            final @NotNull Command parentCommand
+            final @NotNull Command<S> parentCommand
     ) {
         super(processor);
 
@@ -127,6 +128,18 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
                 arguments,
                 extra
         );
+    }
+
+    @Override
+    public @NotNull List<String> suggestions(@NotNull final S sender, final @NotNull Deque<String> arguments) {
+        // If we're dealing with only 1 argument it means it's the argument suggestion
+        if (arguments.size() == 1 && hasArgument) {
+            return argument.suggestions(sender, arguments);
+        }
+
+        // If we do have arguments we need to pop them out before continuing
+        if (hasArgument) arguments.pop();
+        return super.suggestions(sender, arguments);
     }
 
     /**
