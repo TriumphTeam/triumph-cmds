@@ -26,7 +26,6 @@ package dev.triumphteam.cmd.core.processor;
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
-import dev.triumphteam.cmd.core.annotations.Requirements;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
@@ -37,6 +36,7 @@ import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.ValidationResult;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
+import dev.triumphteam.cmd.core.extention.command.CommandSettings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.FlagRegistry;
@@ -44,17 +44,12 @@ import dev.triumphteam.cmd.core.extention.registry.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
-import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.BasicMessageContext;
-import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.requirement.Requirement;
-import dev.triumphteam.cmd.core.requirement.RequirementKey;
-import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -101,7 +96,12 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
     }
 
     @Override
-    public @NotNull CommandMeta createMeta() {
+    public @NotNull AnnotatedElement getAnnotatedElement() {
+        return method;
+    }
+
+    @Override
+    public @NotNull CommandMeta createMeta(final @NotNull CommandSettings.Builder<D, S> settingsBuilder) {
         final CommandMeta.Builder meta = new CommandMeta.Builder(getParentMeta());
 
         // Defaults
@@ -110,7 +110,14 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
 
         // Process all the class annotations
         processAnnotations(getCommandOptions().getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
-        processCommandMeta(getCommandOptions().getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
+        processCommandMeta(
+                getCommandOptions().getCommandExtensions(),
+                method,
+                ProcessorTarget.COMMAND,
+                meta,
+                settingsBuilder
+        );
+
         // Return modified meta
         return meta.build();
     }
@@ -207,44 +214,6 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
         }
 
         return arguments;
-    }
-
-    /**
-     * Get all the requirements for the class.
-     *
-     * @return A {@link List} of requirements needed to run the command.
-     */
-    public @NotNull List<Requirement<D, S, ?>> requirements() {
-        final List<Requirement<D, S, ?>> requirements = new ArrayList<>();
-        for (final dev.triumphteam.cmd.core.annotations.Requirement requirementAnnotation : getRequirementsFromAnnotations()) {
-            final RequirementKey requirementKey = RequirementKey.of(requirementAnnotation.value());
-            final String messageKeyValue = requirementAnnotation.messageKey();
-
-            final MessageKey<MessageContext> messageKey;
-            if (messageKeyValue.isEmpty()) messageKey = null;
-            else messageKey = MessageKey.of(messageKeyValue, MessageContext.class);
-
-            final RequirementResolver<D, S> resolver = requirementRegistry.getRequirement(requirementKey);
-            if (resolver == null) {
-                throw createException("Could not find Requirement Key \"" + requirementKey.getKey() + "\"");
-            }
-
-            requirements.add(new Requirement<>(resolver, messageKey, BasicMessageContext::new, requirementAnnotation.invert()));
-        }
-
-        return Collections.unmodifiableList(requirements);
-    }
-
-    /**
-     * @return The list of requirements annotations.
-     */
-    private @NotNull List<dev.triumphteam.cmd.core.annotations.@NotNull Requirement> getRequirementsFromAnnotations() {
-        final Requirements requirements = method.getAnnotation(Requirements.class);
-        if (requirements != null) return Arrays.asList(requirements.value());
-
-        final dev.triumphteam.cmd.core.annotations.Requirement requirement = method.getAnnotation(dev.triumphteam.cmd.core.annotations.Requirement.class);
-        if (requirement == null) return Collections.emptyList();
-        return Collections.singletonList(requirement);
     }
 
     /**

@@ -31,7 +31,8 @@ import dev.triumphteam.cmd.core.extention.ExtensionBuilder
 import dev.triumphteam.cmd.core.extention.ValidationResult
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator
-import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor
+import dev.triumphteam.cmd.core.extention.command.Processor
+import dev.triumphteam.cmd.core.extention.command.CommandSettings
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta
 import dev.triumphteam.cmd.core.extention.meta.MetaKey
 import kotlinx.coroutines.CoroutineScope
@@ -44,20 +45,20 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.jvm.kotlinFunction
 
-public fun <S, B : ExtensionBuilder<*, S>> B.useCoroutines(
+public fun <D, S, B : ExtensionBuilder<D, S>> B.useCoroutines(
     coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     coroutineContext: CoroutineContext = Dispatchers.Default,
 ) {
-    val kotlinArgumentExtension = CoroutinesCommandExtension<S>(coroutineScope, coroutineContext)
-    addCommandMetaProcessor(kotlinArgumentExtension)
+    val kotlinArgumentExtension = CoroutinesCommandExtension<D, S>(coroutineScope, coroutineContext)
+    addProcessor(kotlinArgumentExtension)
     setArgumentValidator(kotlinArgumentExtension)
     setCommandExecutor(kotlinArgumentExtension)
 }
 
-public class CoroutinesCommandExtension<S>(
+public class CoroutinesCommandExtension<D, S>(
     private val coroutineScope: CoroutineScope,
     private val coroutineContext: CoroutineContext,
-) : CommandMetaProcessor, ArgumentValidator<S>, CommandExecutor {
+) : Processor<D, S>, ArgumentValidator<S>, CommandExecutor {
 
     private companion object {
         /** The key that'll represent a suspending function. */
@@ -65,7 +66,12 @@ public class CoroutinesCommandExtension<S>(
     }
 
     /** Simply processing if the [element] contains a [Continuation], if so, we're dealing with a suspend function. */
-    override fun process(element: AnnotatedElement, target: ProcessorTarget, meta: CommandMeta.Builder) {
+    override fun process(
+        element: AnnotatedElement,
+        target: ProcessorTarget,
+        meta: CommandMeta.Builder,
+        settingsBuilder: CommandSettings.Builder<D, S>
+    ) {
         if (element !is Method) return
         // Not really necessary but doesn't hurt to check
         if (target != ProcessorTarget.COMMAND) return

@@ -97,6 +97,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         final BukkitCommandOptions.Builder<S> extensionBuilder = new BukkitCommandOptions.Builder<>();
 
         extensionBuilder.extensions(extension -> {
+            extension.addProcessor(new PermissionProcessor<>());
             extension.setArgumentValidator(new DefaultArgumentValidator<>());
             extension.setCommandExecutor(new DefaultCommandExecutor());
         });

@@ -26,22 +26,16 @@ package dev.triumphteam.cmd.core.message.context;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * The default most keys will use, only contains the most basic data.
- */
-public class BasicMessageContext extends SimpleMetaMessageContext {
+public class BasicMessageContext implements MessageContext {
 
-    private final String syntax;
+    private final CommandMeta meta;
 
-    public BasicMessageContext(
-            final @NotNull CommandMeta meta,
-            final @NotNull String syntax
-    ) {
-        super(meta);
-        this.syntax = syntax;
+    public BasicMessageContext(final @NotNull CommandMeta meta) {
+        this.meta = meta;
     }
 
-    public @NotNull String getSyntax() {
-        return syntax;
+    @Override
+    public @NotNull CommandMeta getMeta() {
+        return meta;
     }
 }

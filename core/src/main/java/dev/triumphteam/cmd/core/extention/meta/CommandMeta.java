@@ -104,8 +104,10 @@ public interface CommandMeta {
          * @param value   The nullable value {@link V} to be stored.
          * @param <V>     The type of value that'll be stored.
          */
-        public <V> void add(final @NotNull MetaKey<V> metaKey, final @Nullable V value) {
+        @Contract("_, _ -> this")
+        public <V> @NotNull Builder add(final @NotNull MetaKey<V> metaKey, final @Nullable V value) {
             metaMap.put(metaKey, value);
+            return this;
         }
 
         /**
@@ -115,8 +117,9 @@ public interface CommandMeta {
          * @param metaKey The {@link MetaKey} to be the key of the internal map.
          * @param <V>     The type of value that'll be stored.
          */
-        public <V> void add(final @NotNull MetaKey<V> metaKey) {
-            add(metaKey, null);
+        @Contract("_, -> this")
+        public <V> @NotNull Builder add(final @NotNull MetaKey<V> metaKey) {
+            return add(metaKey, null);
         }
 
         /**

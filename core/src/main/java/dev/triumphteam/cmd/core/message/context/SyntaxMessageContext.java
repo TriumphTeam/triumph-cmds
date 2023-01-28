@@ -21,19 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.extention.argument;
+package dev.triumphteam.cmd.core.message.context;
 
-import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.AnnotatedElement;
+/**
+ * The default most keys will use, only contains the most basic data.
+ */
+public class SyntaxMessageContext extends BasicMessageContext {
 
-public interface CommandMetaProcessor {
+    private final String syntax;
 
-    void process(
-            final @NotNull AnnotatedElement method,
-            final @NotNull ProcessorTarget target,
-            final @NotNull CommandMeta.Builder meta
-    );
+    public SyntaxMessageContext(
+            final @NotNull CommandMeta meta,
+            final @NotNull String syntax
+    ) {
+        super(meta);
+        this.syntax = syntax;
+    }
+
+    public @NotNull String getSyntax() {
+        return syntax;
+    }
 }

@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Context with an invalid input.
  */
-abstract class InvalidInputContext extends SimpleMetaMessageContext {
+abstract class InvalidInputContext extends BasicMessageContext {
 
     private final String invalidInput;
 

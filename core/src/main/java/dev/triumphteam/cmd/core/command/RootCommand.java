@@ -52,7 +52,10 @@ public class RootCommand<D, S> extends ParentCommand<D, S> {
             final @NotNull Deque<String> arguments,
             final @NotNull Map<String, Object> extra
     ) {
-        final Command<S> command = findCommand(sender, arguments);
+        // Test all requirements before continuing
+        if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
+
+        final Command<D, S> command = findCommand(sender, arguments);
         if (command == null) return;
 
         // Executing the command and catch all exceptions to rethrow with better message

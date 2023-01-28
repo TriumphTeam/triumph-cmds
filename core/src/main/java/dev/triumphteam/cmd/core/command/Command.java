@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.command;
 
+import dev.triumphteam.cmd.core.extention.command.CommandSettings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +38,7 @@ import java.util.function.Supplier;
  * Not all commands are executable directly.
  * Some implementations will have listeners inside that'll trigger the execution.
  */
-public interface Command<S> extends CommandMetaContainer {
+public interface Command<D, S> extends CommandMetaContainer {
 
     // TODO
     void execute(
@@ -52,8 +53,10 @@ public interface Command<S> extends CommandMetaContainer {
             final @NotNull Deque<String> arguments
     );
 
+    @NotNull CommandSettings<D, S> getCommandSettings();
+
     /**
-     * @return The name of the comamnd.
+     * @return The name of the command.
      */
     @NotNull String getName();
 

@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 public interface Result<V, F> {
 
     final class Success<V, F> implements Result<V, F> {
+
         private final V value;
 
         public Success(final @NotNull V value) {
@@ -40,6 +41,7 @@ public interface Result<V, F> {
     }
 
     final class Failure<V, F> implements Result<V, F> {
+
         private final F fail;
 
         public Failure(final @NotNull F fail) {

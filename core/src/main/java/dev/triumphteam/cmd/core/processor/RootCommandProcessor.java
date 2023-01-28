@@ -36,12 +36,14 @@ import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
+import dev.triumphteam.cmd.core.extention.command.CommandSettings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -112,7 +114,12 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
     }
 
     @Override
-    public @NotNull CommandMeta createMeta() {
+    public @NotNull AnnotatedElement getAnnotatedElement() {
+        return invocationInstance.getClass();
+    }
+
+    @Override
+    public @NotNull CommandMeta createMeta(final @NotNull CommandSettings.@NotNull Builder<D, S> settingsBuilder) {
         final CommandMeta.Builder meta = new CommandMeta.Builder(null);
 
         // Defaults
@@ -122,26 +129,33 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         // Process all the class annotations
         final Class<?> klass = invocationInstance.getClass();
         processAnnotations(commandOptions.getCommandExtensions(), klass, ProcessorTarget.ROOT_COMMAND, meta);
-        processCommandMeta(commandOptions.getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);
+        processCommandMeta(
+                commandOptions.getCommandExtensions(),
+                klass,
+                ProcessorTarget.PARENT_COMMAND,
+                meta,
+                settingsBuilder
+        );
+
         // Return modified meta
         return meta.build();
     }
 
-    public @NotNull List<Command<S>> commands(final @NotNull Command parentCommand) {
+    public @NotNull List<Command<D, S>> commands(final @NotNull Command<D, S> parentCommand) {
         final Class<?> klass = invocationInstance.getClass();
 
-        final List<Command<S>> subCommands = new ArrayList<>();
+        final List<Command<D, S>> subCommands = new ArrayList<>();
         subCommands.addAll(methodCommands(parentCommand, klass.getDeclaredMethods()));
         subCommands.addAll(classCommands(parentCommand, klass.getDeclaredClasses()));
 
         return subCommands;
     }
 
-    private @NotNull List<Command<S>> methodCommands(
-            final @NotNull Command<S> parentCommand,
+    private @NotNull List<Command<D, S>> methodCommands(
+            final @NotNull Command<D, S> parentCommand,
             final @NotNull Method[] methods
     ) {
-        final List<Command<S>> commands = new ArrayList<>();
+        final List<Command<D, S>> commands = new ArrayList<>();
         for (final Method method : methods) {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) continue;
@@ -164,11 +178,11 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         return commands;
     }
 
-    private @NotNull List<Command<S>> classCommands(
-            final @NotNull Command<S> parentCommand,
+    private @NotNull List<Command<D, S>> classCommands(
+            final @NotNull Command<D, S> parentCommand,
             final @NotNull Class<?>[] classes
     ) {
-        final List<Command<S>> commands = new ArrayList<>();
+        final List<Command<D, S>> commands = new ArrayList<>();
         for (final Class<?> klass : classes) {
             // Ignore non-public methods
             if (!Modifier.isPublic(klass.getModifiers())) continue;

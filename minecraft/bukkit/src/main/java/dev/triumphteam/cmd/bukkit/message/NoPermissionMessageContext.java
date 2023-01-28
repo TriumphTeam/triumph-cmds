@@ -34,10 +34,9 @@ public final class NoPermissionMessageContext extends BasicMessageContext {
 
     public NoPermissionMessageContext(
             final @NotNull CommandMeta meta,
-            final @NotNull String syntax,
             final @NotNull CommandPermission permission
     ) {
-        super(meta, syntax);
+        super(meta);
         this.permission = permission;
     }
 

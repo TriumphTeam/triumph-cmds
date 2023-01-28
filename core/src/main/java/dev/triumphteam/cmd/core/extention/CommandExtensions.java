@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,7 +26,7 @@ package dev.triumphteam.cmd.core.extention;
 import dev.triumphteam.cmd.core.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
-import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor;
+import dev.triumphteam.cmd.core.extention.command.Processor;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -36,19 +36,19 @@ import java.util.Map;
 public final class CommandExtensions<D, S> {
 
     private final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors;
-    private final List<CommandMetaProcessor> commandMetaProcessors;
+    private final List<Processor<D, S>> processors;
 
     private final ArgumentValidator<S> argumentValidator;
     private final CommandExecutor commandExecutor;
 
     public CommandExtensions(
             final @NotNull Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors,
-            final @NotNull List<CommandMetaProcessor> commandMetaProcessors,
+            final @NotNull List<Processor<D, S>> processors,
             final @NotNull ArgumentValidator<S> argumentValidator,
             final @NotNull CommandExecutor commandExecutor
     ) {
         this.annotationProcessors = annotationProcessors;
-        this.commandMetaProcessors = commandMetaProcessors;
+        this.processors = processors;
         this.argumentValidator = argumentValidator;
         this.commandExecutor = commandExecutor;
     }
@@ -57,8 +57,8 @@ public final class CommandExtensions<D, S> {
         return annotationProcessors;
     }
 
-    public @NotNull List<CommandMetaProcessor> getCommandMetaProcessors() {
-        return commandMetaProcessors;
+    public @NotNull List<Processor<D, S>> getProcessors() {
+        return processors;
     }
 
     public @NotNull ArgumentValidator<S> getArgumentValidator() {

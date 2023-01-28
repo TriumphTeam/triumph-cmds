@@ -23,6 +23,8 @@
  */
 package dev.triumphteam.cmd.bukkit.annotation;
 
+import dev.triumphteam.cmd.bukkit.CommandPermission;
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.lang.annotation.ElementType;
@@ -61,4 +63,6 @@ public @interface Permission {
      * @see org.bukkit.permissions.Permission#getDescription()
      */
     String description() default "";
+
+    MetaKey<CommandPermission> META_KEY = MetaKey.of("command.permission", CommandPermission.class);
 }

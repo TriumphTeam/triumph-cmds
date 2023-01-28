@@ -9,7 +9,10 @@ class SimpleRequirementContext<D, S> implements RequirementContext<D, S> {
     private final CommandMeta meta;
     private final SenderMapper<D, S> senderMapper;
 
-    public SimpleRequirementContext(final @NotNull CommandMeta meta, final @NotNull SenderMapper<D, S> senderMapper) {
+    public SimpleRequirementContext(
+            final @NotNull CommandMeta meta,
+            final @NotNull SenderMapper<D, S> senderMapper
+    ) {
         this.meta = meta;
         this.senderMapper = senderMapper;
     }

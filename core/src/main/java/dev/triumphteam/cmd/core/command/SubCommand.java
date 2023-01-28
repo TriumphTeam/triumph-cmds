@@ -31,16 +31,16 @@ import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.ValidationResult;
+import dev.triumphteam.cmd.core.extention.command.CommandSettings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.BasicMessageContext;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
+import dev.triumphteam.cmd.core.message.context.SyntaxMessageContext;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
-import dev.triumphteam.cmd.core.requirement.Requirement;
 import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,17 +56,19 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
-public class SubCommand<D, S> implements Command<S> {
+public class SubCommand<D, S> implements Command<D, S> {
 
     private final Class<? extends S> senderType;
+
     private final List<InternalArgument<S, ?>> argumentList;
     private final Map<String, InternalArgument<S, ?>> argumentMap;
-    private final List<Requirement<D, S, ?>> requirements;
 
     private final String name;
     private final String syntax;
-    private final CommandMeta meta;
     private final boolean containsLimitless;
+
+    private final CommandMeta meta;
+    private final CommandSettings<D, S> settings;
 
     private final Object invocationInstance;
     private final Method method;
@@ -79,20 +81,21 @@ public class SubCommand<D, S> implements Command<S> {
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull SubCommandProcessor<D, S> processor,
-            final @NotNull Command<S> parentCommand
+            final @NotNull Command<D, S> parentCommand
     ) {
         this.invocationInstance = invocationInstance;
         this.method = method;
         this.name = processor.getName();
-        this.meta = processor.createMeta();
-        this.senderType = processor.senderType();
 
+        final CommandSettings.Builder<D, S> settingsBuilder = new CommandSettings.Builder<>();
+        processor.captureRequirements(settingsBuilder);
+        this.meta = processor.createMeta(settingsBuilder);
+
+        this.senderType = processor.senderType();
         this.argumentList = processor.arguments(meta);
         this.argumentMap = this.argumentList.stream()
                 .map(argument -> new Pair<>(argument.getName(), argument))
                 .collect(Collectors.toMap(Pair::first, Pair::second));
-
-        this.requirements = processor.requirements();
 
         this.containsLimitless = argumentList.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
 
@@ -103,6 +106,8 @@ public class SubCommand<D, S> implements Command<S> {
         this.commandExecutor = commandOptions.getCommandExtensions().getCommandExecutor();
 
         this.syntax = createSyntax(parentCommand, processor);
+
+        this.settings = settingsBuilder.build();
     }
 
     @Override
@@ -120,23 +125,22 @@ public class SubCommand<D, S> implements Command<S> {
             messageRegistry.sendMessage(
                     ((ValidationResult.Invalid<MessageKey<MessageContext>>) validationResult).getMessage(),
                     sender,
-                    new BasicMessageContext(meta, syntax)
+                    new SyntaxMessageContext(meta, syntax)
             );
             return;
         }
 
-        if (!meetRequirements(sender)) return;
+        // Testing if all requirements pass before we continue
+        if (!settings.testRequirements(messageRegistry, sender, meta, senderExtension)) return;
 
         // Creates the invoking arguments list
-        final List<java.lang.Object> invokeArguments = new ArrayList<>();
+        final List<Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
-        if (!validateAndCollectArguments(sender, invokeArguments, arguments)) {
-            return;
-        }
+        if (!validateAndCollectArguments(sender, invokeArguments, arguments)) return;
 
         if ((!containsLimitless) && arguments.size() >= invokeArguments.size()) {
-            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new BasicMessageContext(meta, syntax));
+            messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
             return;
         }
 
@@ -209,7 +213,7 @@ public class SubCommand<D, S> implements Command<S> {
                         continue;
                     }
 
-                    messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new BasicMessageContext(meta, syntax));
+                    messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
                     return false;
                 }
 
@@ -242,25 +246,8 @@ public class SubCommand<D, S> implements Command<S> {
         return true;
     }
 
-    /**
-     * Checks if the requirements to run the command are met.
-     *
-     * @param sender The sender of the command.
-     * @return Whether all requirements are met.
-     */
-    private boolean meetRequirements(final @NotNull S sender) {
-        for (final Requirement<D, S, ?> requirement : requirements) {
-            if (!requirement.isMet(sender, meta, senderExtension)) {
-                requirement.sendMessage(messageRegistry, sender, meta, syntax);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     private @NotNull String createSyntax(
-            final @NotNull Command<S> parentCommand,
+            final @NotNull Command<D, S> parentCommand,
             final @NotNull CommandProcessor<D, S> processor
     ) {
         final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
@@ -280,6 +267,11 @@ public class SubCommand<D, S> implements Command<S> {
     @Override
     public @NotNull CommandMeta getMeta() {
         return meta;
+    }
+
+    @Override
+    public @NotNull CommandSettings<D, S> getCommandSettings() {
+        return settings;
     }
 
     @Override

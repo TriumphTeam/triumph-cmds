@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,8 +27,7 @@ import dev.triumphteam.cmd.core.command.CommandExecutor;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
-import dev.triumphteam.cmd.core.extention.argument.CommandMetaProcessor;
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.extention.command.Processor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +40,7 @@ import java.util.Map;
 public final class ExtensionBuilder<D, S> {
 
     private final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors = new HashMap<>();
-    private final List<CommandMetaProcessor> commandMetaProcessors = new ArrayList<>();
+    private final List<Processor<D, S>> processors = new ArrayList<>();
 
     private ArgumentValidator<S> argumentValidator = null;
     private CommandExecutor commandExecutor = null;
@@ -56,8 +55,8 @@ public final class ExtensionBuilder<D, S> {
     }
 
     @Contract("_ -> this")
-    public @NotNull ExtensionBuilder<D, S> addCommandMetaProcessor(final @NotNull CommandMetaProcessor commandMetaProcessor) {
-        commandMetaProcessors.add(commandMetaProcessor);
+    public @NotNull ExtensionBuilder<D, S> addProcessor(final @NotNull Processor<D, S> processor) {
+        processors.add(processor);
         return this;
     }
 
@@ -84,7 +83,7 @@ public final class ExtensionBuilder<D, S> {
 
         return new CommandExtensions<>(
                 annotationProcessors,
-                commandMetaProcessors,
+                processors,
                 argumentValidator,
                 commandExecutor
         );

@@ -24,8 +24,10 @@
 package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.extention.command.CommandSettings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
@@ -46,21 +48,30 @@ import static java.util.Collections.emptyList;
  *
  * @param <S> The sender type.
  */
-public abstract class ParentCommand<D, S> implements Command<S> {
+public abstract class ParentCommand<D, S> implements Command<D, S> {
 
-    private final Map<String, Command<S>> commands = new HashMap<>();
-    private final Map<String, Command<S>> commandAliases = new HashMap<>();
+    private Command<D, S> defaultCommand = null;
+    private final Map<String, Command<D, S>> commands = new HashMap<>();
+    private final Map<String, Command<D, S>> commandAliases = new HashMap<>();
 
     private final CommandMeta meta;
+    private final CommandSettings<D, S> settings;
 
     // Single parent command with argument
-    private Command<S> parentCommandWithArgument;
+    private Command<D, S> parentCommandWithArgument;
 
     private final MessageRegistry<S> messageRegistry;
+    private final SenderExtension<D, S> senderExtension;
 
     public ParentCommand(final @NotNull CommandProcessor<D, S> processor) {
-        this.meta = processor.createMeta();
+        final CommandSettings.Builder<D, S> settingsBuilder = new CommandSettings.Builder<>();
+        processor.captureRequirements(settingsBuilder);
+        this.meta = processor.createMeta(settingsBuilder);
+
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
+        this.senderExtension = processor.getCommandOptions().getSenderExtension();
+
+        this.settings = settingsBuilder.build();
     }
 
     @Override
@@ -71,12 +82,15 @@ public abstract class ParentCommand<D, S> implements Command<S> {
         final String argument = arguments.peek();
         if (argument == null) return emptyList();
 
-        final Command<S> command = findCommand(sender, arguments);
+        final Command<D, S> command = findCommand(sender, arguments);
 
         if (command == null) {
             return commands.entrySet().stream()
-                    .filter(it -> !it.getValue().isDefault())
+                    // Filter commands the sender can't see
+                    .filter(it -> it.getValue().getCommandSettings().testRequirements(sender, meta, senderExtension))
+                    // Commands that match what the sender is typing
                     .filter(it -> it.getKey().startsWith(argument))
+                    // Only use the names
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
         }
@@ -93,7 +107,7 @@ public abstract class ParentCommand<D, S> implements Command<S> {
      */
     public void addCommand(
             final @NotNull Object instance,
-            final @NotNull Command<S> command,
+            final @NotNull Command<D, S> command,
             final boolean isAlias
     ) {
         // If it's a parent command with argument we add it
@@ -106,20 +120,24 @@ public abstract class ParentCommand<D, S> implements Command<S> {
             return;
         }
 
-        // Normal commands are added here
-        commands.put(command.getName(), command);
+        if (command.isDefault()) {
+            this.defaultCommand = command;
+        } else {
+            // Normal commands are added here
+            commands.put(command.getName(), command);
+        }
 
         // TODO ALIAS
     }
 
-    protected @Nullable Command<S> findCommand(
+    protected @Nullable Command<D, S> findCommand(
             final @NotNull S sender,
             final @NotNull Deque<String> arguments
     ) {
         final String name = arguments.peek();
 
         // Instant check for default
-        final Command<S> defaultCommand = getDefaultCommand();
+        final Command<D, S> defaultCommand = this.defaultCommand;
 
         // No argument passed
         if (name == null) {
@@ -132,7 +150,7 @@ public abstract class ParentCommand<D, S> implements Command<S> {
             return defaultCommand;
         }
 
-        final Command<S> command = getCommandByName(name);
+        final Command<D, S> command = getCommandByName(name);
         if (command != null) {
             // Pop command out of arguments list and returns it
             arguments.pop();
@@ -154,15 +172,16 @@ public abstract class ParentCommand<D, S> implements Command<S> {
     }
 
     @Override
+    public @NotNull CommandSettings<D, S> getCommandSettings() {
+        return settings;
+    }
+
+    @Override
     public boolean isDefault() {
         return false;
     }
 
-    protected @Nullable Command<S> getDefaultCommand() {
-        return commands.get(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
-    }
-
-    protected @Nullable Command<S> getCommandByName(final @NotNull String key) {
+    protected @Nullable Command<D, S> getCommandByName(final @NotNull String key) {
         return commands.getOrDefault(key, commandAliases.get(key));
     }
 
@@ -173,5 +192,13 @@ public abstract class ParentCommand<D, S> implements Command<S> {
 
     protected @NotNull MessageRegistry<S> getMessageRegistry() {
         return messageRegistry;
+    }
+
+    protected @NotNull CommandSettings<D, S> getSettings() {
+        return settings;
+    }
+
+    protected @NotNull SenderExtension<D, S> getSenderExtension() {
+        return senderExtension;
     }
 }

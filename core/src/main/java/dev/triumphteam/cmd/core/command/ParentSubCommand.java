@@ -67,7 +67,7 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
             final boolean isStatic,
             final @Nullable StringInternalArgument<S> argument,
             final @NotNull ParentCommandProcessor<D, S> processor,
-            final @NotNull Command<S> parentCommand
+            final @NotNull Command<D, S> parentCommand
     ) {
         super(processor);
 
@@ -88,6 +88,10 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
             final @NotNull Deque<String> arguments,
             final @NotNull Map<String, Object> extra
     ) throws Throwable {
+
+        // Test all requirements before continuing
+        if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
+
         // First we handle the argument if there is any
         final Object instance;
         if (hasArgument) {
@@ -118,7 +122,7 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
             instance = createInstance(instanceSupplier);
         }
 
-        final Command<S> command = findCommand(sender, arguments);
+        final Command<D, S> command = findCommand(sender, arguments);
         if (command == null) return;
 
         // Simply execute the command with the given instance

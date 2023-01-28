@@ -52,6 +52,8 @@ public final class CommandPermission {
         this.nodes = nodes;
         this.description = description;
         this.permissionDefault = permissionDefault;
+
+        register();
     }
 
     /**
@@ -63,7 +65,7 @@ public final class CommandPermission {
      *     <li>The sender has the permission</li>
      * </ul>
      *
-     * @param sender The main command sender.
+     * @param sender     The main command sender.
      * @param permission The permission.
      * @return Whether the sender has permission to run the command.
      */
@@ -118,5 +120,12 @@ public final class CommandPermission {
      */
     public boolean hasPermission(final @NotNull CommandSender sender) {
         return nodes.stream().anyMatch(sender::hasPermission);
+    }
+
+    @Override
+    public String toString() {
+        return "CommandPermission{" +
+                "nodes=" + nodes +
+                '}';
     }
 }
