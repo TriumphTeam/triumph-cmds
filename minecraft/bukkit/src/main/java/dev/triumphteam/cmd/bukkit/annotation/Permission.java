@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.bukkit.CommandPermission;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import org.bukkit.permissions.PermissionDefault;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -36,6 +37,7 @@ import java.lang.annotation.Target;
 /**
  * Annotate a method using this Annotation to add a required permission.
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Inherited

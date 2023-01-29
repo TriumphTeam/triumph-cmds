@@ -76,9 +76,6 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
 
     private final String globalPrefix;
 
-    private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
-    private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
-
     private PrefixedCommandManager(
             final @NotNull JDA jda,
             final @NotNull String globalPrefix,
