@@ -44,6 +44,15 @@ public interface SenderExtension<D, S> extends SenderMapper<D, S> {
     interface Default<S> extends SenderExtension<S, S> {
 
         @Override
+        default @NotNull ValidationResult<@NotNull MessageKey<@NotNull MessageContext>> validate(
+                final @NotNull CommandMeta meta,
+                final @NotNull Class<?> allowedSender,
+                final @NotNull S sender
+        ) {
+            return valid();
+        }
+
+        @Override
         default @NotNull S map(final @NotNull S defaultSender) {
             return defaultSender;
         }

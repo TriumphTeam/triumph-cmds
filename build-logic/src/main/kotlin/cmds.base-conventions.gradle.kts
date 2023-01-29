@@ -81,6 +81,7 @@ spotless {
 tasks {
     withType<JavaCompile> {
         options.encoding = "UTF-8"
+        options.compilerArgs.add("-parameters")
     }
 
     withType<KotlinCompile> {

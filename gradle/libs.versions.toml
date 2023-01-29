@@ -24,6 +24,9 @@ spotless = "6.12.0"
 # For now only using for checkstyle
 indra = "3.0.1"
 
+# Logging
+log4j = "2.19.0"
+
 [libraries]
 # Core
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -42,6 +45,11 @@ jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
 
 # Kotlin
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+# Logger
+logger-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+logger-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+logger-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
 
 # build
 build-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

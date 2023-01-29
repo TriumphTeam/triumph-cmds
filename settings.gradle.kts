@@ -14,11 +14,23 @@ listOf(
 
 listOf(
      "minecraft/bukkit" to "bukkit",
-     "discord/jda-common" to "jda-common",
+
+     "discord/jda/common" to "jda-common",
      // "discord/jda-prefixed" to "jda-prefixed",
-     "discord/jda-slash" to "jda-slash",
+     "discord/jda/slash" to "jda-slash",
+
      "kotlin/coroutines" to "kotlin-coroutines",
-     "kotlin/extensions" to "kotlin-extensions"
+     "kotlin/extensions" to "kotlin-extensions",
+).forEach {
+    includeProjectFolders(it.first, it.second)
+}
+
+// Examples
+listOf(
+    "examples/minecraft/bukkit" to "bukkit-examples",
+
+    // "discord/jda-prefixed" to "jda-prefixed",
+    "examples/discord/jda/slash" to "jda-slash-examples",
 ).forEach {
     includeProjectFolders(it.first, it.second)
 }

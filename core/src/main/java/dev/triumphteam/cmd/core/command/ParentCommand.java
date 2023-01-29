@@ -184,6 +184,14 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         return false;
     }
 
+    public Command<D, S> getDefaultCommand() {
+        return defaultCommand;
+    }
+
+    public @NotNull Map<String, Command<D, S>> getCommands() {
+        return commands;
+    }
+
     protected @Nullable Command<D, S> getCommandByName(final @NotNull String key) {
         return commands.getOrDefault(key, commandAliases.get(key));
     }
