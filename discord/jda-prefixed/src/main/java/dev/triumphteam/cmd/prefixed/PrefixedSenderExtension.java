@@ -24,9 +24,11 @@
 package dev.triumphteam.cmd.prefixed;
 
 import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
-import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
-import dev.triumphteam.cmd.core.subcommand.OldSubCommand;
+import dev.triumphteam.cmd.core.extention.ValidationResult;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,25 +37,25 @@ import java.util.Set;
 /**
  * Simple mapper than returns itself.
  */
-class PrefixedSenderValidator implements SenderValidator<PrefixedSender> {
+class PrefixedSenderExtension implements SenderExtension<PrefixedSender, PrefixedSender> {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public @NotNull Set<Class<? extends PrefixedSender>> getAllowedSenders() {
         return ImmutableSet.of(PrefixedSender.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public boolean validate(
-            final @NotNull MessageRegistry<PrefixedSender> messageRegistry,
-            final @NotNull OldSubCommand<PrefixedSender> subCommand,
-            final @NotNull PrefixedSender sender
-    ) {
-        return true;
+    public @NotNull ValidationResult<@NotNull MessageKey<@NotNull MessageContext>> validate(final @NotNull CommandMeta meta, final @NotNull Class<?> allowedSender, final @NotNull PrefixedSender sender) {
+        return valid();
+    }
+
+    @Override
+    public @NotNull PrefixedSender map(final @NotNull PrefixedSender defaultSender) {
+        return defaultSender;
+    }
+
+    @Override
+    public @NotNull PrefixedSender mapBackwards(final @NotNull PrefixedSender sender) {
+        return sender;
     }
 }

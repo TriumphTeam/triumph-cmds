@@ -141,7 +141,7 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
                 jda,
                 globalPrefix,
                 SenderMapper.defaultMapper(),
-                new PrefixedSenderValidator()
+                new PrefixedSenderExtension()
         );
         setUpDefaults(manager);
         return manager;

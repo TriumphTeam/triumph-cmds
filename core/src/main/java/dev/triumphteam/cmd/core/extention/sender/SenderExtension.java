@@ -54,11 +54,11 @@ public interface SenderExtension<D, S> extends SenderMapper<D, S> {
         }
     }
 
-    static ValidationResult<@NotNull MessageKey<@NotNull MessageContext>> valid() {
+    default ValidationResult<@NotNull MessageKey<@NotNull MessageContext>> valid() {
         return new ValidationResult.Valid<>();
     }
 
-    static ValidationResult<@NotNull MessageKey<@NotNull MessageContext>> invalid(
+    default ValidationResult<@NotNull MessageKey<@NotNull MessageContext>> invalid(
             final @NotNull MessageKey<@NotNull MessageContext> messageKey
     ) {
         return new ValidationResult.Invalid<>(messageKey);

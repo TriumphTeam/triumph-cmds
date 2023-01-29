@@ -54,13 +54,13 @@ class BukkitSenderExtension implements SenderExtension.Default<CommandSender> {
             final @NotNull CommandSender sender
     ) {
         if (Player.class.isAssignableFrom(allowedSender) && !(sender instanceof Player)) {
-            return SenderExtension.invalid(BukkitMessageKey.PLAYER_ONLY);
+            return invalid(BukkitMessageKey.PLAYER_ONLY);
         }
 
         if (ConsoleCommandSender.class.isAssignableFrom(allowedSender) && !(sender instanceof ConsoleCommandSender)) {
-            return SenderExtension.invalid(BukkitMessageKey.CONSOLE_ONLY);
+            return invalid(BukkitMessageKey.CONSOLE_ONLY);
         }
 
-        return SenderExtension.valid();
+        return valid();
     }
 }
