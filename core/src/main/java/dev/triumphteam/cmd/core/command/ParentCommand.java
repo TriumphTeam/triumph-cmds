@@ -104,7 +104,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
      * @param instance The instance of the command the commands came from.
      * @param commands A list of command to be added.
      */
-    public void addCommand(
+    public void addCommands(
             final @NotNull Object instance,
             final @NotNull List<Command<D, S>> commands
     ) {
@@ -126,9 +126,10 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
                 this.commands.put(command.getName(), command);
             }
 
-            command
+            for (final String alias : command.getAliases()) {
+                this.commandAliases.put(alias, command);
+            }
         }
-        // TODO ALIAS
     }
 
     protected @Nullable Command<D, S> findCommand(

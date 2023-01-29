@@ -64,6 +64,7 @@ public class SubCommand<D, S> implements Command<D, S> {
     private final Map<String, InternalArgument<S, ?>> argumentMap;
 
     private final String name;
+    private final List<String> aliases;
     private final String syntax;
     private final boolean containsLimitless;
 
@@ -86,6 +87,7 @@ public class SubCommand<D, S> implements Command<D, S> {
         this.invocationInstance = invocationInstance;
         this.method = method;
         this.name = processor.getName();
+        this.aliases = processor.getAliases();
 
         final Settings.Builder<D, S> settingsBuilder = new Settings.Builder<>();
         processor.captureRequirements(settingsBuilder);
@@ -277,6 +279,11 @@ public class SubCommand<D, S> implements Command<D, S> {
     @Override
     public @NotNull String getName() {
         return name;
+    }
+
+    @Override
+    public @NotNull List<String> getAliases() {
+        return aliases;
     }
 
     @Override

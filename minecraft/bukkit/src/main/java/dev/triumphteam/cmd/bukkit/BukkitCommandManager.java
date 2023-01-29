@@ -162,29 +162,12 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
         final String name = processor.getName();
 
-        final BukkitCommand<S> bukkitCommand = commands.get(name);
-        if (bukkitCommand != null) {
-            // TODO: Command exists, only care about adding subs
-            return;
-        }
+        // Get or add command, then add its sub commands
+        final BukkitCommand<S> bukkitCommand = commands.computeIfAbsent(name, it -> createAndRegisterCommand(processor, name));
+        final RootCommand<CommandSender, S> rootCommand = bukkitCommand.getRootCommand();
+        rootCommand.addCommands(command, processor.commands(rootCommand));
 
-        final BukkitCommand<S> newBukkitCommand = createAndRegisterCommand(processor, name);
-        final RootCommand<CommandSender, S> rootCommand = newBukkitCommand.getRootCommand();
-        processor.commands(rootCommand).forEach(it -> rootCommand.addCommand(command, it, false));
-
-        // Command does not exist, proceed to add new!
-
-        // final BukkitCommandProcessor<S> processor = new BukkitCommandProcessor<>(name, command, basePermission);
-
-        // final BukkitCommand<S> newCommand = commands.computeIfAbsent(processor.getName(), it -> createAndRegisterCommand(it, processor));
-
-        // TODO: ADD SUBCOMMANDS
-
-        /*processor.getAlias().forEach(it -> {
-            final BukkitCommand<S> aliasCommand = commands.computeIfAbsent(it, ignored -> createAndRegisterCommand(it, processor));
-            // Adding sub commands.
-            // TODO: ADD SUBCOMMANDS
-        });*/
+        // TODO: ALIASES
     }
 
     @Override

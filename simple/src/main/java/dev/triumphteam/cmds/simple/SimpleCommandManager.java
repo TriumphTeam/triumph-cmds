@@ -77,21 +77,9 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
 
         final String name = processor.getName();
 
-        final RootCommand<S, S> simpleCommand = commands.get(name);
-        if (simpleCommand != null) {
-            // TODO: Command exists, only care about adding subs
-            return;
-        }
-
-        // Command does not exist, proceed to add new!
-        final RootCommand<S, S> newSimpleCommand = commands.computeIfAbsent(processor.getName(), it -> new RootCommand<>(processor));
-        processor.commands(newSimpleCommand).forEach(it -> newSimpleCommand.addCommand(command, it, false));
-
-        processor.getAlias().forEach(it -> {
-            final RootCommand<S, S> aliasCommand = commands.computeIfAbsent(it, ignored -> new RootCommand<>(processor));
-            // Adding sub commands.
-            processor.commands(aliasCommand).forEach(sub -> aliasCommand.addCommand(command, sub, false));
-        });
+        final RootCommand<S, S> rootCommand = commands.computeIfAbsent(name, it -> new RootCommand<>(processor));
+        rootCommand.addCommands(command, processor.commands(rootCommand));
+        processor.getAliases().forEach(it -> commands.putIfAbsent(it, rootCommand));
     }
 
     /**

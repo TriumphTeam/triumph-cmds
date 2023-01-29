@@ -53,6 +53,7 @@ import java.util.function.Supplier;
 public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
 
     private final String name;
+    private final List<String> aliases;
     private final String syntax;
 
     private final Object invocationInstance;
@@ -78,6 +79,7 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
         this.hasArgument = argument != null;
 
         this.name = processor.getName();
+        this.aliases = processor.getAliases();
         this.syntax = createSyntax(parentCommand, processor);
     }
 
@@ -199,6 +201,11 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
     @Override
     public @NotNull String getName() {
         return name;
+    }
+
+    @Override
+    public @NotNull List<String> getAliases() {
+        return aliases;
     }
 
     @Override

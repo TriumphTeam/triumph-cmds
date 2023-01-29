@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -75,6 +75,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Abstracts most of the "extracting" from sub command annotations, allows for extending.
@@ -91,6 +92,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
 
     private final Object invocationInstance;
     private final String name;
+    private final List<String> aliases;
     private final String description;
     private final Syntax syntax;
     private final AnnotatedElement annotatedElement;
@@ -113,6 +115,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         this.invocationInstance = invocationInstance;
         this.annotatedElement = annotatedElement;
         this.name = nameOf();
+        this.aliases = aliasesOf();
         this.description = descriptionOf();
         this.parentMeta = parentMeta;
 
@@ -157,8 +160,23 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, commandAnnotation.value());
     }
 
+    private @Nullable List<String> aliasesOf() {
+        final Command commandAnnotation = annotatedElement.getAnnotation(Command.class);
+
+        // Not a command element
+        if (commandAnnotation == null) return null;
+
+        return Arrays.stream(commandAnnotation.alias())
+                .map(it -> CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, it))
+                .collect(Collectors.toList());
+    }
+
     public @Nullable String getName() {
         return name;
+    }
+
+    public @NotNull List<String> getAliases() {
+        return aliases;
     }
 
     public String getDescription() {

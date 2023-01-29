@@ -63,7 +63,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
 
     private final String name;
     private final Syntax syntax;
-    private final List<String> alias;
+    private final List<String> aliases;
     private final String description;
 
     private final CommandOptions<D, S> commandOptions;
@@ -77,7 +77,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         this.invocationInstance = invocationInstance;
 
         this.name = nameOf();
-        this.alias = aliasOf();
+        this.aliases = aliasesOf();
         this.description = descriptionOf();
 
         this.registryContainer = registryContainer;
@@ -86,15 +86,15 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         this.syntax = invocationInstance.getClass().getAnnotation(Syntax.class);
     }
 
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
-    public List<String> getAlias() {
-        return alias;
+    public @NotNull List<String> getAliases() {
+        return aliases;
     }
 
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return description;
     }
 
@@ -248,8 +248,8 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
             );
 
             // Add children commands to parent
-            methodCommands(parent, klass.getDeclaredMethods()).forEach(it -> parent.addCommand(invocationInstance, it, false));
-            classCommands(parent, klass.getDeclaredClasses()).forEach(it -> parent.addCommand(invocationInstance, it, false));
+            parent.addCommands(invocationInstance, methodCommands(parent, klass.getDeclaredMethods()));
+            parent.addCommands(invocationInstance, classCommands(parentCommand, klass.getDeclaredClasses()));
 
             // Add parent command to main list
             commands.add(parent);
@@ -281,7 +281,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, name);
     }
 
-    private @NotNull List<String> aliasOf() {
+    private @NotNull List<String> aliasesOf() {
         final Class<?> commandClass = invocationInstance.getClass();
         final dev.triumphteam.cmd.core.annotations.Command commandAnnotation =
                 commandClass.getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);

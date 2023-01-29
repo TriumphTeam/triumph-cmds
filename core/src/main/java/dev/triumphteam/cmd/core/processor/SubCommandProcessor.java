@@ -42,7 +42,6 @@ import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.FlagRegistry;
 import dev.triumphteam.cmd.core.extention.registry.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
@@ -77,7 +76,6 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
 
     private final Method method;
     private final NamedArgumentRegistry namedArgumentRegistry;
-    private final RequirementRegistry<D, S> requirementRegistry;
     private final FlagRegistry flagRegistry;
 
     SubCommandProcessor(
@@ -91,7 +89,6 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
 
         this.method = method;
         this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
-        this.requirementRegistry = registryContainer.getRequirementRegistry();
         this.flagRegistry = registryContainer.getFlagRegistry();
     }
 

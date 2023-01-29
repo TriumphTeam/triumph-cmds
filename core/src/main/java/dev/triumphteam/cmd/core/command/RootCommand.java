@@ -30,18 +30,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class RootCommand<D, S> extends ParentCommand<D, S> {
 
     private final String name;
+    private final List<String> aliases;
     private final String syntax;
 
     public RootCommand(final @NotNull RootCommandProcessor<D, S> processor) {
         super(processor);
 
         this.name = processor.getName();
+        this.aliases = processor.getAliases();
         this.syntax = "/" + name;
     }
 
@@ -75,6 +78,11 @@ public class RootCommand<D, S> extends ParentCommand<D, S> {
     @Override
     public @NotNull String getName() {
         return name;
+    }
+
+    @Override
+    public @NotNull List<String> getAliases() {
+        return aliases;
     }
 
     @Override
