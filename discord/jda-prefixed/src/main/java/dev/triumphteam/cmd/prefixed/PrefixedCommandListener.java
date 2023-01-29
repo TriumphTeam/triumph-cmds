@@ -94,7 +94,7 @@ final class PrefixedCommandListener<S> extends ListenerAdapter {
 
         final String commandName = firstArg.replace(prefix, "");
 
-        PrefixedCommandExecutor<S> commandExecutor = commandManager.getCommand(prefix);
+        PrefixedCommandHolder<S> commandExecutor = commandManager.getCommand(prefix);
         if (commandExecutor == null) commandExecutor = commandManager.getCommand(guild, prefix);
         if (commandExecutor == null) {
             messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new DefaultMessageContext(commandName, ""));

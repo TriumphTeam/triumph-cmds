@@ -23,45 +23,21 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
+import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
+import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Main executor for the commands.
- *
- * @param <S> The sender type.
- */
-final class PrefixedCommandExecutor<S> {
+final class PrefixedCommandHolder<S> {
 
-    private final Map<String, PrefixedCommand<S>> commands = new HashMap<>();
-
-    private final MessageRegistry<S> messageRegistry;
-
-    private final ExecutionProvider syncExecutionProvider;
-    private final ExecutionProvider asyncExecutionProvider;
-
-    public PrefixedCommandExecutor(
-            final @NotNull MessageRegistry<S> messageRegistry,
-            final @NotNull ExecutionProvider syncExecutionProvider,
-            final @NotNull ExecutionProvider asyncExecutionProvider
-    ) {
-        this.messageRegistry = messageRegistry;
-        this.syncExecutionProvider = syncExecutionProvider;
-        this.asyncExecutionProvider = asyncExecutionProvider;
-    }
-
-    /**
-     * Registers a command to the current executor.
-     *
-     * @param processor The processor with all the command data.
-     */
+    private final Map<String, Command<PrefixedSender, S>> commands = new HashMap<>();
     public void register(final @NotNull PrefixedCommandProcessor<S> processor) {
         final String name = processor.getName();
 

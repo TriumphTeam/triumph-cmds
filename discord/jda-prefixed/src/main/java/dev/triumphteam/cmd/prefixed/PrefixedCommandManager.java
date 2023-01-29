@@ -23,24 +23,18 @@
  */
 package dev.triumphteam.cmd.prefixed;
 
-import com.google.common.primitives.Longs;
 import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
+import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
-import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
-import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.extention.sender.SenderValidator;
+import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 /**
@@ -67,154 +61,77 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
     private static final Pattern CHANNEL_MENTION_PATTERN = Pattern.compile("<#(?<id>\\d+)>");
     private static final Pattern USER_TAG_PATTERN = Pattern.compile(".{3,32}#\\d{4}");
 
-    private final RegistryContainer<S> registryContainer = new RegistryContainer<>();
+    private final RegistryContainer<PrefixedSender, S> registryContainer;
 
     private final Set<String> prefixes = new HashSet<>();
     private final Set<Pattern> prefixesRegexes = new HashSet<>();
-    private final Map<String, PrefixedCommandExecutor<S>> globalCommands = new HashMap<>();
-    private final Map<Long, Map<String, PrefixedCommandExecutor<S>>> guildCommands = new HashMap<>();
+
+    private final Map<String, PrefixedCommandHolder<S>> globalCommands = new HashMap<>();
+    private final Map<Long, Map<String, PrefixedCommandHolder<S>>> guildCommands = new HashMap<>();
 
     private final String globalPrefix;
 
     private PrefixedCommandManager(
             final @NotNull JDA jda,
-            final @NotNull String globalPrefix,
-            final @NotNull SenderMapper<PrefixedSender, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator
+            final @NotNull PrefixedCommandOptions<S> commandOptions,
+            final @NotNull RegistryContainer<PrefixedSender, S> registryContainer
     ) {
-        super(senderMapper, senderValidator);
-        this.globalPrefix = globalPrefix;
+        super(commandOptions);
 
-        jda.addEventListener(new PrefixedCommandListener<>(this, registryContainer, senderMapper));
+        this.registryContainer = registryContainer;
+        this.globalPrefix = commandOptions.getGlobalPrefix();
     }
 
-    /**
-     * Creates a new instance of the PrefixedCommandManager.
-     * This factory is for adding a custom sender, for default sender use {@link #create(JDA, String)}.
-     *
-     * @param jda             The JDA instance.
-     * @param globalPrefix    The global prefix.
-     * @param senderMapper    The sender mapper.
-     * @param senderValidator The sender validator.
-     * @param <S>             The sender type.
-     * @return The new instance.
-     */
-    @Contract("_, _, _, _ -> new")
+    @Contract("_, _, _, -> new")
     public static <S> @NotNull PrefixedCommandManager<S> create(
             final @NotNull JDA jda,
-            final @NotNull String globalPrefix,
-            final @NotNull SenderMapper<PrefixedSender, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator
+            final @NotNull SenderExtension<PrefixedSender, S> senderExtension,
+            final @NotNull Consumer<PrefixedCommandOptions.Builder<S>> builder
     ) {
-        return new PrefixedCommandManager<>(jda, globalPrefix, senderMapper, senderValidator);
+        final RegistryContainer<PrefixedSender, S> registryContainer = new RegistryContainer<>();
+        final PrefixedCommandOptions.Builder<S> extensionBuilder = new PrefixedCommandOptions.Builder<>(registryContainer);
+        builder.accept(extensionBuilder);
+        return new PrefixedCommandManager<>(jda, extensionBuilder.build(senderExtension), registryContainer);
     }
 
-    /**
-     * Creates a new instance of the {@link PrefixedCommandManager}.
-     * This factory is for adding a custom sender, for default sender use {@link #create(JDA)}.
-     *
-     * @param jda             The JDA instance.
-     * @param senderMapper    The sender mapper.
-     * @param senderValidator The sender validator.
-     * @param <S>             The sender type.
-     * @return The new instance.
-     */
-    @Contract("_, _, _ -> new")
-    public static <S> @NotNull PrefixedCommandManager<S> create(
-            final @NotNull JDA jda,
-            final @NotNull SenderMapper<PrefixedSender, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator
-    ) {
-        return create(jda, "", senderMapper, senderValidator);
-    }
-
-    /**
-     * Creates a new instance of the PrefixedCommandManager with its default sender.
-     *
-     * @param jda          The JDA instance.
-     * @param globalPrefix The global prefix.
-     * @return The new instance.
-     */
-    @Contract("_, _ -> new")
-    public static @NotNull PrefixedCommandManager<PrefixedSender> create(final @NotNull JDA jda, final @NotNull String globalPrefix) {
-        final PrefixedCommandManager<PrefixedSender> manager = create(
-                jda,
-                globalPrefix,
-                SenderMapper.defaultMapper(),
-                new PrefixedSenderExtension()
-        );
-        setUpDefaults(manager);
-        return manager;
-    }
-
-    /**
-     * Creates a new instance of the PrefixedCommandManager with its default sender.
-     *
-     * @param jda The JDA instance.
-     * @return The new instance.
-     */
-    @Contract("_, -> new")
+    @Contract("_ -> new")
     public static @NotNull PrefixedCommandManager<PrefixedSender> create(final @NotNull JDA jda) {
-        return create(jda, "");
+        return create(jda, new PrefixedSenderExtension(), builder -> {});
     }
 
-    /**
-     * Registers a global command.
-     *
-     * @param baseCommand The {@link BaseCommand} to be registered.
-     */
+
     @Override
-    public void registerCommand(final @NotNull BaseCommand baseCommand) {
-        addCommand(null, baseCommand);
+    public void registerCommand(final @NotNull Object command) {
+        // TODO
     }
 
-    /**
-     * Registers a {@link Guild} command.
-     *
-     * @param guild       the {@link Guild} to register the command to.
-     * @param baseCommand The {@link BaseCommand} to be registered.
-     */
-    public void registerCommand(final @NotNull Guild guild, final @NotNull BaseCommand baseCommand) {
-        addCommand(guild, baseCommand);
-    }
-
-    /**
-     * Registers a list of guild {@link BaseCommand}s.
-     *
-     * @param guild        The {@link Guild} to register the commands for.
-     * @param baseCommands A list of baseCommands to be registered.
-     */
-    public void registerCommand(final @NotNull Guild guild, final @NotNull BaseCommand @NotNull ... baseCommands) {
-        for (final BaseCommand command : baseCommands) {
-            registerCommand(guild, command);
-        }
+    public void registerCommand(final @NotNull Guild guild, final @NotNull Object command) {
+        // TODO
     }
 
     @Override
-    public void unregisterCommand(final @NotNull BaseCommand command) {
-        // TODO: 11/23/2021 Add unregistering commands and also guild commands
+    public void unregisterCommand(final @NotNull Object command) {
+
     }
 
     @Override
-    protected @NotNull RegistryContainer<S> getRegistryContainer() {
+    protected @NotNull RegistryContainer<PrefixedSender, S> getRegistryContainer() {
         return registryContainer;
     }
 
-    /**
-     * Adds a command to the manager.
-     *
-     * @param guild       The guild to add the command to or null if it's a global command.
-     * @param baseCommand The {@link BaseCommand} to be added.
-     */
-    private void addCommand(final @Nullable Guild guild, final @NotNull BaseCommand baseCommand) {
-        final PrefixedCommandProcessor<S> processor = new PrefixedCommandProcessor<>(
-                baseCommand,
-                registryContainer,
-                getSenderMapper(),
-                getSenderValidator(),
-                syncExecutionProvider,
-                asyncExecutionProvider
+    private void addCommand(final @Nullable Guild guild, final @NotNull Object command) {
+        final RootCommandProcessor<PrefixedSender, S> processor = new RootCommandProcessor<>(
+                command,
+                getRegistryContainer(),
+                getCommandOptions()
         );
+
+        final String name = processor.getName();
+
+        // Get or add command, then add its sub commands
+        final PrefixedCommandHolder<S> holder = globalCommands.computeIfAbsent(name, it -> new RootCommand<>(processor));
+        final RootCommand<CommandSender, S> rootCommand = bukkitCommand.getRootCommand();
+        rootCommand.addCommands(command, processor.commands(rootCommand));
 
         String prefix = processor.getPrefix();
         if (prefix.isEmpty()) {
@@ -231,9 +148,9 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
 
         // Global command
         if (guild == null) {
-            final PrefixedCommandExecutor<S> commandExecutor = globalCommands.computeIfAbsent(
+            final PrefixedCommandHolder<S> commandExecutor = globalCommands.computeIfAbsent(
                     prefix,
-                    ignored -> new PrefixedCommandExecutor<>(registryContainer.getMessageRegistry(), syncExecutionProvider, asyncExecutionProvider)
+                    ignored -> new PrefixedCommandHolder<>(registryContainer.getMessageRegistry(), syncExecutionProvider, asyncExecutionProvider)
             );
 
             for (final String alias : processor.getAlias()) {
@@ -245,11 +162,11 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
         }
 
         // Guild command
-        final PrefixedCommandExecutor<S> commandExecutor = guildCommands
+        final PrefixedCommandHolder<S> commandExecutor = guildCommands
                 .computeIfAbsent(guild.getIdLong(), ignored -> new HashMap<>())
                 .computeIfAbsent(
                         prefix,
-                        ignored -> new PrefixedCommandExecutor<>(
+                        ignored -> new PrefixedCommandHolder<>(
                                 registryContainer.getMessageRegistry(),
                                 syncExecutionProvider,
                                 asyncExecutionProvider
@@ -263,97 +180,4 @@ public final class PrefixedCommandManager<S> extends CommandManager<PrefixedSend
 
         commandExecutor.register(processor);
     }
-
-    /**
-     * Gets a guild command.
-     *
-     * @param guild  The {@link Guild} to get the command from.
-     * @param prefix The prefix of the command.
-     * @return The {@link BaseCommand} or null if it doesn't exist.
-     */
-    @Nullable PrefixedCommandExecutor<S> getCommand(final @NotNull Guild guild, final @NotNull String prefix) {
-        final Map<String, PrefixedCommandExecutor<S>> commands = guildCommands.get(guild.getIdLong());
-        return commands != null ? commands.get(prefix) : null;
-    }
-
-    /**
-     * Gets a global command.
-     *
-     * @param prefix The prefix of the command.
-     * @return The {@link BaseCommand} or null if it doesn't exist.
-     */
-    @Nullable PrefixedCommandExecutor<S> getCommand(final @NotNull String prefix) {
-        return globalCommands.get(prefix);
-    }
-
-    /**
-     * Gets a {@link Set} with all the registered prefixes.
-     *
-     * @return A {@link Set} with all the registered prefixes.
-     */
-    @NotNull Set<String> getPrefixes() {
-        return prefixes;
-    }
-
-    /**
-     * Gets a {@link Set} with all registered prefixes regexes.
-     *
-     * @return A {@link Set} with all the registered prefixes regexes.
-     */
-    @NotNull Set<Pattern> getPrefixesRegexes() {
-        return prefixesRegexes;
-    }
-
-    private static void setUpDefaults(final @NotNull PrefixedCommandManager<PrefixedSender> manager) {
-        manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.getMessage().reply("Unknown command: `" + context.getCommand() + "`.").queue());
-        manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
-        manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.getMessage().reply("Invalid usage.").queue());
-        manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.getMessage().reply("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").queue());
-
-        manager.registerArgument(User.class, (sender, arg) -> {
-            final JDA jda = sender.getJDA();
-            final Long id = Longs.tryParse(arg);
-            if (id != null) return jda.getUserById(id);
-
-            if (USER_TAG_PATTERN.matcher(arg).matches()) return jda.getUserByTag(arg);
-
-            final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
-            return userMentionMatcher.matches() ? jda.getUserById(userMentionMatcher.group("id")) : null;
-        });
-        manager.registerArgument(Member.class, (sender, arg) -> {
-            final Guild guild = sender.getGuild();
-            final Long id = Longs.tryParse(arg);
-            if (id != null) return guild.getMemberById(id);
-
-            if (USER_TAG_PATTERN.matcher(arg).matches()) return guild.getMemberByTag(arg);
-
-            final Matcher userMentionMatcher = USER_MENTION_PATTERN.matcher(arg);
-            return userMentionMatcher.matches() ? guild.getMemberById(userMentionMatcher.group("id")) : null;
-        });
-        manager.registerArgument(TextChannel.class, (sender, arg) -> {
-            final Guild guild = sender.getGuild();
-            final Long id = Longs.tryParse(arg);
-            if (id != null) return guild.getTextChannelById(id);
-
-            final Matcher channelMentionMatcher = CHANNEL_MENTION_PATTERN.matcher(arg);
-            return channelMentionMatcher.matches() ? guild.getTextChannelById(channelMentionMatcher.group("id")) : null;
-        });
-        manager.registerArgument(VoiceChannel.class, (sender, arg) -> {
-            final Guild guild = sender.getGuild();
-            final Long id = Longs.tryParse(arg);
-            if (id != null) return guild.getVoiceChannelById(id);
-
-            final Matcher channelMentionMatcher = CHANNEL_MENTION_PATTERN.matcher(arg);
-            return channelMentionMatcher.matches() ? guild.getVoiceChannelById(channelMentionMatcher.group("id")) : null;
-        });
-        manager.registerArgument(Role.class, (sender, arg) -> {
-            final Guild guild = sender.getGuild();
-            final Long id = Longs.tryParse(arg);
-            if (id != null) return guild.getRoleById(id);
-
-            final Matcher roleMentionMatcher = ROLE_MENTION_PATTERN.matcher(arg);
-            return roleMentionMatcher.matches() ? guild.getRoleById(roleMentionMatcher.group("id")) : null;
-        });
-    }
-
 }
