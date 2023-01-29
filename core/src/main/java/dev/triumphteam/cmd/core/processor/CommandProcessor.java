@@ -30,7 +30,7 @@ import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.command.CommandSettings;
+import dev.triumphteam.cmd.core.extention.command.Settings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
@@ -56,7 +56,7 @@ public interface CommandProcessor<D, S> {
      *
      * @return The immutable {@link CommandMeta} instance.
      */
-    @NotNull CommandMeta createMeta(final @NotNull CommandSettings.Builder<D, S> settingsBuilder);
+    @NotNull CommandMeta createMeta(final @NotNull Settings.Builder<D, S> settingsBuilder);
 
     @NotNull CommandOptions<D, S> getCommandOptions();
 
@@ -95,7 +95,7 @@ public interface CommandProcessor<D, S> {
         }
     }
 
-    default void captureRequirements(final @NotNull CommandSettings.Builder<D, S> settingsBuilder) {
+    default void captureRequirements(final @NotNull Settings.Builder<D, S> settingsBuilder) {
         final RequirementRegistry<D, S> requirementRegistry = getRegistryContainer().getRequirementRegistry();
 
         for (final dev.triumphteam.cmd.core.annotations.Requirement requirementAnnotation : getRequirementsFromAnnotations()) {
@@ -119,7 +119,7 @@ public interface CommandProcessor<D, S> {
             final @NotNull AnnotatedElement element,
             final @NotNull ProcessorTarget target,
             final @NotNull CommandMeta.Builder meta,
-            final @NotNull CommandSettings.Builder<D, S> settingsBuilder
+            final @NotNull Settings.Builder<D, S> settingsBuilder
     ) {
         extensions.getProcessors().forEach(it -> it.process(element, target, meta, settingsBuilder));
     }

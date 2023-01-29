@@ -31,7 +31,7 @@ import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.ValidationResult;
-import dev.triumphteam.cmd.core.extention.command.CommandSettings;
+import dev.triumphteam.cmd.core.extention.command.Settings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
@@ -68,7 +68,7 @@ public class SubCommand<D, S> implements Command<D, S> {
     private final boolean containsLimitless;
 
     private final CommandMeta meta;
-    private final CommandSettings<D, S> settings;
+    private final Settings<D, S> settings;
 
     private final Object invocationInstance;
     private final Method method;
@@ -87,7 +87,7 @@ public class SubCommand<D, S> implements Command<D, S> {
         this.method = method;
         this.name = processor.getName();
 
-        final CommandSettings.Builder<D, S> settingsBuilder = new CommandSettings.Builder<>();
+        final Settings.Builder<D, S> settingsBuilder = new Settings.Builder<>();
         processor.captureRequirements(settingsBuilder);
         this.meta = processor.createMeta(settingsBuilder);
 
@@ -270,7 +270,7 @@ public class SubCommand<D, S> implements Command<D, S> {
     }
 
     @Override
-    public @NotNull CommandSettings<D, S> getCommandSettings() {
+    public @NotNull Settings<D, S> getCommandSettings() {
         return settings;
     }
 

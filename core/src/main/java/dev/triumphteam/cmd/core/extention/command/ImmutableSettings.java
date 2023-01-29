@@ -9,11 +9,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public final class ImmutableCommandSettings<D, S> implements CommandSettings<D, S> {
+public final class ImmutableSettings<D, S> implements Settings<D, S> {
 
     private final List<Requirement<D, S>> requirements;
 
-    public ImmutableCommandSettings(final @NotNull List<Requirement<D, S>> requirements) {
+    public ImmutableSettings(final @NotNull List<Requirement<D, S>> requirements) {
         this.requirements = requirements;
     }
 

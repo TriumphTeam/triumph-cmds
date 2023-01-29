@@ -36,7 +36,7 @@ import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.command.CommandSettings;
+import dev.triumphteam.cmd.core.extention.command.Settings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
@@ -119,7 +119,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
     }
 
     @Override
-    public @NotNull CommandMeta createMeta(final @NotNull CommandSettings.@NotNull Builder<D, S> settingsBuilder) {
+    public @NotNull CommandMeta createMeta(final @NotNull Settings.@NotNull Builder<D, S> settingsBuilder) {
         final CommandMeta.Builder meta = new CommandMeta.Builder(null);
 
         // Defaults

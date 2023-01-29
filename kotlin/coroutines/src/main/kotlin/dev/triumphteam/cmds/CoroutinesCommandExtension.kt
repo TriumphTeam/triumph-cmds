@@ -32,7 +32,7 @@ import dev.triumphteam.cmd.core.extention.ValidationResult
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator
 import dev.triumphteam.cmd.core.extention.command.Processor
-import dev.triumphteam.cmd.core.extention.command.CommandSettings
+import dev.triumphteam.cmd.core.extention.command.Settings
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta
 import dev.triumphteam.cmd.core.extention.meta.MetaKey
 import kotlinx.coroutines.CoroutineScope
@@ -70,7 +70,7 @@ public class CoroutinesCommandExtension<D, S>(
         element: AnnotatedElement,
         target: ProcessorTarget,
         meta: CommandMeta.Builder,
-        settingsBuilder: CommandSettings.Builder<D, S>
+        settingsBuilder: Settings.Builder<D, S>
     ) {
         if (element !is Method) return
         // Not really necessary but doesn't hurt to check

@@ -36,7 +36,7 @@ import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.ValidationResult;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.command.CommandSettings;
+import dev.triumphteam.cmd.core.extention.command.Settings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.core.extention.registry.FlagRegistry;
@@ -101,7 +101,7 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
     }
 
     @Override
-    public @NotNull CommandMeta createMeta(final @NotNull CommandSettings.Builder<D, S> settingsBuilder) {
+    public @NotNull CommandMeta createMeta(final @NotNull Settings.Builder<D, S> settingsBuilder) {
         final CommandMeta.Builder meta = new CommandMeta.Builder(getParentMeta());
 
         // Defaults

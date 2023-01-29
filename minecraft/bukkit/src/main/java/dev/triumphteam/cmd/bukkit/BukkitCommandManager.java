@@ -23,13 +23,14 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
-import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
-import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -54,22 +55,21 @@ import java.util.stream.Collectors;
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
 
     private final Plugin plugin;
-    private final RegistryContainer<CommandSender, S> registryContainer = new RegistryContainer<>();
+    private final RegistryContainer<CommandSender, S> registryContainer;
 
     private final Map<String, BukkitCommand<S>> commands = new HashMap<>();
 
     private final CommandMap commandMap;
     private final Map<String, org.bukkit.command.Command> bukkitCommands;
 
-    // TODO: Default base from constructor
-    private final CommandPermission basePermission = null;
-
     private BukkitCommandManager(
             final @NotNull Plugin plugin,
-            final @NotNull BukkitCommandOptions<S> commandOptions
+            final @NotNull BukkitCommandOptions<S> commandOptions,
+            final @NotNull RegistryContainer<CommandSender, S> registryContainer
     ) {
         super(commandOptions);
         this.plugin = plugin;
+        this.registryContainer = registryContainer;
 
         this.commandMap = getCommandMap();
         this.bukkitCommands = getBukkitCommands(commandMap);
@@ -94,16 +94,10 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             final @NotNull SenderExtension<CommandSender, S> senderExtension,
             final @NotNull Consumer<BukkitCommandOptions.Builder<S>> builder
     ) {
-        final BukkitCommandOptions.Builder<S> extensionBuilder = new BukkitCommandOptions.Builder<>();
-
-        extensionBuilder.extensions(extension -> {
-            extension.addProcessor(new PermissionProcessor<>());
-            extension.setArgumentValidator(new DefaultArgumentValidator<>());
-            extension.setCommandExecutor(new DefaultCommandExecutor());
-        });
-
+        final RegistryContainer<CommandSender, S> registryContainer = new RegistryContainer<>();
+        final BukkitCommandOptions.Builder<S> extensionBuilder = new BukkitCommandOptions.Builder<>(registryContainer);
         builder.accept(extensionBuilder);
-        return new BukkitCommandManager<>(plugin, extensionBuilder.build(senderExtension));
+        return new BukkitCommandManager<>(plugin, extensionBuilder.build(senderExtension), registryContainer);
     }
 
     /**
@@ -130,23 +124,32 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             final @NotNull Plugin plugin,
             final @NotNull Consumer<BukkitCommandOptions.Builder<CommandSender>> builder
     ) {
-        return create(plugin, new BukkitSenderExtension(), builder);
+        final RegistryContainer<CommandSender, CommandSender> registryContainer = new RegistryContainer<>();
+        final BukkitCommandOptions.Builder<CommandSender> extensionBuilder = new BukkitCommandOptions.Builder<>(registryContainer);
+
+        // Setup defaults for Bukkit
+        final MessageRegistry<CommandSender> messageRegistry = registryContainer.getMessageRegistry();
+        setUpDefaults(messageRegistry);
+
+        // Then accept configured values
+        builder.accept(extensionBuilder);
+        return new BukkitCommandManager<>(plugin, extensionBuilder.build(new BukkitSenderExtension()), registryContainer);
     }
 
     /**
      * Sets up all the default values for the Bukkit implementation.
      *
-     * @param manager The {@link BukkitCommandManager} instance to set up.
+     * @param messageRegistry The {@link BukkitCommandManager} instance to set up.
      */
-    private static void setUpDefaults(final @NotNull BukkitCommandManager<CommandSender> manager) {
-        /*manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.sendMessage("Unknown command: `" + context.getCommand() + "`."));
-        manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
-        manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
-        manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.sendMessage("Invalid argument `" + context.getTypedArgument() + "` for type `" + context.getArgumentType().getSimpleName() + "`."));
+    private static void setUpDefaults(final @NotNull MessageRegistry<CommandSender> messageRegistry) {
+        messageRegistry.register(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.sendMessage("Unknown command: `" + context.getInvalidInput() + "`."));
+        messageRegistry.register(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
+        messageRegistry.register(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage("Invalid usage."));
+        messageRegistry.register(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.sendMessage("Invalid argument `" + context.getInvalidInput() + "` for type `" + context.getArgumentType().getSimpleName() + "`."));
 
-        manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage("You do not have permission to perform this command. Permission needed: `" + context.getNodes() + "`."));
-        manager.registerMessage(BukkitMessageKey.PLAYER_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by players."));
-        manager.registerMessage(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by the console."));*/
+        messageRegistry.register(BukkitMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage("You do not have permission to perform this command."));
+        messageRegistry.register(BukkitMessageKey.PLAYER_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by players."));
+        messageRegistry.register(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by the console."));
     }
 
     @Override

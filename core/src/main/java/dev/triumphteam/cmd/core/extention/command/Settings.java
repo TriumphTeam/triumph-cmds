@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public interface CommandSettings<D, S> {
+public interface Settings<D, S> {
 
     /**
      * Tests all the requirements present in the setting.
@@ -59,8 +59,8 @@ public interface CommandSettings<D, S> {
 
         // TODO add more things to the settings
 
-        public CommandSettings<D, S> build() {
-            return new ImmutableCommandSettings<>(Collections.unmodifiableList(requirements));
+        public Settings<D, S> build() {
+            return new ImmutableSettings<>(Collections.unmodifiableList(requirements));
         }
     }
 }

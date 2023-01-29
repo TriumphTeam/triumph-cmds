@@ -2,7 +2,7 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.command.CommandSettings;
+import dev.triumphteam.cmd.core.extention.command.Settings;
 import dev.triumphteam.cmd.core.extention.command.Processor;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.bukkit.command.CommandSender;
@@ -14,12 +14,18 @@ import java.util.Arrays;
 
 final class PermissionProcessor<S> implements Processor<CommandSender, S> {
 
+    private final CommandPermission globalPermission;
+
+    public PermissionProcessor(final @Nullable CommandPermission globalPermission) {
+        this.globalPermission = globalPermission;
+    }
+
     @Override
     public void process(
             final @NotNull AnnotatedElement element,
             final @NotNull ProcessorTarget target,
             final @NotNull CommandMeta.@NotNull Builder meta,
-            final @NotNull CommandSettings.@NotNull Builder<CommandSender, S> settingsBuilder
+            final @NotNull Settings.@NotNull Builder<CommandSender, S> settingsBuilder
     ) {
         final Permission permissionAnnotation = element.getAnnotation(Permission.class);
         if (permissionAnnotation == null) return;
@@ -29,6 +35,12 @@ final class PermissionProcessor<S> implements Processor<CommandSender, S> {
         final CommandPermission permission;
         if (parentPermission != null) {
             permission = parentPermission.child(
+                    Arrays.asList(permissionAnnotation.value()),
+                    permissionAnnotation.description(),
+                    permissionAnnotation.def()
+            );
+        } else if (globalPermission != null) {
+            permission = globalPermission.child(
                     Arrays.asList(permissionAnnotation.value()),
                     permissionAnnotation.description(),
                     permissionAnnotation.def()

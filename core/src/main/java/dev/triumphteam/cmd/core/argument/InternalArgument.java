@@ -85,7 +85,13 @@ public interface InternalArgument<S, T> {
             final @NotNull T value
     );
 
-    // TODO: Comments
+    /**
+     * Create a list of suggestion strings to return to the platform requesting it.
+     *
+     * @param sender    Rhe sender to get suggestions for.
+     * @param arguments The arguments used in the suggestion.
+     * @return A list of valid suggestions for the argument.
+     */
     @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull Deque<String> arguments);
 
     default Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> success(

@@ -35,6 +35,6 @@ public interface Processor<D, S> {
             final @NotNull AnnotatedElement element,
             final @NotNull ProcessorTarget target,
             final @NotNull CommandMeta.@NotNull Builder meta,
-            final @NotNull CommandSettings.@NotNull Builder<D, S> settingsBuilder
+            final @NotNull Settings.@NotNull Builder<D, S> settingsBuilder
     );
 }

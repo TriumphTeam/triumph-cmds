@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
-import dev.triumphteam.cmd.core.extention.command.CommandSettings;
+import dev.triumphteam.cmd.core.extention.command.Settings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
@@ -55,7 +55,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
     private final Map<String, Command<D, S>> commandAliases = new HashMap<>();
 
     private final CommandMeta meta;
-    private final CommandSettings<D, S> settings;
+    private final Settings<D, S> settings;
 
     // Single parent command with argument
     private Command<D, S> parentCommandWithArgument;
@@ -64,7 +64,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
     private final SenderExtension<D, S> senderExtension;
 
     public ParentCommand(final @NotNull CommandProcessor<D, S> processor) {
-        final CommandSettings.Builder<D, S> settingsBuilder = new CommandSettings.Builder<>();
+        final Settings.Builder<D, S> settingsBuilder = new Settings.Builder<>();
         processor.captureRequirements(settingsBuilder);
         this.meta = processor.createMeta(settingsBuilder);
 
@@ -102,31 +102,32 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
      * Add a new command to the maps.
      *
      * @param instance The instance of the command the commands came from.
-     * @param command  The sub command to be added.
-     * @param isAlias  Whether it is an alias.
+     * @param commands A list of command to be added.
      */
     public void addCommand(
             final @NotNull Object instance,
-            final @NotNull Command<D, S> command,
-            final boolean isAlias
+            final @NotNull List<Command<D, S>> commands
     ) {
-        // If it's a parent command with argument we add it
-        if (command instanceof ParentSubCommand && command.hasArguments()) {
-            if (parentCommandWithArgument != null) {
-                throw new CommandRegistrationException("Only one inner command with argument is allowed per command", instance.getClass());
+        for (final Command<D, S> command : commands) {
+            // If it's a parent command with argument we add it
+            if (command instanceof ParentSubCommand && command.hasArguments()) {
+                if (parentCommandWithArgument != null) {
+                    throw new CommandRegistrationException("Only one inner command with argument is allowed per command", instance.getClass());
+                }
+
+                parentCommandWithArgument = command;
+                return;
             }
 
-            parentCommandWithArgument = command;
-            return;
-        }
+            if (command.isDefault()) {
+                this.defaultCommand = command;
+            } else {
+                // Normal commands are added here
+                this.commands.put(command.getName(), command);
+            }
 
-        if (command.isDefault()) {
-            this.defaultCommand = command;
-        } else {
-            // Normal commands are added here
-            commands.put(command.getName(), command);
+            command
         }
-
         // TODO ALIAS
     }
 
@@ -172,7 +173,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
     }
 
     @Override
-    public @NotNull CommandSettings<D, S> getCommandSettings() {
+    public @NotNull Settings<D, S> getCommandSettings() {
         return settings;
     }
 
@@ -194,7 +195,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         return messageRegistry;
     }
 
-    protected @NotNull CommandSettings<D, S> getSettings() {
+    protected @NotNull Settings<D, S> getSettings() {
         return settings;
     }
 
