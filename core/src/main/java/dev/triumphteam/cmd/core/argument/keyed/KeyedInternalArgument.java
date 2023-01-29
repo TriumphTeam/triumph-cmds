@@ -50,9 +50,6 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
     private final Map<Flag, StringInternalArgument<S>> flagInternalArguments;
     private final Map<Argument, StringInternalArgument<S>> argumentInternalArguments;
 
-    private final ArgumentGroup<Argument> argumentGroup;
-    private final ArgumentGroup<Flag> flagGroup;
-
     private final ArgumentParser argumentParser;
 
     public KeyedInternalArgument(
@@ -66,8 +63,6 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         super(name, description, Flags.class, new EmptySuggestion<>(), true);
         this.flagInternalArguments = flagInternalArguments;
         this.argumentInternalArguments = argumentInternalArguments;
-        this.flagGroup = flagGroup;
-        this.argumentGroup = argumentGroup;
         this.argumentParser = new ArgumentParser(flagGroup, argumentGroup);
     }
 

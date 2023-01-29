@@ -82,7 +82,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         final String argument = arguments.peek();
         if (argument == null) return emptyList();
 
-        final Command<D, S> command = findCommand(sender, arguments);
+        final Command<D, S> command = findCommand(sender, arguments, false);
 
         if (command == null) {
             return commands.entrySet().stream()
@@ -134,7 +134,8 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
 
     protected @Nullable Command<D, S> findCommand(
             final @NotNull S sender,
-            final @NotNull Deque<String> arguments
+            final @NotNull Deque<String> arguments,
+            final boolean message
     ) {
         final String name = arguments.peek();
 
@@ -145,7 +146,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         if (name == null) {
             // No default command found, send message and return null
             // If there is default command then return it
-            if (defaultCommand == null) {
+            if (defaultCommand == null && message) {
                 messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, ""));
             }
 
@@ -161,7 +162,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
 
         if (defaultCommand == null || !defaultCommand.hasArguments()) {
             // No command found with the name [name]
-            if (parentCommandWithArgument == null) {
+            if (parentCommandWithArgument == null && message) {
                 messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, name));
             }
 

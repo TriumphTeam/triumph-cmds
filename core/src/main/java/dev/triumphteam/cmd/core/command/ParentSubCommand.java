@@ -124,7 +124,7 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
             instance = createInstance(instanceSupplier);
         }
 
-        final Command<D, S> command = findCommand(sender, arguments);
+        final Command<D, S> command = findCommand(sender, arguments, true);
         if (command == null) return;
 
         // Simply execute the command with the given instance

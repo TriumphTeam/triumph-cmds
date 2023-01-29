@@ -58,7 +58,7 @@ public class RootCommand<D, S> extends ParentCommand<D, S> {
         // Test all requirements before continuing
         if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
 
-        final Command<D, S> command = findCommand(sender, arguments);
+        final Command<D, S> command = findCommand(sender, arguments, true);
         if (command == null) return;
 
         // Executing the command and catch all exceptions to rethrow with better message

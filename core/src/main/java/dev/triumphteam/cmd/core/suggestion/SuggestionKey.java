@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Key used to identify the {@link } in the {@link }.
+ * Key used to identify the {@link SuggestionResolver} in the {@link SuggestionRegistry}.
  */
 public final class SuggestionKey extends StringKey {
 

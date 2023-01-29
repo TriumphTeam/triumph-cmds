@@ -32,7 +32,7 @@ import dev.triumphteam.cmd.core.requirement.Requirement;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class PermissionRequirement<S> implements Requirement<CommandSender, S> {
+final class PermissionRequirement<S> implements Requirement<CommandSender, S> {
 
     private final CommandPermission permission;
 

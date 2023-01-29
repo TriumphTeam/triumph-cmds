@@ -35,7 +35,6 @@ public abstract class AnnotatedCommand {
     private final List<String> alias = new ArrayList<>();
     private final String description;
 
-
     public AnnotatedCommand() {
         this(null, null, null);
     }
