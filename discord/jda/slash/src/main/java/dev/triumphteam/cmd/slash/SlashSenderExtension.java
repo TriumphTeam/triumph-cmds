@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.slash;
 
 import com.google.common.collect.ImmutableSet;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.slash.sender.SlashCommandSender;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,6 +38,6 @@ final class SlashSenderExtension implements SenderExtension.Default<SlashSender>
 
     @Override
     public @NotNull Set<Class<? extends SlashSender>> getAllowedSenders() {
-        return ImmutableSet.of(SlashSender.class);
+        return ImmutableSet.of(SlashSender.class, SlashCommandSender.class);
     }
 }

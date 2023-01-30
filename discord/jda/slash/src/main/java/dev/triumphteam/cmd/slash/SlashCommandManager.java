@@ -25,7 +25,10 @@ package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.command.Command;
+import dev.triumphteam.cmd.core.command.ParentCommand;
 import dev.triumphteam.cmd.core.command.RootCommand;
+import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
@@ -42,10 +45,13 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -150,7 +156,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
         commands.pop();
 
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getSenderExtension();
-        final S sender = senderExtension.map(new SlashCommandSender(event));
+        final S sender = senderExtension.map(new InteractionCommandSender(event));
 
         // Mapping of arguments
         final Map<String, Function<Class<?>, Pair<String, Object>>> arguments = new HashMap<>();
@@ -159,6 +165,30 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
         }
 
         command.executeNonLinear(sender, null, commands, arguments);
+    }
+
+    public void suggest(final @NotNull CommandAutoCompleteInteractionEvent event) {
+        final Guild guild = event.getGuild();
+        if (guild == null) return;
+
+        final String name = event.getName();
+        final RootCommand<SlashSender, S> command = guildCommands
+                .getOrDefault(guild.getIdLong(), Collections.emptyMap())
+                .get(name);
+
+        final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
+
+        // Immediately pop the main command out, to remove itself from it
+        commands.pop();
+
+        final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getSenderExtension();
+        final S sender = senderExtension.map(new SuggestionCommandSender(event));
+        final SubCommand<SlashSender, S> subCommand = findExecutable(commands, command);
+        if (subCommand == null) return;
+
+        final AutoCompleteQuery option = event.getFocusedOption();
+        final List<String> suggestions = subCommand.suggest(sender, option.getName(), option.getValue());
+        event.replyChoiceStrings(suggestions.stream().limit(25).collect(Collectors.toList())).queue();
     }
 
     @Override
@@ -205,5 +235,26 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
     @Override
     protected @NotNull SlashRegistryContainer<S> getRegistryContainer() {
         return registryContainer;
+    }
+
+    private @Nullable SubCommand<SlashSender, S> findExecutable(
+            final @NotNull Deque<String> commands,
+            final @NotNull Command<SlashSender, S> command
+    ) {
+
+        // If it's empty we're talking about a default from Root
+        if (commands.isEmpty() && command instanceof ParentCommand) {
+            return (SubCommand<SlashSender, S>) ((ParentCommand<SlashSender, S>) command).getDefaultCommand();
+        }
+
+        Command<SlashSender, S> current = command;
+        while (true) {
+            if (current == null) return null;
+            if (current instanceof SubCommand) return (SubCommand<SlashSender, S>) current;
+            if (commands.isEmpty()) return null;
+
+            final ParentCommand<SlashSender, S> parentCommand = (ParentCommand<SlashSender, S>) current;
+            current = parentCommand.getCommand(commands.pop());
+        }
     }
 }

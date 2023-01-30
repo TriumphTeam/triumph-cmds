@@ -59,6 +59,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 
 @SuppressWarnings("unchecked")
 public class SubCommand<D, S> implements Command<D, S> {
@@ -242,7 +243,17 @@ public class SubCommand<D, S> implements Command<D, S> {
         return argumentList.get(index);
     }
 
-    public @Nullable InternalArgument<S, ?> getArgumentFromName(final @NotNull String name) {
+    public @NotNull List<String> suggest(
+            final @NotNull S sender,
+            final @NotNull String name,
+            final @NotNull String value
+    ) {
+        final InternalArgument<S, ?> argument = getArgumentFromName(name);
+        if (argument == null) return emptyList();
+        return argument.suggestions(sender, new ArrayDeque<>(singleton(value)));
+    }
+
+    private @Nullable InternalArgument<S, ?> getArgumentFromName(final @NotNull String name) {
         return argumentMap.get(name);
     }
 

@@ -26,32 +26,18 @@ package dev.triumphteam.cmd.slash;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
+final class SuggestionCommandSender implements SlashSender {
 
-final class SlashCommandSender implements SlashSender {
+    private final CommandAutoCompleteInteractionEvent event;
 
-    private final SlashCommandInteractionEvent event;
-
-    public SlashCommandSender(final @NotNull SlashCommandInteractionEvent event) {
+    public SuggestionCommandSender(final @NotNull CommandAutoCompleteInteractionEvent event) {
         this.event = event;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull SlashCommandInteractionEvent getEvent() {
-        return event;
     }
 
     /**
@@ -66,7 +52,7 @@ final class SlashCommandSender implements SlashSender {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull MessageChannelUnion getChannel() {
+    public @Nullable MessageChannelUnion getChannel() {
         return event.getChannel();
     }
 
@@ -84,61 +70,5 @@ final class SlashCommandSender implements SlashSender {
     @Override
     public @Nullable Member getMember() {
         return event.getMember();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull InteractionHook getHook() {
-        return event.getHook();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull ReplyCallbackAction reply(final @NotNull String message) {
-        return event.reply(message);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull ReplyCallbackAction reply(final @NotNull MessageCreateData message) {
-        return event.reply(message);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull ReplyCallbackAction reply(final @NotNull MessageEmbed embed, final @NotNull MessageEmbed @NotNull ... embeds) {
-        return event.replyEmbeds(embed, embeds);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull ReplyCallbackAction reply(final @NotNull Collection<? extends MessageEmbed> embeds) {
-        return event.replyEmbeds(embeds);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull ReplyCallbackAction deferReply() {
-        return event.deferReply();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull ReplyCallbackAction deferReply(final boolean ephemeral) {
-        return event.deferReply(ephemeral);
     }
 }
