@@ -24,22 +24,42 @@
 package dev.triumphteam.cmd.slash.choices;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-import static java.util.Collections.emptyList;
+public final class SimpleInternalChoice implements InternalChoice {
 
-public final class EmptyChoice implements Choice {
+    private final Supplier<List<String>> resolver;
 
-    public static final EmptyChoice INSTANCE = new EmptyChoice();
+    public SimpleInternalChoice(final @NotNull Supplier<List<String>> resolver) {
+        this.resolver = resolver;
+    }
 
     @Override
     public @NotNull List<String> getChoices() {
-        return emptyList();
+        return resolver.get();
+    }
+
+    @Override
+    public boolean equals(final @Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final SimpleInternalChoice that = (SimpleInternalChoice) o;
+        return resolver.equals(that.resolver);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resolver);
     }
 
     @Override
     public @NotNull String toString() {
-        return "EmptyChoice{}";
+        return "SimpleChoice{" +
+                "resolver=" + resolver +
+                '}';
     }
 }

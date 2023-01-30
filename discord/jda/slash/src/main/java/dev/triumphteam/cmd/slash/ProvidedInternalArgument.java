@@ -13,13 +13,14 @@ import java.util.function.BiFunction;
 class ProvidedInternalArgument<S> extends StringInternalArgument<S> {
 
     public ProvidedInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull Suggestion<S> suggestion,
             final boolean optional
     ) {
-        super(name, description, type, suggestion, optional);
+        super(meta, name, description, type, suggestion, optional);
     }
 
     @Override

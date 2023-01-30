@@ -29,12 +29,15 @@ import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.AnnotatedElement;
+
 public final class AsyncAnnotationProcessor implements AnnotationProcessor<Async> {
 
     @Override
     public void process(
             final @NotNull Async annotation,
             final @NotNull ProcessorTarget target,
+            final @NotNull AnnotatedElement element,
             final @NotNull CommandMeta.@NotNull Builder meta
     ) {
         if (target != ProcessorTarget.COMMAND) return;

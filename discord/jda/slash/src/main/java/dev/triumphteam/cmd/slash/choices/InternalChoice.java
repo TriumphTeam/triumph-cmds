@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface Choice {
+public interface InternalChoice {
 
     @NotNull List<String> getChoices();
 

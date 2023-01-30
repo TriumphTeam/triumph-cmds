@@ -49,6 +49,7 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
     private final Class<?> collectionType;
 
     public CollectionInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull InternalArgument<S, String> internalArgument,
@@ -56,7 +57,7 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
             final @NotNull Suggestion<S> suggestion,
             final boolean optional
     ) {
-        super(name, description, String.class, suggestion, optional);
+        super(meta, name, description, String.class, suggestion, optional);
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;
     }

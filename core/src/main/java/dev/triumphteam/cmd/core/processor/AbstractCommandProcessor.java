@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -184,6 +184,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
     }
 
     protected @NotNull InternalArgument<S, ?> argumentFromParameter(
+            final @NotNull CommandMeta meta,
             final @NotNull Parameter parameter,
             final @NotNull List<String> argDescriptions,
             final @NotNull Map<Integer, Suggestion<S>> suggestions,
@@ -201,6 +202,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         if (SUPPORTED_COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
             final Class<?> collectionType = getGenericType(parameter);
             final InternalArgument<S, String> argument = createSimpleArgument(
+                    meta,
                     collectionType,
                     argumentName,
                     argumentDescription,
@@ -216,6 +218,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
                 return new SplitStringInternalArgument<>(
+                        meta,
                         argumentName,
                         argumentDescription,
                         splitAnnotation.value(),
@@ -227,6 +230,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
             }
 
             return new CollectionInternalArgument<>(
+                    meta,
                     argumentName,
                     argumentDescription,
                     argument,
@@ -240,6 +244,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
             final Join joinAnnotation = parameter.getAnnotation(Join.class);
             return new JoinedStringInternalArgument<>(
+                    meta,
                     argumentName,
                     argumentDescription,
                     joinAnnotation.value(),
@@ -262,10 +267,11 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
             }
 
             return new KeyedInternalArgument<>(
+                    meta,
                     argumentName,
                     argumentDescription,
-                    createFlagInternals(flagGroup),
-                    createNamedArgumentInternals(argumentGroup),
+                    createFlagInternals(meta, flagGroup),
+                    createNamedArgumentInternals(meta, argumentGroup),
                     flagGroup,
                     argumentGroup
             );
@@ -273,6 +279,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
 
         // No more exceptions found so now just create simple argument
         return createSimpleArgument(
+                meta,
                 type,
                 argumentName,
                 argumentDescription,
@@ -282,6 +289,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
     }
 
     protected @NotNull StringInternalArgument<S> createSimpleArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull Class<?> type,
             final @NotNull String name,
             final @NotNull String description,
@@ -295,6 +303,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
             if (Enum.class.isAssignableFrom(type)) {
                 //noinspection unchecked
                 return new EnumInternalArgument<>(
+                        meta,
                         name,
                         description,
                         (Class<? extends Enum<?>>) type,
@@ -305,12 +314,13 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
 
             final InternalArgument.Factory<S> factory = argumentRegistry.getFactory(type);
             if (factory != null) {
-                return factory.create(name, description, type, suggestion, optional);
+                return factory.create(meta, name, description, type, suggestion, optional);
             }
 
             return new UnknownInternalArgument<>(type);
         }
         return new ResolverInternalArgument<>(
+                meta,
                 name,
                 description,
                 type,
@@ -320,7 +330,10 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         );
     }
 
-    private Map<Flag, StringInternalArgument<S>> createFlagInternals(final @NotNull ArgumentGroup<Flag> group) {
+    private Map<Flag, StringInternalArgument<S>> createFlagInternals(
+            final @NotNull CommandMeta meta,
+            final @NotNull ArgumentGroup<Flag> group
+    ) {
         final Map<Flag, StringInternalArgument<S>> internalArguments = new HashMap<>();
 
         for (final Flag flag : group.getAll()) {
@@ -332,6 +345,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
             internalArguments.put(
                     flag,
                     createSimpleArgument(
+                            meta,
                             argType,
                             "",
                             flag.getDescription(),
@@ -344,7 +358,10 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         return internalArguments;
     }
 
-    private Map<Argument, StringInternalArgument<S>> createNamedArgumentInternals(final @NotNull ArgumentGroup<Argument> group) {
+    private Map<Argument, StringInternalArgument<S>> createNamedArgumentInternals(
+            final @NotNull CommandMeta meta,
+            final @NotNull ArgumentGroup<Argument> group
+    ) {
         final Map<Argument, StringInternalArgument<S>> internalArguments = new HashMap<>();
 
         for (final Argument argument : group.getAll()) {
@@ -356,6 +373,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                 final ListArgument listArgument = (ListArgument) argument;
 
                 final InternalArgument<S, String> internalArgument = createSimpleArgument(
+                        meta,
                         listArgument.getType(),
                         listArgument.getName(),
                         listArgument.getDescription(),
@@ -366,6 +384,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                 internalArguments.put(
                         argument,
                         new SplitStringInternalArgument<>(
+                                meta,
                                 listArgument.getName(),
                                 listArgument.getDescription(),
                                 listArgument.getSeparator(),
@@ -382,6 +401,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
             internalArguments.put(
                     argument,
                     createSimpleArgument(
+                            meta,
                             argType,
                             argument.getName(),
                             argument.getDescription(),

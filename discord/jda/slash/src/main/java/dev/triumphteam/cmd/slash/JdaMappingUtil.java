@@ -30,6 +30,8 @@ import dev.triumphteam.cmd.core.command.ParentSubCommand;
 import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.util.Pair;
+import dev.triumphteam.cmd.slash.annotation.Choice;
+import dev.triumphteam.cmd.slash.choices.InternalChoice;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
@@ -52,6 +54,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -137,21 +140,30 @@ final class JdaMappingUtil {
         final String name = argument.getName();
         final String description = argument.getDescription();
 
+        final @NotNull Optional<InternalChoice> choice = argument.getMeta().get(Choice.CHOICE_META_KEY);
+
         final boolean enableSuggestions;
-        if (argument instanceof ProvidedInternalArgument) {
+        if (argument instanceof ProvidedInternalArgument || choice.isPresent()) {
             enableSuggestions = false;
         } else {
-            // TODO choices
             enableSuggestions = argument.canSuggest();
         }
 
-        return new OptionData(
+        final OptionData data = new OptionData(
                 fromType(argument.getType()),
                 name,
                 description.isEmpty() ? name : description,
                 !argument.isOptional(),
                 enableSuggestions
         );
+
+        choice.ifPresent(internalChoice -> data.addChoices(
+                internalChoice.getChoices().stream()
+                        .map(it -> new net.dv8tion.jda.api.interactions.commands.Command.Choice(it, it))
+                        .collect(Collectors.toList())
+        ));
+
+        return data;
     }
 
     private static Map<Class<?>, OptionType> createTypeMap() {

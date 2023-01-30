@@ -45,13 +45,14 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
     private final CharSequence delimiter;
 
     public JoinedStringInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull CharSequence delimiter,
             final @NotNull Suggestion<S> suggestion,
             final boolean optional
     ) {
-        super(name, description, String.class, suggestion, optional);
+        super(meta, name, description, String.class, suggestion, optional);
         this.delimiter = delimiter;
     }
 

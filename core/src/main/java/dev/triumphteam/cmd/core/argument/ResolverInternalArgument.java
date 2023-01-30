@@ -46,6 +46,7 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
     private final ArgumentResolver<S> resolver;
 
     public ResolverInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
@@ -53,7 +54,7 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
             final @NotNull Suggestion<S> suggestion,
             final boolean optional
     ) {
-        super(name, description, type, suggestion, optional);
+        super(meta, name, description, type, suggestion, optional);
         this.resolver = resolver;
     }
 

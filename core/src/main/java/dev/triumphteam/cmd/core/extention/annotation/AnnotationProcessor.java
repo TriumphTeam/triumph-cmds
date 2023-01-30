@@ -27,12 +27,14 @@ import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 public interface AnnotationProcessor<A extends Annotation> {
 
     void process(
             final @NotNull A annotation,
             final @NotNull ProcessorTarget target,
+            final @NotNull AnnotatedElement element,
             final @NotNull CommandMeta.Builder meta
     );
 }

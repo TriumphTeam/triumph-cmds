@@ -23,17 +23,19 @@
  */
 package dev.triumphteam.cmd.slash.annotation;
 
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
+import dev.triumphteam.cmd.slash.choices.InternalChoice;
+
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.PARAMETER})
-@Repeatable(Choices.class)
+@Target(ElementType.PARAMETER)
 public @interface Choice {
 
     String value();
 
+    MetaKey<InternalChoice> CHOICE_META_KEY = MetaKey.of("choice", InternalChoice.class);
 }

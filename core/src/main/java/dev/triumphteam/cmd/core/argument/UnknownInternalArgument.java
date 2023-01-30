@@ -39,7 +39,7 @@ import java.util.function.BiFunction;
 public final class UnknownInternalArgument<S> extends StringInternalArgument<S> {
 
     public UnknownInternalArgument(final @NotNull Class<?> type) {
-        super("unknown", "unknown.", type, new EmptySuggestion<>(), false);
+        super(null, "unknown", "unknown.", type, new EmptySuggestion<>(), false);
     }
 
     @Override

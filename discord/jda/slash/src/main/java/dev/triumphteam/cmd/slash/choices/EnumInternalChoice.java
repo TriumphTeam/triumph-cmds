@@ -33,11 +33,11 @@ import java.util.stream.Collectors;
 
 import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
 
-public final class EnumChoice implements Choice {
+public final class EnumInternalChoice implements InternalChoice {
 
     private final Class<? extends Enum<?>> enumType;
 
-    public EnumChoice(final @NotNull Class<? extends Enum<?>> enumType) {
+    public EnumInternalChoice(final @NotNull Class<? extends Enum<?>> enumType) {
         this.enumType = enumType;
         populateCache(enumType);
     }
@@ -60,7 +60,7 @@ public final class EnumChoice implements Choice {
     public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final EnumChoice that = (EnumChoice) o;
+        final EnumInternalChoice that = (EnumInternalChoice) o;
         return enumType.equals(that.enumType);
     }
 

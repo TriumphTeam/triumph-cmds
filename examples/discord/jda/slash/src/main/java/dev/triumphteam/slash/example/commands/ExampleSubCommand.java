@@ -9,11 +9,11 @@ public class ExampleSubCommand {
 
     @Command("first")
     public void first(final SlashCommandSender sender) {
-        sender.reply("OH PISS!").queue();
+        sender.reply("Command sent was /sub first").queue();
     }
 
     @Command("second")
     public void second(final SlashCommandSender sender, final User user) {
-        sender.reply("OH SHIT, " + user.getName() + " OH PISS!").queue();
+        sender.reply("Command sent was /sub second <" + user.getName() + ">").queue();
     }
 }

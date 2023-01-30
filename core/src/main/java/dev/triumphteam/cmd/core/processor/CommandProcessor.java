@@ -91,7 +91,7 @@ public interface CommandProcessor<D, S> {
             // No processors available
             if (annotationProcessor == null) continue;
 
-            annotationProcessor.process(annotation, target, meta);
+            annotationProcessor.process(annotation, target, element, meta);
         }
     }
 

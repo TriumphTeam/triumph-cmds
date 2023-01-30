@@ -182,7 +182,14 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
         for (int i = 1; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
 
+            // Validating the argument
+            final CommandMeta meta = parameterMetas.get(parameter);
+            if (meta == null) {
+                throw createException("An error occurred while getting parameter meta data for parameter " + parameter.getName());
+            }
+
             final InternalArgument<S, ?> argument = argumentFromParameter(
+                    meta,
                     parameter,
                     argDescriptions,
                     suggestions,
@@ -191,11 +198,6 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
                     i
             );
 
-            // Validating the argument
-            final CommandMeta meta = parameterMetas.get(parameter);
-            if (meta == null) {
-                throw createException("An error occurred while getting parameter meta data for parameter " + parameter.getName());
-            }
             final ValidationResult<String> result = getCommandOptions().getCommandExtensions().getArgumentValidator().validate(meta, argument, i, last);
 
             // If the result is invalid we throw the exception with the passed message

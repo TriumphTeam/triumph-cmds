@@ -52,6 +52,7 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
     private final Class<?> collectionType;
 
     public SplitStringInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull String regex,
@@ -60,7 +61,7 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
             final @NotNull Suggestion<S> suggestion,
             final boolean optional
     ) {
-        super(name, description, String.class, suggestion, optional);
+        super(meta, name, description, String.class, suggestion, optional);
         this.regex = regex;
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;

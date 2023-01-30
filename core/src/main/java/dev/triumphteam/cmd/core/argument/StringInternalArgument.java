@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,13 +36,14 @@ import org.jetbrains.annotations.NotNull;
 public abstract class StringInternalArgument<S> extends AbstractInternalArgument<S, String> {
 
     public StringInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull Suggestion<S> suggestion,
             final boolean optional
     ) {
-        super(name, description, type, suggestion, optional);
+        super(meta, name, description, type, suggestion, optional);
     }
 
     @Override

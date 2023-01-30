@@ -1,7 +1,7 @@
 package dev.triumphteam.slash.example.commands;
 
 import dev.triumphteam.cmd.core.annotations.Command;
-import dev.triumphteam.cmd.core.annotations.Suggestion;
+import dev.triumphteam.cmd.slash.annotation.Choice;
 import dev.triumphteam.cmd.slash.sender.SlashCommandSender;
 import net.dv8tion.jda.api.entities.User;
 
@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.User;
 public class ExampleCommand {
 
     @Command
-    public void execute(final SlashCommandSender sender, @Suggestion("ass") final String name, final User user) {
-        sender.reply("OH SHIT, " + name + " OH FUCK " + user.getName() + " OH PISS!").queue();
+    public void execute(final SlashCommandSender sender, @Choice("hello") final String name, final User user) {
+        sender.reply("Command sent was /example <" + name + "> <" + user.getName() + ">").queue();
     }
 }

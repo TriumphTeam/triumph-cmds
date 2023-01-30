@@ -224,7 +224,12 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
                 }
 
                 final Parameter parameter = isStatic ? parameters[0] : parameters[1];
+
+                final CommandMeta.Builder meta = new CommandMeta.Builder(null);
+                processAnnotations(getCommandOptions().getCommandExtensions(), parameter, ProcessorTarget.ARGUMENT, meta);
+
                 argument = processor.argumentFromParameter(
+                        meta.build(),
                         parameter,
                         emptyList(),
                         emptyMap(),

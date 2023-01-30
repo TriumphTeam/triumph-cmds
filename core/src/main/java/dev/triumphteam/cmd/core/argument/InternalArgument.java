@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +41,7 @@ import java.util.function.BiFunction;
  * @param <S> The sender type.
  * @param <T> The Argument type.
  */
-public interface InternalArgument<S, T> {
+public interface InternalArgument<S, T> extends CommandMetaContainer {
 
     /**
      * Gets the name of the argument.
@@ -129,6 +130,7 @@ public interface InternalArgument<S, T> {
     interface Factory<S> {
 
         @NotNull StringInternalArgument<S> create(
+                final @NotNull CommandMeta meta,
                 final @NotNull String name,
                 final @NotNull String description,
                 final @NotNull Class<?> type,
