@@ -43,7 +43,11 @@ public final class UnknownInternalArgument<S> extends StringInternalArgument<S> 
     }
 
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(final @NotNull S sender, final @NotNull String value) {
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull String value,
+            final @Nullable Object provided
+    ) {
         return invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, "", "", Void.TYPE));
     }
 

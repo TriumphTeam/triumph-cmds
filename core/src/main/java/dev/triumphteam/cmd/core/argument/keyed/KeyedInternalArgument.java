@@ -76,7 +76,8 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull Collection<String> value
+            final @NotNull Collection<String> value,
+            final @Nullable Object provided
     ) {
         final ArgumentParser.Result result = argumentParser.parse(value);
 

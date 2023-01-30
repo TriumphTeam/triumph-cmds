@@ -174,6 +174,10 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         return defaultCommand;
     }
 
+    public @Nullable Command<D, S> getCommand(final @NotNull String name) {
+        return commands.get(name);
+    }
+
     @Override
     public @NotNull Settings<D, S> getCommandSettings() {
         return settings;

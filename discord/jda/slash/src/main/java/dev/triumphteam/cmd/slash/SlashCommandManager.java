@@ -24,25 +24,38 @@
 package dev.triumphteam.cmd.slash;
 
 import dev.triumphteam.cmd.core.CommandManager;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
+import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.slash.choices.ChoiceKey;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
-import dev.triumphteam.cmd.slash.util.JdaMappingUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -71,8 +84,17 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
         this.jda = jda;
         this.registryContainer = registryContainer;
 
-        registerArgument(User.class, (sender, arg) -> "");
-        // jda.addEventListener(new SlashCommandListener<>(this, senderMapper));
+        // All use the same factory
+        final InternalArgument.Factory<S> jdaArgumentFactory = ProvidedInternalArgument::new;
+        registerArgument(User.class, jdaArgumentFactory);
+        registerArgument(Role.class, jdaArgumentFactory);
+        registerArgument(User.class, jdaArgumentFactory);
+        registerArgument(Member.class, jdaArgumentFactory);
+        registerArgument(GuildChannel.class, jdaArgumentFactory);
+        registerArgument(TextChannel.class, jdaArgumentFactory);
+        registerArgument(MessageChannel.class, jdaArgumentFactory);
+        registerArgument(Message.Attachment.class, jdaArgumentFactory);
+        registerArgument(IMentionable.class, jdaArgumentFactory);
     }
 
     @Contract("_, _, _ -> new")
@@ -122,11 +144,21 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S>
                 .getOrDefault(guild.getIdLong(), Collections.emptyMap())
                 .get(name);
 
+        final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
+
+        // Immediately pop the main command out, to remove itself from it
+        commands.pop();
+
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getSenderExtension();
         final S sender = senderExtension.map(new SlashCommandSender(event));
 
+        // Mapping of arguments
+        final Map<String, Function<Class<?>, Pair<String, Object>>> arguments = new HashMap<>();
+        for (final OptionMapping option : event.getOptions()) {
+            arguments.put(option.getName(), type -> JdaMappingUtil.parsedValueFromType(type, option));
+        }
 
-        // TODO continue
+        command.executeNonLinear(sender, null, commands, arguments);
     }
 
     @Override

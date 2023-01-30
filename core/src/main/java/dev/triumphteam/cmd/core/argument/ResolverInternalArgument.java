@@ -67,8 +67,11 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull String value
+            final @NotNull String value,
+            final @Nullable Object provided
     ) {
+        if (provided != null) return success(provided);
+
         final Object result = resolver.resolve(sender, value);
 
         if (result == null) {

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash.util;
+package dev.triumphteam.cmd.slash;
 
 import com.google.common.collect.ImmutableMap;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
@@ -29,13 +29,17 @@ import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.command.ParentSubCommand;
 import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
+import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
+import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -48,38 +52,30 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class JdaMappingUtil {
+final class JdaMappingUtil {
 
-    private static final Map<Class<?>, OptionType> OPTION_TYPE_MAP;
-
-    static {
-        final Map<Class<?>, OptionType> map = new HashMap<>();
-        map.put(Short.class, OptionType.INTEGER);
-        map.put(short.class, OptionType.INTEGER);
-        map.put(Integer.class, OptionType.INTEGER);
-        map.put(int.class, OptionType.INTEGER);
-        map.put(Long.class, OptionType.INTEGER);
-        map.put(long.class, OptionType.INTEGER);
-        map.put(Double.class, OptionType.NUMBER);
-        map.put(double.class, OptionType.NUMBER);
-        map.put(Boolean.class, OptionType.BOOLEAN);
-        map.put(boolean.class, OptionType.BOOLEAN);
-        map.put(Role.class, OptionType.ROLE);
-        map.put(User.class, OptionType.USER);
-        map.put(Member.class, OptionType.USER);
-        map.put(TextChannel.class, OptionType.CHANNEL);
-        map.put(MessageChannel.class, OptionType.CHANNEL);
-        map.put(Message.Attachment.class, OptionType.ATTACHMENT);
-
-        OPTION_TYPE_MAP = ImmutableMap.copyOf(map);
-    }
+    private static final Map<Class<?>, OptionType> OPTION_TYPE_MAP = createTypeMap();
+    private static final Map<Class<?>, Function<OptionMapping, Object>> MAPPING_MAP = createMappingsMap();
 
     private JdaMappingUtil() {}
 
     public static @NotNull OptionType fromType(final @NotNull Class<?> type) {
         return OPTION_TYPE_MAP.getOrDefault(type, OptionType.STRING);
+    }
+
+    public static @NotNull Pair<String, Object> parsedValueFromType(
+            final @NotNull Class<?> type,
+            final @NotNull OptionMapping option
+    ) {
+        final String raw = option.getAsString();
+
+        final Function<OptionMapping, Object> mapper = MAPPING_MAP.get(type);
+        if (mapper == null) return new Pair<>(raw, raw);
+
+        return new Pair<>(raw, mapper.apply(option));
     }
 
     public static <S> @NotNull SlashCommandData mapCommand(final @NotNull RootCommand<SlashSender, S> rootCommand) {
@@ -141,11 +137,57 @@ public final class JdaMappingUtil {
         final String name = argument.getName();
         final String description = argument.getDescription();
 
+        final boolean enableSuggestions;
+        if (argument instanceof ProvidedInternalArgument) {
+            enableSuggestions = false;
+        } else {
+            // TODO choices
+            enableSuggestions = argument.canSuggest();
+        }
+
         return new OptionData(
                 fromType(argument.getType()),
                 name,
                 description.isEmpty() ? name : description,
-                !argument.isOptional()
+                !argument.isOptional(),
+                enableSuggestions
         );
+    }
+
+    private static Map<Class<?>, OptionType> createTypeMap() {
+        final Map<Class<?>, OptionType> map = new HashMap<>();
+        map.put(Short.class, OptionType.INTEGER);
+        map.put(short.class, OptionType.INTEGER);
+        map.put(Integer.class, OptionType.INTEGER);
+        map.put(int.class, OptionType.INTEGER);
+        map.put(Long.class, OptionType.INTEGER);
+        map.put(long.class, OptionType.INTEGER);
+        map.put(Double.class, OptionType.NUMBER);
+        map.put(double.class, OptionType.NUMBER);
+        map.put(Boolean.class, OptionType.BOOLEAN);
+        map.put(boolean.class, OptionType.BOOLEAN);
+        map.put(Role.class, OptionType.ROLE);
+        map.put(User.class, OptionType.USER);
+        map.put(Member.class, OptionType.USER);
+        map.put(TextChannel.class, OptionType.CHANNEL);
+        map.put(MessageChannel.class, OptionType.CHANNEL);
+        map.put(Message.Attachment.class, OptionType.ATTACHMENT);
+
+        return ImmutableMap.copyOf(map);
+    }
+
+    private static Map<Class<?>, Function<OptionMapping, Object>> createMappingsMap() {
+        final Map<Class<?>, Function<OptionMapping, Object>> map = new HashMap<>();
+
+        map.put(Role.class, OptionMapping::getAsRole);
+        map.put(User.class, OptionMapping::getAsUser);
+        map.put(Member.class, OptionMapping::getAsMember);
+        map.put(GuildChannel.class, OptionMapping::getAsChannel);
+        map.put(TextChannel.class, OptionMapping::getAsChannel);
+        map.put(MessageChannel.class, OptionMapping::getAsChannel);
+        map.put(Message.Attachment.class, OptionMapping::getAsAttachment);
+        map.put(IMentionable.class, OptionMapping::getAsMentionable);
+
+        return ImmutableMap.copyOf(map);
     }
 }

@@ -65,7 +65,8 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull Collection<String> value
+            final @NotNull Collection<String> value,
+            final @Nullable Object provided
     ) {
         return success(String.join(delimiter, value));
     }

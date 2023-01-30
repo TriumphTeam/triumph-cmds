@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,7 @@ import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,6 +45,7 @@ import java.util.Map;
 public final class ArgumentRegistry<S> implements Registry {
 
     private final Map<Class<?>, ArgumentResolver<S>> arguments = new HashMap<>();
+    private final Map<Class<?>, InternalArgument.Factory<S>> internals = new HashMap<>();
 
     @SuppressWarnings("UnstableApiUsage")
     public ArgumentRegistry() {
@@ -78,14 +80,15 @@ public final class ArgumentRegistry<S> implements Registry {
         arguments.put(clazz, argument);
     }
 
-    /**
-     * Gets an argument resolver from the Map.
-     *
-     * @param clazz The {@link Class} type the argument.
-     * @return An {@link ArgumentResolver} or null if it doesn't exist.
-     */
+    public void register(final @NotNull Class<?> clazz, final @NotNull InternalArgument.Factory<S> factory) {
+        internals.put(clazz, factory);
+    }
+
     public @Nullable ArgumentResolver<S> getResolver(final @NotNull Class<?> clazz) {
         return arguments.get(clazz);
     }
 
+    public @Nullable InternalArgument.Factory<S> getFactory(final @NotNull Class<?> clazz) {
+        return internals.get(clazz);
+    }
 }

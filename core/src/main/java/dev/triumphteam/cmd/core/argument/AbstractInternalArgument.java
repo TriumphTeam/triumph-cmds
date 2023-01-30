@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 
@@ -104,6 +105,11 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     @Override
     public boolean isOptional() {
         return optional;
+    }
+
+    @Override
+    public boolean canSuggest() {
+        return !(suggestion instanceof EmptySuggestion);
     }
 
     protected @NotNull Suggestion<S> getSuggestion() {

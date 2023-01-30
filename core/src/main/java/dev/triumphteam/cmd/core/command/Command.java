@@ -25,12 +25,14 @@ package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.extention.command.Settings;
 import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
+import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -47,14 +49,19 @@ public interface Command<D, S> extends CommandMetaContainer {
      * @param sender           The sender of the command.
      * @param instanceSupplier A supplier for which instance will be needed when invoking the command.
      * @param arguments        A {@link Deque} with the arguments passed, these are consumed on each step.
-     * @param extra            A map of extra details to pass down to the command.
      * @throws Throwable Anything that goes wrong with the execution.
      */
     void execute(
             final @NotNull S sender,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> arguments,
-            final @NotNull Map<String, Object> extra
+            final @NotNull Deque<String> arguments
+    ) throws Throwable;
+
+    void executeNonLinear(
+            final @NotNull S sender,
+            final @Nullable Supplier<Object> instanceSupplier,
+            final @NotNull Deque<String> commands,
+            final @NotNull Map<String, Function<Class<?>, Pair<String, Object>>> arguments
     ) throws Throwable;
 
     /**

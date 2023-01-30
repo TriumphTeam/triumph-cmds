@@ -71,7 +71,8 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull Collection<String> value
+            final @NotNull Collection<String> value,
+            final @Nullable Object provided
     ) {
         final Stream<Object> stream = value.stream().map(arg -> internalArgument.resolve(sender, arg));
         if (collectionType == Set.class) return success(stream.collect(Collectors.toSet()));

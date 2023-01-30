@@ -1,4 +1,4 @@
-package dev.triumphteam.slash.example;
+package dev.triumphteam.slash.example.commands;
 
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
@@ -12,12 +12,12 @@ public class ExampleCommandGroup {
 
         @Command("first")
         public void first(final SlashSender sender) {
-
+            sender.reply("OH SHIT").queue();
         }
 
         @Command("second")
         public void second(final SlashSender sender, final User user) {
-
+            sender.reply("OH SHIT, OH FUCK " + user.getName() + " OH PISS!").queue();
         }
     }
 }

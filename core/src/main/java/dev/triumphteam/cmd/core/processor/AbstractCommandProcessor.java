@@ -303,6 +303,11 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                 );
             }
 
+            final InternalArgument.Factory<S> factory = argumentRegistry.getFactory(type);
+            if (factory != null) {
+                return factory.create(name, description, type, suggestion, optional);
+            }
+
             return new UnknownInternalArgument<>(type);
         }
         return new ResolverInternalArgument<>(

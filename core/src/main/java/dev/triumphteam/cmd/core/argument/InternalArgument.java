@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.argument;
 import dev.triumphteam.cmd.core.extention.Result;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,6 +74,22 @@ public interface InternalArgument<S, T> {
      */
     boolean isOptional();
 
+    boolean canSuggest();
+
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender   The sender to resolve to.
+     * @param value    The argument value.
+     * @param provided A provided value by a platform in case parsing isn't needed.
+     * @return A resolve {@link Result}.
+     */
+    @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull T value,
+            final @Nullable Object provided
+    );
+
     /**
      * Resolves the argument type.
      *
@@ -80,10 +97,12 @@ public interface InternalArgument<S, T> {
      * @param value  The argument value.
      * @return A resolve {@link Result}.
      */
-    @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+    default @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
             final @NotNull T value
-    );
+    ) {
+        return resolve(sender, value, null);
+    }
 
     /**
      * Create a list of suggestion strings to return to the platform requesting it.
@@ -104,5 +123,17 @@ public interface InternalArgument<S, T> {
             final @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> context
     ) {
         return new Result.Failure<>(context);
+    }
+
+    @FunctionalInterface
+    interface Factory<S> {
+
+        @NotNull StringInternalArgument<S> create(
+                final @NotNull String name,
+                final @NotNull String description,
+                final @NotNull Class<?> type,
+                final @NotNull Suggestion<S> suggestion,
+                final boolean optional
+        );
     }
 }

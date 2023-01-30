@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,16 +46,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
+@SuppressWarnings("unchecked")
 public class SubCommand<D, S> implements Command<D, S> {
 
     private final Class<? extends S> senderType;
@@ -118,8 +123,7 @@ public class SubCommand<D, S> implements Command<D, S> {
     public void execute(
             final @NotNull S sender,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> arguments,
-            final @NotNull Map<String, Object> extra
+            final @NotNull Deque<String> arguments
     ) throws Throwable {
         final ValidationResult<MessageKey<MessageContext>> validationResult = senderExtension.validate(meta, senderType, sender);
 
@@ -147,6 +151,62 @@ public class SubCommand<D, S> implements Command<D, S> {
             messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
             return;
         }
+
+        commandExecutor.execute(
+                meta,
+                instanceSupplier == null ? invocationInstance : instanceSupplier.get(),
+                method,
+                invokeArguments
+        );
+    }
+
+    @Override
+    public void executeNonLinear(
+            final @NotNull S sender,
+            final @Nullable Supplier<Object> instanceSupplier,
+            final @NotNull Deque<String> commands,
+            final @NotNull Map<String, Function<Class<?>, Pair<String, Object>>> arguments
+    ) throws Throwable {
+        // TODO DRY
+        final ValidationResult<MessageKey<MessageContext>> validationResult = senderExtension.validate(meta, senderType, sender);
+
+        // If the result is invalid for a reason given by the validator, we stop the execution and use its key to send
+        // a message to the sender
+        if (validationResult instanceof ValidationResult.Invalid) {
+            messageRegistry.sendMessage(
+                    ((ValidationResult.Invalid<MessageKey<MessageContext>>) validationResult).getMessage(),
+                    sender,
+                    new SyntaxMessageContext(meta, syntax)
+            );
+            return;
+        }
+
+        // Testing if all requirements pass before we continue
+        if (!settings.testRequirements(messageRegistry, sender, meta, senderExtension)) return;
+
+        // Creates the invoking arguments list
+        final List<Object> invokeArguments = new ArrayList<>();
+        invokeArguments.add(sender);
+
+        argumentList.forEach(it -> {
+            final Function<Class<?>, Pair<String, Object>> function = arguments.get(it.getName());
+            // Should only really happen on optional arguments
+            if (function == null) {
+                invokeArguments.add(null);
+                return;
+            }
+
+            final Pair<String, Object> pair = function.apply(it.getType());
+
+            final Deque<String> raw;
+            if (it instanceof LimitlessInternalArgument) {
+                raw = new ArrayDeque<>(Arrays.asList(pair.first().split("")));
+            } else {
+                raw = new ArrayDeque<>(Collections.singleton(pair.first()));
+            }
+
+            validateAndCollectArgument(sender, invokeArguments, raw, it, pair.second());
+        });
 
         commandExecutor.execute(
                 meta,
@@ -194,57 +254,70 @@ public class SubCommand<D, S> implements Command<D, S> {
      * @param commandArgs     The command arguments type.
      * @return False if any internalArgument fails to pass.
      */
-    @SuppressWarnings("unchecked")
     private boolean validateAndCollectArguments(
             final @NotNull S sender,
             final @NotNull List<Object> invokeArguments,
             final @NotNull Deque<String> commandArgs
     ) {
         for (final InternalArgument<S, ?> internalArgument : argumentList) {
-            final Result<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>> result;
-            if (internalArgument instanceof LimitlessInternalArgument) {
-                final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
+            if (!validateAndCollectArgument(sender, invokeArguments, commandArgs, internalArgument, null)) {
+                return false;
+            }
+        }
 
-                // From this point on [commandArgs] is treated as a simple Collection instead of Deque
-                result = limitlessArgument.resolve(sender, commandArgs);
-            } else if (internalArgument instanceof StringInternalArgument) {
-                final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
-                final String arg = commandArgs.peek();
+        return true;
+    }
 
-                if (arg == null || arg.isEmpty()) {
-                    if (internalArgument.isOptional()) {
-                        invokeArguments.add(null);
-                        continue;
-                    }
+    private boolean validateAndCollectArgument(
+            final @NotNull S sender,
+            final @NotNull List<Object> invokeArguments,
+            final @NotNull Deque<String> commandArgs,
+            final @NotNull InternalArgument<S, ?> internalArgument,
+            final @Nullable Object provided
+    ) {
+        final Result<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>> result;
+        if (internalArgument instanceof LimitlessInternalArgument) {
+            final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
 
-                    messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
-                    return false;
+            // From this point on [commandArgs] is treated as a simple Collection instead of Deque
+            result = limitlessArgument.resolve(sender, commandArgs, provided);
+        } else if (internalArgument instanceof StringInternalArgument) {
+            final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
+            final String arg = commandArgs.peek();
+
+            if (arg == null || arg.isEmpty()) {
+                if (internalArgument.isOptional()) {
+                    invokeArguments.add(null);
+                    return true;
                 }
 
-                // Pop the command out
-                commandArgs.pop();
-                result = stringArgument.resolve(sender, arg);
-            } else {
-                // Should never happen, this should be a sealed type ... but hey, it's Java 8
-                throw new CommandExecutionException("Found unsupported argument", "", name);
-            }
-
-            // In case of failure we send the Sender a message
-            if (result instanceof Result.Failure) {
-                messageRegistry.sendMessage(
-                        MessageKey.INVALID_ARGUMENT,
-                        sender,
-                        ((Result.Failure<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result)
-                                .getFail()
-                                .apply(meta, syntax)
-                );
+                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
                 return false;
             }
 
-            // In case of success we add the results
-            if (result instanceof Result.Success) {
-                invokeArguments.add(((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result).getValue());
-            }
+            // Pop the command out
+            commandArgs.pop();
+            result = stringArgument.resolve(sender, arg, provided);
+        } else {
+            // Should never happen, this should be a sealed type ... but hey, it's Java 8
+            throw new CommandExecutionException("Found unsupported argument", "", name);
+        }
+
+        // In case of failure we send the Sender a message
+        if (result instanceof Result.Failure) {
+            messageRegistry.sendMessage(
+                    MessageKey.INVALID_ARGUMENT,
+                    sender,
+                    ((Result.Failure<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result)
+                            .getFail()
+                            .apply(meta, syntax)
+            );
+            return false;
+        }
+
+        // In case of success we add the results
+        if (result instanceof Result.Success) {
+            invokeArguments.add(((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result).getValue());
         }
 
         return true;

@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.argument.keyed.Flags;
@@ -102,6 +103,10 @@ public abstract class CommandManager<D, S> {
      */
     public final void registerArgument(final @NotNull Class<?> clazz, final @NotNull ArgumentResolver<S> resolver) {
         getRegistryContainer().getArgumentRegistry().register(clazz, resolver);
+    }
+
+    public final void registerArgument(final @NotNull Class<?> clazz, final @NotNull InternalArgument.Factory<S> factory) {
+        getRegistryContainer().getArgumentRegistry().register(clazz, factory);
     }
 
     /**

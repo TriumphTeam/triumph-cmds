@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.function.BiFunction;
@@ -69,7 +70,8 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
     @Override
     public @NotNull Result<Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull String value
+            final @NotNull String value,
+            final @Nullable Object provided
     ) {
         final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
 

@@ -32,6 +32,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import dev.triumphteam.cmd.core.processor.ParentCommandProcessor;
+import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,6 +42,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -89,10 +91,8 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
     public void execute(
             final @NotNull S sender,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> arguments,
-            final @NotNull Map<String, Object> extra
+            final @NotNull Deque<String> arguments
     ) throws Throwable {
-
         // Test all requirements before continuing
         if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
 
@@ -133,8 +133,31 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
         command.execute(
                 sender,
                 () -> instance,
-                arguments,
-                extra
+                arguments
+        );
+    }
+
+    @Override
+    public void executeNonLinear(
+            final @NotNull S sender,
+            final @Nullable Supplier<Object> instanceSupplier,
+            final @NotNull Deque<String> commands,
+            final @NotNull Map<String, Function<Class<?>, Pair<String, Object>>> arguments
+    ) throws Throwable {
+        // Test all requirements before continuing
+        if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
+
+        final Command<D, S> command = findCommand(sender, commands, true);
+        if (command == null) return;
+
+        final Object instance = createInstance(instanceSupplier);
+
+        // Simply execute the command with the given instance
+        command.executeNonLinear(
+                sender,
+                () -> instance,
+                commands,
+                arguments
         );
     }
 

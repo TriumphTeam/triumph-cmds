@@ -76,7 +76,8 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
     @Override
     public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull String value
+            final @NotNull String value,
+            final @Nullable Object provided
     ) {
         final Stream<Object> stream = Arrays.stream(value.split(regex)).map(arg -> internalArgument.resolve(sender, arg));
         if (collectionType == Set.class) return success(stream.collect(Collectors.toSet()));
