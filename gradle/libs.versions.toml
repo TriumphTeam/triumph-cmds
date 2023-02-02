@@ -18,6 +18,7 @@ spigot = "1.18.2-R0.1-SNAPSHOT"
 
 # Discord
 jda = "5.0.0-beta.3"
+kord = "0.8.0-M17"
 
 # Formatting
 spotless = "6.12.0"
@@ -42,6 +43,7 @@ spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
 
 # Discord
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+kord = { module = "dev.kord:kord-core", version.ref = "kord" }
 
 # Kotlin
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

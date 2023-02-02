@@ -18,6 +18,7 @@ listOf(
      "discord/jda/common" to "jda-common",
      // "discord/jda-prefixed" to "jda-prefixed",
      "discord/jda/slash" to "jda-slash",
+     "discord/kord/slash" to "kord-slash",
 
      "kotlin/coroutines" to "kotlin-coroutines",
      "kotlin/extensions" to "kotlin-extensions",
@@ -31,6 +32,7 @@ listOf(
 
     // "discord/jda-prefixed" to "jda-prefixed",
     "examples/discord/jda/slash" to "jda-slash-examples",
+    "examples/discord/kord/slash" to "kord-slash-examples",
 ).forEach {
     includeProjectFolders(it.first, it.second)
 }
