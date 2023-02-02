@@ -43,6 +43,6 @@ public final class SimpleOptionsBuilder<S> extends CommandOptions.Builder<S, S, 
 
     @Override
     public @NotNull CommandOptions<S, S> build(final @NotNull SenderExtension<S, S> senderExtension) {
-        return new CommandOptions<>(senderExtension, getCommandExtensions());
+        return new CommandOptions<>(senderExtension, this);
     }
 }

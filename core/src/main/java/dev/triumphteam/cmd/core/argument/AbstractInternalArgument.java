@@ -71,7 +71,7 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
             final @NotNull Deque<String> arguments
     ) {
         final String current = arguments.peekLast();
-        return getSuggestion().getSuggestions(sender, current == null ? "" : current, new ArrayList<>(arguments));
+        return suggestion.getSuggestions(sender, current == null ? "" : current, new ArrayList<>(arguments));
     }
 
     @Override

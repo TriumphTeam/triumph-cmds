@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
@@ -39,9 +38,9 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
 
     public BukkitCommandOptions(
             final @NotNull SenderExtension<CommandSender, S> senderExtension,
-            final @NotNull CommandExtensions<CommandSender, S> commandExtensions
+            final @NotNull Builder<S> builder
     ) {
-        super(senderExtension, commandExtensions);
+        super(senderExtension, builder);
     }
 
     public static final class Setup<S> extends CommandOptions.Setup<CommandSender, S, Setup<S>> {
@@ -96,7 +95,7 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
             // Add permissions
             extensions(extension -> extension.addProcessor(new PermissionProcessor<>(globalPermission)));
 
-            return new BukkitCommandOptions<>(senderExtension, getCommandExtensions());
+            return new BukkitCommandOptions<>(senderExtension, this);
         }
     }
 }

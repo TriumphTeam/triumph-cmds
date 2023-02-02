@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.slash;
 
-import dev.triumphteam.cmd.core.extention.CommandExtensions;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
@@ -43,11 +42,10 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
 
     public SlashCommandOptions(
             final @NotNull SenderExtension<SlashSender, S> senderExtension,
-            final @NotNull CommandExtensions<SlashSender, S> commandExtensions,
-            final boolean autoRegisterListener
+            final @NotNull Builder<S> builder
     ) {
-        super(senderExtension, commandExtensions);
-        this.autoRegisterListener = autoRegisterListener;
+        super(senderExtension, builder);
+        this.autoRegisterListener = builder.autoRegisterListener;
     }
 
     public boolean autoRegisterListener() {
@@ -91,7 +89,7 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
 
         @Override
         public @NotNull SlashCommandOptions<S> build(final @NotNull SenderExtension<SlashSender, S> senderExtension) {
-            return new SlashCommandOptions<>(senderExtension, getCommandExtensions(), autoRegisterListener);
+            return new SlashCommandOptions<>(senderExtension, this);
         }
     }
 }

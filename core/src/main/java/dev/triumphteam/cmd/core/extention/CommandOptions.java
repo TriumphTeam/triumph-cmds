@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -52,13 +52,15 @@ public class CommandOptions<D, S> {
 
     private final CommandExtensions<D, S> commandExtensions;
     private final SenderExtension<D, S> senderExtension;
+    private final boolean suggestLowercaseEnum;
 
     public CommandOptions(
             final @NotNull SenderExtension<D, S> senderExtension,
-            final @NotNull CommandExtensions<D, S> commandExtensions
+            final @NotNull Builder<D, S, ?, ?, ?> builder
     ) {
         this.senderExtension = senderExtension;
-        this.commandExtensions = commandExtensions;
+        this.commandExtensions = builder.extensionBuilder.build();
+        this.suggestLowercaseEnum = builder.suggestLowercaseEnum;
     }
 
     public @NotNull CommandExtensions<D, S> getCommandExtensions() {
@@ -69,8 +71,13 @@ public class CommandOptions<D, S> {
         return senderExtension;
     }
 
+    public boolean suggestLowercaseEnum() {
+        return suggestLowercaseEnum;
+    }
+
     public static abstract class Builder<D, S, O extends CommandOptions<D, S>, I extends Setup<D, S, I>, B extends Builder<D, S, O, I, B>> {
 
+        private boolean suggestLowercaseEnum = false;
         private final ExtensionBuilder<D, S> extensionBuilder = new ExtensionBuilder<>();
         private final I setup;
 
@@ -78,21 +85,25 @@ public class CommandOptions<D, S> {
             this.setup = setup;
         }
 
+        @Contract("_ -> this")
         public @NotNull B setup(final @NotNull Consumer<I> consumer) {
             consumer.accept(setup);
             return (B) this;
         }
 
+        @Contract("_ -> this")
         public @NotNull B extensions(final @NotNull Consumer<ExtensionBuilder<D, S>> consumer) {
             consumer.accept(extensionBuilder);
             return (B) this;
         }
 
-        public abstract @NotNull O build(final @NotNull SenderExtension<D, S> senderExtension);
-
-        protected @NotNull CommandExtensions<D, S> getCommandExtensions() {
-            return extensionBuilder.build();
+        @Contract(" -> this")
+        public @NotNull B suggestLowercaseEnum() {
+            this.suggestLowercaseEnum = true;
+            return (B) this;
         }
+
+        public abstract @NotNull O build(final @NotNull SenderExtension<D, S> senderExtension);
     }
 
     public static abstract class Setup<D, S, I extends Setup<D, S, I>> {

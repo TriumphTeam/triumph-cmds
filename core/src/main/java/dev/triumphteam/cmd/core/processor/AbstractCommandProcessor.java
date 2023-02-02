@@ -478,7 +478,9 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
 
     protected @NotNull Suggestion<S> createSuggestion(final @Nullable SuggestionKey suggestionKey, final @NotNull Class<?> type) {
         if (suggestionKey == null || suggestionKey.getKey().isEmpty()) {
-            if (Enum.class.isAssignableFrom(type)) return new EnumSuggestion<>((Class<? extends Enum<?>>) type);
+            if (Enum.class.isAssignableFrom(type)) {
+                return new EnumSuggestion<>((Class<? extends Enum<?>>) type, commandOptions.suggestLowercaseEnum());
+            }
 
             final SuggestionResolver<S> resolver = suggestionRegistry.getSuggestionResolver(type);
             if (resolver != null) return new SimpleSuggestion<>(resolver);
