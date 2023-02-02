@@ -26,11 +26,16 @@ package dev.triumphteam.cmd.slash;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 final class SuggestionCommandSender implements SlashSender {
 
@@ -70,5 +75,35 @@ final class SuggestionCommandSender implements SlashSender {
     @Override
     public @Nullable Member getMember() {
         return event.getMember();
+    }
+
+    @Override
+    public @NotNull ReplyCallbackAction reply(final @NotNull String message) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public @NotNull ReplyCallbackAction reply(final @NotNull MessageCreateData message) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public @NotNull ReplyCallbackAction reply(final @NotNull MessageEmbed embed, final @NotNull MessageEmbed @NotNull ... embeds) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public @NotNull ReplyCallbackAction reply(final @NotNull Collection<? extends MessageEmbed> embeds) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public @NotNull ReplyCallbackAction deferReply() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public @NotNull ReplyCallbackAction deferReply(final boolean ephemeral) {
+        throw new UnsupportedOperationException();
     }
 }

@@ -26,16 +26,20 @@ package dev.triumphteam.cmd.slash.annotation;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import dev.triumphteam.cmd.slash.choices.InternalChoice;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
+@Inherited
 public @interface Choice {
 
     String value();
 
-    MetaKey<InternalChoice> CHOICE_META_KEY = MetaKey.of("choice", InternalChoice.class);
+    MetaKey<InternalChoice> META_KEY = MetaKey.of("choice", InternalChoice.class);
 }

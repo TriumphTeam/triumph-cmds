@@ -21,25 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash.choices;
+package dev.triumphteam.cmd.slash.annotation;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public final class ChoiceRegistry {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Inherited
+public @interface NSFW {
 
-    private final Map<ChoiceKey, Supplier<List<String>>> choices = new HashMap<>();
-
-    public void register(final @NotNull ChoiceKey key, final @NotNull Supplier<List<String>> resolver) {
-        choices.put(key, resolver);
-    }
-
-    public @Nullable Supplier<List<String>> getChoiceResolver(final @NotNull ChoiceKey key) {
-        return choices.get(key);
-    }
+    MetaKey<Boolean> META_KEY = MetaKey.of("nsfw", Boolean.class);
 }

@@ -23,15 +23,10 @@
  */
 package dev.triumphteam.cmd.slash.sender;
 
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
 
 /**
  * Works like a shortcut for most things present on {@link SlashCommandInteractionEvent}.
@@ -55,52 +50,4 @@ public interface SlashCommandSender extends SlashSender {
      * @return The interaction hook.
      */
     @NotNull InteractionHook getHook();
-
-    /**
-     * Replies to the command with a string message.
-     *
-     * @param message The message to reply with.
-     * @return The reply action.
-     */
-    @NotNull ReplyCallbackAction reply(final @NotNull String message);
-
-    /**
-     * Replies to the command with a message.
-     *
-     * @param message The message to reply with.
-     * @return The reply action.
-     */
-    @NotNull ReplyCallbackAction reply(final @NotNull MessageCreateData message);
-
-    /**
-     * Replies to the command with a message embed.
-     *
-     * @param embed  The embed to reply with.
-     * @param embeds The additional embeds.
-     * @return The reply action.
-     */
-    @NotNull ReplyCallbackAction reply(final @NotNull MessageEmbed embed, final @NotNull MessageEmbed @NotNull ... embeds);
-
-    /**
-     * Replies to the command with a message embeds.
-     *
-     * @param embeds The embeds to reply with.
-     * @return The reply action.
-     */
-    @NotNull ReplyCallbackAction reply(final @NotNull Collection<? extends MessageEmbed> embeds);
-
-    /**
-     * Defers the reply to the command.
-     *
-     * @return The reply action.
-     */
-    @NotNull ReplyCallbackAction deferReply();
-
-    /**
-     * Defers the reply to the command but ephemeral.
-     *
-     * @param ephemeral Whether the message should be ephemeral.
-     * @return The reply action.
-     */
-    @NotNull ReplyCallbackAction deferReply(final boolean ephemeral);
 }

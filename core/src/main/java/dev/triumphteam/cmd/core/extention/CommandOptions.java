@@ -115,7 +115,7 @@ public class CommandOptions<D, S> {
         }
 
         @Contract("_, _ -> new")
-        public <C extends MessageContext> I message(
+        public <C extends MessageContext> @NotNull I message(
                 final @NotNull MessageKey<C> messageKey,
                 final @NotNull MessageResolver<S, C> resolver
         ) {
@@ -124,7 +124,7 @@ public class CommandOptions<D, S> {
         }
 
         @Contract("_, _ -> new")
-        public I argument(
+        public @NotNull I argument(
                 final @NotNull Class<?> type,
                 final @NotNull ArgumentResolver<S> resolver
         ) {
@@ -133,7 +133,7 @@ public class CommandOptions<D, S> {
         }
 
         @Contract("_, _ -> new")
-        public I suggestion(
+        public @NotNull I suggestion(
                 final @NotNull Class<?> type,
                 final @NotNull SuggestionResolver<S> resolver
         ) {
@@ -142,7 +142,7 @@ public class CommandOptions<D, S> {
         }
 
         @Contract("_, _ -> new")
-        public I suggestion(
+        public @NotNull I suggestion(
                 final @NotNull SuggestionKey key,
                 final @NotNull SuggestionResolver<S> resolver
         ) {
@@ -151,7 +151,7 @@ public class CommandOptions<D, S> {
         }
 
         @Contract("_, _ -> new")
-        public I namedArguments(
+        public @NotNull I namedArguments(
                 final @NotNull ArgumentKey key,
                 final @NotNull List<Argument> arguments
         ) {
@@ -160,7 +160,7 @@ public class CommandOptions<D, S> {
         }
 
         @Contract("_, _ -> new")
-        public I namedArguments(
+        public @NotNull I namedArguments(
                 final @NotNull ArgumentKey key,
                 final @NotNull Argument @NotNull ... arguments
         ) {
@@ -168,7 +168,7 @@ public class CommandOptions<D, S> {
         }
 
         @Contract("_, _ -> new")
-        public I flags(
+        public @NotNull I flags(
                 final @NotNull FlagKey key,
                 final @NotNull List<Flag> flags
         ) {
@@ -177,7 +177,7 @@ public class CommandOptions<D, S> {
         }
 
         @Contract("_, _ -> new")
-        public I flags(
+        public @NotNull I flags(
                 final @NotNull FlagKey key,
                 final @NotNull Flag @NotNull ... flags
         ) {

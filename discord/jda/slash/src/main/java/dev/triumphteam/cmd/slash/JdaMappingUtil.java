@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.slash.annotation.Choice;
+import dev.triumphteam.cmd.slash.annotation.NSFW;
 import dev.triumphteam.cmd.slash.choices.InternalChoice;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -85,12 +86,15 @@ final class JdaMappingUtil {
         final String name = rootCommand.getName();
         final String description = rootCommand.getDescription();
 
-        final SlashCommandData commandData = Commands.slash(name, description.isEmpty() ? name : description);
+        final SlashCommandData commandData = Commands
+                .slash(name, description.isEmpty() ? name : description)
+                .setNSFW(rootCommand.getMeta().isPresent(NSFW.META_KEY));
 
         final Command<SlashSender, S> defaultCommand = rootCommand.getDefaultCommand();
         if (defaultCommand != null) {
             // Safe to cast because only subcommands can be default
             final SubCommand<SlashSender, S> subCommand = (SubCommand<SlashSender, S>) defaultCommand;
+
             return commandData.addOptions(
                     subCommand.getArgumentList().stream().map(JdaMappingUtil::mapOption).collect(Collectors.toList())
             );
@@ -140,7 +144,7 @@ final class JdaMappingUtil {
         final String name = argument.getName();
         final String description = argument.getDescription();
 
-        final @NotNull Optional<InternalChoice> choice = argument.getMeta().get(Choice.CHOICE_META_KEY);
+        final @NotNull Optional<InternalChoice> choice = argument.getMeta().get(Choice.META_KEY);
 
         final boolean enableSuggestions;
         if (argument instanceof ProvidedInternalArgument || choice.isPresent()) {
@@ -176,6 +180,8 @@ final class JdaMappingUtil {
         map.put(long.class, OptionType.INTEGER);
         map.put(Double.class, OptionType.NUMBER);
         map.put(double.class, OptionType.NUMBER);
+        map.put(Float.class, OptionType.NUMBER);
+        map.put(float.class, OptionType.NUMBER);
         map.put(Boolean.class, OptionType.BOOLEAN);
         map.put(boolean.class, OptionType.BOOLEAN);
         map.put(Role.class, OptionType.ROLE);
@@ -184,6 +190,7 @@ final class JdaMappingUtil {
         map.put(TextChannel.class, OptionType.CHANNEL);
         map.put(MessageChannel.class, OptionType.CHANNEL);
         map.put(Message.Attachment.class, OptionType.ATTACHMENT);
+        map.put(IMentionable.class, OptionType.MENTIONABLE);
 
         return ImmutableMap.copyOf(map);
     }

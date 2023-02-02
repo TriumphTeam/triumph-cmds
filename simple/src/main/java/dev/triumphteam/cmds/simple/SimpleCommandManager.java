@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,6 +115,6 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
             return;
         }
 
-        command.execute(sender, null, new ArrayDeque<>(args.subList(1, args.size())), Collections.emptyMap());
+        command.execute(sender, null, new ArrayDeque<>(args.subList(1, args.size())));
     }
 }

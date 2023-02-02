@@ -30,17 +30,28 @@ import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.slash.annotation.Choice;
-import dev.triumphteam.cmd.slash.choices.InternalChoiceProcessor;
+import dev.triumphteam.cmd.slash.annotation.NSFW;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S> {
 
+    private final boolean autoRegisterListener;
+
     public SlashCommandOptions(
             final @NotNull SenderExtension<SlashSender, S> senderExtension,
-            final @NotNull CommandExtensions<SlashSender, S> commandExtensions
+            final @NotNull CommandExtensions<SlashSender, S> commandExtensions,
+            final boolean autoRegisterListener
     ) {
         super(senderExtension, commandExtensions);
+        this.autoRegisterListener = autoRegisterListener;
+    }
+
+    public boolean autoRegisterListener() {
+        return autoRegisterListener;
     }
 
     public static final class Setup<S> extends CommandOptions.Setup<SlashSender, S, Setup<S>> {
@@ -51,6 +62,8 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
 
     public static final class Builder<S> extends CommandOptions.Builder<SlashSender, S, SlashCommandOptions<S>, Setup<S>, Builder<S>> {
 
+        private boolean autoRegisterListener = true;
+
         public Builder(final @NotNull SlashRegistryContainer<S> registryContainer) {
             super(new Setup<>(registryContainer));
 
@@ -58,13 +71,27 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
             extensions(extension -> {
                 extension.setArgumentValidator(new DefaultArgumentValidator<>());
                 extension.setCommandExecutor(new DefaultCommandExecutor());
-                extension.addAnnotationProcessor(Choice.class, new InternalChoiceProcessor(registryContainer.getChoiceRegistry()));
+                extension.addAnnotationProcessor(Choice.class, new ChoiceProcessor(registryContainer.getChoiceRegistry()));
+                extension.addAnnotationProcessor(NSFW.class, new NsfwProcessor());
             });
+        }
+
+        /**
+         * Disables the auto registering of listeners, meaning you'll have to do your own listeners.
+         * Run command with {@link SlashCommandManager#execute(SlashCommandInteractionEvent)}.
+         * Run auto complete with {@link SlashCommandManager#suggest(CommandAutoCompleteInteractionEvent)}.
+         *
+         * @return This builder.
+         */
+        @Contract(" -> this")
+        public @NotNull Builder<S> disableAutoRegisterListener() {
+            autoRegisterListener = false;
+            return this;
         }
 
         @Override
         public @NotNull SlashCommandOptions<S> build(final @NotNull SenderExtension<SlashSender, S> senderExtension) {
-            return new SlashCommandOptions<>(senderExtension, getCommandExtensions());
+            return new SlashCommandOptions<>(senderExtension, getCommandExtensions(), autoRegisterListener);
         }
     }
 }

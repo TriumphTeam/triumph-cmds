@@ -32,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 final class BukkitCommand<S> extends Command {
@@ -56,8 +55,7 @@ final class BukkitCommand<S> extends Command {
         rootCommand.execute(
                 senderExtension.map(sender),
                 null,
-                new ArrayDeque<>(Arrays.asList(args)),
-                Collections.emptyMap()
+                new ArrayDeque<>(Arrays.asList(args))
         );
         return true;
     }

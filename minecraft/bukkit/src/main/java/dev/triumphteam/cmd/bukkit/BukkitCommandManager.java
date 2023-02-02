@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S> {
+public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S, BukkitCommandOptions<S>> {
 
     private final Plugin plugin;
     private final RegistryContainer<CommandSender, S> registryContainer;

@@ -51,11 +51,11 @@ import java.util.List;
  * @param <D> The default sender type.
  * @param <S> The sender type.
  */
-public abstract class CommandManager<D, S> {
+public abstract class CommandManager<D, S, O extends CommandOptions<D, S>> {
 
-    private final CommandOptions<D, S> commandOptions;
+    private final O commandOptions;
 
-    public CommandManager(final @NotNull CommandOptions<D, S> commandOptions) {
+    public CommandManager(final @NotNull O commandOptions) {
         this.commandOptions = commandOptions;
     }
 
@@ -197,7 +197,7 @@ public abstract class CommandManager<D, S> {
 
     protected abstract @NotNull RegistryContainer<D, S> getRegistryContainer();
 
-    protected @NotNull CommandOptions<D, S> getCommandOptions() {
+    protected @NotNull O getCommandOptions() {
         return commandOptions;
     }
 }
