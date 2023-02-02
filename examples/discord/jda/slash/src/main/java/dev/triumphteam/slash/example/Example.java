@@ -23,10 +23,10 @@
  */
 package dev.triumphteam.slash.example;
 
-import dev.triumphteam.cmd.slash.SlashCommandManager;
-import dev.triumphteam.cmd.slash.SlashCommandOptions;
-import dev.triumphteam.cmd.slash.choices.ChoiceKey;
-import dev.triumphteam.cmd.slash.sender.SlashSender;
+import dev.triumphteam.cmd.jda.SlashCommandManager;
+import dev.triumphteam.cmd.jda.SlashCommandOptions;
+import dev.triumphteam.cmd.jda.choices.ChoiceKey;
+import dev.triumphteam.cmd.jda.sender.SlashSender;
 import dev.triumphteam.slash.example.commands.ExampleCommand;
 import dev.triumphteam.slash.example.commands.ExampleCommandGroup;
 import dev.triumphteam.slash.example.commands.ExampleSubCommand;

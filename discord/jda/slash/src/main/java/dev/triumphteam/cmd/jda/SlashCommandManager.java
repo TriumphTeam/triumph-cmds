@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
@@ -34,8 +34,8 @@ import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import dev.triumphteam.cmd.core.util.Pair;
-import dev.triumphteam.cmd.slash.choices.ChoiceKey;
-import dev.triumphteam.cmd.slash.sender.SlashSender;
+import dev.triumphteam.cmd.jda.choices.ChoiceKey;
+import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.IMentionable;

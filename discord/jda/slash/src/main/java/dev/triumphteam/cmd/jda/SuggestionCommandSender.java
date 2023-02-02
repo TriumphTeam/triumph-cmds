@@ -21,16 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.slash.sender.SlashCommandSender;
+import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
@@ -38,20 +37,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-final class InteractionCommandSender implements SlashCommandSender {
+final class SuggestionCommandSender implements SlashSender {
 
-    private final SlashCommandInteractionEvent event;
+    private final CommandAutoCompleteInteractionEvent event;
 
-    public InteractionCommandSender(final @NotNull SlashCommandInteractionEvent event) {
+    public SuggestionCommandSender(final @NotNull CommandAutoCompleteInteractionEvent event) {
         this.event = event;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull SlashCommandInteractionEvent getEvent() {
-        return event;
     }
 
     /**
@@ -66,7 +57,7 @@ final class InteractionCommandSender implements SlashCommandSender {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull MessageChannelUnion getChannel() {
+    public @Nullable MessageChannelUnion getChannel() {
         return event.getChannel();
     }
 
@@ -86,59 +77,33 @@ final class InteractionCommandSender implements SlashCommandSender {
         return event.getMember();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull InteractionHook getHook() {
-        return event.getHook();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public @NotNull ReplyCallbackAction reply(final @NotNull String message) {
-        return event.reply(message);
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public @NotNull ReplyCallbackAction reply(final @NotNull MessageCreateData message) {
-        return event.reply(message);
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public @NotNull ReplyCallbackAction reply(final @NotNull MessageEmbed embed, final @NotNull MessageEmbed @NotNull ... embeds) {
-        return event.replyEmbeds(embed, embeds);
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public @NotNull ReplyCallbackAction reply(final @NotNull Collection<? extends MessageEmbed> embeds) {
-        return event.replyEmbeds(embeds);
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public @NotNull ReplyCallbackAction deferReply() {
-        return event.deferReply();
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public @NotNull ReplyCallbackAction deferReply(final boolean ephemeral) {
-        return event.deferReply(ephemeral);
+        throw new UnsupportedOperationException();
     }
 }

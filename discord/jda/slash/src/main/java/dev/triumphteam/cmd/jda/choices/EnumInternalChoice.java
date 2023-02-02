@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash.choices;
+package dev.triumphteam.cmd.jda.choices;
 
 import dev.triumphteam.cmd.core.util.EnumUtils;
 import org.jetbrains.annotations.NotNull;

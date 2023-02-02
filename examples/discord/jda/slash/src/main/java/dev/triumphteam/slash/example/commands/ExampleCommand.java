@@ -24,9 +24,9 @@
 package dev.triumphteam.slash.example.commands;
 
 import dev.triumphteam.cmd.core.annotations.Command;
-import dev.triumphteam.cmd.slash.annotation.Choice;
-import dev.triumphteam.cmd.slash.annotation.NSFW;
-import dev.triumphteam.cmd.slash.sender.SlashCommandSender;
+import dev.triumphteam.cmd.jda.annotation.Choice;
+import dev.triumphteam.cmd.jda.annotation.NSFW;
+import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
 import net.dv8tion.jda.api.entities.User;
 
 @NSFW

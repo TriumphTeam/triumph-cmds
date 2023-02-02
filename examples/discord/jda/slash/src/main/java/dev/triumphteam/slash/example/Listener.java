@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.slash.example;
 
-import dev.triumphteam.cmd.slash.SlashCommandManager;
-import dev.triumphteam.cmd.slash.sender.SlashSender;
+import dev.triumphteam.cmd.jda.SlashCommandManager;
+import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

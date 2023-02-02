@@ -21,15 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.slash.sender.SlashSender;
+import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
@@ -37,12 +38,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-final class SuggestionCommandSender implements SlashSender {
+final class InteractionCommandSender implements SlashCommandSender {
 
-    private final CommandAutoCompleteInteractionEvent event;
+    private final SlashCommandInteractionEvent event;
 
-    public SuggestionCommandSender(final @NotNull CommandAutoCompleteInteractionEvent event) {
+    public InteractionCommandSender(final @NotNull SlashCommandInteractionEvent event) {
         this.event = event;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NotNull SlashCommandInteractionEvent getEvent() {
+        return event;
     }
 
     /**
@@ -57,7 +66,7 @@ final class SuggestionCommandSender implements SlashSender {
      * {@inheritDoc}
      */
     @Override
-    public @Nullable MessageChannelUnion getChannel() {
+    public @NotNull MessageChannelUnion getChannel() {
         return event.getChannel();
     }
 
@@ -77,33 +86,59 @@ final class SuggestionCommandSender implements SlashSender {
         return event.getMember();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NotNull InteractionHook getHook() {
+        return event.getHook();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull ReplyCallbackAction reply(final @NotNull String message) {
-        throw new UnsupportedOperationException();
+        return event.reply(message);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull ReplyCallbackAction reply(final @NotNull MessageCreateData message) {
-        throw new UnsupportedOperationException();
+        return event.reply(message);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull ReplyCallbackAction reply(final @NotNull MessageEmbed embed, final @NotNull MessageEmbed @NotNull ... embeds) {
-        throw new UnsupportedOperationException();
+        return event.replyEmbeds(embed, embeds);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull ReplyCallbackAction reply(final @NotNull Collection<? extends MessageEmbed> embeds) {
-        throw new UnsupportedOperationException();
+        return event.replyEmbeds(embeds);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull ReplyCallbackAction deferReply() {
-        throw new UnsupportedOperationException();
+        return event.deferReply();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public @NotNull ReplyCallbackAction deferReply(final boolean ephemeral) {
-        throw new UnsupportedOperationException();
+        return event.deferReply(ephemeral);
     }
 }

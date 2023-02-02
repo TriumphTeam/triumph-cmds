@@ -21,17 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.slash.annotation.Choice;
-import dev.triumphteam.cmd.slash.choices.ChoiceKey;
-import dev.triumphteam.cmd.slash.choices.ChoiceRegistry;
-import dev.triumphteam.cmd.slash.choices.EnumInternalChoice;
-import dev.triumphteam.cmd.slash.choices.InternalChoice;
-import dev.triumphteam.cmd.slash.choices.SimpleInternalChoice;
+import dev.triumphteam.cmd.jda.annotation.Choice;
+import dev.triumphteam.cmd.jda.choices.ChoiceKey;
+import dev.triumphteam.cmd.jda.choices.ChoiceRegistry;
+import dev.triumphteam.cmd.jda.choices.EnumInternalChoice;
+import dev.triumphteam.cmd.jda.choices.InternalChoice;
+import dev.triumphteam.cmd.jda.choices.SimpleInternalChoice;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.AnnotatedElement;

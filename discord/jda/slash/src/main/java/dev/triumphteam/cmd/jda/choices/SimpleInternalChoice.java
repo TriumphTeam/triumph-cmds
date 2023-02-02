@@ -21,23 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda.choices;
 
-import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
-import dev.triumphteam.cmd.slash.sender.SlashCommandSender;
-import dev.triumphteam.cmd.slash.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-/**
- * Simple validator that always returns true.
- */
-final class SlashSenderExtension implements SenderExtension.Default<SlashSender> {
+public final class SimpleInternalChoice implements InternalChoice {
+
+    private final Supplier<List<String>> resolver;
+
+    public SimpleInternalChoice(final @NotNull Supplier<List<String>> resolver) {
+        this.resolver = resolver;
+    }
 
     @Override
-    public @NotNull Set<Class<? extends SlashSender>> getAllowedSenders() {
-        return ImmutableSet.of(SlashSender.class, SlashCommandSender.class);
+    public @NotNull List<String> getChoices() {
+        return resolver.get();
+    }
+
+    @Override
+    public boolean equals(final @Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final SimpleInternalChoice that = (SimpleInternalChoice) o;
+        return resolver.equals(that.resolver);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resolver);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "SimpleChoice{" +
+                "resolver=" + resolver +
+                '}';
     }
 }

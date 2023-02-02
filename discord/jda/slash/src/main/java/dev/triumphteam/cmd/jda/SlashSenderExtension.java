@@ -21,22 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash.annotation;
+package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.core.extention.meta.MetaKey;
+import com.google.common.collect.ImmutableSet;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
+import dev.triumphteam.cmd.jda.sender.SlashSender;
+import org.jetbrains.annotations.NotNull;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Set;
 
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Inherited
-public @interface NSFW {
+/**
+ * Simple validator that always returns true.
+ */
+final class SlashSenderExtension implements SenderExtension.Default<SlashSender> {
 
-    MetaKey<Boolean> META_KEY = MetaKey.of("nsfw", Boolean.class);
+    @Override
+    public @NotNull Set<Class<? extends SlashSender>> getAllowedSenders() {
+        return ImmutableSet.of(SlashSender.class, SlashCommandSender.class);
+    }
 }

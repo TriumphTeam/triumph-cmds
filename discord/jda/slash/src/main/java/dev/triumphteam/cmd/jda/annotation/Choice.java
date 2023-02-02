@@ -21,26 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda.annotation;
 
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
-import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.slash.annotation.NSFW;
-import org.jetbrains.annotations.NotNull;
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
+import dev.triumphteam.cmd.jda.choices.InternalChoice;
 
-import java.lang.reflect.AnnotatedElement;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-class NsfwProcessor implements AnnotationProcessor<NSFW> {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+@Inherited
+public @interface Choice {
 
-    @Override
-    public void process(
-            final @NotNull NSFW annotation,
-            final @NotNull ProcessorTarget target,
-            final @NotNull AnnotatedElement element,
-            final CommandMeta.@NotNull Builder meta
-    ) {
-        if (target != ProcessorTarget.ROOT_COMMAND) return;
-        meta.add(NSFW.META_KEY, true);
-    }
+    String value();
+
+    MetaKey<InternalChoice> META_KEY = MetaKey.of("choice", InternalChoice.class);
 }

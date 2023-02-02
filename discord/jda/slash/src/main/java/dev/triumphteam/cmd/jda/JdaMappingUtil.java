@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda;
 
 import com.google.common.collect.ImmutableMap;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
@@ -30,10 +30,10 @@ import dev.triumphteam.cmd.core.command.ParentSubCommand;
 import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.util.Pair;
-import dev.triumphteam.cmd.slash.annotation.Choice;
-import dev.triumphteam.cmd.slash.annotation.NSFW;
-import dev.triumphteam.cmd.slash.choices.InternalChoice;
-import dev.triumphteam.cmd.slash.sender.SlashSender;
+import dev.triumphteam.cmd.jda.annotation.Choice;
+import dev.triumphteam.cmd.jda.annotation.NSFW;
+import dev.triumphteam.cmd.jda.choices.InternalChoice;
+import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

@@ -21,40 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
+import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.jda.annotation.NSFW;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.function.BiFunction;
+import java.lang.reflect.AnnotatedElement;
 
-class ProvidedInternalArgument<S> extends StringInternalArgument<S> {
-
-    public ProvidedInternalArgument(
-            final @NotNull CommandMeta meta,
-            final @NotNull String name,
-            final @NotNull String description,
-            final @NotNull Class<?> type,
-            final @NotNull Suggestion<S> suggestion,
-            final boolean optional
-    ) {
-        super(meta, name, description, type, suggestion, optional);
-    }
+class NsfwProcessor implements AnnotationProcessor<NSFW> {
 
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull String value,
-            final @Nullable Object provided
+    public void process(
+            final @NotNull NSFW annotation,
+            final @NotNull ProcessorTarget target,
+            final @NotNull AnnotatedElement element,
+            final CommandMeta.@NotNull Builder meta
     ) {
-        if (provided == null) {
-            return invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, value, getName(), getType()));
-        }
-        return success(provided);
+        if (target != ProcessorTarget.ROOT_COMMAND) return;
+        meta.add(NSFW.META_KEY, true);
     }
 }

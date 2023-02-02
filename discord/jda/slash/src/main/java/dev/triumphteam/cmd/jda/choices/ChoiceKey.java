@@ -21,45 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash.choices;
+package dev.triumphteam.cmd.jda.choices;
 
+import dev.triumphteam.cmd.core.extention.StringKey;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-public final class SimpleInternalChoice implements InternalChoice {
+/**
+ * Key used to identify the {@link } in the {@link }.
+ */
+public final class ChoiceKey extends StringKey {
 
-    private final Supplier<List<String>> resolver;
+    // Holds all registered keys, default and custom ones
+    private static final Set<ChoiceKey> REGISTERED_KEYS = new HashSet<>();
 
-    public SimpleInternalChoice(final @NotNull Supplier<List<String>> resolver) {
-        this.resolver = resolver;
+    private ChoiceKey(final @NotNull String key) {
+        super(key);
+        REGISTERED_KEYS.add(this);
     }
 
-    @Override
-    public @NotNull List<String> getChoices() {
-        return resolver.get();
+    /**
+     * Factory method for creating a {@link ChoiceKey}.
+     *
+     * @param key The value of the key, normally separated by <code>.</code>.
+     * @return A new {@link ChoiceKey}.
+     */
+    @Contract("_ -> new")
+    public static @NotNull ChoiceKey of(final @NotNull String key) {
+        return new ChoiceKey(key);
     }
 
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final SimpleInternalChoice that = (SimpleInternalChoice) o;
-        return resolver.equals(that.resolver);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(resolver);
+    /**
+     * Gets an immutable {@link Set} with all the registered keys.
+     *
+     * @return The keys {@link Set}.
+     */
+    public static @NotNull Set<ChoiceKey> getRegisteredKeys() {
+        return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
     public @NotNull String toString() {
-        return "SimpleChoice{" +
-                "resolver=" + resolver +
-                '}';
+        return "ChoiceKey{super=" + super.toString() + "}";
     }
 }

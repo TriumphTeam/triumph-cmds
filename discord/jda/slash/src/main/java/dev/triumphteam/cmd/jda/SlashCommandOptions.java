@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash;
+package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
-import dev.triumphteam.cmd.slash.annotation.Choice;
-import dev.triumphteam.cmd.slash.annotation.NSFW;
-import dev.triumphteam.cmd.slash.sender.SlashSender;
+import dev.triumphteam.cmd.jda.annotation.Choice;
+import dev.triumphteam.cmd.jda.annotation.NSFW;
+import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.Contract;

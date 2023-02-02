@@ -21,25 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash.annotation;
+package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.core.extention.meta.MetaKey;
-import dev.triumphteam.cmd.slash.choices.InternalChoice;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.jda.choices.ChoiceRegistry;
+import dev.triumphteam.cmd.jda.sender.SlashSender;
+import org.jetbrains.annotations.NotNull;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+// TODO: Comments
+final class SlashRegistryContainer<S> extends RegistryContainer<SlashSender, S> {
 
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-@Inherited
-public @interface Choice {
-
-    String value();
-
-    MetaKey<InternalChoice> META_KEY = MetaKey.of("choice", InternalChoice.class);
+    private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
+    public @NotNull ChoiceRegistry getChoiceRegistry() {
+        return choiceRegistry;
+    }
 }

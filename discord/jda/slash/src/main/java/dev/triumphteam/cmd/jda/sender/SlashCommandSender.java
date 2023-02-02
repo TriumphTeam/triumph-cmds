@@ -21,25 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.slash.choices;
+package dev.triumphteam.cmd.jda.sender;
 
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
+/**
+ * Works like a shortcut for most things present on {@link SlashCommandInteractionEvent}.
+ * Contains the more useful methods from it, but still allows you to get the original event if more is needed.
+ */
+public interface SlashCommandSender extends SlashSender {
 
-public final class ChoiceRegistry {
+    @Override
+    @NotNull MessageChannelUnion getChannel();
 
-    private final Map<ChoiceKey, Supplier<List<String>>> choices = new HashMap<>();
+    /**
+     * Gets the original event if more options are needed.
+     *
+     * @return The original event.
+     */
+    @NotNull SlashCommandInteractionEvent getEvent();
 
-    public void register(final @NotNull ChoiceKey key, final @NotNull Supplier<List<String>> resolver) {
-        choices.put(key, resolver);
-    }
-
-    public @Nullable Supplier<List<String>> getChoiceResolver(final @NotNull ChoiceKey key) {
-        return choices.get(key);
-    }
+    /**
+     * Gets the interaction hook for the command.
+     *
+     * @return The interaction hook.
+     */
+    @NotNull InteractionHook getHook();
 }
