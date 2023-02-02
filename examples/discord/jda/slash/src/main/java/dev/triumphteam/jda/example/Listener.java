@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.slash.example;
+package dev.triumphteam.jda.example;
 
 import dev.triumphteam.cmd.jda.SlashCommandManager;
 import dev.triumphteam.cmd.jda.sender.SlashSender;

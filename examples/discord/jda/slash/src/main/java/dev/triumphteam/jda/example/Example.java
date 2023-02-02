@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.slash.example;
+package dev.triumphteam.jda.example;
 
 import dev.triumphteam.cmd.jda.SlashCommandManager;
 import dev.triumphteam.cmd.jda.SlashCommandOptions;
 import dev.triumphteam.cmd.jda.choices.ChoiceKey;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
-import dev.triumphteam.slash.example.commands.ExampleCommand;
-import dev.triumphteam.slash.example.commands.ExampleCommandGroup;
-import dev.triumphteam.slash.example.commands.ExampleSubCommand;
+import dev.triumphteam.jda.example.commands.ExampleCommandGroup;
+import dev.triumphteam.jda.example.commands.ExampleSubCommand;
+import dev.triumphteam.jda.example.commands.ExampleCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 

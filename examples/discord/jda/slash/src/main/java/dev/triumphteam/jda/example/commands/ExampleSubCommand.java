@@ -21,20 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.slash.example.commands;
+package dev.triumphteam.jda.example.commands;
 
 import dev.triumphteam.cmd.core.annotations.Command;
-import dev.triumphteam.cmd.jda.annotation.Choice;
-import dev.triumphteam.cmd.jda.annotation.NSFW;
 import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
 import net.dv8tion.jda.api.entities.User;
 
-@NSFW
-@Command("example")
-public class ExampleCommand {
+@Command("sub")
+public class ExampleSubCommand {
 
-    @Command
-    public void execute(final SlashCommandSender sender, @Choice("hello") final String name, final User user) {
-        sender.reply("Command sent was /example <" + name + "> <" + user.getName() + ">").queue();
+    @Command("first")
+    public void first(final SlashCommandSender sender) {
+        sender.reply("Command sent was /sub first").queue();
+    }
+
+    @Command("second")
+    public void second(final SlashCommandSender sender, final User user) {
+        sender.reply("Command sent was /sub second <" + user.getName() + ">").queue();
     }
 }
