@@ -15,6 +15,7 @@ listOf(
 listOf(
      "minecraft/bukkit" to "bukkit",
 
+     "discord/common/slash" to "discord-slash-common",
      "discord/jda/common" to "jda-common",
      // "discord/jda-prefixed" to "jda-prefixed",
      "discord/jda/slash" to "jda-slash",

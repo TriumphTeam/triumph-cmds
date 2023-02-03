@@ -1,0 +1,95 @@
+package dev.triumphteam.cmds.kord
+
+import dev.kord.core.entity.Attachment
+import dev.kord.core.entity.Entity
+import dev.kord.core.entity.Member
+import dev.kord.core.entity.Role
+import dev.kord.core.entity.User
+import dev.kord.core.entity.channel.GuildChannel
+import dev.kord.core.entity.channel.MessageChannel
+import dev.kord.core.entity.channel.TextChannel
+import dev.kord.rest.builder.interaction.AttachmentBuilder
+import dev.kord.rest.builder.interaction.BooleanBuilder
+import dev.kord.rest.builder.interaction.ChannelBuilder
+import dev.kord.rest.builder.interaction.IntegerOptionBuilder
+import dev.kord.rest.builder.interaction.MentionableBuilder
+import dev.kord.rest.builder.interaction.NumberOptionBuilder
+import dev.kord.rest.builder.interaction.OptionsBuilder
+import dev.kord.rest.builder.interaction.RoleBuilder
+import dev.kord.rest.builder.interaction.StringChoiceBuilder
+import dev.kord.rest.builder.interaction.UserBuilder
+import dev.triumphteam.cmd.core.argument.InternalArgument
+import dev.triumphteam.cmd.core.command.Command
+import dev.triumphteam.cmd.core.command.SubCommand
+import dev.triumphteam.cmd.discord.ProvidedInternalArgument
+import dev.triumphteam.cmd.discord.annotation.Choice
+
+private val optionsMap: Map<Class<*>, (InternalArgument<*, *>) -> OptionsBuilder> = mapOf(
+    Int::class.java to { argument ->
+        IntegerOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Short::class.java to { argument ->
+        IntegerOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Long::class.java to { argument ->
+        NumberOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Double::class.java to { argument ->
+        NumberOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Float::class.java to { argument ->
+        NumberOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Boolean::class.java to { argument ->
+        BooleanBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Role::class.java to { argument ->
+        RoleBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    User::class.java to { argument ->
+        UserBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Member::class.java to { argument ->
+        UserBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    TextChannel::class.java to { argument ->
+        ChannelBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    MessageChannel::class.java to { argument ->
+        ChannelBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    GuildChannel::class.java to { argument ->
+        ChannelBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Attachment::class.java to { argument ->
+        AttachmentBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+    Entity::class.java to { argument ->
+        MentionableBuilder(argument.name, argument.desc).apply { defaults(argument) }
+    },
+)
+
+private val InternalArgument<*, *>.desc
+    get() = description.ifEmpty { name }
+
+internal val Command<*, *>.desc
+    get() = description.ifEmpty { name }
+
+private fun OptionsBuilder.defaults(argument: InternalArgument<*, *>) {
+    required = !argument.isOptional
+    autocomplete = argument.shouldAutoComplete()
+}
+
+private fun InternalArgument<*, *>.shouldAutoComplete(): Boolean {
+    if (meta.isPresent(Choice.META_KEY) || this is ProvidedInternalArgument) return false
+    return canSuggest()
+}
+
+private fun InternalArgument<*, *>.toKordOption(): OptionsBuilder =
+    optionsMap[type]?.invoke(this) ?: StringChoiceBuilder(
+        name,
+        desc
+    ).apply { defaults(this@toKordOption) }
+
+internal fun SubCommand<*, *>.mapArgumentsToKord(): MutableList<OptionsBuilder> =
+    argumentList.map { arg -> arg.toKordOption() }.toMutableList()

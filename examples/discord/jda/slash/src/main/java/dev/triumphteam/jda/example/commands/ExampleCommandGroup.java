@@ -25,7 +25,6 @@ package dev.triumphteam.jda.example.commands;
 
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
-import net.dv8tion.jda.api.entities.User;
 
 @Command("group")
 public class ExampleCommandGroup {
@@ -39,8 +38,8 @@ public class ExampleCommandGroup {
         }
 
         @Command("second")
-        public void second(final SlashCommandSender sender, final User user) {
-            sender.reply("Command sent was /group test second <" + user.getName() + ">").queue();
+        public void second(final SlashCommandSender sender, final int user) {
+            sender.reply("Command sent was /group test second <" + user + ">").queue();
         }
     }
 }

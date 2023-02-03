@@ -33,7 +33,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class RootCommand<D, S> extends ParentCommand<D, S> {
@@ -82,7 +81,7 @@ public class RootCommand<D, S> extends ParentCommand<D, S> {
             final @NotNull S sender,
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull Deque<String> commands,
-            final @NotNull Map<String, Function<Class<?>, Pair<String, Object>>> arguments
+            final @NotNull Map<String, Pair<String, Object>> arguments
     ) {
         // Test all requirements before continuing
         if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;

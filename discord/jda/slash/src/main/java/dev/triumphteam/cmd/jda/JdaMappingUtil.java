@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,18 +29,20 @@ import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.command.ParentSubCommand;
 import dev.triumphteam.cmd.core.command.RootCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.util.Pair;
-import dev.triumphteam.cmd.jda.annotation.Choice;
-import dev.triumphteam.cmd.jda.annotation.NSFW;
-import dev.triumphteam.cmd.jda.choices.InternalChoice;
+import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
+import dev.triumphteam.cmd.discord.annotation.Choice;
+import dev.triumphteam.cmd.discord.annotation.NSFW;
+import dev.triumphteam.cmd.discord.choices.InternalChoice;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
+import gnu.trove.map.TLongObjectMap;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -51,18 +53,38 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 final class JdaMappingUtil {
 
     private static final Map<Class<?>, OptionType> OPTION_TYPE_MAP = createTypeMap();
-    private static final Map<Class<?>, Function<OptionMapping, Object>> MAPPING_MAP = createMappingsMap();
+    private static final Set<OptionType> STRING_OPTIONS = EnumSet.of(
+            OptionType.STRING,
+            OptionType.INTEGER,
+            OptionType.NUMBER,
+            OptionType.BOOLEAN,
+            OptionType.UNKNOWN
+    );
+
+    private static final Field RESOLVED_FILED;
+
+    static {
+        try {
+            RESOLVED_FILED = OptionMapping.class.getDeclaredField("resolved");
+            RESOLVED_FILED.setAccessible(true);
+        } catch (NoSuchFieldException exception) {
+            exception.printStackTrace();
+            throw new CommandExecutionException("An error occurred while trying to get resolved values from OptionMapper.");
+        }
+    }
 
     private JdaMappingUtil() {}
 
@@ -70,16 +92,18 @@ final class JdaMappingUtil {
         return OPTION_TYPE_MAP.getOrDefault(type, OptionType.STRING);
     }
 
-    public static @NotNull Pair<String, Object> parsedValueFromType(
-            final @NotNull Class<?> type,
-            final @NotNull OptionMapping option
-    ) {
+    @SuppressWarnings("unchecked")
+    public static @NotNull Pair<String, Object> parsedValueFromType(final @NotNull OptionMapping option) {
         final String raw = option.getAsString();
 
-        final Function<OptionMapping, Object> mapper = MAPPING_MAP.get(type);
-        if (mapper == null) return new Pair<>(raw, raw);
+        if (isStringType(option.getType())) return new Pair<>(raw, raw);
 
-        return new Pair<>(raw, mapper.apply(option));
+        try {
+            final TLongObjectMap<Object> map = (TLongObjectMap<Object>) RESOLVED_FILED.get(option);
+            return new Pair<>(raw, map.get(option.getAsLong()));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static <S> @NotNull SlashCommandData mapCommand(final @NotNull RootCommand<SlashSender, S> rootCommand) {
@@ -170,14 +194,18 @@ final class JdaMappingUtil {
         return data;
     }
 
+    public static boolean isStringType(final @NotNull OptionType type) {
+        return STRING_OPTIONS.contains(type);
+    }
+
     private static Map<Class<?>, OptionType> createTypeMap() {
         final Map<Class<?>, OptionType> map = new HashMap<>();
         map.put(Short.class, OptionType.INTEGER);
         map.put(short.class, OptionType.INTEGER);
         map.put(Integer.class, OptionType.INTEGER);
         map.put(int.class, OptionType.INTEGER);
-        map.put(Long.class, OptionType.INTEGER);
-        map.put(long.class, OptionType.INTEGER);
+        map.put(Long.class, OptionType.NUMBER);
+        map.put(long.class, OptionType.NUMBER);
         map.put(Double.class, OptionType.NUMBER);
         map.put(double.class, OptionType.NUMBER);
         map.put(Float.class, OptionType.NUMBER);
@@ -191,21 +219,6 @@ final class JdaMappingUtil {
         map.put(MessageChannel.class, OptionType.CHANNEL);
         map.put(Message.Attachment.class, OptionType.ATTACHMENT);
         map.put(IMentionable.class, OptionType.MENTIONABLE);
-
-        return ImmutableMap.copyOf(map);
-    }
-
-    private static Map<Class<?>, Function<OptionMapping, Object>> createMappingsMap() {
-        final Map<Class<?>, Function<OptionMapping, Object>> map = new HashMap<>();
-
-        map.put(Role.class, OptionMapping::getAsRole);
-        map.put(User.class, OptionMapping::getAsUser);
-        map.put(Member.class, OptionMapping::getAsMember);
-        map.put(GuildChannel.class, OptionMapping::getAsChannel);
-        map.put(TextChannel.class, OptionMapping::getAsChannel);
-        map.put(MessageChannel.class, OptionMapping::getAsChannel);
-        map.put(Message.Attachment.class, OptionMapping::getAsAttachment);
-        map.put(IMentionable.class, OptionMapping::getAsMentionable);
 
         return ImmutableMap.copyOf(map);
     }

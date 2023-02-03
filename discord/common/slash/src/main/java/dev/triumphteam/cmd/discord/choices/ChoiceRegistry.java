@@ -21,23 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmd.discord.choices;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Repeatable(Privileges.class)
-@Inherited
-public @interface Roles {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
-    long[] value();
+public final class ChoiceRegistry {
 
-    boolean disabled() default false;
+    private final Map<ChoiceKey, Supplier<List<String>>> choices = new HashMap<>();
 
+    public void register(final @NotNull ChoiceKey key, final @NotNull Supplier<List<String>> resolver) {
+        choices.put(key, resolver);
+    }
+
+    public @Nullable Supplier<List<String>> getChoiceResolver(final @NotNull ChoiceKey key) {
+        return choices.get(key);
+    }
 }

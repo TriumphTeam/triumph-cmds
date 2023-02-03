@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.choices;
+package dev.triumphteam.cmd.discord.choices;
 
 import dev.triumphteam.cmd.core.extention.StringKey;
 import org.jetbrains.annotations.Contract;

@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmd.discord.annotation;
 
+import dev.triumphteam.cmd.discord.choices.InternalChoice;
 import dev.triumphteam.cmd.core.extention.meta.MetaKey;
-import dev.triumphteam.cmd.jda.choices.InternalChoice;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

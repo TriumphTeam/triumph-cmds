@@ -21,22 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmd.discord.jda.annotation;
 
-import dev.triumphteam.cmd.core.extention.meta.MetaKey;
-
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Inherited
-public @interface NSFW {
+public @interface Privileges {
 
-    MetaKey<Boolean> META_KEY = MetaKey.of("nsfw", Boolean.class);
+    Roles[] value();
+
 }

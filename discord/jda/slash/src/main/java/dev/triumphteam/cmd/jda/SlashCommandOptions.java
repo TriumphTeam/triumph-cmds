@@ -23,13 +23,15 @@
  */
 package dev.triumphteam.cmd.jda;
 
+import dev.triumphteam.cmd.discord.ChoiceProcessor;
+import dev.triumphteam.cmd.discord.NsfwProcessor;
+import dev.triumphteam.cmd.discord.annotation.Choice;
+import dev.triumphteam.cmd.discord.annotation.NSFW;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
-import dev.triumphteam.cmd.jda.annotation.Choice;
-import dev.triumphteam.cmd.jda.annotation.NSFW;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

@@ -21,18 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.jda.example.commands;
+package dev.triumphteam.cmds.kord
 
-import dev.triumphteam.cmd.core.annotations.Command;
-import dev.triumphteam.cmd.discord.annotation.Choice;
-import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
-import net.dv8tion.jda.api.entities.User;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer
+import dev.triumphteam.cmd.discord.choices.ChoiceRegistry
+import dev.triumphteam.cmds.kord.sender.SlashSender
 
-@Command("example")
-public class ExampleCommand {
+// TODO: Comments
+public class SlashRegistryContainer<S> : RegistryContainer<SlashSender, S>() {
 
-    @Command
-    public void execute(final SlashCommandSender sender, @Choice("hello") final String name, final User user) {
-        sender.reply("Command sent was /example <" + name + "> <" + user.getName() + ">").queue();
-    }
+    public val choiceRegistry: ChoiceRegistry = ChoiceRegistry()
 }

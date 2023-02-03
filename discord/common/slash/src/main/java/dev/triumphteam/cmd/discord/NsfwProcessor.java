@@ -21,19 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.annotation;
+package dev.triumphteam.cmd.discord;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import dev.triumphteam.cmd.discord.annotation.NSFW;
+import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
+import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import org.jetbrains.annotations.NotNull;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Inherited
-public @interface Privileges {
+import java.lang.reflect.AnnotatedElement;
 
-    Roles[] value();
+public class NsfwProcessor implements AnnotationProcessor<NSFW> {
 
+    @Override
+    public void process(
+            final @NotNull NSFW annotation,
+            final @NotNull ProcessorTarget target,
+            final @NotNull AnnotatedElement element,
+            final CommandMeta.@NotNull Builder meta
+    ) {
+        if (target != ProcessorTarget.ROOT_COMMAND) return;
+        meta.add(NSFW.META_KEY, true);
+    }
 }

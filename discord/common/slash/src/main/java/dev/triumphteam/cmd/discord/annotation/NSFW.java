@@ -21,14 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.choices;
+package dev.triumphteam.cmd.discord.annotation;
 
-import org.jetbrains.annotations.NotNull;
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 
-import java.util.List;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface InternalChoice {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Inherited
+public @interface NSFW {
 
-    @NotNull List<String> getChoices();
-
+    MetaKey<Boolean> META_KEY = MetaKey.of("nsfw", Boolean.class);
 }

@@ -21,17 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda;
+package dev.triumphteam.cmd.discord;
 
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.jda.annotation.Choice;
-import dev.triumphteam.cmd.jda.choices.ChoiceKey;
-import dev.triumphteam.cmd.jda.choices.ChoiceRegistry;
-import dev.triumphteam.cmd.jda.choices.EnumInternalChoice;
-import dev.triumphteam.cmd.jda.choices.InternalChoice;
-import dev.triumphteam.cmd.jda.choices.SimpleInternalChoice;
+import dev.triumphteam.cmd.discord.annotation.Choice;
+import dev.triumphteam.cmd.discord.choices.ChoiceKey;
+import dev.triumphteam.cmd.discord.choices.ChoiceRegistry;
+import dev.triumphteam.cmd.discord.choices.EnumInternalChoice;
+import dev.triumphteam.cmd.discord.choices.InternalChoice;
+import dev.triumphteam.cmd.discord.choices.SimpleInternalChoice;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.AnnotatedElement;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
-class ChoiceProcessor implements AnnotationProcessor<Choice> {
+public class ChoiceProcessor implements AnnotationProcessor<Choice> {
 
     private final ChoiceRegistry choiceRegistry;
 

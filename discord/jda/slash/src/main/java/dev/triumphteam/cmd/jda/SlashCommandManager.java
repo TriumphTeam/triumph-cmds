@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,7 +34,8 @@ import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import dev.triumphteam.cmd.core.util.Pair;
-import dev.triumphteam.cmd.jda.choices.ChoiceKey;
+import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
+import dev.triumphteam.cmd.discord.choices.ChoiceKey;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -63,7 +64,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -95,9 +95,8 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         // All use the same factory
         final InternalArgument.Factory<S> jdaArgumentFactory = ProvidedInternalArgument::new;
 
-        registerArgument(User.class, jdaArgumentFactory);
+        registerArgument(User.class, ProvidedUserInternalArgument::new);
         registerArgument(Role.class, jdaArgumentFactory);
-        registerArgument(User.class, jdaArgumentFactory);
         registerArgument(Member.class, jdaArgumentFactory);
         registerArgument(GuildChannel.class, jdaArgumentFactory);
         registerArgument(TextChannel.class, jdaArgumentFactory);
@@ -165,9 +164,9 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         final S sender = senderExtension.map(new InteractionCommandSender(event));
 
         // Mapping of arguments
-        final Map<String, Function<Class<?>, Pair<String, Object>>> arguments = new HashMap<>();
+        final Map<String, Pair<String, Object>> arguments = new HashMap<>();
         for (final OptionMapping option : event.getOptions()) {
-            arguments.put(option.getName(), type -> JdaMappingUtil.parsedValueFromType(type, option));
+            arguments.put(option.getName(), JdaMappingUtil.parsedValueFromType(option));
         }
 
         command.executeNonLinear(sender, null, commands, arguments);

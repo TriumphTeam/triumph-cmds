@@ -46,8 +46,8 @@ import kotlin.reflect.full.callSuspend
 import kotlin.reflect.jvm.kotlinFunction
 
 public fun <D, S, B : ExtensionBuilder<D, S>> B.useCoroutines(
-    coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     coroutineContext: CoroutineContext = Dispatchers.Default,
+    coroutineScope: CoroutineScope = CoroutineScope(coroutineContext),
 ) {
     val kotlinArgumentExtension = CoroutinesCommandExtension<D, S>(coroutineScope, coroutineContext)
     addProcessor(kotlinArgumentExtension)
@@ -58,7 +58,9 @@ public fun <D, S, B : ExtensionBuilder<D, S>> B.useCoroutines(
 public class CoroutinesCommandExtension<D, S>(
     private val coroutineScope: CoroutineScope,
     private val coroutineContext: CoroutineContext,
-) : Processor<D, S>, ArgumentValidator<S>, CommandExecutor {
+) : Processor<D, S>,
+    ArgumentValidator<S>,
+    CommandExecutor {
 
     private companion object {
         /** The key that'll represent a suspending function. */

@@ -21,26 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda;
+package dev.triumphteam.cmd.discord.choices;
 
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
-import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.jda.annotation.NSFW;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.AnnotatedElement;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-class NsfwProcessor implements AnnotationProcessor<NSFW> {
+public final class SimpleInternalChoice implements InternalChoice {
+
+    private final Supplier<List<String>> resolver;
+
+    public SimpleInternalChoice(final @NotNull Supplier<List<String>> resolver) {
+        this.resolver = resolver;
+    }
 
     @Override
-    public void process(
-            final @NotNull NSFW annotation,
-            final @NotNull ProcessorTarget target,
-            final @NotNull AnnotatedElement element,
-            final CommandMeta.@NotNull Builder meta
-    ) {
-        if (target != ProcessorTarget.ROOT_COMMAND) return;
-        meta.add(NSFW.META_KEY, true);
+    public @NotNull List<String> getChoices() {
+        return resolver.get();
+    }
+
+    @Override
+    public boolean equals(final @Nullable Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final SimpleInternalChoice that = (SimpleInternalChoice) o;
+        return resolver.equals(that.resolver);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resolver);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "SimpleChoice{" +
+                "resolver=" + resolver +
+                '}';
     }
 }

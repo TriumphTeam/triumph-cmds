@@ -54,7 +54,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -166,7 +165,7 @@ public class SubCommand<D, S> implements Command<D, S> {
             final @NotNull S sender,
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull Deque<String> commands,
-            final @NotNull Map<String, Function<Class<?>, Pair<String, Object>>> arguments
+            final @NotNull Map<String, Pair<String, Object>> arguments
     ) throws Throwable {
         // TODO DRY
         final ValidationResult<MessageKey<MessageContext>> validationResult = senderExtension.validate(meta, senderType, sender);
@@ -190,14 +189,12 @@ public class SubCommand<D, S> implements Command<D, S> {
         invokeArguments.add(sender);
 
         argumentList.forEach(it -> {
-            final Function<Class<?>, Pair<String, Object>> function = arguments.get(it.getName());
+            final Pair<String, Object> pair = arguments.get(it.getName());
             // Should only really happen on optional arguments
-            if (function == null) {
+            if (pair == null) {
                 invokeArguments.add(null);
                 return;
             }
-
-            final Pair<String, Object> pair = function.apply(it.getType());
 
             final Deque<String> raw;
             if (it instanceof LimitlessInternalArgument) {

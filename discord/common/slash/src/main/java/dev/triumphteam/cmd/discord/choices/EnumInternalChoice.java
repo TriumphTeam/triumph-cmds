@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.jda.choices;
+package dev.triumphteam.cmd.discord.choices;
 
 import dev.triumphteam.cmd.core.util.EnumUtils;
 import org.jetbrains.annotations.NotNull;
@@ -31,15 +31,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
-
 public final class EnumInternalChoice implements InternalChoice {
 
     private final Class<? extends Enum<?>> enumType;
 
     public EnumInternalChoice(final @NotNull Class<? extends Enum<?>> enumType) {
         this.enumType = enumType;
-        populateCache(enumType);
+        EnumUtils.populateCache(enumType);
     }
 
     @Override
