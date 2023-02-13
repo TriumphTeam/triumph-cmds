@@ -35,6 +35,6 @@ public class ExampleSubCommand {
 
     @Command("second")
     public suspend fun second(sender: SlashSender, text: String) {
-        sender.reply("Command sent was /sub second <${text}>")
+        sender.reply("Command sent was /sub second <$text>")
     }
 }

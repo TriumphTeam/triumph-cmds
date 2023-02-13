@@ -214,7 +214,6 @@ public class SlashCommandManager<S>(
             rootCommand.name,
             rootCommand.desc
         ) {
-
             // If only default then register with no groups or sub commands
             rootCommand.defaultCommand?.let {
                 if (it is SubCommand<SlashSender, S>) {
