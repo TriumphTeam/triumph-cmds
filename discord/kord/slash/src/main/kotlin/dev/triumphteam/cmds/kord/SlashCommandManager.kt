@@ -1,7 +1,31 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2019-2021 Matt
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package dev.triumphteam.cmds.kord
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
+import dev.kord.core.behavior.interaction.suggestString
 import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Entity
 import dev.kord.core.entity.Guild
@@ -11,11 +35,11 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.GuildChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.channel.TextChannel
-import dev.kord.core.entity.interaction.AutoCompleteInteraction
 import dev.kord.core.entity.interaction.GroupCommand
 import dev.kord.core.entity.interaction.ResolvableOptionValue
 import dev.kord.core.event.gateway.ReadyEvent
 import dev.kord.core.event.interaction.ChatInputCommandInteractionCreateEvent
+import dev.kord.core.event.interaction.GuildAutoCompleteInteractionCreateEvent
 import dev.kord.core.on
 import dev.kord.rest.builder.interaction.group
 import dev.kord.rest.builder.interaction.subCommand
@@ -69,6 +93,7 @@ public class SlashCommandManager<S>(
 
     init {
         kord.on(consumer = ::execute)
+        kord.on(consumer = ::suggest)
         kord.on<ReadyEvent> {
             // Sets kord to ready
             isKordReady = true
@@ -176,8 +201,11 @@ public class SlashCommandManager<S>(
         rootCommand.executeNonLinear(sender, null, commands, arguments)
     }
 
-    private suspend fun suggest(event: AutoCompleteInteraction) {
-        TODO("implement this correctly")
+    private suspend fun suggest(event: GuildAutoCompleteInteractionCreateEvent) {
+        println("huh?")
+        event.interaction.suggestString {
+            choice("hello", "test")
+        }
     }
 
     private suspend fun registerKordCommand(guildId: Snowflake, rootCommand: RootCommand<SlashSender, S>) {
