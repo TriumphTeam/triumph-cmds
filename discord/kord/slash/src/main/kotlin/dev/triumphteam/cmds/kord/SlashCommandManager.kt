@@ -202,7 +202,6 @@ public class SlashCommandManager<S>(
     }
 
     private suspend fun suggest(event: GuildAutoCompleteInteractionCreateEvent) {
-        println("huh?")
         event.interaction.suggestString {
             choice("hello", "test")
         }

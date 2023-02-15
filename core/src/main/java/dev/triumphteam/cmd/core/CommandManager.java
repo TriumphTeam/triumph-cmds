@@ -1,18 +1,18 @@
 /**
  * MIT License
- *
+ * <p>
  * Copyright (c) 2019-2021 Matt
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,6 +39,7 @@ import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.core.requirement.RequirementKey;
 import dev.triumphteam.cmd.core.requirement.RequirementResolver;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
 import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
 
@@ -116,7 +117,22 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S>> {
      * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
      */
     public void registerSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver<S> resolver) {
-        getRegistryContainer().getSuggestionRegistry().register(key, resolver);
+        registerSuggestion(key, SuggestionMethod.STARTS_WITH, resolver);
+    }
+
+    /**
+     * Registers a suggestion to be used for specific arguments.
+     *
+     * @param key      The {@link SuggestionKey} that identifies the registered suggestion.
+     * @param method   The resolution method to use for suggestions.
+     * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
+     */
+    public void registerSuggestion(
+            final @NotNull SuggestionKey key,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionResolver<S> resolver
+    ) {
+        getRegistryContainer().getSuggestionRegistry().register(key, resolver, method);
     }
 
     /**
@@ -126,7 +142,22 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S>> {
      * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
      */
     public void registerSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S> resolver) {
-        getRegistryContainer().getSuggestionRegistry().register(type, resolver);
+        registerSuggestion(type, SuggestionMethod.STARTS_WITH, resolver);
+    }
+
+    /**
+     * Registers a suggestion to be used for all arguments of a specific type.
+     *
+     * @param type     Using specific {@link Class} types as target for suggestions instead of keys.
+     * @param method   The resolution method to use for suggestions.
+     * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
+     */
+    public void registerSuggestion(
+            final @NotNull Class<?> type,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionResolver<S> resolver
+    ) {
+        getRegistryContainer().getSuggestionRegistry().register(type, resolver, method);
     }
 
     /**

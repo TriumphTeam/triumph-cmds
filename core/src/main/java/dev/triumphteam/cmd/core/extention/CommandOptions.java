@@ -38,6 +38,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageResolver;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.Contract;
@@ -148,7 +149,7 @@ public class CommandOptions<D, S> {
                 final @NotNull Class<?> type,
                 final @NotNull SuggestionResolver<S> resolver
         ) {
-            suggestionRegistry.register(type, resolver);
+            suggestionRegistry.register(type, resolver, SuggestionMethod.STARTS_WITH);
             return (I) this;
         }
 
@@ -157,7 +158,7 @@ public class CommandOptions<D, S> {
                 final @NotNull SuggestionKey key,
                 final @NotNull SuggestionResolver<S> resolver
         ) {
-            suggestionRegistry.register(key, resolver);
+            suggestionRegistry.register(key, resolver, SuggestionMethod.STARTS_WITH);
             return (I) this;
         }
 
