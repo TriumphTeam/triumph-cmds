@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.extention.command.Processor;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -38,15 +39,18 @@ public final class CommandExtensions<D, S> {
     private final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors;
     private final List<Processor<D, S>> processors;
 
+    private final SenderExtension<D, S> senderExtension;
     private final ArgumentValidator<S> argumentValidator;
     private final CommandExecutor commandExecutor;
 
     public CommandExtensions(
+            final @NotNull SenderExtension<D, S> senderExtension,
             final @NotNull Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors,
             final @NotNull List<Processor<D, S>> processors,
             final @NotNull ArgumentValidator<S> argumentValidator,
             final @NotNull CommandExecutor commandExecutor
     ) {
+        this.senderExtension = senderExtension;
         this.annotationProcessors = annotationProcessors;
         this.processors = processors;
         this.argumentValidator = argumentValidator;
@@ -67,5 +71,9 @@ public final class CommandExtensions<D, S> {
 
     public @NotNull CommandExecutor getCommandExecutor() {
         return commandExecutor;
+    }
+
+    public @NotNull SenderExtension<D, S> getSenderExtension() {
+        return senderExtension;
     }
 }

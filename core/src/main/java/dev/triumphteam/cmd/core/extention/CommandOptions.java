@@ -52,24 +52,19 @@ import java.util.function.Consumer;
 public class CommandOptions<D, S> {
 
     private final CommandExtensions<D, S> commandExtensions;
-    private final SenderExtension<D, S> senderExtension;
     private final boolean suggestLowercaseEnum;
 
     public CommandOptions(
             final @NotNull SenderExtension<D, S> senderExtension,
             final @NotNull Builder<D, S, ?, ?, ?> builder
     ) {
-        this.senderExtension = senderExtension;
-        this.commandExtensions = builder.extensionBuilder.build();
+
+        this.commandExtensions = builder.extensionBuilder.build(senderExtension);
         this.suggestLowercaseEnum = builder.suggestLowercaseEnum;
     }
 
     public @NotNull CommandExtensions<D, S> getCommandExtensions() {
         return commandExtensions;
-    }
-
-    public @NotNull SenderExtension<D, S> getSenderExtension() {
-        return senderExtension;
     }
 
     public boolean suggestLowercaseEnum() {

@@ -160,7 +160,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         // Immediately pop the main command out, to remove itself from it
         commands.pop();
 
-        final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getSenderExtension();
+        final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new InteractionCommandSender(event));
 
         // Mapping of arguments
@@ -180,7 +180,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         // Immediately pop the main command out, to remove itself from it
         commands.pop();
 
-        final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getSenderExtension();
+        final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new SuggestionCommandSender(event));
         final SubCommand<SlashSender, S> subCommand = findExecutable(commands, command);
         if (subCommand == null) return;

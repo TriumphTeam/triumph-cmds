@@ -69,7 +69,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         this.meta = processor.createMeta(settingsBuilder);
 
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
-        this.senderExtension = processor.getCommandOptions().getSenderExtension();
+        this.senderExtension = processor.getCommandOptions().getCommandExtensions().getSenderExtension();
 
         this.settings = settingsBuilder.build();
     }

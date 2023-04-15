@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extention.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.extention.command.Processor;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +43,7 @@ public final class ExtensionBuilder<D, S> {
     private final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors = new HashMap<>();
     private final List<Processor<D, S>> processors = new ArrayList<>();
 
+    private SenderExtension<D, S> senderExtension = null;
     private ArgumentValidator<S> argumentValidator = null;
     private CommandExecutor commandExecutor = null;
 
@@ -72,7 +74,13 @@ public final class ExtensionBuilder<D, S> {
         return this;
     }
 
-    public @NotNull CommandExtensions<D, S> build() {
+    @Contract("_ -> this")
+    public @NotNull ExtensionBuilder<D, S> setSenderExtension(final @NotNull SenderExtension<D, S> senderExtension) {
+        this.senderExtension = senderExtension;
+        return this;
+    }
+
+    public @NotNull CommandExtensions<D, S> build(final @NotNull SenderExtension<D, S> defaultExtension) {
         if (argumentValidator == null) {
             throw new CommandRegistrationException("No argument validator was added to Command Manager.");
         }
@@ -82,6 +90,7 @@ public final class ExtensionBuilder<D, S> {
         }
 
         return new CommandExtensions<>(
+                senderExtension == null ? defaultExtension : senderExtension,
                 annotationProcessors,
                 processors,
                 argumentValidator,

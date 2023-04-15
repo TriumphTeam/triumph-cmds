@@ -182,7 +182,7 @@ public class SlashCommandManager<S>(
 
         val rootCommand = guildCommands[event.interaction.invokedCommandGuildId]?.get(name) ?: return
 
-        val sender = commandOptions.senderExtension.map(DummySender(event))
+        val sender = commandOptions.commandExtensions.senderExtension.map(DummySender(event))
 
         // Mapping all arguments
         val arguments: Map<String, Pair<String, Any>> = command.options.map { (key, value) ->

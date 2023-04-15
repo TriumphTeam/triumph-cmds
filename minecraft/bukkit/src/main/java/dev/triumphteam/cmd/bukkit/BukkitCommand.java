@@ -43,7 +43,7 @@ final class BukkitCommand<S> extends Command {
         super(processor.getName(), processor.getDescription(), "", processor.getAliases());
 
         this.rootCommand = new RootCommand<>(processor);
-        this.senderExtension = processor.getCommandOptions().getSenderExtension();
+        this.senderExtension = processor.getCommandOptions().getCommandExtensions().getSenderExtension();
     }
 
     @Override

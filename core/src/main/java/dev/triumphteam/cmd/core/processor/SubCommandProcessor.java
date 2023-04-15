@@ -132,7 +132,7 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
         }
 
         final Class<?> type = parameters[0].getType();
-        final Set<Class<? extends S>> allowedSenders = getCommandOptions().getSenderExtension().getAllowedSenders();
+        final Set<Class<? extends S>> allowedSenders = getCommandOptions().getCommandExtensions().getSenderExtension().getAllowedSenders();
 
         if (!allowedSenders.contains(type)) {
             throw createException(

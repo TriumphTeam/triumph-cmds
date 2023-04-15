@@ -111,7 +111,7 @@ public class SubCommand<D, S> implements Command<D, S> {
         final CommandOptions<D, S> commandOptions = processor.getCommandOptions();
 
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
-        this.senderExtension = commandOptions.getSenderExtension();
+        this.senderExtension = commandOptions.getCommandExtensions().getSenderExtension();
         this.commandExecutor = commandOptions.getCommandExtensions().getCommandExecutor();
 
         this.syntax = createSyntax(parentCommand, processor);
