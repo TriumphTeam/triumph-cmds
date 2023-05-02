@@ -28,7 +28,6 @@ import dev.triumphteam.cmd.discord.NsfwProcessor;
 import dev.triumphteam.cmd.discord.annotation.Choice;
 import dev.triumphteam.cmd.discord.annotation.NSFW;
 import dev.triumphteam.cmd.core.extention.CommandOptions;
-import dev.triumphteam.cmd.core.extention.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extention.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
@@ -69,7 +68,7 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
 
             // Setters have to be done first thing, so they can be overriden.
             extensions(extension -> {
-                extension.setArgumentValidator(new DefaultArgumentValidator<>());
+                extension.setArgumentValidator(new SlashCommandValidator<>());
                 extension.setCommandExecutor(new DefaultCommandExecutor());
                 extension.addAnnotationProcessor(Choice.class, new ChoiceProcessor(registryContainer.getChoiceRegistry()));
                 extension.addAnnotationProcessor(NSFW.class, new NsfwProcessor());
