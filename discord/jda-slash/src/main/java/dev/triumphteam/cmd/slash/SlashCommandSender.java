@@ -26,9 +26,10 @@ package dev.triumphteam.cmd.slash;
 import dev.triumphteam.cmd.slash.sender.SlashSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
@@ -66,7 +67,7 @@ final class SlashCommandSender implements SlashSender {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull MessageChannel getChannel() {
+    public @NotNull MessageChannelUnion getChannel() {
         return event.getChannel();
     }
 
