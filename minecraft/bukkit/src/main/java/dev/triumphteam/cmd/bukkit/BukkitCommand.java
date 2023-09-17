@@ -23,150 +23,53 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
-import dev.triumphteam.cmd.core.Command;
-import dev.triumphteam.cmd.core.SubCommand;
-import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
+import dev.triumphteam.cmd.core.command.RootCommand;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.List;
 
-import static java.util.Collections.emptyList;
+final class BukkitCommand<S> extends Command {
 
-public final class BukkitCommand<S> extends org.bukkit.command.Command implements Command<S, BukkitSubCommand<S>> {
+    private final RootCommand<CommandSender, S> rootCommand;
+    private final SenderExtension<CommandSender, S> senderExtension;
 
-    private final MessageRegistry<S> messageRegistry;
+    BukkitCommand(final @NotNull RootCommandProcessor<CommandSender, S> processor) {
+        super(processor.getName(), processor.getDescription(), "", processor.getAliases());
 
-    private final SenderMapper<CommandSender, S> senderMapper;
-
-    private final Map<String, BukkitSubCommand<S>> subCommands = new HashMap<>();
-    private final Map<String, BukkitSubCommand<S>> subCommandAliases = new HashMap<>();
-
-    public BukkitCommand(final @NotNull String name, final @NotNull BukkitCommandProcessor<S> processor) {
-        super(name);
-
-        this.description = processor.getDescription();
-        this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
-        this.senderMapper = processor.getSenderMapper();
+        this.rootCommand = new RootCommand<>(processor);
+        this.senderExtension = processor.getCommandOptions().getCommandExtensions().getSenderExtension();
     }
 
     @Override
-    public void addSubCommand(final @NotNull String name, final @NotNull BukkitSubCommand<S> subCommand) {
-        subCommands.putIfAbsent(name, subCommand);
-    }
-
-    @Override
-    public void addSubCommandAlias(final @NotNull String alias, final @NotNull BukkitSubCommand<S> subCommand) {
-        subCommandAliases.putIfAbsent(alias, subCommand);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws CommandExecutionException If the sender mapper returns null.
-     */
-    @Override
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull String commandLabel, final @NotNull String @NotNull [] args) {
-        BukkitSubCommand<S> subCommand = getDefaultSubCommand();
-
-        String subCommandName = "";
-        if (args.length > 0) subCommandName = args[0].toLowerCase();
-        if (subCommand == null || subCommandExists(subCommandName)) {
-            subCommand = getSubCommand(subCommandName);
-        }
-
-        final S mappedSender = senderMapper.map(sender);
-        if (mappedSender == null) {
-            throw new CommandExecutionException("Invalid sender. Sender mapper returned null");
-        }
-
-        if (subCommand == null || (args.length > 0 && subCommand.isDefault() && !subCommand.hasArguments())) {
-            messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, mappedSender, new DefaultMessageContext(getName(), subCommandName));
-            return true;
-        }
-
-        final CommandPermission permission = subCommand.getPermission();
-        if (!CommandPermission.hasPermission(sender, permission)) {
-            messageRegistry.sendMessage(BukkitMessageKey.NO_PERMISSION, mappedSender, new NoPermissionMessageContext(getName(), subCommand.getName(), permission));
-            return true;
-        }
-
-        final List<String> commandArgs = Arrays.asList(!subCommand.isDefault() ? Arrays.copyOfRange(args, 1, args.length) : args);
-
-        subCommand.execute(mappedSender, commandArgs);
+    public boolean execute(
+            final @NotNull CommandSender sender,
+            final @NotNull String commandLabel,
+            final @NotNull String[] args
+    ) {
+        rootCommand.execute(
+                senderExtension.map(sender),
+                null,
+                new ArrayDeque<>(Arrays.asList(args))
+        );
         return true;
     }
 
     @Override
-    public @NotNull List<@NotNull String> tabComplete(final @NotNull CommandSender sender, final @NotNull String alias, final @NotNull String @NotNull [] args) throws IllegalArgumentException {
-        if (args.length == 0) return emptyList();
-        BukkitSubCommand<S> subCommand = getDefaultSubCommand();
-
-        final String arg = args[0].toLowerCase();
-
-        if (args.length == 1 && (subCommand == null || !subCommand.hasArguments())) {
-            return subCommands.entrySet().stream()
-                    .filter(it -> !it.getValue().isDefault())
-                    .filter(it -> it.getKey().startsWith(arg))
-                    .filter(it -> {
-                        final CommandPermission permission = it.getValue().getPermission();
-                        return CommandPermission.hasPermission(sender, permission);
-                    })
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-        }
-
-        if (subCommandExists(arg)) subCommand = getSubCommand(arg);
-        if (subCommand == null) return emptyList();
-
-        final CommandPermission permission = subCommand.getPermission();
-        if (!CommandPermission.hasPermission(sender, permission)) return emptyList();
-
-        final S mappedSender = senderMapper.map(sender);
-        if (mappedSender == null) {
-            return emptyList();
-        }
-
-        final List<String> commandArgs = Arrays.asList(args);
-        return subCommand.getSuggestions(mappedSender, !subCommand.isDefault() ? commandArgs.subList(1, commandArgs.size()) : commandArgs);
+    public @NotNull List<String> tabComplete(
+            final @NotNull CommandSender sender,
+            final @NotNull String alias,
+            final @NotNull String[] args
+    ) {
+        return rootCommand.suggestions(senderExtension.map(sender), new ArrayDeque<>(Arrays.asList(args)));
     }
 
-    /**
-     * Gets a default command if present.
-     *
-     * @return A default SubCommand.
-     */
-    private @Nullable BukkitSubCommand<S> getDefaultSubCommand() {
-        return subCommands.get(Default.DEFAULT_CMD_NAME);
-    }
-
-    /**
-     * Used in order to search for the given {@link SubCommand<CommandSender>} in the {@link #subCommandAliases}
-     *
-     * @param key the String to look for the {@link SubCommand<CommandSender>}
-     * @return the {@link SubCommand<CommandSender>} for the particular key or NULL
-     */
-    private @Nullable BukkitSubCommand<S> getSubCommand(final @NotNull String key) {
-        final BukkitSubCommand<S> subCommand = subCommands.get(key);
-        if (subCommand != null) return subCommand;
-        return subCommandAliases.get(key);
-    }
-
-    /**
-     * Checks if a SubCommand with the specified key exists.
-     *
-     * @param key the Key to check for
-     * @return whether a SubCommand with that key exists
-     */
-    private boolean subCommandExists(final @NotNull String key) {
-        return subCommands.containsKey(key) || subCommandAliases.containsKey(key);
+    public @NotNull RootCommand<CommandSender, S> getRootCommand() {
+        return rootCommand;
     }
 }

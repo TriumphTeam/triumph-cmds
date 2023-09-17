@@ -23,8 +23,11 @@
  */
 package dev.triumphteam.cmd.bukkit.annotation;
 
+import dev.triumphteam.cmd.bukkit.CommandPermission;
+import dev.triumphteam.cmd.core.extention.meta.MetaKey;
 import org.bukkit.permissions.PermissionDefault;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -34,6 +37,7 @@ import java.lang.annotation.Target;
 /**
  * Annotate a method using this Annotation to add a required permission.
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Inherited
@@ -61,4 +65,6 @@ public @interface Permission {
      * @see org.bukkit.permissions.Permission#getDescription()
      */
     String description() default "";
+
+    MetaKey<CommandPermission> META_KEY = MetaKey.of("command.permission", CommandPermission.class);
 }

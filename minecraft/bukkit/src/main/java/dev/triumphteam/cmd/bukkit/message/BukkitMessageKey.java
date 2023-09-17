@@ -23,9 +23,8 @@
  */
 package dev.triumphteam.cmd.bukkit.message;
 
-import dev.triumphteam.cmd.core.message.ContextualKey;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,28 +32,15 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <C> A {@link MessageContext} type, this allows for better customization of the messages.
  */
-public final class BukkitMessageKey<C extends MessageContext> extends ContextualKey<C> {
+public final class BukkitMessageKey<C extends MessageContext> extends MessageKey<C> {
 
     // Default keys
-    public static final BukkitMessageKey<NoPermissionMessageContext> NO_PERMISSION = of("no.permission", NoPermissionMessageContext.class);
-    public static final BukkitMessageKey<MessageContext> PLAYER_ONLY = of("player.only", MessageContext.class);
-    public static final BukkitMessageKey<MessageContext> CONSOLE_ONLY = of("console.only", MessageContext.class);
+    public static final BukkitMessageKey<NoPermissionMessageContext> NO_PERMISSION = new BukkitMessageKey<>("no.permission", NoPermissionMessageContext.class);
+    public static final BukkitMessageKey<MessageContext> PLAYER_ONLY = new BukkitMessageKey<>("player.only", MessageContext.class);
+    public static final BukkitMessageKey<MessageContext> CONSOLE_ONLY = new BukkitMessageKey<>("console.only", MessageContext.class);
 
     private BukkitMessageKey(final @NotNull String key, final @NotNull Class<C> type) {
         super(key, type);
-    }
-
-    /**
-     * Factory method for creating a {@link BukkitMessageKey}.
-     *
-     * @param key  The value of the key, normally separated by <code>.</code>.
-     * @param type The {@link MessageContext} type.
-     * @param <C>  Generic {@link MessageContext} type.
-     * @return A new {@link BukkitMessageKey} for a specific {@link MessageContext}.
-     */
-    @Contract("_, _ -> new")
-    private static <C extends MessageContext> @NotNull BukkitMessageKey<C> of(final @NotNull String key, final @NotNull Class<C> type) {
-        return new BukkitMessageKey<>(key, type);
     }
 
     @Override

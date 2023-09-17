@@ -23,11 +23,15 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.registry.ArgumentRegistry;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.function.BiFunction;
 
 /**
  * Normal {@link StringInternalArgument}.
@@ -42,15 +46,15 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
     private final ArgumentResolver<S> resolver;
 
     public ResolverInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull ArgumentResolver<S> resolver,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
-        super(name, description, type, suggestion, position, optional);
+        super(meta, name, description, type, suggestion, optional);
         this.resolver = resolver;
     }
 
@@ -62,22 +66,18 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
      * @return An Object value of the correct type, based on the result from the {@link ArgumentResolver}.
      */
     @Override
-    public @Nullable Object resolve(final @NotNull S sender, final @NotNull String value) {
-        return resolver.resolve(sender, value);
-    }
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull String value,
+            final @Nullable Object provided
+    ) {
+        final Object result = resolver.resolve(sender, value);
 
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final ResolverInternalArgument<?> that = (ResolverInternalArgument<?>) o;
-        return resolver.equals(that.resolver);
-    }
+        if (result == null) {
+            return invalid((commands, arguments) -> new InvalidArgumentContext(commands, arguments, value, getName(), getType()));
+        }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), resolver);
+        return success(result);
     }
 
     @Override

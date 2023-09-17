@@ -34,22 +34,32 @@ import java.util.stream.Collectors;
 public final class EnumSuggestion<S> implements Suggestion<S> {
 
     private final Class<? extends Enum<?>> enumType;
+    private final boolean suggestLowercase;
 
-    public EnumSuggestion(final @NotNull Class<? extends Enum<?>> enumType) {
+    public EnumSuggestion(
+            final @NotNull Class<? extends Enum<?>> enumType,
+            final boolean suggestLowercase
+    ) {
         this.enumType = enumType;
+        this.suggestLowercase = suggestLowercase;
 
         EnumUtils.populateCache(enumType);
     }
 
     @Override
-    public @NotNull List<@NotNull String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
+    public @NotNull List<String> getSuggestions(
+            final @NotNull S sender,
+            final @NotNull String current,
+            final @NotNull List<String> arguments
+    ) {
         return EnumUtils.getEnumConstants(enumType)
                 .values()
                 .stream()
                 .map(it -> {
                     final Enum<?> constant = it.get();
                     if (constant == null) return null;
-                    return constant.name();
+                    final String name = constant.name();
+                    return suggestLowercase ? name.toLowerCase() : name;
                 })
                 .filter(Objects::nonNull)
                 .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
@@ -60,7 +70,7 @@ public final class EnumSuggestion<S> implements Suggestion<S> {
     public boolean equals(final @Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final EnumSuggestion that = (EnumSuggestion) o;
+        final EnumSuggestion<?> that = (EnumSuggestion<?>) o;
         return enumType.equals(that.enumType);
     }
 

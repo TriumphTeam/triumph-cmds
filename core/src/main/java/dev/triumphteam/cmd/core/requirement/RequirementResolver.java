@@ -28,17 +28,20 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Functional interface to allow simple requirement registering without the use of any hard coded data.
  *
+ * @param <D> The default sender type.
  * @param <S> The command sender type.
  */
 @FunctionalInterface
-public interface RequirementResolver<S> {
+public interface RequirementResolver<D, S> {
 
     /**
      * Resolves the requirement.
      *
      * @param sender The sender to check the requirement.
-     * @return Whether the requirement is met or not.
+     * @return Whether the requirement passes or fails.
      */
-    boolean resolve(final @NotNull S sender);
-
+    boolean resolve(
+            final @NotNull S sender,
+            final @NotNull RequirementContext<D, S> context
+    );
 }

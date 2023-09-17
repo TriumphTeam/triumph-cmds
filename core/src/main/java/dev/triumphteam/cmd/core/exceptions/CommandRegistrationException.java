@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.core.exceptions;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,7 +36,7 @@ public final class CommandRegistrationException extends RuntimeException {
 
     public CommandRegistrationException(
             final @NotNull String message,
-            final @NotNull Class<? extends BaseCommand> commandClass
+            final @NotNull Class<?> commandClass
     ) {
         super(message + ". In Class \"" + commandClass.getName() + "\"");
     }

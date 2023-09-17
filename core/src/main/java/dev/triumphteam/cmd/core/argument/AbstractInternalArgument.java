@@ -23,13 +23,14 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
-import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Command internalArgument.
@@ -40,36 +41,42 @@ import java.util.Objects;
  */
 public abstract class AbstractInternalArgument<S, T> implements InternalArgument<S, T> {
 
+    private final CommandMeta meta;
+
     private final String name;
     private final String description;
     private final Class<?> type;
-    private final int position;
     private final boolean optional;
     private final Suggestion<S> suggestion;
 
     public AbstractInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
+        this.meta = meta;
         this.name = name;
         this.description = description;
         this.type = type;
         this.suggestion = suggestion;
-        this.position = position;
         this.optional = optional;
     }
 
     @Override
-    public @NotNull List<@NotNull String> suggestions(
+    public @NotNull List<String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> trimmed,
-            final @NotNull SuggestionContext context
+            final @NotNull Deque<String> arguments
     ) {
-        return suggestion.getSuggestions(sender, trimmed.get(0), context);
+        final String current = arguments.peekLast();
+        return suggestion.getSuggestions(sender, current == null ? "" : current, new ArrayList<>(arguments));
+    }
+
+    @Override
+    public @NotNull CommandMeta getMeta() {
+        return meta;
     }
 
     /**
@@ -82,11 +89,6 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     @Override
     public @NotNull String getName() {
         return name;
-    }
-
-    @Override
-    public int getPosition() {
-        return position;
     }
 
     @Override
@@ -115,21 +117,13 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
         return optional;
     }
 
+    @Override
+    public boolean canSuggest() {
+        return !(suggestion instanceof EmptySuggestion);
+    }
+
     protected @NotNull Suggestion<S> getSuggestion() {
         return suggestion;
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final AbstractInternalArgument<?, ?> internalArgument = (AbstractInternalArgument<?, ?>) o;
-        return optional == internalArgument.optional && name.equals(internalArgument.name) && type.equals(internalArgument.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, type, optional);
     }
 
     @Override
@@ -138,7 +132,6 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", type=" + type +
-                ", position=" + position +
                 ", optional=" + optional +
                 ", suggestion=" + suggestion +
                 '}';

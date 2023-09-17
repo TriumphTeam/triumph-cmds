@@ -2,11 +2,10 @@ plugins {
     `kotlin-dsl`
 }
 
-repositories {
-    gradlePluginPortal()
-}
-
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.20")
-    implementation("gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1")
+    // Hack to allow version catalog inside convention plugins
+    implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
+
+    // Bundled plugins
+    implementation(libs.bundles.build)
 }

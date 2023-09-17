@@ -4,12 +4,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":triumph-cmd-core"))
+    api(projects.triumphCmdCore)
 
     testImplementation(kotlin("stdlib"))
-    testImplementation(libs.junit.api)
-    testImplementation(libs.junit.engine)
-    testImplementation(libs.assertj)
+    testImplementation(libs.bundles.testing)
 
     api(libs.guava)
 }
