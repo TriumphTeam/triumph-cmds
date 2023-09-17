@@ -27,8 +27,6 @@ import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
 import net.dv8tion.jda.api.entities.User;
 
-import java.util.Optional;
-
 @Command("sub")
 public class ExampleSubCommand {
 
@@ -38,7 +36,7 @@ public class ExampleSubCommand {
     }
 
     @Command("second")
-    public void second(final SlashCommandSender sender, final User user, final Optional<String> test) {
+    public void second(final SlashCommandSender sender, final User user, final String test) {
         sender.reply("Command sent was /sub second <" + user.getName() + ">").queue();
     }
 }
