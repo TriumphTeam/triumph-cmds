@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,6 +92,7 @@ public interface SlashSender {
      * @param message The message to reply with.
      * @return The reply action.
      */
+    @CheckReturnValue
     @NotNull ReplyCallbackAction reply(final @NotNull String message);
 
     /**
@@ -99,6 +101,7 @@ public interface SlashSender {
      * @param message The message to reply with.
      * @return The reply action.
      */
+    @CheckReturnValue
     @NotNull ReplyCallbackAction reply(final @NotNull MessageCreateData message);
 
     /**
@@ -108,6 +111,7 @@ public interface SlashSender {
      * @param embeds The additional embeds.
      * @return The reply action.
      */
+    @CheckReturnValue
     @NotNull ReplyCallbackAction reply(final @NotNull MessageEmbed embed, final @NotNull MessageEmbed @NotNull ... embeds);
 
     /**
@@ -116,6 +120,7 @@ public interface SlashSender {
      * @param embeds The embeds to reply with.
      * @return The reply action.
      */
+    @CheckReturnValue
     @NotNull ReplyCallbackAction reply(final @NotNull Collection<? extends MessageEmbed> embeds);
 
     /**
@@ -123,6 +128,7 @@ public interface SlashSender {
      *
      * @return The reply action.
      */
+    @CheckReturnValue
     @NotNull ReplyCallbackAction deferReply();
 
     /**
@@ -131,6 +137,7 @@ public interface SlashSender {
      * @param ephemeral Whether the message should be ephemeral.
      * @return The reply action.
      */
+    @CheckReturnValue
     @NotNull ReplyCallbackAction deferReply(final boolean ephemeral);
 
 }
