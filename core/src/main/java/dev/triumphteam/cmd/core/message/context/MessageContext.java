@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.message.context;
 
-import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -32,18 +32,7 @@ import org.jetbrains.annotations.NotNull;
 public interface MessageContext {
 
     /**
-     * Gets the command in which the error occurred.
-     *
-     * @return The command name.
+     * @return The command's meta.
      */
-    @NotNull String getCommand();
-
-    /**
-     * Gets the sub command in which the error occurred.
-     * If the command is default its value will be {@link Default#DEFAULT_CMD_NAME}.
-     *
-     * @return The sub command name.
-     */
-    @NotNull String getSubCommand();
-
+    @NotNull CommandMeta getMeta();
 }

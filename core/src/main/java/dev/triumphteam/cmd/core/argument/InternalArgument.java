@@ -23,11 +23,17 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
+import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Deque;
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * Command argument.
@@ -35,7 +41,7 @@ import java.util.List;
  * @param <S> The sender type.
  * @param <T> The Argument type.
  */
-public interface InternalArgument<S, T> {
+public interface InternalArgument<S, T> extends CommandMetaContainer {
 
     /**
      * Gets the name of the argument.
@@ -45,9 +51,6 @@ public interface InternalArgument<S, T> {
      * @return The argument name.
      */
     @NotNull String getName();
-
-    // TODO: 1/31/2022
-    int getPosition();
 
     /**
      * The description of this Argument.
@@ -72,20 +75,67 @@ public interface InternalArgument<S, T> {
      */
     boolean isOptional();
 
+    boolean canSuggest();
+
+    /**
+     * Resolves the argument type.
+     *
+     * @param sender   The sender to resolve to.
+     * @param value    The argument value.
+     * @param provided A provided value by a platform in case parsing isn't needed.
+     * @return A resolve {@link Result}.
+     */
+    @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull T value,
+            final @Nullable Object provided
+    );
+
     /**
      * Resolves the argument type.
      *
      * @param sender The sender to resolve to.
      * @param value  The argument value.
-     * @return An object with the resolved value.
+     * @return A resolve {@link Result}.
      */
-    @Nullable Object resolve(final @NotNull S sender, final @NotNull T value);
-
-    // TODO: Comments
-   @NotNull List<@NotNull String> suggestions(
+    default @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> trimmed,
-            final @NotNull SuggestionContext context
-    );
+            final @NotNull T value
+    ) {
+        return resolve(sender, value, null);
+    }
 
+    /**
+     * Create a list of suggestion strings to return to the platform requesting it.
+     *
+     * @param sender    Rhe sender to get suggestions for.
+     * @param arguments The arguments used in the suggestion.
+     * @return A list of valid suggestions for the argument.
+     */
+    @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull Deque<String> arguments);
+
+    default Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> success(
+            final @NotNull Object value
+    ) {
+        return new Result.Success<>(value);
+    }
+
+    default Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> invalid(
+            final @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> context
+    ) {
+        return new Result.Failure<>(context);
+    }
+
+    @FunctionalInterface
+    interface Factory<S> {
+
+        @NotNull StringInternalArgument<S> create(
+                final @NotNull CommandMeta meta,
+                final @NotNull String name,
+                final @NotNull String description,
+                final @NotNull Class<?> type,
+                final @NotNull Suggestion<S> suggestion,
+                final boolean optional
+        );
+    }
 }

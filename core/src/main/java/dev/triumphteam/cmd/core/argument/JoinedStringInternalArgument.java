@@ -23,12 +23,16 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.BiFunction;
 
 /**
  * Joined string argument, a {@link LimitlessInternalArgument}.
@@ -41,14 +45,14 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
     private final CharSequence delimiter;
 
     public JoinedStringInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull CharSequence delimiter,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, suggestion, position, optional);
+        super(meta, name, description, String.class, suggestion, optional);
         this.delimiter = delimiter;
     }
 
@@ -60,22 +64,12 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
      * @return A single {@link String} with the joined {@link List}.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
-        return String.join(delimiter, value);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final JoinedStringInternalArgument<?> that = (JoinedStringInternalArgument<?>) o;
-        return delimiter.equals(that.delimiter);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), delimiter);
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull Collection<String> value,
+            final @Nullable Object provided
+    ) {
+        return success(String.join(delimiter, value));
     }
 
     @Override

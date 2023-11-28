@@ -32,9 +32,14 @@ import static java.util.Collections.emptyList;
 public final class EmptySuggestion<S> implements Suggestion<S> {
 
     @Override
-    public @NotNull List<@NotNull String> getSuggestions(final @NotNull S sender, final @NotNull String current, final @NotNull SuggestionContext context) {
+    public @NotNull List<String> getSuggestions(
+            final @NotNull S sender,
+            final @NotNull String current,
+            final @NotNull List<String> arguments
+    ) {
         return emptyList();
     }
+
 
     @Override
     public @NotNull String toString() {

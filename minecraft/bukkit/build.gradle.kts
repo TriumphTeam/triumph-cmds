@@ -8,6 +8,6 @@ repositories {
 }
 
 dependencies {
-    api(project(":triumph-cmd-core"))
+    api(projects.triumphCmdCore)
     compileOnly(libs.spigot)
 }

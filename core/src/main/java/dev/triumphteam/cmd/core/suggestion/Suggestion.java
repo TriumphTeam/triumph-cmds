@@ -29,9 +29,9 @@ import java.util.List;
 
 public interface Suggestion<S> {
 
-    @NotNull List<@NotNull String> getSuggestions(
+    @NotNull List<String> getSuggestions(
             final @NotNull S sender,
             final @NotNull String current,
-            final @NotNull SuggestionContext context
+            final @NotNull List<String> arguments
     );
 }

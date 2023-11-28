@@ -23,14 +23,20 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
-import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,16 +52,16 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
     private final Class<?> collectionType;
 
     public SplitStringInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull String regex,
             final @NotNull InternalArgument<S, String> internalArgument,
             final @NotNull Class<?> collectionType,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, suggestion, position, optional);
+        super(meta, name, description, String.class, suggestion, optional);
         this.regex = regex;
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;
@@ -69,27 +75,40 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
      * @return A collection of the split strings.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull String value) {
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull String value,
+            final @Nullable Object provided
+    ) {
         final Stream<Object> stream = Arrays.stream(value.split(regex)).map(arg -> internalArgument.resolve(sender, arg));
-        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
-        return stream.collect(Collectors.toList());
+        if (collectionType == Set.class) return success(stream.collect(Collectors.toSet()));
+        return success(stream.collect(Collectors.toList()));
     }
 
     @Override
-    public @NotNull List<@NotNull String> suggestions(
+    public @NotNull List<String> suggestions(
             final @NotNull S sender,
-            final @NotNull List<@NotNull String> trimmed,
-            final @NotNull SuggestionContext context
+            final @NotNull Deque<String> arguments
     ) {
-        final List<String> split = Arrays.asList(trimmed.get(trimmed.size() - 1).split(regex));
+        final String peek = arguments.peekLast();
+        final String last = peek == null ? "" : peek;
+
+        final List<String> split = Arrays.asList(last.split(regex));
         if (split.size() == 0) return Collections.emptyList();
-        final String current = split.get(split.size() - 1);
-        final String joined = String.join(regex, split.subList(0, split.size() - 1));
+
+        final String current = last.endsWith(regex) ? "" : split.get(split.size() - 1);
+        final String joined = String.join(regex, current.isEmpty() ? split : split.subList(0, split.size() - 1));
         final String map = joined.isEmpty() ? "" : joined + regex;
+
         return getSuggestion()
-                .getSuggestions(sender, current, context)
+                .getSuggestions(sender, current, new ArrayList<>(arguments))
                 .stream()
                 .map(it -> map + it)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "SplitArgument{super=" + super.toString() + "}";
     }
 }

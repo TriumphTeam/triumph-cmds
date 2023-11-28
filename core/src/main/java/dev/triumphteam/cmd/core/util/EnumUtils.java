@@ -44,7 +44,7 @@ public final class EnumUtils {
      * @param enumClass A non-generic Enum class.
      * @return A map with enum values that was previously cached.
      */
-    public static @NotNull Map<@NotNull String, @NotNull WeakReference<? extends Enum<?>>> getEnumConstants(final @NotNull Class<? extends Enum<?>> enumClass) {
+    public static @NotNull Map<String, @NotNull WeakReference<? extends Enum<?>>> getEnumConstants(final @NotNull Class<? extends Enum<?>> enumClass) {
         synchronized (ENUM_CONSTANT_CACHE) {
             Map<String, WeakReference<? extends Enum<?>>> constants = ENUM_CONSTANT_CACHE.get(enumClass);
             if (constants == null) constants = populateCache(enumClass);

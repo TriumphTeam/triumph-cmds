@@ -23,95 +23,22 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
-import dev.triumphteam.cmd.core.message.ContextualKey;
-import dev.triumphteam.cmd.core.message.MessageRegistry;
-import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.message.context.MessageContextFactory;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+public interface Requirement<D, S> {
 
-/**
- * Contains the data for the requirement.
- *
- * @param <S> The sender type.
- */
-public final class Requirement<S, C extends MessageContext> {
+    boolean test(
+            final @NotNull S sender,
+            final @NotNull CommandMeta meta,
+            final @NotNull SenderMapper<D, S> senderMapper
+    );
 
-    private final RequirementResolver<S> resolver;
-    private final ContextualKey<C> messageKey;
-    private final MessageContextFactory<C> contextFactory;
-    private final boolean invert;
-
-    public Requirement(
-            final @NotNull RequirementResolver<S> resolver,
-            final @Nullable ContextualKey<C> messageKey,
-            final @NotNull MessageContextFactory<C> contextFactory,
-            final boolean invert
-    ) {
-        this.resolver = resolver;
-        this.messageKey = messageKey;
-        this.contextFactory = contextFactory;
-        this.invert = invert;
-    }
-
-    /**
-     * The message key which will be used to send the defined message to the sender.
-     *
-     * @return The message key or null if no message should be sent.
-     */
-    public @Nullable ContextualKey<C> getMessageKey() {
-        return messageKey;
-    }
-
-    /**
-     * Sends the message to the sender.
-     *
-     * @param registry   The registry which contains the message.
-     * @param sender     The sender which will receive the message.
-     * @param command    The command which is being executed.
-     * @param subCommand The sub command which is being executed.
-     * @param <ST>       The sender type.
-     */
-    public <ST> void sendMessage(
-            final @NotNull MessageRegistry<ST> registry,
-            final @NotNull ST sender,
-            final @NotNull String command,
-            final @NotNull String subCommand
-    ) {
-        if (messageKey == null) return;
-        registry.sendMessage(messageKey, sender, contextFactory.create(command, subCommand));
-    }
-
-    /**
-     * Checks if the requirement is met or not.
-     *
-     * @param sender The sender which will be needed to check if the requirement is met or not.
-     * @return Whether the requirement is met.
-     */
-    public boolean isMet(final @NotNull S sender) {
-        return resolver.resolve(sender) != invert;
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final Requirement<?, ?> that = (Requirement<?, ?>) o;
-        return resolver.equals(that.resolver) && Objects.equals(messageKey, that.messageKey);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(resolver, messageKey);
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return "Requirement{" +
-                "resolver=" + resolver +
-                ", messageKey=" + messageKey +
-                '}';
-    }
+    void onDeny(
+            final @NotNull S sender,
+            final @NotNull MessageRegistry<S> messageRegistry,
+            final @NotNull CommandMeta meta
+    );
 }

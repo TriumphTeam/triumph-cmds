@@ -45,13 +45,15 @@ public final class CommandPermission {
     private final String description;
 
     public CommandPermission(
-            final @NotNull List<@NotNull String> nodes,
+            final @NotNull List<String> nodes,
             final @NotNull String description,
             final @NotNull PermissionDefault permissionDefault
     ) {
         this.nodes = nodes;
         this.description = description;
         this.permissionDefault = permissionDefault;
+
+        register();
     }
 
     /**
@@ -63,7 +65,7 @@ public final class CommandPermission {
      *     <li>The sender has the permission</li>
      * </ul>
      *
-     * @param sender The main command sender.
+     * @param sender     The main command sender.
      * @param permission The permission.
      * @return Whether the sender has permission to run the command.
      */
@@ -75,7 +77,7 @@ public final class CommandPermission {
     }
 
     public @NotNull CommandPermission child(
-            final @NotNull List<@NotNull String> nodes,
+            final @NotNull List<String> nodes,
             final @NotNull String description,
             final @NotNull PermissionDefault permissionDefault
     ) {
@@ -106,7 +108,7 @@ public final class CommandPermission {
      *
      * @return The permission nodes.
      */
-    public @NotNull List<@NotNull String> getNodes() {
+    public @NotNull List<String> getNodes() {
         return nodes;
     }
 
@@ -118,5 +120,12 @@ public final class CommandPermission {
      */
     public boolean hasPermission(final @NotNull CommandSender sender) {
         return nodes.stream().anyMatch(sender::hasPermission);
+    }
+
+    @Override
+    public String toString() {
+        return "CommandPermission{" +
+                "nodes=" + nodes +
+                '}';
     }
 }

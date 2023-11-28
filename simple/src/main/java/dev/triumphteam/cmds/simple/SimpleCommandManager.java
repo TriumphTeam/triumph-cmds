@@ -23,88 +23,74 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.CommandManager;
-import dev.triumphteam.cmd.core.execution.AsyncExecutionProvider;
-import dev.triumphteam.cmd.core.execution.ExecutionProvider;
-import dev.triumphteam.cmd.core.execution.SyncExecutionProvider;
+import dev.triumphteam.cmd.core.command.RootCommand;
+import dev.triumphteam.cmd.core.extention.CommandOptions;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.sender.SenderMapper;
-import dev.triumphteam.cmd.core.sender.SenderValidator;
+import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
+import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.function.Consumer;
 
-public final class SimpleCommandManager<S> extends CommandManager<S, S> {
+public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandOptions<S, S>> {
 
-    private final Map<String, SimpleCommand<S>> commands = new HashMap<>();
+    private final Map<String, RootCommand<S, S>> commands = new HashMap<>();
 
-    private final RegistryContainer<S> registryContainer = new RegistryContainer<>();
-
-    private final ExecutionProvider syncExecutionProvider = new SyncExecutionProvider();
-    private final ExecutionProvider asyncExecutionProvider = new AsyncExecutionProvider();
+    private final RegistryContainer<S, S> registryContainer;
 
     private SimpleCommandManager(
-            final @NotNull SenderMapper<S, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator
+            final @NotNull CommandOptions<S, S> commandOptions,
+            final @NotNull RegistryContainer<S, S> registryContainer
     ) {
-        super(senderMapper, senderValidator);
+        super(commandOptions);
+        this.registryContainer = registryContainer;
     }
 
     @Contract("_, _ -> new")
     public static <S> @NotNull SimpleCommandManager<S> create(
-            final @NotNull SenderMapper<S, S> senderMapper,
-            final @NotNull SenderValidator<S> senderValidator
+            final @NotNull SenderExtension<S, S> senderExtension,
+            final @NotNull Consumer<SimpleOptionsBuilder<S>> builder
     ) {
-        return new SimpleCommandManager<>(senderMapper, senderValidator);
+        final RegistryContainer<S, S> registryContainer = new RegistryContainer<>();
+        final SimpleOptionsBuilder<S> extensionBuilder = new SimpleOptionsBuilder<>(registryContainer);
+        builder.accept(extensionBuilder);
+        return new SimpleCommandManager<>(extensionBuilder.build(senderExtension), registryContainer);
     }
 
     @Override
-    public void registerCommand(final @NotNull BaseCommand baseCommand) {
-        final SimpleCommandProcessor<S> processor = new SimpleCommandProcessor<>(
-                baseCommand,
+    public void registerCommand(final @NotNull Object command) {
+        final RootCommandProcessor<S, S> processor = new RootCommandProcessor<>(
+                command,
                 getRegistryContainer(),
-                getSenderMapper(),
-                getSenderValidator(),
-                syncExecutionProvider,
-                asyncExecutionProvider
+                getCommandOptions()
         );
 
         final String name = processor.getName();
 
-        final SimpleCommand<S> command = commands.computeIfAbsent(
-                name,
-                ignored -> new SimpleCommand<>(processor, syncExecutionProvider, asyncExecutionProvider)
-        );
-        processor.addSubCommands(command);
-
-        processor.getAlias().forEach(it -> {
-            final SimpleCommand<S> aliasCommand = commands.computeIfAbsent(
-                    it,
-                    ignored -> new SimpleCommand<>(processor, syncExecutionProvider, asyncExecutionProvider)
-            );
-            // Adding sub commands.
-            processor.addSubCommands(aliasCommand);
-        });
+        final RootCommand<S, S> rootCommand = commands.computeIfAbsent(name, it -> new RootCommand<>(processor));
+        rootCommand.addCommands(command, processor.commands(rootCommand));
+        processor.getAliases().forEach(it -> commands.putIfAbsent(it, rootCommand));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected @NotNull RegistryContainer<S> getRegistryContainer() {
+    protected @NotNull RegistryContainer<S, S> getRegistryContainer() {
         return registryContainer;
     }
 
     @Override
-    public void unregisterCommand(final @NotNull BaseCommand command) {
+    public void unregisterCommand(final @NotNull Object command) {
         // TODO add a remove functionality
     }
 
@@ -114,20 +100,21 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S> {
      * @param sender The provided sender.
      * @param args   The provided arguments.
      */
-    public void executeCommand(final @NotNull S sender, final @NotNull List<@NotNull String> args) {
+    public void executeCommand(final @NotNull S sender, final @NotNull List<String> args) {
         if (args.isEmpty()) return;
         final String commandName = args.get(0);
 
-        final SimpleCommand<S> command = commands.get(commandName);
+        final RootCommand<S, S> command = commands.get(commandName);
         if (command == null) {
             registryContainer.getMessageRegistry().sendMessage(
                     MessageKey.UNKNOWN_COMMAND,
                     sender,
-                    new DefaultMessageContext(commandName, "")
+                    // Empty meta
+                    new InvalidCommandContext(new CommandMeta.Builder(null).build(), commandName)
             );
             return;
         }
 
-        command.execute(sender, args.subList(1, args.size()));
+        command.execute(sender, null, new ArrayDeque<>(args.subList(1, args.size())));
     }
 }

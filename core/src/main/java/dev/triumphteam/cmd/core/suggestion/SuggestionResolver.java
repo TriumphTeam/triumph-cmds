@@ -36,10 +36,10 @@ public interface SuggestionResolver<S> {
     /**
      * Resolves the suggestions for the command argument.
      *
-     * @param sender  The command sender
-     * @param context The command context for the suggestion
+     * @param sender    The command sender.
+     * @param arguments A list with all the typed arguments.
      * @return A list of suggestions.
      */
-    @NotNull List<@NotNull String> resolve(final @NotNull S sender, final @NotNull SuggestionContext context);
+    @NotNull List<String> resolve(final @NotNull S sender, final @NotNull List<String> arguments);
 
 }

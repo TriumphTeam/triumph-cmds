@@ -23,13 +23,17 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
+import dev.triumphteam.cmd.core.extention.Result;
+import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,15 +49,15 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
     private final Class<?> collectionType;
 
     public CollectionInternalArgument(
+            final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull InternalArgument<S, String> internalArgument,
             final @NotNull Class<?> collectionType,
             final @NotNull Suggestion<S> suggestion,
-            final int position,
             final boolean optional
     ) {
-        super(name, description, String.class, suggestion, position, optional);
+        super(meta, name, description, String.class, suggestion, optional);
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;
     }
@@ -66,24 +70,14 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
      * @return A {@link java.util.Collection} type as the resolved value.
      */
     @Override
-    public @NotNull Object resolve(final @NotNull S sender, final @NotNull List<@NotNull String> value) {
+    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+            final @NotNull S sender,
+            final @NotNull Collection<String> value,
+            final @Nullable Object provided
+    ) {
         final Stream<Object> stream = value.stream().map(arg -> internalArgument.resolve(sender, arg));
-        if (collectionType == Set.class) return stream.collect(Collectors.toSet());
-        return stream.collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        final CollectionInternalArgument<?> that = (CollectionInternalArgument<?>) o;
-        return collectionType.equals(that.collectionType);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), collectionType);
+        if (collectionType == Set.class) return success(stream.collect(Collectors.toSet()));
+        return success(stream.collect(Collectors.toList()));
     }
 
     @Override

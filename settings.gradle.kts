@@ -3,22 +3,39 @@ dependencyResolutionManagement {
     repositories.gradlePluginPortal()
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "triumph-cmd"
 
 listOf(
     "core",
-    "kotlin-extras",
     "simple"
 ).forEach(::includeProject)
 
 listOf(
-    "minecraft/bukkit",
-    "discord/jda-common",
-    "discord/jda-prefixed",
-    "discord/jda-slash",
+     "minecraft/bukkit" to "bukkit",
+
+     "discord/common/slash" to "discord-slash-common",
+     "discord/jda/common" to "jda-common",
+     // "discord/jda-prefixed" to "jda-prefixed",
+     "discord/jda/slash" to "jda-slash",
+     "discord/kord/slash" to "kord-slash",
+
+     "kotlin/coroutines" to "kotlin-coroutines",
+     "kotlin/extensions" to "kotlin-extensions",
 ).forEach {
-    val (folder, name) = it.split('/')
-    includeProject(name, folder)
+    includeProjectFolders(it.first, it.second)
+}
+
+// Examples
+listOf(
+    "examples/minecraft/bukkit" to "bukkit-examples",
+
+    // "discord/jda-prefixed" to "jda-prefixed",
+    "examples/discord/jda/slash" to "jda-slash-examples",
+    "examples/discord/kord/slash" to "kord-slash-examples",
+).forEach {
+    includeProjectFolders(it.first, it.second)
 }
 
 include("test-module")
@@ -29,10 +46,10 @@ fun includeProject(name: String) {
     }
 }
 
-fun includeProject(name: String, folder: String) {
+fun includeProjectFolders(folder: String, name: String) {
     include(name) {
         this.name = "${rootProject.name}-$name"
-        this.projectDir = file("$folder/$name")
+        this.projectDir = file(folder)
     }
 }
 

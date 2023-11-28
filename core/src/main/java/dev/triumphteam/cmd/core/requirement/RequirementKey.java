@@ -23,25 +23,18 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
-import dev.triumphteam.cmd.core.registry.RegistryKey;
+import dev.triumphteam.cmd.core.extention.StringKey;
+import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Key used to identify the {@link RequirementResolver} in the {@link RequirementRegistry}.
  */
-public final class RequirementKey extends RegistryKey {
-
-    // Holds all registered keys, default and custom ones
-    private static final Set<RequirementKey> REGISTERED_KEYS = new HashSet<>();
+public final class RequirementKey extends StringKey {
 
     private RequirementKey(final @NotNull String key) {
         super(key);
-        REGISTERED_KEYS.add(this);
     }
 
     /**
@@ -53,15 +46,6 @@ public final class RequirementKey extends RegistryKey {
     @Contract("_ -> new")
     public static @NotNull RequirementKey of(final @NotNull String key) {
         return new RequirementKey(key);
-    }
-
-    /**
-     * Gets an immutable {@link Set} with all the registered keys.
-     *
-     * @return The keys {@link Set}.
-     */
-    public static @NotNull Set<@NotNull RequirementKey> getRegisteredKeys() {
-        return Collections.unmodifiableSet(REGISTERED_KEYS);
     }
 
     @Override
