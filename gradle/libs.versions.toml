@@ -7,7 +7,7 @@ license = "0.16.1"
 
 # Core
 guava = "31.1-jre"
-annotations = "23.0.0"
+annotations = "24.1.0"
 
 # Testing
 junit = "5.9.1"
