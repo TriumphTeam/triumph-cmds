@@ -1,5 +1,5 @@
 <p align="center">
-  <img style="display: block; margin:auto" src="https://github.com/TriumphTeam/docs/raw/main/libraries/triumph-cmds/ICON.png">
+  <img style="display: block; margin:auto" src="https://i.imgur.com/RsYXETD.png">
 </p>
 <h1 align="center">Welcome to Triumph CMDs</h1>
 
@@ -24,7 +24,7 @@ With this, your parameters are the command's arguments!
 
 ## Documentation
 
-You can find the documentation [**here**](https://triumphteam.dev/library/triumph-cmds/introduction).
+You can find the documentation [**here**](https://triumphteam.dev/docs/triumph-cmds/introduction).
 
 ## Contributing
 
@@ -34,7 +34,7 @@ The source code can be found [**here**](https://github.com/TriumphTeam/triumph-c
 
 ## GUI
 
-**Triumph** also has an additional lib to make easier GUI's in Spigot, you can read more about it [**here**](https://triumphteam.dev/library/triumph-gui/introduction).
+**Triumph** also has an additional lib to make easier GUI's in Spigot, you can read more about it [**here**](https://triumphteam.dev/docs/triumph-gui/introduction).
 
 ## Other
 
