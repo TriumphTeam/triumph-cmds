@@ -135,7 +135,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
             }
         }
 
-        return success(new KeyedArguments(arguments, flags, result.getNonTokens()));
+        return InternalArgument.success(new KeyedArguments(arguments, flags, result.getNonTokens()));
     }
 
     @Override

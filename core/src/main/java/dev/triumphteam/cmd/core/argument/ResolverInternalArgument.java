@@ -74,10 +74,10 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
         final Object result = resolver.resolve(sender, value);
 
         if (result == null) {
-            return invalid((commands, arguments) -> new InvalidArgumentContext(commands, arguments, value, getName(), getType()));
+            return InternalArgument.invalid((commands, arguments) -> new InvalidArgumentContext(commands, arguments, value, getName(), getType()));
         }
 
-        return success(result);
+        return InternalArgument.success(result);
     }
 
     @Override

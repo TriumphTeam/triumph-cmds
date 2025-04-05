@@ -48,7 +48,7 @@ public final class UnknownInternalArgument<S> extends StringInternalArgument<S> 
             final @NotNull String value,
             final @Nullable Object provided
     ) {
-        return invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, "", "", Void.TYPE));
+        return InternalArgument.invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, "", "", Void.TYPE));
     }
 
     @Override

@@ -31,7 +31,7 @@ import java.util.Collection;
 
 /**
  * A limitless internalArgument is an internalArgument type that won't check for internalArgument size.
- * For example: Lists, Arrays, etc.
+ * For example, Lists, Arrays, etc.
  *
  * @param <S> The sender type.
  */
