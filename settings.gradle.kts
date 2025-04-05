@@ -38,8 +38,6 @@ listOf(
     includeProjectFolders(it.first, it.second)
 }
 
-include("test-module")
-
 fun includeProject(name: String) {
     include(name) {
         this.name = "${rootProject.name}-$name"

@@ -50,18 +50,15 @@ import static java.util.Collections.emptyList;
  */
 public abstract class ParentCommand<D, S> implements Command<D, S> {
 
-    private Command<D, S> defaultCommand = null;
     private final Map<String, Command<D, S>> commands = new HashMap<>();
     private final Map<String, Command<D, S>> commandAliases = new HashMap<>();
-
     private final CommandMeta meta;
     private final Settings<D, S> settings;
-
-    // Single parent command with argument
-    private Command<D, S> parentCommandWithArgument;
-
     private final MessageRegistry<S> messageRegistry;
     private final SenderExtension<D, S> senderExtension;
+    private Command<D, S> defaultCommand = null;
+    // Single parent command with argument
+    private Command<D, S> parentCommandWithArgument;
 
     public ParentCommand(final @NotNull CommandProcessor<D, S> processor) {
         final Settings.Builder<D, S> settingsBuilder = new Settings.Builder<>();
@@ -83,7 +80,6 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         if (argument == null) return emptyList();
 
         final Command<D, S> command = findCommand(sender, arguments, false);
-
         if (command == null) {
             return commands.entrySet().stream()
                     // Filter commands the sender can't see

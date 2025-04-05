@@ -28,6 +28,11 @@ indra = "3.0.1"
 # Logging
 log4j = "2.19.0"
 
+# Build
+run-paper = "2.3.1"
+resource-factory = "1.2.0"
+shadow = "8.3.5"
+
 [libraries]
 # Core
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -58,17 +63,23 @@ build-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.r
 build-license = { module = "gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin", version.ref = "license" }
 build-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 build-indra = { module = "net.kyori:indra-common", version.ref = "indra" }
+build-run-paper = { module = "xyz.jpenilla:run-task", version.ref = "run-paper" }
+build-resource-factory = { module = "xyz.jpenilla:resource-factory", version.ref = "resource-factory" }
+build-shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version.ref = "shadow" }
 
 [bundles]
 # Testing
 testing = [
     "junit-api",
     "junit-engine",
-    "assertj"
+    "assertj",
 ]
 build = [
     "build-kotlin",
     "build-license",
     "build-spotless",
-    "build-indra"
+    "build-indra",
+    "build-run-paper",
+    "build-resource-factory",
+    "build-shadow",
 ]
