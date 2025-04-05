@@ -25,10 +25,10 @@ package dev.triumphteam.cmd.prefixed;
 
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
+import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extension.sender.SenderMapper;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;

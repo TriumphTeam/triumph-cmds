@@ -48,8 +48,8 @@ import dev.triumphteam.cmd.core.argument.InternalArgument
 import dev.triumphteam.cmd.core.command.ParentSubCommand
 import dev.triumphteam.cmd.core.command.RootCommand
 import dev.triumphteam.cmd.core.command.SubCommand
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension
+import dev.triumphteam.cmd.core.extension.registry.RegistryContainer
+import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor
 import dev.triumphteam.cmd.core.util.Pair
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument

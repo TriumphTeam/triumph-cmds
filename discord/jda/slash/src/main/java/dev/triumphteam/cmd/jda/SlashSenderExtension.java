@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.jda;
 
 import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;

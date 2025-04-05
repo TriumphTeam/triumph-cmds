@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.message.context;
 
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
 public class BasicMessageContext implements MessageContext {

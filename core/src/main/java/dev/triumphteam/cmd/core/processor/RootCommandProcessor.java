@@ -34,12 +34,12 @@ import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.command.ParentSubCommand;
 import dev.triumphteam.cmd.core.command.SubCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
-import dev.triumphteam.cmd.core.extention.CommandOptions;
-import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.command.Settings;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.meta.MetaKey;
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extension.CommandOptions;
+import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget;
+import dev.triumphteam.cmd.core.extension.command.Settings;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.meta.MetaKey;
+import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

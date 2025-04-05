@@ -25,10 +25,10 @@ package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.command.RootCommand;
-import dev.triumphteam.cmd.core.extention.CommandOptions;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.extension.CommandOptions;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;

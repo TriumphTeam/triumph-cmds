@@ -23,9 +23,9 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
-import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extension.sender.SenderMapper;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.BasicMessageContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;

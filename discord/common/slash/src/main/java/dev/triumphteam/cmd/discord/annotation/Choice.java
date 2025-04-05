@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.discord.annotation;
 
 import dev.triumphteam.cmd.discord.choices.InternalChoice;
-import dev.triumphteam.cmd.core.extention.meta.MetaKey;
+import dev.triumphteam.cmd.core.extension.meta.MetaKey;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

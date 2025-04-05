@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.core.command.RootCommand;
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

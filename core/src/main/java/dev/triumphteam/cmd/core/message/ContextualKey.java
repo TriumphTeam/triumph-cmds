@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.message;
 
-import dev.triumphteam.cmd.core.extention.StringKey;
+import dev.triumphteam.cmd.core.extension.StringKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

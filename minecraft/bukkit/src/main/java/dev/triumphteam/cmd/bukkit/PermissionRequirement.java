@@ -25,9 +25,9 @@ package dev.triumphteam.cmd.bukkit;
 
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.bukkit.message.NoPermissionMessageContext;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
-import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extension.sender.SenderMapper;
 import dev.triumphteam.cmd.core.requirement.Requirement;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.cmds.simple;
 
-import dev.triumphteam.cmd.core.extention.CommandOptions;
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extension.CommandOptions;
+import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import org.jetbrains.annotations.NotNull;
 
 public final class SimpleSetup<S> extends CommandOptions.Setup<S, S, SimpleSetup<S>> {

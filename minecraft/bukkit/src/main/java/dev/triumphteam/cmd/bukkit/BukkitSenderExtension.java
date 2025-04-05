@@ -25,9 +25,9 @@ package dev.triumphteam.cmd.bukkit;
 
 import com.google.common.collect.ImmutableSet;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.core.extention.ValidationResult;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.extension.ValidationResult;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import org.bukkit.command.CommandSender;

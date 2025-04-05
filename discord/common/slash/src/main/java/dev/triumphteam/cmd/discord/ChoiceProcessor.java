@@ -23,9 +23,9 @@
  */
 package dev.triumphteam.cmd.discord;
 
-import dev.triumphteam.cmd.core.extention.annotation.AnnotationProcessor;
-import dev.triumphteam.cmd.core.extention.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.annotation.AnnotationProcessor;
+import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.discord.annotation.Choice;
 import dev.triumphteam.cmd.discord.choices.ChoiceKey;
 import dev.triumphteam.cmd.discord.choices.ChoiceRegistry;

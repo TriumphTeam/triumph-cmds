@@ -23,9 +23,9 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
-import dev.triumphteam.cmd.core.extention.sender.SenderMapper;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extension.sender.SenderMapper;
 import org.jetbrains.annotations.NotNull;
 
 public interface Requirement<D, S> {

@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.annotations;
 
-import dev.triumphteam.cmd.core.extention.meta.MetaKey;
+import dev.triumphteam.cmd.core.extension.meta.MetaKey;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
