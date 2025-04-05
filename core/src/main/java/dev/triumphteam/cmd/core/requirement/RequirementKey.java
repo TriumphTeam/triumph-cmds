@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
-import dev.triumphteam.cmd.core.extention.StringKey;
-import dev.triumphteam.cmd.core.extention.registry.RequirementRegistry;
+import dev.triumphteam.cmd.core.extension.StringKey;
+import dev.triumphteam.cmd.core.extension.registry.RequirementRegistry;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

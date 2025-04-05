@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.suggestion;
 
-import dev.triumphteam.cmd.core.extention.registry.Registry;
+import dev.triumphteam.cmd.core.extension.registry.Registry;
 import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

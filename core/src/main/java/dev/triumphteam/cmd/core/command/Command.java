@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.cmd.core.command;
 
-import dev.triumphteam.cmd.core.extention.command.Settings;
-import dev.triumphteam.cmd.core.extention.meta.CommandMetaContainer;
+import dev.triumphteam.cmd.core.extension.command.Settings;
+import dev.triumphteam.cmd.core.extension.meta.CommandMetaContainer;
 import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

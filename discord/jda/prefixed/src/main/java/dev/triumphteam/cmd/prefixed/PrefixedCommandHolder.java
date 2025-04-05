@@ -26,7 +26,7 @@ package dev.triumphteam.cmd.prefixed;
 import dev.triumphteam.cmd.core.command.Command;
 import dev.triumphteam.cmd.core.execution.ExecutionProvider;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.extention.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.message.context.DefaultMessageContext;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;
 import org.jetbrains.annotations.NotNull;

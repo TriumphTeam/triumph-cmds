@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.bukkit.message;
 
 import dev.triumphteam.cmd.bukkit.CommandPermission;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.BasicMessageContext;
 import org.jetbrains.annotations.NotNull;
 

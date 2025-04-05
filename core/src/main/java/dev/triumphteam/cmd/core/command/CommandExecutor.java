@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.command;
 
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;

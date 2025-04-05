@@ -24,7 +24,7 @@
 package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.discord.choices.ChoiceRegistry;
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 

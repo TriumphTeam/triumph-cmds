@@ -24,8 +24,8 @@
 package dev.triumphteam.cmds.kord
 
 import dev.kord.core.Kord
-import dev.triumphteam.cmd.core.extention.CommandOptions
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension
+import dev.triumphteam.cmd.core.extension.CommandOptions
+import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.discord.ChoiceProcessor
 import dev.triumphteam.cmd.discord.NsfwProcessor
 import dev.triumphteam.cmd.discord.annotation.Choice

@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmds.kord
 
-import dev.triumphteam.cmd.core.extention.registry.RegistryContainer
+import dev.triumphteam.cmd.core.extension.registry.RegistryContainer
 import dev.triumphteam.cmd.discord.choices.ChoiceRegistry
 import dev.triumphteam.cmds.kord.sender.SlashSender
 

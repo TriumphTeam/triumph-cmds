@@ -24,9 +24,9 @@
 package dev.triumphteam.cmd.prefixed;
 
 import com.google.common.collect.ImmutableSet;
-import dev.triumphteam.cmd.core.extention.ValidationResult;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
-import dev.triumphteam.cmd.core.extention.sender.SenderExtension;
+import dev.triumphteam.cmd.core.extension.ValidationResult;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.prefixed.sender.PrefixedSender;

@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.suggestion;
 
-import dev.triumphteam.cmd.core.extention.StringKey;
+import dev.triumphteam.cmd.core.extension.StringKey;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

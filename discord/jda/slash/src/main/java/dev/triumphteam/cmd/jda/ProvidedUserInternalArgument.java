@@ -24,8 +24,8 @@
 package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import dev.triumphteam.cmd.core.extention.Result;
-import dev.triumphteam.cmd.core.extention.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.Suggestion;
 import net.dv8tion.jda.api.entities.Member;
