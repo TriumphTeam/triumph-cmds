@@ -4,6 +4,8 @@ import dev.triumphteam.bukkit.example.commands.ExampleCommand;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.Flag;
+import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,6 +31,12 @@ public final class ExamplePlugin extends JavaPlugin {
                 Argument.listOf(String.class).name("a").build(),
                 Argument.listOf(Material.class).name("m").build(),
                 Argument.listOf(Player.class).name("p").build()
+        );
+
+        commandManager.registerFlags(
+                FlagKey.of("test.flags"),
+                Flag.flag("t").longFlag("test").build(),
+                Flag.flag("e").longFlag("example").build()
         );
 
         commandManager.registerCommand(new ExampleCommand());

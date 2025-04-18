@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.jda;
 
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.extension.Result;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
@@ -54,14 +55,14 @@ class ProvidedUserInternalArgument<S> extends StringInternalArgument<S> {
             final @Nullable Object provided
     ) {
         if (provided == null) {
-            return invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, value, getName(), getType()));
+            return InternalArgument.invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, value, getName(), getType()));
         }
 
         // Bit of a hack around JDA member not being an User for some reason
         if (provided instanceof Member) {
-            return success(((Member) provided).getUser());
+            return InternalArgument.success(((Member) provided).getUser());
         }
 
-        return success(provided);
+        return InternalArgument.success(provided);
     }
 }

@@ -217,6 +217,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                 throw createException("No internalArgument of type \"" + argument.getType().getName() + "\" registered");
             }
 
+            // TODO(matt): null check only instead
             if (parameter.isAnnotationPresent(Split.class)) {
                 final Split splitAnnotation = parameter.getAnnotation(Split.class);
                 return new SplitStringInternalArgument<>(
@@ -340,8 +341,6 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
 
         for (final Flag flag : group.getAll()) {
             final Class<?> argType = flag.getArgument();
-            if (argType == null) continue;
-
             final Suggestion<S> suggestion = createSuggestion(flag.getSuggestion(), argType);
 
             internalArguments.put(

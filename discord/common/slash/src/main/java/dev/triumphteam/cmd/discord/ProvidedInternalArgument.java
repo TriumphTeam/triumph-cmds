@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.discord;
 
+import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.extension.Result;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
@@ -53,8 +54,8 @@ public class ProvidedInternalArgument<S> extends StringInternalArgument<S> {
             final @Nullable Object provided
     ) {
         if (provided == null) {
-            return invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, value, getName(), getType()));
+            return InternalArgument.invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, value, getName(), getType()));
         }
-        return success(provided);
+        return InternalArgument.success(provided);
     }
 }

@@ -98,7 +98,7 @@ final class FlagOptions implements Flag {
     }
 
     @Override
-    public @Nullable Class<?> getArgument() {
+    public @NotNull Class<?> getArgument() {
         return argument;
     }
 

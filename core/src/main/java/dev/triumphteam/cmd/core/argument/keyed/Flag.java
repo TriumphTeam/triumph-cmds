@@ -86,7 +86,7 @@ public interface Flag {
     /**
      * @return Gets the argument if there is one.
      */
-    @Nullable Class<?> getArgument();
+    @NotNull Class<?> getArgument();
 
     /**
      * Simple builder for creating new {@link Flag}s.
@@ -96,7 +96,7 @@ public interface Flag {
         private String flag;
         private String longFlag;
         private String description;
-        private Class<?> argument;
+        private Class<?> argument = Void.class;
         private SuggestionKey suggestionKey;
 
         /**
