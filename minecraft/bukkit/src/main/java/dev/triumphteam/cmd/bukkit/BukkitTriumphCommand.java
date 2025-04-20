@@ -34,12 +34,12 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
 
-final class BukkitCommand<S> extends Command {
+public final class BukkitTriumphCommand<S> extends Command {
 
     private final RootCommand<CommandSender, S> rootCommand;
     private final SenderExtension<CommandSender, S> senderExtension;
 
-    BukkitCommand(final @NotNull RootCommandProcessor<CommandSender, S> processor) {
+    BukkitTriumphCommand(final @NotNull RootCommandProcessor<CommandSender, S> processor) {
         super(processor.getName(), processor.getDescription(), "", processor.getAliases());
 
         this.rootCommand = new RootCommand<>(processor);

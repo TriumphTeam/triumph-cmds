@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
+import dev.triumphteam.cmd.bukkit.brigadier.PaperBrigadierAccessor;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.command.RootCommand;
@@ -57,7 +58,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     private final Plugin plugin;
     private final RegistryContainer<CommandSender, S> registryContainer;
 
-    private final Map<String, BukkitCommand<S>> commands = new HashMap<>();
+    private final Map<String, BukkitTriumphCommand<S>> commands = new HashMap<>();
 
     private final CommandMap commandMap;
     private final Map<String, org.bukkit.command.Command> bukkitCommands;
@@ -73,6 +74,10 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
         this.commandMap = getCommandMap();
         this.bukkitCommands = getBukkitCommands(commandMap);
+
+        // Register brigadier stuff
+        final PaperBrigadierAccessor<S> brigadierAccessor = new PaperBrigadierAccessor<>(commands);
+        Bukkit.getServer().getPluginManager().registerEvents(brigadierAccessor, plugin);
 
         // Register some defaults
         registerArgument(Material.class, (sender, arg) -> Material.matchMaterial(arg));
@@ -152,51 +157,6 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         messageRegistry.register(BukkitMessageKey.CONSOLE_ONLY, (sender, context) -> sender.sendMessage("This command can only be used by the console."));
     }
 
-    @Override
-    public void registerCommand(final @NotNull Object command) {
-        final RootCommandProcessor<CommandSender, S> processor = new RootCommandProcessor<>(
-                command,
-                getRegistryContainer(),
-                getCommandOptions()
-        );
-
-        final String name = processor.getName();
-
-        // Get or add command, then add its sub commands
-        final BukkitCommand<S> bukkitCommand = commands.computeIfAbsent(name, it -> createAndRegisterCommand(processor, name));
-        final RootCommand<CommandSender, S> rootCommand = bukkitCommand.getRootCommand();
-        rootCommand.addCommands(command, processor.commands(rootCommand));
-
-        // TODO: ALIASES
-    }
-
-    @Override
-    public void unregisterCommand(final @NotNull Object command) {
-        // TODO add a remove functionality
-    }
-
-    @Override
-    protected @NotNull RegistryContainer<CommandSender, S> getRegistryContainer() {
-        return registryContainer;
-    }
-
-    private @NotNull BukkitCommand<S> createAndRegisterCommand(
-            final @NotNull RootCommandProcessor<CommandSender, S> processor,
-            final @NotNull String name
-    ) {
-        // From ACF (https://github.com/aikar/commands)
-        // To allow commands to be registered on the plugin.yml
-        final org.bukkit.command.Command oldCommand = commandMap.getCommand(name);
-        if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
-            bukkitCommands.remove(name);
-            oldCommand.unregister(commandMap);
-        }
-
-        final BukkitCommand<S> newCommand = new BukkitCommand<>(processor);
-        commandMap.register(plugin.getName(), newCommand);
-        return newCommand;
-    }
-
     /**
      * @return Bukkit's {@link CommandMap} to register commands to.
      */
@@ -221,5 +181,50 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new CommandRegistrationException("Unable get Bukkit commands. Commands might not be registered correctly!");
         }
+    }
+
+    @Override
+    public void registerCommand(final @NotNull Object command) {
+        final RootCommandProcessor<CommandSender, S> processor = new RootCommandProcessor<>(
+                command,
+                getRegistryContainer(),
+                getCommandOptions()
+        );
+
+        final String name = processor.getName();
+
+        // Get or add command, then add its sub commands
+        final BukkitTriumphCommand<S> bukkitCommand = commands.computeIfAbsent(name, it -> createAndRegisterCommand(processor, name));
+        final RootCommand<CommandSender, S> rootCommand = bukkitCommand.getRootCommand();
+        rootCommand.addCommands(command, processor.commands(rootCommand));
+
+        // TODO: ALIASES
+    }
+
+    @Override
+    public void unregisterCommand(final @NotNull Object command) {
+        // TODO add a remove functionality
+    }
+
+    @Override
+    protected @NotNull RegistryContainer<CommandSender, S> getRegistryContainer() {
+        return registryContainer;
+    }
+
+    private @NotNull BukkitTriumphCommand<S> createAndRegisterCommand(
+            final @NotNull RootCommandProcessor<CommandSender, S> processor,
+            final @NotNull String name
+    ) {
+        // From ACF (https://github.com/aikar/commands)
+        // To allow commands to be registered on the plugin.yml
+        final org.bukkit.command.Command oldCommand = commandMap.getCommand(name);
+        if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
+            bukkitCommands.remove(name);
+            oldCommand.unregister(commandMap);
+        }
+
+        final BukkitTriumphCommand<S> newCommand = new BukkitTriumphCommand<>(processor);
+        commandMap.register(plugin.getName(), newCommand);
+        return newCommand;
     }
 }
