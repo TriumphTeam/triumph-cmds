@@ -94,7 +94,7 @@ final class FlagOptions implements Flag {
 
     @Override
     public boolean hasArgument() {
-        return argument != null && argument != Void.TYPE;
+        return argument != null && argument != void.class;
     }
 
     @Override

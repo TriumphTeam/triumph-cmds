@@ -96,7 +96,7 @@ public interface Flag {
         private String flag;
         private String longFlag;
         private String description;
-        private Class<?> argument = Void.class;
+        private Class<?> argument = void.class;
         private SuggestionKey suggestionKey;
 
         /**
