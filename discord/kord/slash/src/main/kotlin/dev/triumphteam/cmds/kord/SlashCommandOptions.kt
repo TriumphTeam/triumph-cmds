@@ -50,7 +50,7 @@ public class SlashCommandOptions<S>(
         ) {
 
         init {
-            // Setters have to be done first thing, so they can be overriden.
+            // Setters have to be done first thing, so they can be overridden.
             extensions { extension ->
                 extension.useCoroutines(coroutineScope = kord, coroutineContext = kord.coroutineContext)
                 extension.addAnnotationProcessor(Choice::class.java, ChoiceProcessor(registryContainer.choiceRegistry))

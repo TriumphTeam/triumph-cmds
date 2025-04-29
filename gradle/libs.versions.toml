@@ -1,6 +1,6 @@
 [versions]
 # kotlin
-kotlin = "1.8.10"
+kotlin = "2.1.20"
 coroutines = "1.6.4"
 
 license = "0.16.1"
@@ -18,7 +18,7 @@ spigot = "1.18.2-R0.1-SNAPSHOT"
 
 # Discord
 jda = "5.0.0-beta.22"
-kord = "0.8.0-M17"
+kord = "0.15.0"
 
 # Formatting
 spotless = "6.12.0"
