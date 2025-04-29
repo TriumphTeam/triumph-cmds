@@ -1,57 +1,52 @@
+import dev.triumphteam.root.projects
+
 dependencyResolutionManagement {
     includeBuild("build-logic")
     repositories.gradlePluginPortal()
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven("https://repo.triumphteam.dev/releases")
+    }
+}
 
 rootProject.name = "triumph-cmd"
 
-listOf(
-    "core",
-    "simple"
-).forEach(::includeProject)
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-listOf(
-     "minecraft/bukkit" to "bukkit",
-
-     "discord/common/slash" to "discord-slash-common",
-     "discord/jda/common" to "jda-common",
-     // "discord/jda-prefixed" to "jda-prefixed",
-     "discord/jda/slash" to "jda-slash",
-     "discord/kord/slash" to "kord-slash",
-
-     "kotlin/coroutines" to "kotlin-coroutines",
-     "kotlin/extensions" to "kotlin-extensions",
-).forEach {
-    includeProjectFolders(it.first, it.second)
+plugins {
+    id("dev.triumphteam.root.settings") version "0.0.31"
 }
 
-// Examples
-listOf(
-    "examples/minecraft/bukkit" to "bukkit-examples",
+projects {
+    single(id = "core")
+    single(id = "simple")
 
-    // "discord/jda-prefixed" to "jda-prefixed",
-    "examples/discord/jda/slash" to "jda-slash-examples",
-    "examples/discord/kord/slash" to "kord-slash-examples",
-).forEach {
-    includeProjectFolders(it.first, it.second)
-}
-
-fun includeProject(name: String) {
-    include(name) {
-        this.name = "${rootProject.name}-$name"
+    group(namespace = "minecraft") {
+        single(id = "bukkit")
     }
-}
 
-fun includeProjectFolders(folder: String, name: String) {
-    include(name) {
-        this.name = "${rootProject.name}-$name"
-        this.projectDir = file(folder)
+    group(namespace = "discord") {
+        single(id = "common", includeNamespace = true)
+        single(id = "jda")
+        single(id = "kord")
     }
-}
 
-fun include(name: String, block: ProjectDescriptor.() -> Unit) {
-    include(name)
-    project(":$name").apply(block)
+    group(namespace = "kotlin") {
+        single(id = "coroutines", includeNamespace = true)
+        single(id = "extensions", includeNamespace = true)
+    }
+
+    group(namespace = "examples") {
+        group(namespace = "minecraft") {
+            single(id = "bukkit", includeNamespace = true)
+        }
+
+        group(namespace = "discord") {
+            single(id = "jda", includeNamespace = true)
+            single(id = "kord", includeNamespace = true)
+        }
+    }
 }

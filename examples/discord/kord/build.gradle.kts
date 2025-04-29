@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-    api(projects.triumphCmdKordSlash)
+    api(projects.triumphCmdKord)
 }

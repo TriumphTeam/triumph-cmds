@@ -6,7 +6,7 @@ plugins {
 dependencies {
     api(kotlin("stdlib"))
     api(libs.kord)
-    api(projects.triumphCmdDiscordSlashCommon)
+    api(projects.triumphCmdDiscordCommon)
     api(projects.triumphCmdKotlinCoroutines)
     api(projects.triumphCmdKotlinExtensions)
 }

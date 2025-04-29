@@ -4,5 +4,5 @@ plugins {
 }
 
 dependencies {
-    api(projects.triumphCmdJdaSlash)
+    api(projects.triumphCmdJda)
 }

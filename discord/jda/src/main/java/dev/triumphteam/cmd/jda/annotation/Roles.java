@@ -21,19 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.discord.jda.annotation;
+package dev.triumphteam.cmd.jda.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Repeatable(Privileges.class)
 @Inherited
-public @interface Privileges {
+public @interface Roles {
 
-    Roles[] value();
+    long[] value();
+
+    boolean disabled() default false;
 
 }
