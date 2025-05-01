@@ -137,6 +137,8 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         this.localSuggestions = collectLocalSuggestions();
     }
 
+    protected abstract String defaultCommandName();
+
     @Override
     public @NotNull RegistryContainer<D, S> getRegistryContainer() {
         return registryContainer;
@@ -166,6 +168,9 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
 
         // Not a command element
         if (commandAnnotation == null) return null;
+
+        final String name = commandAnnotation.value();
+        if (name.isEmpty()) return defaultCommandName();
 
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, commandAnnotation.value());
     }

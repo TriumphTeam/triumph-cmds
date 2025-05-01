@@ -209,4 +209,9 @@ public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
     public boolean hasArguments() {
         return argument != null;
     }
+
+    @Override
+    public boolean isHidden() {
+        return argument != null;
+    }
 }

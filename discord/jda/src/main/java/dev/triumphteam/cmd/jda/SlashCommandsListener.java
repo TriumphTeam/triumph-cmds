@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-class SlashCommandsListener extends ListenerAdapter {
+public class SlashCommandsListener extends ListenerAdapter {
 
     private final SlashCommandManager<?> commandManager;
 

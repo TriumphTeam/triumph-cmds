@@ -34,6 +34,7 @@ import dev.triumphteam.cmd.core.argument.keyed.ArgumentGroup;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
+import dev.triumphteam.cmd.core.command.InternalCommand;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.ValidationResult;
 import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget;
@@ -91,6 +92,11 @@ public final class LeafCommandProcessor<D, S> extends AbstractCommandProcessor<D
         this.method = method;
         this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
         this.flagRegistry = registryContainer.getFlagRegistry();
+    }
+
+    @Override
+    protected String defaultCommandName() {
+        return InternalCommand.DEFAULT_CMD_NAME;
     }
 
     @Override

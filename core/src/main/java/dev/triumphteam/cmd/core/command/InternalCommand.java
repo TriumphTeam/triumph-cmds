@@ -38,6 +38,9 @@ import java.util.List;
  */
 public interface InternalCommand<D, S> extends CommandMetaContainer {
 
+    String DEFAULT_CMD_NAME = "th-default";
+    String PARENT_CMD_WITH_ARGS_NAME = "th-args-cmd";
+
     /**
      * Create a list of suggestion strings to return to the platform requesting it.
      *
@@ -71,6 +74,8 @@ public interface InternalCommand<D, S> extends CommandMetaContainer {
      * @return Whether this is a "default" command, meaning it represents the class itself and is not separate.
      */
     boolean isDefault();
+
+    boolean isHidden();
 
     /**
      * @return Whether the command has arguments.

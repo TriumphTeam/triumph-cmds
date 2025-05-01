@@ -25,13 +25,14 @@ package dev.triumphteam.cmd.core.processor;
 
 import com.google.common.base.CaseFormat;
 import dev.triumphteam.cmd.core.AnnotatedCommand;
+import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentGroup;
-import dev.triumphteam.cmd.core.command.InternalCommand;
 import dev.triumphteam.cmd.core.command.InternalBranchCommand;
+import dev.triumphteam.cmd.core.command.InternalCommand;
 import dev.triumphteam.cmd.core.command.InternalLeafCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
@@ -171,7 +172,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
             // Not a command, ignore the method
             if (processor.getName() == null) continue;
 
-            // Add new command
+            // Add a new command
             commands.add(new InternalLeafCommand<>(invocationInstance, method, processor, parentCommand));
         }
 
@@ -219,7 +220,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
             final InternalArgument<S> argument;
             if (!hasArgument) argument = null;
             else {
-                if (!dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME.equals(processor.getName())) {
+                if (!InternalCommand.PARENT_CMD_WITH_ARGS_NAME.equals(processor.getName())) {
                     throw new CommandRegistrationException("Inner command class with argument must not have a name", klass);
                 }
 
@@ -265,8 +266,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
 
     private @NotNull String nameOf() {
         final Class<?> commandClass = invocationInstance.getClass();
-        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation =
-                commandClass.getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);
+        final Command commandAnnotation = commandClass.getAnnotation(Command.class);
 
         String name = null;
         if (commandAnnotation != null) {
@@ -279,7 +279,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
             throw new CommandRegistrationException("No \"@" + InternalCommand.class.getSimpleName() + "\" annotation found or class doesn't extend \"" + AnnotatedCommand.class.getSimpleName() + "\"", invocationInstance.getClass());
         }
 
-        if (name.isEmpty() || name.equals(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME)) {
+        if (name.isEmpty() || name.equals(InternalCommand.DEFAULT_CMD_NAME)) {
             throw new CommandRegistrationException("Command name must not be empty", invocationInstance.getClass());
         }
 
@@ -288,8 +288,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
 
     private @NotNull List<String> aliasesOf() {
         final Class<?> commandClass = invocationInstance.getClass();
-        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation =
-                commandClass.getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);
+        final Command commandAnnotation = commandClass.getAnnotation(Command.class);
 
         List<String> aliases = null;
         if (commandAnnotation != null) {

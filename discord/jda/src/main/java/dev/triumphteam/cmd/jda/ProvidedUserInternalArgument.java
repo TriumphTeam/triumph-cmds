@@ -25,15 +25,13 @@ package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
 import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiFunction;
 
 class ProvidedUserInternalArgument<S> extends StringInternalArgument<S> {
 
@@ -49,16 +47,14 @@ class ProvidedUserInternalArgument<S> extends StringInternalArgument<S> {
     }
 
     @Override
-    public @NotNull InternalArgumentResult<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull String value,
-            final @Nullable Object provided
-    ) {
+    public @NotNull InternalArgumentResult resolve(@NotNull final S sender, final @NotNull ArgumentInput input) {
+        final Object provided = input.getProvided();
+
         if (provided == null) {
-            return InternalArgument.invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, value, getName(), getType()));
+            return InternalArgument.invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, input.getInput(), getName(), getType()));
         }
 
-        // Bit of a hack around JDA member not being an User for some reason
+        // A bit of a hack around a JDA member not being a User for some reason.
         if (provided instanceof Member) {
             return InternalArgument.valid(((Member) provided).getUser());
         }

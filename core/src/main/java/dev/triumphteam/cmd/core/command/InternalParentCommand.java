@@ -58,11 +58,6 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
     private final MessageRegistry<S> messageRegistry;
     private final SenderExtension<D, S> senderExtension;
 
-    // TODO(important): REMOVE
-    private InternalCommand<D, S> defaultCommand = null;
-    // Single parent command with argument
-    private InternalCommand<D, S> parentCommandWithArgument;
-
     public InternalParentCommand(final @NotNull CommandProcessor<D, S> processor) {
         final Settings.Builder<D, S> settingsBuilder = new Settings.Builder<>();
         processor.captureRequirements(settingsBuilder);
@@ -72,29 +67,6 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
         this.senderExtension = processor.getCommandOptions().getCommandExtensions().getSenderExtension();
 
         this.settings = settingsBuilder.build();
-    }
-
-    @Override
-    public @NotNull List<String> suggestions(
-            final @NotNull S sender,
-            final @NotNull Deque<String> arguments
-    ) {
-        final String argument = arguments.peek();
-        if (argument == null) return emptyList();
-
-        final InternalCommand<D, S> command = findCommand(sender, arguments, false);
-        if (command == null) {
-            return commands.entrySet().stream()
-                    // Filter commands the sender can't see
-                    .filter(it -> it.getValue().getCommandSettings().testRequirements(sender, meta, senderExtension))
-                    // Commands that match what the sender is typing
-                    .filter(it -> it.getKey().startsWith(argument))
-                    // Only use the names
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-        }
-
-        return command.suggestions(sender, arguments);
     }
 
     /**
@@ -110,20 +82,13 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
         for (final InternalCommand<D, S> command : commands) {
             // If it's a parent command with argument we add it
             if (command instanceof InternalBranchCommand && command.hasArguments()) {
-                if (parentCommandWithArgument != null) {
+                if (this.commands.containsKey(InternalCommand.PARENT_CMD_WITH_ARGS_NAME)) {
                     throw new CommandRegistrationException("Only one inner command with argument is allowed per command", instance.getClass());
                 }
-
-                parentCommandWithArgument = command;
-                return;
             }
 
-            if (command.isDefault()) {
-                this.defaultCommand = command;
-            } else {
-                // Normal commands are added here
-                this.commands.put(command.getName(), command);
-            }
+            // Normal commands are added here
+            this.commands.put(command.getName(), command);
 
             for (final String alias : command.getAliases()) {
                 this.commandAliases.put(alias, command);
@@ -149,6 +114,31 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
         leafCommand.execute(sender, instanceSupplier, leafCommand.mapArguments(arguments));
     }
 
+    @Override
+    public @NotNull List<String> suggestions(
+            final @NotNull S sender,
+            final @NotNull Deque<String> arguments
+    ) {
+        final String argument = arguments.peek();
+        if (argument == null) return emptyList();
+
+        final InternalCommand<D, S> command = findCommand(sender, arguments, false);
+        if (command == null) {
+            return commands.entrySet().stream()
+                    // Remove the default command from the list.
+                    .filter(it -> !it.getValue().isDefault())
+                    // Filter commands the sender can't see.
+                    .filter(it -> it.getValue().getCommandSettings().testRequirements(sender, meta, senderExtension))
+                    // Commands that match what the sender is typing.
+                    .filter(it -> it.getKey().startsWith(argument))
+                    // Only use the names.
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+        }
+
+        return command.suggestions(sender, arguments);
+    }
+
 
     protected @Nullable InternalCommand<D, S> findCommand(
             final @NotNull S sender,
@@ -158,12 +148,12 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
         final String name = arguments.peek();
 
         // Instant check for default
-        final InternalCommand<D, S> defaultCommand = this.defaultCommand;
+        final InternalCommand<D, S> defaultCommand = getCommandByName(InternalCommand.DEFAULT_CMD_NAME);
 
         // No argument passed
         if (name == null) {
-            // No default command found, send message and return null
-            // If there is default command then return it
+            // No default command found, send a message and return null
+            // If there is a default command, then return it
             if (defaultCommand == null && message) {
                 messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, ""));
             }
@@ -171,15 +161,16 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
             return defaultCommand;
         }
 
-        final InternalCommand<D, S> command = getCommandByName(name);
+        final InternalCommand<D, S> command = safelyGetCommandByName(name);
         if (command != null) {
-            // Pop command out of arguments list and returns it
+            // Pop the command out of the argument list and returns it
             arguments.pop();
             return command;
         }
 
         if (defaultCommand == null || !defaultCommand.hasArguments()) {
             // No command found with the name [name]
+            final InternalCommand<D, S> parentCommandWithArgument = getCommandByName(InternalCommand.PARENT_CMD_WITH_ARGS_NAME);
             if (parentCommandWithArgument == null && message) {
                 messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, name));
             }
@@ -206,12 +197,20 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
         return false;
     }
 
-    public InternalCommand<D, S> getDefaultCommand() {
-        return defaultCommand;
+    @Override
+    public boolean isHidden() {
+        return false;
     }
 
     public @NotNull Map<String, InternalCommand<D, S>> getCommands() {
         return commands;
+    }
+
+    protected @Nullable InternalCommand<D, S> safelyGetCommandByName(final @NotNull String key) {
+        // Don't let the default command be retrieved by the name.
+        if (key.equals(InternalCommand.DEFAULT_CMD_NAME)) return null;
+        if (key.equals(InternalCommand.PARENT_CMD_WITH_ARGS_NAME)) return null;
+        return getCommandByName(key);
     }
 
     protected @Nullable InternalCommand<D, S> getCommandByName(final @NotNull String key) {

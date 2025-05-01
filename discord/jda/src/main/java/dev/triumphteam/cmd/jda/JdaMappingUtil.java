@@ -25,12 +25,12 @@ package dev.triumphteam.cmd.jda;
 
 import com.google.common.collect.ImmutableMap;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.command.InternalCommand;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
 import dev.triumphteam.cmd.core.command.InternalBranchCommand;
-import dev.triumphteam.cmd.core.command.InternalRootCommand;
+import dev.triumphteam.cmd.core.command.InternalCommand;
 import dev.triumphteam.cmd.core.command.InternalLeafCommand;
+import dev.triumphteam.cmd.core.command.InternalRootCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.util.Pair;
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
 import dev.triumphteam.cmd.discord.annotation.Choice;
 import dev.triumphteam.cmd.discord.annotation.NSFW;
@@ -93,14 +93,14 @@ final class JdaMappingUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static @NotNull Pair<String, Object> parsedValueFromType(final @NotNull OptionMapping option) {
+    public static @NotNull ArgumentInput parsedValueFromType(final @NotNull OptionMapping option) {
         final String raw = option.getAsString();
 
-        if (isStringType(option.getType())) return new Pair<>(raw, raw);
+        if (isStringType(option.getType())) return new ArgumentInput(raw);
 
         try {
             final TLongObjectMap<Object> map = (TLongObjectMap<Object>) RESOLVED_FILED.get(option);
-            return new Pair<>(raw, map.get(option.getAsLong()));
+            return new ArgumentInput(raw, map.get(option.getAsLong()));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

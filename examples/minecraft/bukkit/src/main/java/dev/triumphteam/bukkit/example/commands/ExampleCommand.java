@@ -35,12 +35,8 @@ public class ExampleCommand {
     // Allowing a return type for commands where you can send messages using the internal registry.
     // Success will act like it was returning void, failure has a factory to send messages and create message contexts.
     @Command
-    public CommandExecuteResult<CommandSender> execute(final CommandSender sender, final String name, final int age) {
-
-        if (name.equals("test")) {
-            return CommandExecuteResult.success();
-        }
-
+    public CommandExecuteResult<CommandSender> execute(final CommandSender sender) {
+        sender.sendMessage("executed");
         return CommandExecuteResult.failure((messageSender, sender1, meta) -> {
             messageSender.sendMessage(MessageKey.UNKNOWN_COMMAND, sender1, new InvalidCommandContext(meta, "example"));
         });
@@ -88,13 +84,13 @@ public class ExampleCommand {
         }
 
         @Command
-        public void execute(final CommandSender sender, final String name) {
-
+        public void execute(final CommandSender sender) {
+            sender.sendMessage("arg default");
         }
 
         @Command("foo")
         public void executeFoo(final CommandSender sender, final String name, final int age) {
-
+            sender.sendMessage("arg foo");
         }
     }*/
 }

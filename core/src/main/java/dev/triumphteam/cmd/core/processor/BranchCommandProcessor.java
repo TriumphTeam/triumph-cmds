@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
+import dev.triumphteam.cmd.core.command.InternalCommand;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extension.command.Settings;
@@ -56,6 +57,11 @@ public final class BranchCommandProcessor<D, S> extends AbstractCommandProcessor
         super(invocationInstance, klass, registryContainer, commandOptions, parentMeta);
 
         this.klass = klass;
+    }
+
+    @Override
+    protected String defaultCommandName() {
+        return InternalCommand.PARENT_CMD_WITH_ARGS_NAME;
     }
 
     @Override

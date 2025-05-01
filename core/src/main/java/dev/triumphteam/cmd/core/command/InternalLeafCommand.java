@@ -284,7 +284,7 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
 
         final StringBuilder builder = new StringBuilder(parentCommand.getSyntax());
 
-        if (!dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME.equals(name)) {
+        if (!InternalCommand.DEFAULT_CMD_NAME.equals(name)) {
             builder.append(" ").append(name);
         }
 
@@ -338,7 +338,12 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
 
     @Override
     public boolean isDefault() {
-        return name.equals(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME);
+        return name.equals(InternalCommand.DEFAULT_CMD_NAME);
+    }
+
+    @Override
+    public boolean isHidden() {
+        return isDefault();
     }
 
     @Override

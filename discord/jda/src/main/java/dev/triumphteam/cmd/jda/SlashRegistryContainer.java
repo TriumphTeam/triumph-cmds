@@ -29,7 +29,7 @@ import dev.triumphteam.cmd.jda.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
 // TODO: Comments
-final class SlashRegistryContainer<S> extends RegistryContainer<SlashSender, S> {
+public final class SlashRegistryContainer<S> extends RegistryContainer<SlashSender, S> {
 
     private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
     public @NotNull ChoiceRegistry getChoiceRegistry() {

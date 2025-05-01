@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
 import dev.triumphteam.cmd.core.command.InternalCommand;
 import dev.triumphteam.cmd.core.command.InternalParentCommand;
 import dev.triumphteam.cmd.core.command.InternalRootCommand;
@@ -83,7 +84,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
     private final Map<String, InternalRootCommand<SlashSender, S>> globalCommands = new HashMap<>();
     private final Map<Long, Map<String, InternalRootCommand<SlashSender, S>>> guildCommands = new HashMap<>();
 
-    public SlashCommandManager(
+    private SlashCommandManager(
             final @NotNull JDA jda,
             final @NotNull SlashCommandOptions<S> commandOptions,
             final @NotNull SlashRegistryContainer<S> registryContainer
@@ -157,19 +158,23 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         if (command == null) return;
 
         final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
-        // Immediately pop the main command out, to remove itself from it
+        // Immediately pop the main command out to remove itself from the deque.
         commands.pop();
 
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new InteractionCommandSender(event));
 
         // Mapping of arguments
-        final Map<String, Pair<String, Object>> arguments = new HashMap<>();
+        final Map<String, ArgumentInput> arguments = new HashMap<>();
         for (final OptionMapping option : event.getOptions()) {
             arguments.put(option.getName(), JdaMappingUtil.parsedValueFromType(option));
         }
 
-        command.executeNonLinear(sender, null, commands, arguments);
+        command.execute(sender, null, commands, arguments);
+    }
+
+    private void findCommand() {
+
     }
 
     public void suggest(final @NotNull CommandAutoCompleteInteractionEvent event) {
@@ -177,7 +182,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         if (command == null) return;
 
         final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
-        // Immediately pop the main command out, to remove itself from it
+        // Immediately pop the main command out to remove itself from it
         commands.pop();
 
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
@@ -200,7 +205,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
 
         final String name = processor.getName();
 
-        // Get or add command, then add its sub commands
+        // Get or add a command, then add its sub commands
         final InternalRootCommand<SlashSender, S> rootCommand = globalCommands
                 .computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
 
@@ -244,7 +249,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
 
         final String name = processor.getName();
 
-        // Get or add command, then add its sub commands
+        // Get or add a command, then add its sub commands
         final InternalRootCommand<SlashSender, S> rootCommand = guildCommands
                 .computeIfAbsent(guildId, it -> new HashMap<>())
                 .computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
@@ -300,10 +305,10 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
     // TODO(important): ERROR ON GROUP WITH ARGS AS THEY ARE NOT ALLOWED
     private @Nullable InternalLeafCommand<SlashSender, S> findExecutable(
             final @NotNull Deque<String> commands,
-            final @NotNull InternalCommand<SlashSender, S> command
+            final @NotNull InternalRootCommand<SlashSender, S> command
     ) {
 
-        // If it's empty we're talking about a default from Root
+        // If it's empty, we're talking about a default from Root
         if (commands.isEmpty() && command instanceof InternalParentCommand) {
             return (InternalLeafCommand<SlashSender, S>) ((InternalParentCommand<SlashSender, S>) command).getDefaultCommand();
         }

@@ -39,5 +39,4 @@ public @interface Roles {
     long[] value();
 
     boolean disabled() default false;
-
 }

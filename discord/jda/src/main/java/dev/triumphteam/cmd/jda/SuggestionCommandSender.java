@@ -57,7 +57,7 @@ final class SuggestionCommandSender implements SlashSender {
      * {@inheritDoc}
      */
     @Override
-    public @Nullable MessageChannelUnion getChannel() {
+    public @NotNull MessageChannelUnion getChannel() {
         return event.getChannel();
     }
 

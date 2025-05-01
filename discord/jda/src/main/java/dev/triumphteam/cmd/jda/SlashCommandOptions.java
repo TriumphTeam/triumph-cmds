@@ -67,7 +67,7 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
         public Builder(final @NotNull SlashRegistryContainer<S> registryContainer) {
             super(new Setup<>(registryContainer));
 
-            // Setters have to be done first thing, so they can be overriden.
+            // Setters have to be done first thing, so they can be overridden.
             extensions(extension -> {
                 extension.setArgumentValidator(new DefaultArgumentValidator<>());
                 extension.setCommandExecutor(new DefaultCommandExecutor<>());
@@ -77,7 +77,7 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
         }
 
         /**
-         * Disables the auto registering of listeners, meaning you'll have to do your own listeners.
+         * Disables the auto-registering of listeners, meaning you'll have to do your own listeners.
          * Run command with {@link SlashCommandManager#execute(SlashCommandInteractionEvent)}.
          * Run auto complete with {@link SlashCommandManager#suggest(CommandAutoCompleteInteractionEvent)}.
          *
