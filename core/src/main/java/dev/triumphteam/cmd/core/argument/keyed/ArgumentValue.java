@@ -23,4 +23,4 @@
  */
 package dev.triumphteam.cmd.core.argument.keyed;
 
-interface ArgumentValue {}
+public interface ArgumentValue {}

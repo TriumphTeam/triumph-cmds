@@ -25,24 +25,22 @@ package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
-import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Deque;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
-public class RootCommand<D, S> extends ParentCommand<D, S> {
+public class InternalRootCommand<D, S> extends InternalParentCommand<D, S> {
 
     private final String name;
     private final List<String> aliases;
     private final String description;
     private final String syntax;
 
-    public RootCommand(final @NotNull RootCommandProcessor<D, S> processor) {
+    public InternalRootCommand(final @NotNull RootCommandProcessor<D, S> processor) {
         super(processor);
 
         this.name = processor.getName();
@@ -51,52 +49,19 @@ public class RootCommand<D, S> extends ParentCommand<D, S> {
         this.syntax = "/" + name;
     }
 
-    @Override
     public void execute(
             final @NotNull S sender,
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull Deque<String> arguments
     ) {
+        System.out.println("On start of root -> " + arguments);
         // Test all requirements before continuing
         if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
 
-        final Command<D, S> command = findCommand(sender, arguments, true);
-        if (command == null) return;
-
-        // Executing the command and catch all exceptions to rethrow with better message
+        // Executing the command and catch all exceptions to rethrow with a better message
         try {
-            command.execute(
-                    sender,
-                    null,
-                    arguments
-            );
-        } catch (final @NotNull Throwable exception) {
-            throw new CommandExecutionException("An error occurred while executing the command")
-                    .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
-        }
-    }
-
-    @Override
-    public void executeNonLinear(
-            final @NotNull S sender,
-            final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> commands,
-            final @NotNull Map<String, Pair<String, Object>> arguments
-    ) {
-        // Test all requirements before continuing
-        if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
-
-        final Command<D, S> command = findCommand(sender, commands, true);
-        if (command == null) return;
-
-        // Executing the command and catch all exceptions to rethrow with better message
-        try {
-            command.executeNonLinear(
-                    sender,
-                    null,
-                    commands,
-                    arguments
-            );
+            System.out.println("Before moving forward -> " + arguments);
+            findAndExecute(sender, null, arguments);
         } catch (final @NotNull Throwable exception) {
             throw new CommandExecutionException("An error occurred while executing the command")
                     .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);

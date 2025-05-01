@@ -35,6 +35,7 @@ import dev.triumphteam.cmd.core.extension.command.Processor
 import dev.triumphteam.cmd.core.extension.command.Settings
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta
 import dev.triumphteam.cmd.core.extension.meta.MetaKey
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,7 +61,7 @@ public class CoroutinesCommandExtension<D, S>(
     private val coroutineContext: CoroutineContext,
 ) : Processor<D, S>,
     ArgumentValidator<S>,
-    CommandExecutor {
+    CommandExecutor<S> {
 
     private companion object {
         /** The key that'll represent a suspending function. */
@@ -72,7 +73,7 @@ public class CoroutinesCommandExtension<D, S>(
         element: AnnotatedElement,
         target: ProcessorTarget,
         meta: CommandMeta.Builder,
-        settingsBuilder: Settings.Builder<D, S>
+        settingsBuilder: Settings.Builder<D, S>,
     ) {
         if (element !is Method) return
         // Not really necessary but doesn't hurt to check
@@ -87,7 +88,7 @@ public class CoroutinesCommandExtension<D, S>(
     /** Validation uses the same as the defaults but with an addition modification to allow [Continuation]. */
     override fun validate(
         meta: CommandMeta,
-        argument: InternalArgument<S, *>,
+        argument: InternalArgument<S>,
         position: Int,
         last: Int,
     ): ValidationResult<String> {
@@ -129,14 +130,26 @@ public class CoroutinesCommandExtension<D, S>(
     }
 
     /** Executes the command with normal reflection or call suspending if the method is suspending. */
-    override fun execute(meta: CommandMeta, instance: Any, method: Method, arguments: MutableList<Any>) {
+    override fun execute(
+        meta: CommandMeta,
+        messageRegistry: MessageRegistry<S?>,
+        sender: S & Any,
+        instance: Any,
+        method: Method,
+        arguments: List<Any?>,
+    ) {
         if (meta.isPresent(SUSPEND_META_KEY)) {
             coroutineScope.launch(coroutineContext) {
-                method.kotlinFunction?.callSuspend(instance, *arguments.toTypedArray())
+                handleResult(
+                    meta,
+                    messageRegistry,
+                    sender,
+                    method.kotlinFunction?.callSuspend(instance, *arguments.toTypedArray())
+                )
             }
             return
         }
 
-        method.invoke(instance, *arguments.toTypedArray())
+        handleResult(meta, messageRegistry, sender, method.invoke(instance, *arguments.toTypedArray()))
     }
 }

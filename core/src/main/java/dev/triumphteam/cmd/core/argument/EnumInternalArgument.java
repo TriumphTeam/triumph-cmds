@@ -23,15 +23,14 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
-import java.util.function.BiFunction;
 
 import static dev.triumphteam.cmd.core.util.EnumUtils.getEnumConstants;
 import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
@@ -51,7 +50,7 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<? extends Enum<?>> type,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);
@@ -65,15 +64,12 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
      * Resolves the argument type.
      *
      * @param sender The sender to resolve to.
-     * @param value  The {@link String} argument value.
+     * @param input  The {@link String} argument input.
      * @return An {@link Enum} value of the correct type.
      */
     @Override
-    public @NotNull Result<Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull String value,
-            final @Nullable Object provided
-    ) {
+    public @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input) {
+        final String value = input.getInput();
         final WeakReference<? extends Enum<?>> reference = getEnumConstants(enumType).get(value.toUpperCase());
 
         if (reference == null) {
@@ -85,7 +81,7 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
             return InternalArgument.invalid((commands, arguments) -> new InvalidArgumentContext(commands, arguments, value, getName(), getType()));
         }
 
-        return InternalArgument.success(enumValue);
+        return InternalArgument.valid(enumValue);
     }
 
     @Override

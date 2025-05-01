@@ -32,20 +32,43 @@ import java.util.Objects;
 public final class ListArgument implements Argument {
 
     private final String name;
+    private final String longName;
     private final Class<?> collectionType;
     private final String separator;
     private final Class<?> type;
     private final String description;
     private final SuggestionKey suggestionKey;
-
+    private final boolean isLongNameArgument;
 
     public ListArgument(final @NotNull Argument.CollectionBuilder argumentBuilder) {
         this.type = argumentBuilder.getType();
         this.name = argumentBuilder.getName();
+        this.longName = argumentBuilder.getLongName();
         this.description = argumentBuilder.getDescription();
         this.suggestionKey = argumentBuilder.getSuggestionKey();
         this.collectionType = argumentBuilder.getCollectionType();
         this.separator = argumentBuilder.getSeparator();
+        this.isLongNameArgument = false;
+    }
+
+    public ListArgument(
+            final String name,
+            final String longName,
+            final Class<?> collectionType,
+            final String separator,
+            final Class<?> type,
+            final String description,
+            final SuggestionKey suggestionKey,
+            final boolean isLongNameArgument
+    ) {
+        this.name = name;
+        this.longName = longName;
+        this.collectionType = collectionType;
+        this.separator = separator;
+        this.type = type;
+        this.description = description;
+        this.suggestionKey = suggestionKey;
+        this.isLongNameArgument = isLongNameArgument;
     }
 
     @Override
@@ -56,6 +79,21 @@ public final class ListArgument implements Argument {
     @Override
     public @NotNull String getName() {
         return name;
+    }
+
+    @Override
+    public @Nullable String getLongName() {
+        return longName;
+    }
+
+    @Override
+    public @NotNull Argument asLongNameArgument() {
+        return new ListArgument(name, longName, collectionType, separator, type, description, suggestionKey, true);
+    }
+
+    @Override
+    public boolean isLongNameArgument() {
+        return isLongNameArgument;
     }
 
     @Override
@@ -77,25 +115,27 @@ public final class ListArgument implements Argument {
     }
 
     @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
+    public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         final ListArgument that = (ListArgument) o;
-        return collectionType.equals(that.collectionType) && separator.equals(that.separator) && type.equals(that.type) && name.equals(that.name);
+        return Objects.equals(name, that.name) && Objects.equals(longName, that.longName) && Objects.equals(collectionType, that.collectionType) && Objects.equals(separator, that.separator) && Objects.equals(type, that.type) && Objects.equals(description, that.description) && Objects.equals(suggestionKey, that.suggestionKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(collectionType, separator, type, name);
+        return Objects.hash(name, longName, collectionType, separator, type, description, suggestionKey);
     }
 
     @Override
     public String toString() {
         return "ListArgument{" +
-                "name='" + name + '\'' +
-                ", collectionType=" + collectionType +
-                ", separator='" + separator + '\'' +
+                "suggestionKey=" + suggestionKey +
+                ", description='" + description + '\'' +
                 ", type=" + type +
+                ", separator='" + separator + '\'' +
+                ", collectionType=" + collectionType +
+                ", longName='" + longName + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

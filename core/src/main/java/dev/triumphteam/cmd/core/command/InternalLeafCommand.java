@@ -29,18 +29,17 @@ import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.ValidationResult;
 import dev.triumphteam.cmd.core.extension.command.Settings;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
 import dev.triumphteam.cmd.core.message.context.SyntaxMessageContext;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
-import dev.triumphteam.cmd.core.processor.SubCommandProcessor;
+import dev.triumphteam.cmd.core.processor.LeafCommandProcessor;
 import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,12 +47,10 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -61,12 +58,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 
 @SuppressWarnings("unchecked")
-public class SubCommand<D, S> implements Command<D, S> {
+public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
 
     private final Class<? extends S> senderType;
 
-    private final List<InternalArgument<S, ?>> argumentList;
-    private final Map<String, InternalArgument<S, ?>> argumentMap;
+    private final List<InternalArgument<S>> argumentList;
+    private final Map<String, InternalArgument<S>> argumentMap;
 
     private final String name;
     private final List<String> aliases;
@@ -79,16 +76,16 @@ public class SubCommand<D, S> implements Command<D, S> {
 
     private final Object invocationInstance;
     private final Method method;
-    private final CommandExecutor commandExecutor;
+    private final CommandExecutor<S> commandExecutor;
 
     private final SenderExtension<D, S> senderExtension;
     private final MessageRegistry<S> messageRegistry;
 
-    public SubCommand(
+    public InternalLeafCommand(
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
-            final @NotNull SubCommandProcessor<D, S> processor,
-            final @NotNull Command<D, S> parentCommand
+            final @NotNull LeafCommandProcessor<D, S> processor,
+            final @NotNull InternalCommand<D, S> parentCommand
     ) {
         this.invocationInstance = invocationInstance;
         this.method = method;
@@ -119,11 +116,10 @@ public class SubCommand<D, S> implements Command<D, S> {
         this.settings = settingsBuilder.build();
     }
 
-    @Override
     public void execute(
             final @NotNull S sender,
             final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> arguments
+            final @NotNull Map<String, ArgumentInput> arguments
     ) throws Throwable {
         final ValidationResult<MessageKey<MessageContext>> validationResult = senderExtension.validate(meta, senderType, sender);
 
@@ -145,73 +141,98 @@ public class SubCommand<D, S> implements Command<D, S> {
         final List<Object> invokeArguments = new ArrayList<>();
         invokeArguments.add(sender);
 
-        if (!validateAndCollectArguments(sender, invokeArguments, arguments)) return;
-
-        if ((!containsLimitless) && arguments.size() >= invokeArguments.size()) {
+        if ((!containsLimitless) && arguments.size() > argumentList.size()) {
             messageRegistry.sendMessage(MessageKey.TOO_MANY_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
             return;
         }
 
+        for (final InternalArgument<S> internalArgument : argumentList) {
+            final ArgumentInput argumentInput = arguments.get(internalArgument.getName());
+
+            final InternalArgumentResult result;
+            if (internalArgument instanceof LimitlessInternalArgument) {
+                final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
+
+                // From this point on [commandArgs] is treated as a simple Collection instead of Deque
+                result = limitlessArgument.resolve(sender, argumentInput == null ? new ArgumentInput("") : argumentInput);
+            } else if (internalArgument instanceof StringInternalArgument) {
+                final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
+
+                ArgumentInput usableInput = argumentInput;
+                if (argumentInput == null || argumentInput.getInput().isEmpty()) {
+                    // TODO(important): ADD OPTIONAL VALUE PROVIDER
+                    if (internalArgument.isOptional()) {
+                        usableInput = new ArgumentInput("TODO");
+                    } else {
+                        messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
+                        return;
+                    }
+                }
+                result = stringArgument.resolve(sender, usableInput);
+            } else {
+                // Should never happen, this should be a sealed type ... but hey, it's Java 8
+                throw new CommandExecutionException("Found unsupported argument", "", name);
+            }
+
+            // In case of failure, we send the Sender a message.
+            if (result instanceof InternalArgumentResult.Invalid) {
+                messageRegistry.sendMessage(
+                        MessageKey.INVALID_ARGUMENT,
+                        sender,
+                        ((InternalArgumentResult.Invalid) result).getFail().apply(meta, syntax)
+                );
+                return;
+            }
+
+            // In case of success, we add the results.
+            if (result instanceof InternalArgumentResult.Valid) {
+                invokeArguments.add(((InternalArgumentResult.Valid) result).getValue());
+            }
+        }
+
         commandExecutor.execute(
                 meta,
+                messageRegistry,
+                sender,
                 instanceSupplier == null ? invocationInstance : instanceSupplier.get(),
                 method,
                 invokeArguments
         );
     }
 
-    @Override
-    public void executeNonLinear(
-            final @NotNull S sender,
-            final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> commands,
-            final @NotNull Map<String, Pair<String, Object>> arguments
-    ) throws Throwable {
-        // TODO DRY
-        final ValidationResult<MessageKey<MessageContext>> validationResult = senderExtension.validate(meta, senderType, sender);
+    public @NotNull Map<String, ArgumentInput> mapArguments(final @NotNull Deque<String> arguments) {
+        final Map<String, ArgumentInput> mappedArguments = new HashMap<>();
 
-        // If the result is invalid for a reason given by the validator, we stop the execution and use its key to send
-        // a message to the sender
-        if (validationResult instanceof ValidationResult.Invalid) {
-            messageRegistry.sendMessage(
-                    ((ValidationResult.Invalid<MessageKey<MessageContext>>) validationResult).getMessage(),
-                    sender,
-                    new SyntaxMessageContext(meta, syntax)
-            );
-            return;
+        int index = 0;
+        while (!arguments.isEmpty()) {
+            final String arg = arguments.peek();
+            final InternalArgument<S> internalArgument = getArgument(index);
+
+            if (internalArgument == null || arg.isEmpty()) {
+                mappedArguments.put(String.valueOf(index), new ArgumentInput(arg));
+                arguments.pop(); // Pop before continuing.
+                index++; // increment before continuing.
+                continue;
+            }
+
+            index++; // Increment early so it doesn't need to repeat later.
+
+            if (internalArgument instanceof LimitlessInternalArgument) {
+                // Join all leftover arguments.
+                mappedArguments.put(internalArgument.getName(), new ArgumentInput(String.join(" ", arguments)));
+                break;
+            }
+
+            if (!(internalArgument instanceof StringInternalArgument)) {
+                // Should never happen, this should be a sealed type ... but hey, it's Java 8.
+                throw new CommandExecutionException("Found unsupported argument", "", name);
+            }
+
+            arguments.pop(); // Pop here so we don't remove the first argument of a "limitless".
+            mappedArguments.put(internalArgument.getName(), new ArgumentInput(arg));
         }
 
-        // Testing if all requirements pass before we continue
-        if (!settings.testRequirements(messageRegistry, sender, meta, senderExtension)) return;
-
-        // Creates the invoking arguments list
-        final List<Object> invokeArguments = new ArrayList<>();
-        invokeArguments.add(sender);
-
-        argumentList.forEach(it -> {
-            final Pair<String, Object> pair = arguments.get(it.getName());
-            // Should only really happen on optional arguments
-            if (pair == null) {
-                invokeArguments.add(null);
-                return;
-            }
-
-            final Deque<String> raw;
-            if (it instanceof LimitlessInternalArgument) {
-                raw = new ArrayDeque<>(Arrays.asList(pair.first().split("")));
-            } else {
-                raw = new ArrayDeque<>(Collections.singleton(pair.first()));
-            }
-
-            validateAndCollectArgument(sender, invokeArguments, raw, it, pair.second());
-        });
-
-        commandExecutor.execute(
-                meta,
-                instanceSupplier == null ? invocationInstance : instanceSupplier.get(),
-                method,
-                invokeArguments
-        );
+        return mappedArguments;
     }
 
     @Override
@@ -222,17 +243,17 @@ public class SubCommand<D, S> implements Command<D, S> {
         if (arguments.isEmpty()) return emptyList();
 
         final int index = arguments.size() - 1;
-        final InternalArgument<S, ?> argument = getArgumentFromIndex(index);
+        final InternalArgument<S> argument = getArgumentFromIndex(index);
         if (argument == null) return emptyList();
 
         return argument.suggestions(sender, arguments);
     }
 
-    public @Nullable InternalArgument<S, ?> getArgumentFromIndex(final int index) {
+    public @Nullable InternalArgument<S> getArgumentFromIndex(final int index) {
         if (!hasArguments()) return null;
         final int size = argumentList.size();
         if (index >= size) {
-            final InternalArgument<S, ?> last = argumentList.get(size - 1);
+            final InternalArgument<S> last = argumentList.get(size - 1);
             if (last instanceof LimitlessInternalArgument) return last;
             return null;
         }
@@ -245,94 +266,17 @@ public class SubCommand<D, S> implements Command<D, S> {
             final @NotNull String name,
             final @NotNull String value
     ) {
-        final InternalArgument<S, ?> argument = getArgumentFromName(name);
+        final InternalArgument<S> argument = getArgumentFromName(name);
         if (argument == null) return emptyList();
         return argument.suggestions(sender, new ArrayDeque<>(singleton(value)));
     }
 
-    private @Nullable InternalArgument<S, ?> getArgumentFromName(final @NotNull String name) {
+    private @Nullable InternalArgument<S> getArgumentFromName(final @NotNull String name) {
         return argumentMap.get(name);
     }
 
-    /**
-     * Used for checking if the arguments are valid and adding them to the `invokeArguments`.
-     *
-     * @param sender          The sender of the command.
-     * @param invokeArguments A list with the arguments that'll be used on the `invoke` of the command method.
-     * @param commandArgs     The command arguments type.
-     * @return False if any internalArgument fails to pass.
-     */
-    private boolean validateAndCollectArguments(
-            final @NotNull S sender,
-            final @NotNull List<Object> invokeArguments,
-            final @NotNull Deque<String> commandArgs
-    ) {
-        for (final InternalArgument<S, ?> internalArgument : argumentList) {
-            if (!validateAndCollectArgument(sender, invokeArguments, commandArgs, internalArgument, null)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean validateAndCollectArgument(
-            final @NotNull S sender,
-            final @NotNull List<Object> invokeArguments,
-            final @NotNull Deque<String> commandArgs,
-            final @NotNull InternalArgument<S, ?> internalArgument,
-            final @Nullable Object provided
-    ) {
-        final Result<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>> result;
-        if (internalArgument instanceof LimitlessInternalArgument) {
-            final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
-
-            // From this point on [commandArgs] is treated as a simple Collection instead of Deque
-            result = limitlessArgument.resolve(sender, commandArgs, provided);
-        } else if (internalArgument instanceof StringInternalArgument) {
-            final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
-            final String arg = commandArgs.peek();
-
-            if (arg == null || arg.isEmpty()) {
-                if (internalArgument.isOptional()) {
-                    invokeArguments.add(null);
-                    return true;
-                }
-
-                messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
-                return false;
-            }
-
-            // Pop the command out
-            commandArgs.pop();
-            result = stringArgument.resolve(sender, arg, provided);
-        } else {
-            // Should never happen, this should be a sealed type ... but hey, it's Java 8
-            throw new CommandExecutionException("Found unsupported argument", "", name);
-        }
-
-        // In case of failure we send the Sender a message
-        if (result instanceof Result.Failure) {
-            messageRegistry.sendMessage(
-                    MessageKey.INVALID_ARGUMENT,
-                    sender,
-                    ((Result.Failure<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result)
-                            .getFail()
-                            .apply(meta, syntax)
-            );
-            return false;
-        }
-
-        // In case of success we add the results
-        if (result instanceof Result.Success) {
-            invokeArguments.add(((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result).getValue());
-        }
-
-        return true;
-    }
-
     private @NotNull String createSyntax(
-            final @NotNull Command<D, S> parentCommand,
+            final @NotNull InternalCommand<D, S> parentCommand,
             final @NotNull CommandProcessor<D, S> processor
     ) {
         final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
@@ -379,12 +323,17 @@ public class SubCommand<D, S> implements Command<D, S> {
         return syntax;
     }
 
-    public @NotNull List<InternalArgument<S, ?>> getArgumentList() {
+    public @NotNull List<InternalArgument<S>> getArgumentList() {
         return argumentList;
     }
 
-    public @NotNull Map<String, InternalArgument<S, ?>> getArgumentMap() {
+    public @NotNull Map<String, InternalArgument<S>> getArgumentMap() {
         return argumentMap;
+    }
+
+    public @Nullable InternalArgument<S> getArgument(final int index) {
+        if (index >= argumentList.size()) return null;
+        return argumentList.get(index);
     }
 
     @Override

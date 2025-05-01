@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public final class EnumSuggestion<S> implements Suggestion<S> {
+public final class EnumSuggestion<S> implements InternalSuggestion<S> {
 
     private final Class<? extends Enum<?>> enumType;
     private final boolean suggestLowercase;

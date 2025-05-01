@@ -23,13 +23,13 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.meta.CommandMetaContainer;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 import java.util.List;
@@ -39,9 +39,16 @@ import java.util.function.BiFunction;
  * Command argument.
  *
  * @param <S> The sender type.
- * @param <T> The Argument type.
  */
-public interface InternalArgument<S, T> extends CommandMetaContainer {
+public interface InternalArgument<S> extends CommandMetaContainer {
+
+    static InternalArgumentResult valid(final @NotNull Object value) {
+        return new InternalArgumentResult.Valid(value);
+    }
+
+    static InternalArgumentResult invalid(final @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> context) {
+        return new InternalArgumentResult.Invalid(context);
+    }
 
     /**
      * Gets the name of the argument.
@@ -77,33 +84,7 @@ public interface InternalArgument<S, T> extends CommandMetaContainer {
 
     boolean canSuggest();
 
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender   The sender to resolve to.
-     * @param value    The argument value.
-     * @param provided A provided value by a platform in case parsing isn't needed.
-     * @return A resolve {@link Result}.
-     */
-    @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull T value,
-            final @Nullable Object provided
-    );
-
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The argument value.
-     * @return A resolve {@link Result}.
-     */
-    default @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull T value
-    ) {
-        return resolve(sender, value, null);
-    }
+    @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input);
 
     /**
      * Create a list of suggestion strings to return to the platform requesting it.
@@ -114,18 +95,6 @@ public interface InternalArgument<S, T> extends CommandMetaContainer {
      */
     @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull Deque<String> arguments);
 
-    static Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> success(
-            final @NotNull Object value
-    ) {
-        return new Result.Success<>(value);
-    }
-
-    static Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> invalid(
-            final @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> context
-    ) {
-        return new Result.Failure<>(context);
-    }
-
     @FunctionalInterface
     interface Factory<S> {
 
@@ -134,7 +103,7 @@ public interface InternalArgument<S, T> extends CommandMetaContainer {
                 final @NotNull String name,
                 final @NotNull String description,
                 final @NotNull Class<?> type,
-                final @NotNull Suggestion<S> suggestion,
+                final @NotNull InternalSuggestion<S> suggestion,
                 final boolean optional
         );
     }

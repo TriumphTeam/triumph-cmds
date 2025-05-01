@@ -32,7 +32,7 @@ public interface ArgumentValidator<S> {
 
     ValidationResult<String> validate(
             final @NotNull CommandMeta meta,
-            final @NotNull InternalArgument<S, ?> argument,
+            final @NotNull InternalArgument<S> argument,
             final int position,
             final int last
     );

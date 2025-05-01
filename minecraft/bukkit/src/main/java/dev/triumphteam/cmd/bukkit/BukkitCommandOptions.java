@@ -59,7 +59,7 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
             // Setters have to be done first thing, so they can be overriden.
             extensions(extension -> {
                 extension.setArgumentValidator(new DefaultArgumentValidator<>());
-                extension.setCommandExecutor(new DefaultCommandExecutor());
+                extension.setCommandExecutor(new DefaultCommandExecutor<>());
             });
         }
 

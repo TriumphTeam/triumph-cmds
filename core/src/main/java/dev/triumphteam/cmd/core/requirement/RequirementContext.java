@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.requirement;
 
-import dev.triumphteam.cmd.core.command.Command;
+import dev.triumphteam.cmd.core.command.InternalCommand;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.sender.SenderMapper;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 public interface RequirementContext<D, S> {
 
     /**
-     * @return The {@link CommandMeta} of the current {@link Command}.
+     * @return The {@link CommandMeta} of the current {@link InternalCommand}.
      */
     @NotNull CommandMeta getMeta();
 

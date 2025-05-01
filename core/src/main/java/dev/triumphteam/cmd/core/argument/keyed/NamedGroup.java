@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 final class NamedGroup implements ArgumentGroup<Argument> {
 
     private final Map<String, Argument> arguments = new HashMap<>();
+    private final Map<String, Argument> longArguments = new HashMap<>();
 
     NamedGroup(final @NotNull List<Argument> arguments) {
         arguments.forEach(this::addArgument);
@@ -46,6 +47,7 @@ final class NamedGroup implements ArgumentGroup<Argument> {
 
     public void addArgument(final @NotNull Argument argument) {
         arguments.put(argument.getName(), argument);
+        longArguments.put(argument.getLongName(), argument.asLongNameArgument());
     }
 
     @Override
@@ -60,7 +62,10 @@ final class NamedGroup implements ArgumentGroup<Argument> {
 
     @Override
     public @Nullable Argument matchExact(final @NotNull String token) {
-        return arguments.get(token);
+        final Argument argument = arguments.get(token);
+        if (argument != null) return argument;
+
+        return longArguments.get(token);
     }
 
     @Override

@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.extension.meta;
 
-import dev.triumphteam.cmd.core.command.Command;
+import dev.triumphteam.cmd.core.command.InternalCommand;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Storage for custom data stored in a {@link Command} or argument.
+ * Storage for custom data stored in a {@link InternalCommand} or argument.
  * Meta is only mutable during its {@link Builder} state, once it's fully built it'll be fully immutable.
  */
 public interface CommandMeta {

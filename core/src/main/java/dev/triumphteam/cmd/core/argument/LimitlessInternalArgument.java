@@ -24,10 +24,8 @@
 package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
 
 /**
  * A limitless internalArgument is an internalArgument type that won't check for internalArgument size.
@@ -35,14 +33,14 @@ import java.util.Collection;
  *
  * @param <S> The sender type.
  */
-public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S, Collection<String>> {
+public abstract class LimitlessInternalArgument<S> extends AbstractInternalArgument<S> {
 
     public LimitlessInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S> suggestion,
             final boolean isOptional
     ) {
         super(meta, name, description, type, suggestion, isOptional);

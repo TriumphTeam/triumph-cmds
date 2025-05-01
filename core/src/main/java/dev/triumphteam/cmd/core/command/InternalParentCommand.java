@@ -38,6 +38,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -48,19 +49,21 @@ import static java.util.Collections.emptyList;
  *
  * @param <S> The sender type.
  */
-public abstract class ParentCommand<D, S> implements Command<D, S> {
+public abstract class InternalParentCommand<D, S> implements InternalCommand<D, S> {
 
-    private final Map<String, Command<D, S>> commands = new HashMap<>();
-    private final Map<String, Command<D, S>> commandAliases = new HashMap<>();
+    private final Map<String, InternalCommand<D, S>> commands = new HashMap<>();
+    private final Map<String, InternalCommand<D, S>> commandAliases = new HashMap<>();
     private final CommandMeta meta;
     private final Settings<D, S> settings;
     private final MessageRegistry<S> messageRegistry;
     private final SenderExtension<D, S> senderExtension;
-    private Command<D, S> defaultCommand = null;
-    // Single parent command with argument
-    private Command<D, S> parentCommandWithArgument;
 
-    public ParentCommand(final @NotNull CommandProcessor<D, S> processor) {
+    // TODO(important): REMOVE
+    private InternalCommand<D, S> defaultCommand = null;
+    // Single parent command with argument
+    private InternalCommand<D, S> parentCommandWithArgument;
+
+    public InternalParentCommand(final @NotNull CommandProcessor<D, S> processor) {
         final Settings.Builder<D, S> settingsBuilder = new Settings.Builder<>();
         processor.captureRequirements(settingsBuilder);
         this.meta = processor.createMeta(settingsBuilder);
@@ -79,7 +82,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         final String argument = arguments.peek();
         if (argument == null) return emptyList();
 
-        final Command<D, S> command = findCommand(sender, arguments, false);
+        final InternalCommand<D, S> command = findCommand(sender, arguments, false);
         if (command == null) {
             return commands.entrySet().stream()
                     // Filter commands the sender can't see
@@ -102,11 +105,11 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
      */
     public void addCommands(
             final @NotNull Object instance,
-            final @NotNull List<Command<D, S>> commands
+            final @NotNull List<InternalCommand<D, S>> commands
     ) {
-        for (final Command<D, S> command : commands) {
+        for (final InternalCommand<D, S> command : commands) {
             // If it's a parent command with argument we add it
-            if (command instanceof ParentSubCommand && command.hasArguments()) {
+            if (command instanceof InternalBranchCommand && command.hasArguments()) {
                 if (parentCommandWithArgument != null) {
                     throw new CommandRegistrationException("Only one inner command with argument is allowed per command", instance.getClass());
                 }
@@ -128,7 +131,26 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         }
     }
 
-    protected @Nullable Command<D, S> findCommand(
+    protected void findAndExecute(
+            final @NotNull S sender,
+            final @Nullable Supplier<Object> instanceSupplier,
+            final @NotNull Deque<String> arguments
+    ) throws Throwable {
+        final InternalCommand<D, S> command = findCommand(sender, arguments, true);
+        if (command == null) return;
+
+        // Executing the command and catch all exceptions to rethrow with a better message
+        if (command instanceof InternalBranchCommand) {
+            ((InternalBranchCommand<D, S>) command).execute(sender, instanceSupplier, arguments);
+            return;
+        }
+
+        final InternalLeafCommand<D, S> leafCommand = (InternalLeafCommand<D, S>) command;
+        leafCommand.execute(sender, instanceSupplier, leafCommand.mapArguments(arguments));
+    }
+
+
+    protected @Nullable InternalCommand<D, S> findCommand(
             final @NotNull S sender,
             final @NotNull Deque<String> arguments,
             final boolean message
@@ -136,7 +158,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         final String name = arguments.peek();
 
         // Instant check for default
-        final Command<D, S> defaultCommand = this.defaultCommand;
+        final InternalCommand<D, S> defaultCommand = this.defaultCommand;
 
         // No argument passed
         if (name == null) {
@@ -149,7 +171,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
             return defaultCommand;
         }
 
-        final Command<D, S> command = getCommandByName(name);
+        final InternalCommand<D, S> command = getCommandByName(name);
         if (command != null) {
             // Pop command out of arguments list and returns it
             arguments.pop();
@@ -170,7 +192,7 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         return defaultCommand;
     }
 
-    public @Nullable Command<D, S> getCommand(final @NotNull String name) {
+    public @Nullable InternalCommand<D, S> getCommand(final @NotNull String name) {
         return commands.get(name);
     }
 
@@ -184,15 +206,15 @@ public abstract class ParentCommand<D, S> implements Command<D, S> {
         return false;
     }
 
-    public Command<D, S> getDefaultCommand() {
+    public InternalCommand<D, S> getDefaultCommand() {
         return defaultCommand;
     }
 
-    public @NotNull Map<String, Command<D, S>> getCommands() {
+    public @NotNull Map<String, InternalCommand<D, S>> getCommands() {
         return commands;
     }
 
-    protected @Nullable Command<D, S> getCommandByName(final @NotNull String key) {
+    protected @Nullable InternalCommand<D, S> getCommandByName(final @NotNull String key) {
         return commands.getOrDefault(key, commandAliases.get(key));
     }
 

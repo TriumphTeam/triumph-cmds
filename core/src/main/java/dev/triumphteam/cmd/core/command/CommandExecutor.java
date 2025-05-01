@@ -23,18 +23,44 @@
  */
 package dev.triumphteam.cmd.core.command;
 
+import dev.triumphteam.cmd.core.extension.command.CommandExecuteResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
-public interface CommandExecutor {
+public interface CommandExecutor<S> {
 
     void execute(
             final @NotNull CommandMeta meta,
+            final @NotNull MessageRegistry<S> messageRegistry,
+            final @NotNull S sender,
             final @NotNull Object instance,
             final @NotNull Method method,
             final @NotNull List<Object> arguments
     ) throws Throwable;
+
+    default void handleResult(
+            final @NotNull CommandMeta meta,
+            final @NotNull MessageRegistry<S> messageRegistry,
+            final @NotNull S sender,
+            final @Nullable Object result
+    ) {
+        // We don't care about nulls.
+        if (result == null) return;
+        // We don't care if the return is not a CommandExecuteResult.
+        if (!(result instanceof CommandExecuteResult)) return;
+
+        // We also don't care if everything went well.
+        if (!(result instanceof CommandExecuteResult.Failure)) return;
+
+        try {
+            // If we can't cast, we can just ignore it.
+            //noinspection unchecked
+            ((CommandExecuteResult.Failure<S>) result).sendMessage(messageRegistry, sender, meta);
+        } catch (ClassCastException ignored) {}
+    }
 }

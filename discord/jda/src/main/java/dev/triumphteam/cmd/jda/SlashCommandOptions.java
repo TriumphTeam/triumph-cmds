@@ -70,7 +70,7 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
             // Setters have to be done first thing, so they can be overriden.
             extensions(extension -> {
                 extension.setArgumentValidator(new DefaultArgumentValidator<>());
-                extension.setCommandExecutor(new DefaultCommandExecutor());
+                extension.setCommandExecutor(new DefaultCommandExecutor<>());
                 extension.addAnnotationProcessor(Choice.class, new ChoiceProcessor(registryContainer.getChoiceRegistry()));
                 extension.addAnnotationProcessor(NSFW.class, new NsfwProcessor());
             });

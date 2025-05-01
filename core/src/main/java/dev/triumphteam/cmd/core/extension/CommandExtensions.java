@@ -41,14 +41,14 @@ public final class CommandExtensions<D, S> {
 
     private final SenderExtension<D, S> senderExtension;
     private final ArgumentValidator<S> argumentValidator;
-    private final CommandExecutor commandExecutor;
+    private final CommandExecutor<S> commandExecutor;
 
     public CommandExtensions(
             final @NotNull SenderExtension<D, S> senderExtension,
             final @NotNull Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors,
             final @NotNull List<Processor<D, S>> processors,
             final @NotNull ArgumentValidator<S> argumentValidator,
-            final @NotNull CommandExecutor commandExecutor
+            final @NotNull CommandExecutor<S> commandExecutor
     ) {
         this.senderExtension = senderExtension;
         this.annotationProcessors = annotationProcessors;
@@ -69,7 +69,7 @@ public final class CommandExtensions<D, S> {
         return argumentValidator;
     }
 
-    public @NotNull CommandExecutor getCommandExecutor() {
+    public @NotNull CommandExecutor<S> getCommandExecutor() {
         return commandExecutor;
     }
 

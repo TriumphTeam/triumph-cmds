@@ -29,7 +29,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
-public final class EmptySuggestion<S> implements Suggestion<S> {
+public final class EmptySuggestion<S> implements InternalSuggestion<S> {
 
     @Override
     public @NotNull List<String> getSuggestions(
@@ -39,7 +39,6 @@ public final class EmptySuggestion<S> implements Suggestion<S> {
     ) {
         return emptyList();
     }
-
 
     @Override
     public @NotNull String toString() {

@@ -21,35 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.extension;
+package dev.triumphteam.cmd.core.suggestion;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface Result<V, F> {
+import java.util.List;
 
-    final class Success<V, F> implements Result<V, F> {
+public interface InternalSuggestion<S> {
 
-        private final V value;
-
-        public Success(final @NotNull V value) {
-            this.value = value;
-        }
-
-        public @NotNull V getValue() {
-            return value;
-        }
-    }
-
-    final class Failure<V, F> implements Result<V, F> {
-
-        private final F fail;
-
-        public Failure(final @NotNull F fail) {
-            this.fail = fail;
-        }
-
-        public @NotNull F getFail() {
-            return fail;
-        }
-    }
+    @NotNull List<String> getSuggestions(
+            final @NotNull S sender,
+            final @NotNull String current,
+            final @NotNull List<String> arguments
+    );
 }

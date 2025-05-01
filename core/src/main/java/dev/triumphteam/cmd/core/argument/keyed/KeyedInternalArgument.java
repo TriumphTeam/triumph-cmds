@@ -26,24 +26,24 @@ package dev.triumphteam.cmd.core.argument.keyed;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
-import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S> {
 
@@ -67,20 +67,9 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         this.argumentParser = new ArgumentParser(flagGroup, argumentGroup);
     }
 
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The arguments {@link List}.
-     * @return A {@link Flags} which contains the flags and leftovers.
-     */
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull Collection<String> value,
-            final @Nullable Object provided
-    ) {
-        final ArgumentParser.Result result = argumentParser.parse(value);
+    public @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input) {
+        final ArgumentParser.Result result = argumentParser.parse(Arrays.asList(input.getInput().split(" ")));
 
         // Parsing and validating named arguments
         final Map<String, ArgumentValue> arguments = new HashMap<>();
@@ -91,15 +80,15 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
             final StringInternalArgument<S> internalArgument = argumentInternalArguments.get(argument);
             if (internalArgument == null) continue;
 
-            final Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolved =
-                    internalArgument.resolve(sender, entry.getValue());
+            final InternalArgumentResult resolved =
+                    internalArgument.resolve(sender, new ArgumentInput(entry.getValue()));
 
-            if (resolved instanceof Result.Failure) {
+            if (resolved instanceof InternalArgumentResult.Invalid) {
                 return resolved;
             }
 
-            if (resolved instanceof Result.Success) {
-                final Object resolvedValue = ((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) resolved).getValue();
+            if (resolved instanceof InternalArgumentResult.Valid) {
+                final Object resolvedValue = ((InternalArgumentResult.Valid) resolved).getValue();
                 arguments.put(argument.getName(), new SimpleArgumentValue(raw, resolvedValue));
             }
         }
@@ -119,15 +108,15 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
             final StringInternalArgument<S> internalArgument = flagInternalArguments.get(flag);
             if (internalArgument == null) continue;
 
-            final Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolved =
-                    internalArgument.resolve(sender, entry.getValue());
+            final InternalArgumentResult resolved =
+                    internalArgument.resolve(sender, new ArgumentInput(entry.getValue()));
 
-            if (resolved instanceof Result.Failure) {
+            if (resolved instanceof InternalArgumentResult.Invalid) {
                 return resolved;
             }
 
-            if (resolved instanceof Result.Success) {
-                final Object resolvedValue = ((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) resolved).getValue();
+            if (resolved instanceof InternalArgumentResult.Valid) {
+                final Object resolvedValue = ((InternalArgumentResult.Valid) resolved).getValue();
 
                 final ArgumentValue argumentValue = new SimpleArgumentValue(raw, resolvedValue);
                 flags.put(flag.getFlag(), argumentValue);
@@ -135,7 +124,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
             }
         }
 
-        return InternalArgument.success(new KeyedArguments(arguments, flags, result.getNonTokens()));
+        return InternalArgument.valid(new KeyedArguments(arguments, flags, result.getNonTokens()));
     }
 
     @Override
@@ -158,7 +147,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         if (current.startsWith("--")) return longFlags(resultCurrent, result.getFlags());
         if (current.startsWith("-")) return flags(resultCurrent, result.getFlags());
 
-        // If we're not dealing with flags or arguments we return a list of named arguments that haven't been used yet
+        // If we're not dealing with flags or arguments, we return a list of named arguments that haven't been used yet
         return namedArguments(resultCurrent, result.getNamedArguments());
     }
 
@@ -197,7 +186,8 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         return argumentInternalArguments.keySet()
                 .stream()
                 .filter(it -> !parsed.containsKey(it))
-                .map(Argument::getName)
+                .flatMap(it -> Stream.of(it.getName(), it.getLongName()))
+                .filter(Objects::nonNull)
                 .filter(it -> it.startsWith(current))
                 .map(it -> it + ":")
                 .collect(Collectors.toList());
@@ -213,21 +203,19 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         if (waiting == null) return null;
 
         // If so we get the internal version of the argument, this will likely never be null
-        final InternalArgument<S, ?> internalArgument = argumentInternalArguments.get(waiting);
+        final InternalArgument<S> internalArgument = argumentInternalArguments.get(waiting);
         if (internalArgument == null) return null;
-        final String raw = waiting.getName() + ":";
-        // Get suggestion from the internal argument and map it to the "raw" argument
-        final List<String> suggestions = internalArgument.suggestions(
-                        sender,
-                        new ArrayDeque<>(Collections.singleton(current))
-                ).stream()
+        final String raw = (waiting.isLongNameArgument() ? waiting.getLongName() : waiting.getName()) + ":";
+        // Get a suggestion from the internal argument and map it to the "raw" argument
+        final List<String> suggestions = internalArgument.suggestions(sender, new ArrayDeque<>(Collections.singleton(current)))
+                .stream()
                 .map(it -> raw + it)
                 .collect(Collectors.toList());
 
         // In case the suggestion returns nothing we just return the raw type as a suggestion
         if (suggestions.isEmpty()) return Collections.singletonList(raw);
 
-        // If there are suggestions we return them
+        // If there are suggestions, we return them
         return suggestions;
     }
 
@@ -241,14 +229,15 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
 
         final Flag flag = waitingFlag.first();
         final ArgumentParser.Result.FlagType type = waitingFlag.second();
+        if (flag == null || type == null) return null;
 
-        final InternalArgument<S, ?> internalArgument = flagInternalArguments.get(flag);
+        final InternalArgument<S> internalArgument = flagInternalArguments.get(flag);
         if (internalArgument == null) return null;
 
         return internalArgument.suggestions(sender, new ArrayDeque<>(Collections.singleton(current)))
                 .stream()
                 .map(it -> {
-                    if (!type.hasEquals()) return it; // No equals so we just suggest the argument
+                    if (!type.hasEquals()) return it; // No equals, so we just suggest the argument
                     final String prefix = type.isLong() ? "--" + flag.getLongFlag() : "-" + flag.getFlag();
                     return prefix + "=" + it;
                 }).collect(Collectors.toList());

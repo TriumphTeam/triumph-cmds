@@ -25,10 +25,10 @@ package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.command.Command;
-import dev.triumphteam.cmd.core.command.ParentCommand;
-import dev.triumphteam.cmd.core.command.RootCommand;
-import dev.triumphteam.cmd.core.command.SubCommand;
+import dev.triumphteam.cmd.core.command.InternalCommand;
+import dev.triumphteam.cmd.core.command.InternalParentCommand;
+import dev.triumphteam.cmd.core.command.InternalRootCommand;
+import dev.triumphteam.cmd.core.command.InternalLeafCommand;
 import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
@@ -80,8 +80,8 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
 
     private final SlashRegistryContainer<S> registryContainer;
 
-    private final Map<String, RootCommand<SlashSender, S>> globalCommands = new HashMap<>();
-    private final Map<Long, Map<String, RootCommand<SlashSender, S>>> guildCommands = new HashMap<>();
+    private final Map<String, InternalRootCommand<SlashSender, S>> globalCommands = new HashMap<>();
+    private final Map<Long, Map<String, InternalRootCommand<SlashSender, S>>> guildCommands = new HashMap<>();
 
     public SlashCommandManager(
             final @NotNull JDA jda,
@@ -153,7 +153,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
     }
 
     public void execute(final @NotNull SlashCommandInteractionEvent event) {
-        final RootCommand<SlashSender, S> command = getCommand(event, event.getName());
+        final InternalRootCommand<SlashSender, S> command = getCommand(event, event.getName());
         if (command == null) return;
 
         final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
@@ -173,7 +173,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
     }
 
     public void suggest(final @NotNull CommandAutoCompleteInteractionEvent event) {
-        final RootCommand<SlashSender, S> command = getCommand(event, event.getName());
+        final InternalRootCommand<SlashSender, S> command = getCommand(event, event.getName());
         if (command == null) return;
 
         final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
@@ -182,7 +182,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
 
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new SuggestionCommandSender(event));
-        final SubCommand<SlashSender, S> subCommand = findExecutable(commands, command);
+        final InternalLeafCommand<SlashSender, S> subCommand = findExecutable(commands, command);
         if (subCommand == null) return;
 
         final AutoCompleteQuery option = event.getFocusedOption();
@@ -201,8 +201,8 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         final String name = processor.getName();
 
         // Get or add command, then add its sub commands
-        final RootCommand<SlashSender, S> rootCommand = globalCommands
-                .computeIfAbsent(name, it -> new RootCommand<>(processor));
+        final InternalRootCommand<SlashSender, S> rootCommand = globalCommands
+                .computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
 
         rootCommand.addCommands(command, processor.commands(rootCommand));
     }
@@ -245,9 +245,9 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         final String name = processor.getName();
 
         // Get or add command, then add its sub commands
-        final RootCommand<SlashSender, S> rootCommand = guildCommands
+        final InternalRootCommand<SlashSender, S> rootCommand = guildCommands
                 .computeIfAbsent(guildId, it -> new HashMap<>())
-                .computeIfAbsent(name, it -> new RootCommand<>(processor));
+                .computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
 
         rootCommand.addCommands(command, processor.commands(rootCommand));
     }
@@ -283,7 +283,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         return registryContainer;
     }
 
-    private @Nullable RootCommand<SlashSender, S> getCommand(
+    private @Nullable InternalRootCommand<SlashSender, S> getCommand(
             final @NotNull CommandInteractionPayload event,
             final @NotNull String name
     ) {
@@ -297,23 +297,24 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
                 .get(name);
     }
 
-    private @Nullable SubCommand<SlashSender, S> findExecutable(
+    // TODO(important): ERROR ON GROUP WITH ARGS AS THEY ARE NOT ALLOWED
+    private @Nullable InternalLeafCommand<SlashSender, S> findExecutable(
             final @NotNull Deque<String> commands,
-            final @NotNull Command<SlashSender, S> command
+            final @NotNull InternalCommand<SlashSender, S> command
     ) {
 
         // If it's empty we're talking about a default from Root
-        if (commands.isEmpty() && command instanceof ParentCommand) {
-            return (SubCommand<SlashSender, S>) ((ParentCommand<SlashSender, S>) command).getDefaultCommand();
+        if (commands.isEmpty() && command instanceof InternalParentCommand) {
+            return (InternalLeafCommand<SlashSender, S>) ((InternalParentCommand<SlashSender, S>) command).getDefaultCommand();
         }
 
-        Command<SlashSender, S> current = command;
+        InternalCommand<SlashSender, S> current = command;
         while (true) {
             if (current == null) return null;
-            if (current instanceof SubCommand) return (SubCommand<SlashSender, S>) current;
+            if (current instanceof InternalLeafCommand) return (InternalLeafCommand<SlashSender, S>) current;
             if (commands.isEmpty()) return null;
 
-            final ParentCommand<SlashSender, S> parentCommand = (ParentCommand<SlashSender, S>) current;
+            final InternalParentCommand<SlashSender, S> parentCommand = (InternalParentCommand<SlashSender, S>) current;
             current = parentCommand.getCommand(commands.pop());
         }
     }

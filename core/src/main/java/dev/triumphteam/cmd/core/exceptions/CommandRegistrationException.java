@@ -25,6 +25,8 @@ package dev.triumphteam.cmd.core.exceptions;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.AnnotatedElement;
+
 /**
  * Throws when command registration fails.
  */
@@ -41,4 +43,11 @@ public final class CommandRegistrationException extends RuntimeException {
         super(message + ". In Class \"" + commandClass.getName() + "\"");
     }
 
+    public CommandRegistrationException(
+            final @NotNull String message,
+            final @NotNull AnnotatedElement element,
+            final @NotNull Class<?> commandClass
+    ) {
+        super(message + ". In Method \"" + element + "\" in Class \"" + commandClass.getName() + "\"");
+    }
 }

@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.processor;
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
+import dev.triumphteam.cmd.core.annotations.Suggestion;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
@@ -44,7 +45,7 @@ import dev.triumphteam.cmd.core.extension.registry.NamedArgumentRegistry;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,13 +73,13 @@ import static java.util.Collections.singletonList;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D, S> {
+public final class LeafCommandProcessor<D, S> extends AbstractCommandProcessor<D, S> {
 
     private final Method method;
     private final NamedArgumentRegistry namedArgumentRegistry;
     private final FlagRegistry flagRegistry;
 
-    SubCommandProcessor(
+    LeafCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull RegistryContainer<D, S> registryContainer,
@@ -154,7 +155,7 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
      * @param parentMeta The {@link CommandMeta} inherited from the parent command.
      * @return A {@link List} of validated arguments.
      */
-    public @NotNull List<InternalArgument<S, ?>> arguments(final @NotNull CommandMeta parentMeta) {
+    public @NotNull List<InternalArgument<S>> arguments(final @NotNull CommandMeta parentMeta) {
         final Parameter[] parameters = method.getParameters();
 
         // First thing is to process the parameter annotations
@@ -165,18 +166,18 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
             parameterMetas.put(parameter, meta.build());
         }
 
-        // Ignore everything if command doesn't have arguments.
+        // Ignore everything if the command doesn't have arguments.
         if (parameters.length <= 1) return Collections.emptyList();
 
         final List<String> argDescriptions = argDescriptionFromMethodAnnotation();
-        final Map<Integer, Suggestion<S>> suggestions = suggestionsFromMethodAnnotation();
+        final Map<Integer, InternalSuggestion<S>> suggestions = suggestionsFromMethodAnnotation();
         final ArgumentGroup<Flag> flagGroup = flagGroupFromMethod(method);
         final ArgumentGroup<Argument> argumentGroup = argumentGroupFromMethod(method);
 
         // Position of the last argument.
         final int last = parameters.length - 1;
 
-        final List<InternalArgument<S, ?>> arguments = new ArrayList<>();
+        final List<InternalArgument<S>> arguments = new ArrayList<>();
 
         // Starting at 1 because we don't care about sender here.
         for (int i = 1; i < parameters.length; i++) {
@@ -188,7 +189,7 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
                 throw createException("An error occurred while getting parameter meta data for parameter " + parameter.getName());
             }
 
-            final InternalArgument<S, ?> argument = argumentFromParameter(
+            final InternalArgument<S> argument = argumentFromParameter(
                     meta,
                     parameter,
                     argDescriptions,
@@ -288,12 +289,12 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
         return Arrays.asList(argDescriptions.value());
     }
 
-    public @NotNull Map<Integer, Suggestion<S>> suggestionsFromMethodAnnotation() {
-        final Map<Integer, Suggestion<S>> map = new HashMap<>();
+    public @NotNull Map<Integer, InternalSuggestion<S>> suggestionsFromMethodAnnotation() {
+        final Map<Integer, InternalSuggestion<S>> map = new HashMap<>();
 
-        final List<dev.triumphteam.cmd.core.annotations.Suggestion> suggestionsFromAnnotations = getSuggestionsFromAnnotations();
+        final List<Suggestion> suggestionsFromAnnotations = getSuggestionsFromAnnotations();
         for (int i = 0; i < suggestionsFromAnnotations.size(); i++) {
-            final dev.triumphteam.cmd.core.annotations.Suggestion suggestion = suggestionsFromAnnotations.get(i);
+            final Suggestion suggestion = suggestionsFromAnnotations.get(i);
             final String key = suggestion.value();
 
             // Empty suggestion
@@ -308,11 +309,11 @@ public final class SubCommandProcessor<D, S> extends AbstractCommandProcessor<D,
         return map;
     }
 
-    private @NotNull List<dev.triumphteam.cmd.core.annotations.@NotNull Suggestion> getSuggestionsFromAnnotations() {
-        final Suggestions requirements = method.getAnnotation(Suggestions.class);
-        if (requirements != null) return Arrays.asList(requirements.value());
+    private @NotNull List<@NotNull Suggestion> getSuggestionsFromAnnotations() {
+        final Suggestions suggestions = method.getAnnotation(Suggestions.class);
+        if (suggestions != null) return Arrays.asList(suggestions.value());
 
-        final dev.triumphteam.cmd.core.annotations.Suggestion suggestion = method.getAnnotation(dev.triumphteam.cmd.core.annotations.Suggestion.class);
+        final Suggestion suggestion = method.getAnnotation(Suggestion.class);
         if (suggestion == null) return emptyList();
         return singletonList(suggestion);
     }

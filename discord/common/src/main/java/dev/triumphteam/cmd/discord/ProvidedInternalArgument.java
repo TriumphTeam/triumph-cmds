@@ -25,10 +25,10 @@ package dev.triumphteam.cmd.discord;
 
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,14 +41,14 @@ public class ProvidedInternalArgument<S> extends StringInternalArgument<S> {
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);
     }
 
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+    public @NotNull InternalArgumentResult<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
             final @NotNull String value,
             final @Nullable Object provided
@@ -56,6 +56,6 @@ public class ProvidedInternalArgument<S> extends StringInternalArgument<S> {
         if (provided == null) {
             return InternalArgument.invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, value, getName(), getType()));
         }
-        return InternalArgument.success(provided);
+        return InternalArgument.valid(provided);
     }
 }

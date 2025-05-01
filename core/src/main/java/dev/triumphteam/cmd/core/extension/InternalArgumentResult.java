@@ -21,22 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.core.exceptions;
+package dev.triumphteam.cmd.core.extension;
 
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.AnnotatedElement;
+import java.util.function.BiFunction;
 
-/**
- * Throws when sub command registration fails.
- */
-public final class SubCommandRegistrationException extends RuntimeException {
+public interface InternalArgumentResult {
 
-    public SubCommandRegistrationException(
-            final @NotNull String message,
-            final @NotNull AnnotatedElement element,
-            final @NotNull Class<?> commandClass
-    ) {
-        super(message + ". In Method \"" + element + "\" in Class \"" + commandClass.getName() + "\"");
+    final class Valid implements InternalArgumentResult {
+
+        private final Object value;
+
+        public Valid(final @NotNull Object value) {
+            this.value = value;
+        }
+
+        public @NotNull Object getValue() {
+            return value;
+        }
+    }
+
+    final class Invalid implements InternalArgumentResult {
+
+        private final BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> fail;
+
+        public Invalid(final @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> fail) {
+            this.fail = fail;
+        }
+
+        public @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> getFail() {
+            return fail;
+        }
     }
 }

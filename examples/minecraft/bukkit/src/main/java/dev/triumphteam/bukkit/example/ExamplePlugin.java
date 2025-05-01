@@ -6,10 +6,13 @@ import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Arrays;
 
 public final class ExamplePlugin extends JavaPlugin {
 
@@ -18,10 +21,14 @@ public final class ExamplePlugin extends JavaPlugin {
         final BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this, builder -> {
         });
 
+        commandManager.registerSuggestion(SuggestionKey.of("radius"), context -> {
+            return Arrays.asList("1", "2", "3");
+        });
+
         commandManager.registerNamedArguments(
                 ArgumentKey.of("query-parameters"),
-                Argument.forBoolean().name("reversed").build(),
-                Argument.forInt().name("r").build(),
+                Argument.forBoolean().name("rev").longName("reversed").build(),
+                Argument.forInt().name("r").longName("radius").suggestion(SuggestionKey.of("radius")).build(),
                 Argument.forString().name("since").build(),
                 Argument.forString().name("before").build(),
                 Argument.forString().name("cause").build(),

@@ -38,7 +38,7 @@ import java.util.Arrays;
 public class Example {
 
     public static void main(String[] args) throws InterruptedException {
-        final JDA jda = JDABuilder.createDefault(args[0]).build().awaitReady();
+        final JDA jda = JDABuilder.createDefault("").build().awaitReady();
 
         final SlashCommandManager<SlashSender> commandManager = SlashCommandManager.create(jda, SlashCommandOptions.Builder::disableAutoRegisterListener);
 

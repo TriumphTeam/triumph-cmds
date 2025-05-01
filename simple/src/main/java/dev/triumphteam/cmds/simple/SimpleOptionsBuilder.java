@@ -37,7 +37,7 @@ public final class SimpleOptionsBuilder<S> extends CommandOptions.Builder<S, S, 
 
         extensions(extension -> {
             extension.setArgumentValidator(new DefaultArgumentValidator<>());
-            extension.setCommandExecutor(new DefaultCommandExecutor());
+            extension.setCommandExecutor(new DefaultCommandExecutor<>());
         });
     }
 

@@ -133,6 +133,11 @@ public interface Argument {
     @NotNull String getName();
 
     /**
+     * @return The long name of the argument, or null if it is not defined.
+     */
+    @Nullable String getLongName();
+
+    /**
      * @return The description of the argument.
      */
     @NotNull String getDescription();
@@ -143,11 +148,26 @@ public interface Argument {
     @Nullable SuggestionKey getSuggestion();
 
     /**
+     * @return a copy of the {@link Argument} marked as a long name argument, used for suggestions.
+     */
+    @NotNull Argument asLongNameArgument();
+
+    /**
+     * @return true if the argument is a long name argument, false otherwise.
+     */
+    boolean isLongNameArgument();
+
+    /**
      * The default builder, simply extends the functionality of {@link AbstractBuilder}.
      */
     class Builder extends AbstractBuilder<Builder> {
         public Builder(final @NotNull Class<?> type) {
             super(type);
+        }
+
+        @Override
+        protected @NotNull Builder getThis() {
+            return this;
         }
     }
 
@@ -165,10 +185,15 @@ public interface Argument {
             this.collectionType = collectionType;
         }
 
+        @Override
+        protected @NotNull CollectionBuilder getThis() {
+            return this;
+        }
+
         /**
          * Set the separator to be used to split an argument into a collection.
          *
-         * @param separator The char or string to use as separator, supports regex.
+         * @param separator The char, or string to use as a separator, supports regex.
          * @return This builder.
          */
         @Contract("_ -> this")
@@ -196,18 +221,20 @@ public interface Argument {
         }
     }
 
-    @SuppressWarnings("unchecked")
     abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 
         private final Class<?> type;
 
         private String name;
+        private String longName = null;
         private String description;
         private SuggestionKey suggestionKey;
 
         private AbstractBuilder(final @NotNull Class<?> type) {
             this.type = type;
         }
+
+        protected abstract @NotNull T getThis();
 
         /**
          * Sets the name of the argument.
@@ -218,7 +245,19 @@ public interface Argument {
         @Contract("_ -> this")
         public @NotNull T name(final @NotNull String name) {
             this.name = name;
-            return (T) this;
+            return getThis();
+        }
+
+        /**
+         * Sets the long name of the argument.
+         *
+         * @param longName The long name of the argument.
+         * @return This builder.
+         */
+        @Contract("_ -> this")
+        public @NotNull T longName(final @NotNull String longName) {
+            this.longName = longName;
+            return getThis();
         }
 
         /**
@@ -230,7 +269,7 @@ public interface Argument {
         @Contract("_ -> this")
         public @NotNull T description(final @NotNull String description) {
             this.description = description;
-            return (T) this;
+            return getThis();
         }
 
         /**
@@ -243,7 +282,7 @@ public interface Argument {
         @Contract("_ -> this")
         public @NotNull T suggestion(final @NotNull SuggestionKey suggestionKey) {
             this.suggestionKey = suggestionKey;
-            return (T) this;
+            return getThis();
         }
 
         /**
@@ -265,6 +304,10 @@ public interface Argument {
                 throw new CommandRegistrationException("Argument is missing a name!");
             }
             return name;
+        }
+
+        @Nullable String getLongName() {
+            return longName;
         }
 
         @NotNull String getDescription() {

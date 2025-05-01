@@ -26,13 +26,10 @@ package dev.triumphteam.cmd.core.command;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
-import dev.triumphteam.cmd.core.extension.Result;
-import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
-import dev.triumphteam.cmd.core.processor.ParentCommandProcessor;
-import dev.triumphteam.cmd.core.util.Pair;
+import dev.triumphteam.cmd.core.processor.BranchCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,8 +37,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Deque;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -51,7 +46,7 @@ import java.util.function.Supplier;
  *
  * @param <S> The sender type to be used.
  */
-public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
+public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
 
     private final String name;
     private final List<String> aliases;
@@ -64,13 +59,13 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
     private final StringInternalArgument<S> argument;
     private final boolean hasArgument;
 
-    public ParentSubCommand(
+    public InternalBranchCommand(
             final @NotNull Object invocationInstance,
             final @NotNull Constructor<?> constructor,
             final boolean isStatic,
             final @Nullable StringInternalArgument<S> argument,
-            final @NotNull ParentCommandProcessor<D, S> processor,
-            final @NotNull Command<D, S> parentCommand
+            final @NotNull BranchCommandProcessor<D, S> processor,
+            final @NotNull InternalCommand<D, S> parentCommand
     ) {
         super(processor);
 
@@ -86,78 +81,46 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
         this.syntax = createSyntax(parentCommand, processor);
     }
 
-    @Override
     public void execute(
             final @NotNull S sender,
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull Deque<String> arguments
     ) throws Throwable {
-        // Test all requirements before continuing
+        System.out.println("On start of branch -> " + arguments);
+        // Test all requirements before continuing.
         if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
 
-        // First we handle the argument if there is any
+        // First, we handle the argument if there is any.
         final Object instance;
         if (hasArgument) {
             final String argumentName = arguments.peek() == null ? "" : arguments.pop();
 
-            final @NotNull Result<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>> result =
-                    argument.resolve(sender, argumentName);
+            final @NotNull InternalArgumentResult result =
+                    argument.resolve(sender, new ArgumentInput(argumentName));
 
-            if (result instanceof Result.Failure) {
+            if (result instanceof InternalArgumentResult.Invalid) {
                 getMessageRegistry().sendMessage(
                         MessageKey.INVALID_ARGUMENT,
                         sender,
-                        ((Result.Failure<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result)
-                                .getFail()
-                                .apply(getMeta(), syntax)
+                        ((InternalArgumentResult.Invalid) result).getFail().apply(getMeta(), syntax)
                 );
                 return;
             }
 
-            if (!(result instanceof Result.Success)) {
+            if (!(result instanceof InternalArgumentResult.Valid)) {
                 throw new CommandExecutionException("An error occurred resolving arguments", "", name);
             }
 
             instance = createInstanceWithArgument(
-                    instanceSupplier, ((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) result).getValue()
+                    instanceSupplier, ((InternalArgumentResult.Valid) result).getValue()
             );
         } else {
             instance = createInstance(instanceSupplier);
         }
 
-        final Command<D, S> command = findCommand(sender, arguments, true);
-        if (command == null) return;
-
-        // Simply execute the command with the given instance
-        command.execute(
-                sender,
-                () -> instance,
-                arguments
-        );
-    }
-
-    @Override
-    public void executeNonLinear(
-            final @NotNull S sender,
-            final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> commands,
-            final @NotNull Map<String, Pair<String, Object>> arguments
-    ) throws Throwable {
-        // Test all requirements before continuing
-        if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
-
-        final Command<D, S> command = findCommand(sender, commands, true);
-        if (command == null) return;
-
-        final Object instance = createInstance(instanceSupplier);
-
-        // Simply execute the command with the given instance
-        command.executeNonLinear(
-                sender,
-                () -> instance,
-                commands,
-                arguments
-        );
+        System.out.println("Before moving forward -> " + arguments);
+        // Execute the command with the given instance.
+        findAndExecute(sender, () -> instance, arguments);
     }
 
     @Override
@@ -208,7 +171,7 @@ public class ParentSubCommand<D, S> extends ParentCommand<D, S> {
         return constructor.newInstance(argumentValue);
     }
 
-    private @NotNull String createSyntax(final @NotNull Command parentCommand,
+    private @NotNull String createSyntax(final @NotNull InternalCommand parentCommand,
             final @NotNull CommandProcessor<D, S> processor) {
         final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
         if (syntaxAnnotation != null) return syntaxAnnotation.value();

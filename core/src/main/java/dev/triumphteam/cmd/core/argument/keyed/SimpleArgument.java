@@ -32,15 +32,35 @@ import java.util.Objects;
 final class SimpleArgument implements Argument {
 
     private final String name;
+    private final String longName;
     private final Class<?> type;
     private final String description;
     private final SuggestionKey suggestionKey;
+    private final boolean isLongNameArgument;
 
     public SimpleArgument(final @NotNull Argument.AbstractBuilder<?> argumentBuilder) {
         this.type = argumentBuilder.getType();
         this.name = argumentBuilder.getName();
+        this.longName = argumentBuilder.getLongName();
         this.description = argumentBuilder.getDescription();
         this.suggestionKey = argumentBuilder.getSuggestionKey();
+        this.isLongNameArgument = false;
+    }
+
+    public SimpleArgument(
+            final String name,
+            final String longName,
+            final Class<?> type,
+            final String description,
+            final SuggestionKey suggestionKey,
+            final boolean isLongNameArgument
+    ) {
+        this.name = name;
+        this.longName = longName;
+        this.type = type;
+        this.description = description;
+        this.suggestionKey = suggestionKey;
+        this.isLongNameArgument = isLongNameArgument;
     }
 
     @Override
@@ -54,6 +74,21 @@ final class SimpleArgument implements Argument {
     }
 
     @Override
+    public @Nullable String getLongName() {
+        return longName;
+    }
+
+    @Override
+    public @NotNull Argument asLongNameArgument() {
+        return new SimpleArgument(name, longName, type, description, suggestionKey, true);
+    }
+
+    @Override
+    public boolean isLongNameArgument() {
+        return isLongNameArgument;
+    }
+
+    @Override
     public @NotNull String getDescription() {
         return description;
     }
@@ -64,23 +99,25 @@ final class SimpleArgument implements Argument {
     }
 
     @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
+    public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         final SimpleArgument that = (SimpleArgument) o;
-        return type.equals(that.type) && name.equals(that.name);
+        return Objects.equals(name, that.name) && Objects.equals(longName, that.longName) && Objects.equals(type, that.type) && Objects.equals(description, that.description) && Objects.equals(suggestionKey, that.suggestionKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, name);
+        return Objects.hash(name, longName, type, description, suggestionKey);
     }
 
     @Override
     public String toString() {
         return "SimpleArgument{" +
-                "name='" + name + '\'' +
+                "suggestionKey=" + suggestionKey +
+                ", description='" + description + '\'' +
                 ", type=" + type +
+                ", longName='" + longName + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

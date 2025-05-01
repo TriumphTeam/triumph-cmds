@@ -25,10 +25,10 @@ package dev.triumphteam.cmd.jda;
 
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,14 +42,14 @@ class ProvidedUserInternalArgument<S> extends StringInternalArgument<S> {
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);
     }
 
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
+    public @NotNull InternalArgumentResult<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
             final @NotNull S sender,
             final @NotNull String value,
             final @Nullable Object provided
@@ -60,9 +60,9 @@ class ProvidedUserInternalArgument<S> extends StringInternalArgument<S> {
 
         // Bit of a hack around JDA member not being an User for some reason
         if (provided instanceof Member) {
-            return InternalArgument.success(((Member) provided).getUser());
+            return InternalArgument.valid(((Member) provided).getUser());
         }
 
-        return InternalArgument.success(provided);
+        return InternalArgument.valid(provided);
     }
 }

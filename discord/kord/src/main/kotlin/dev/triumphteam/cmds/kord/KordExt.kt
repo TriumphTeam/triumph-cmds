@@ -42,8 +42,8 @@ import dev.kord.rest.builder.interaction.RoleBuilder
 import dev.kord.rest.builder.interaction.StringChoiceBuilder
 import dev.kord.rest.builder.interaction.UserBuilder
 import dev.triumphteam.cmd.core.argument.InternalArgument
-import dev.triumphteam.cmd.core.command.Command
-import dev.triumphteam.cmd.core.command.SubCommand
+import dev.triumphteam.cmd.core.command.InternalCommand
+import dev.triumphteam.cmd.core.command.InternalLeafCommand
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument
 import dev.triumphteam.cmd.discord.annotation.Choice
 
@@ -95,7 +95,7 @@ private val optionsMap: Map<Class<*>, (InternalArgument<*, *>) -> OptionsBuilder
 private val InternalArgument<*, *>.desc
     get() = description.ifEmpty { name }
 
-internal val Command<*, *>.desc
+internal val InternalCommand<*, *>.desc
     get() = description.ifEmpty { name }
 
 private fun OptionsBuilder.defaults(argument: InternalArgument<*, *>) {
@@ -114,5 +114,5 @@ private fun InternalArgument<*, *>.toKordOption(): OptionsBuilder =
         desc
     ).apply { defaults(this@toKordOption) }
 
-internal fun SubCommand<*, *>.mapArgumentsToKord(): MutableList<OptionsBuilder> =
+internal fun InternalLeafCommand<*, *>.mapArgumentsToKord(): MutableList<OptionsBuilder> =
     argumentList.map { arg -> arg.toKordOption() }.toMutableList()

@@ -24,7 +24,7 @@
 package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.CommandManager;
-import dev.triumphteam.cmd.core.command.RootCommand;
+import dev.triumphteam.cmd.core.command.InternalRootCommand;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
@@ -43,7 +43,7 @@ import java.util.function.Consumer;
 
 public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandOptions<S, S>> {
 
-    private final Map<String, RootCommand<S, S>> commands = new HashMap<>();
+    private final Map<String, InternalRootCommand<S, S>> commands = new HashMap<>();
 
     private final RegistryContainer<S, S> registryContainer;
 
@@ -76,7 +76,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandO
 
         final String name = processor.getName();
 
-        final RootCommand<S, S> rootCommand = commands.computeIfAbsent(name, it -> new RootCommand<>(processor));
+        final InternalRootCommand<S, S> rootCommand = commands.computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
         rootCommand.addCommands(command, processor.commands(rootCommand));
         processor.getAliases().forEach(it -> commands.putIfAbsent(it, rootCommand));
     }
@@ -104,7 +104,7 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandO
         if (args.isEmpty()) return;
         final String commandName = args.get(0);
 
-        final RootCommand<S, S> command = commands.get(commandName);
+        final InternalRootCommand<S, S> command = commands.get(commandName);
         if (command == null) {
             registryContainer.getMessageRegistry().sendMessage(
                     MessageKey.UNKNOWN_COMMAND,

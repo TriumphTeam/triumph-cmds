@@ -25,43 +25,18 @@ package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.extension.command.Settings;
 import dev.triumphteam.cmd.core.extension.meta.CommandMetaContainer;
-import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Representation of a command.
  * Commands can either be command holders and commands themselves.
- * Some holders are {@link ParentCommand}s.
- * And actual commands can be for example {@link SubCommand}.
+ * Some holders are {@link InternalParentCommand}s.
+ * And actual commands can be for example {@link InternalLeafCommand}.
  */
-public interface Command<D, S> extends CommandMetaContainer {
-
-    /**
-     * Execute the command with the needed arguments, instance, and some extra.
-     *
-     * @param sender           The sender of the command.
-     * @param instanceSupplier A supplier for which instance will be needed when invoking the command.
-     * @param arguments        A {@link Deque} with the arguments passed, these are consumed on each step.
-     * @throws Throwable Anything that goes wrong with the execution.
-     */
-    void execute(
-            final @NotNull S sender,
-            final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> arguments
-    ) throws Throwable;
-
-    void executeNonLinear(
-            final @NotNull S sender,
-            final @Nullable Supplier<Object> instanceSupplier,
-            final @NotNull Deque<String> commands,
-            final @NotNull Map<String, Pair<String, Object>> arguments
-    ) throws Throwable;
+public interface InternalCommand<D, S> extends CommandMetaContainer {
 
     /**
      * Create a list of suggestion strings to return to the platform requesting it.

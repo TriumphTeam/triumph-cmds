@@ -33,13 +33,5 @@ import java.util.List;
 @FunctionalInterface
 public interface SuggestionResolver<S> {
 
-    /**
-     * Resolves the suggestions for the command argument.
-     *
-     * @param sender    The command sender.
-     * @param arguments A list with all the typed arguments.
-     * @return A list of suggestions.
-     */
-    @NotNull List<String> resolve(final @NotNull S sender, final @NotNull List<String> arguments);
-
+    @NotNull List<String> resolve(final @NotNull SuggestionContext<S> context);
 }

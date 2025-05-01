@@ -34,9 +34,9 @@ import org.jetbrains.annotations.NotNull;
 public class DefaultArgumentValidator<S> implements ArgumentValidator<S> {
 
     @Override
-    public ValidationResult validate(
+    public ValidationResult<String> validate(
             final @NotNull CommandMeta data,
-            final @NotNull InternalArgument<S, ?> argument,
+            final @NotNull InternalArgument<S> argument,
             final int position,
             final int last
     ) {

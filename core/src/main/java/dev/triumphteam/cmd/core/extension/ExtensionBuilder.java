@@ -45,7 +45,7 @@ public final class ExtensionBuilder<D, S> {
 
     private SenderExtension<D, S> senderExtension = null;
     private ArgumentValidator<S> argumentValidator = null;
-    private CommandExecutor commandExecutor = null;
+    private CommandExecutor<S> commandExecutor = null;
 
     @Contract("_, _ -> this")
     public <A extends Annotation> @NotNull ExtensionBuilder<D, S> addAnnotationProcessor(
@@ -69,7 +69,7 @@ public final class ExtensionBuilder<D, S> {
     }
 
     @Contract("_ -> this")
-    public @NotNull ExtensionBuilder<D, S> setCommandExecutor(final @NotNull CommandExecutor commandExecutor) {
+    public @NotNull ExtensionBuilder<D, S> setCommandExecutor(final @NotNull CommandExecutor<S> commandExecutor) {
         this.commandExecutor = commandExecutor;
         return this;
     }

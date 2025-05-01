@@ -39,6 +39,7 @@ import java.util.Map;
  */
 public final class SuggestionRegistry<S> implements Registry {
 
+    // TODO(important): actually make this a suggestion instead of a dumb pair
     private final Map<SuggestionKey, Pair<SuggestionResolver<S>, SuggestionMethod>> suggestions = new HashMap<>();
     private final Map<Class<?>, Pair<SuggestionResolver<S>, SuggestionMethod>> typeSuggestions = new HashMap<>();
 

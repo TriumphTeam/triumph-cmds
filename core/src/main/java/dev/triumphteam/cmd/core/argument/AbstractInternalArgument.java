@@ -25,7 +25,7 @@ package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -37,9 +37,8 @@ import java.util.List;
  * Which is divided into {@link StringInternalArgument} and {@link LimitlessInternalArgument}.
  *
  * @param <S> The sender type.
- * @param <T> The Argument type.
  */
-public abstract class AbstractInternalArgument<S, T> implements InternalArgument<S, T> {
+public abstract class AbstractInternalArgument<S> implements InternalArgument<S> {
 
     private final CommandMeta meta;
 
@@ -47,14 +46,14 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     private final String description;
     private final Class<?> type;
     private final boolean optional;
-    private final Suggestion<S> suggestion;
+    private final InternalSuggestion<S> suggestion;
 
     public AbstractInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S> suggestion,
             final boolean optional
     ) {
         this.meta = meta;
@@ -122,7 +121,7 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
         return !(suggestion instanceof EmptySuggestion);
     }
 
-    protected @NotNull Suggestion<S> getSuggestion() {
+    protected @NotNull InternalSuggestion<S> getSuggestion() {
         return suggestion;
     }
 

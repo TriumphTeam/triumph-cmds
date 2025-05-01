@@ -45,9 +45,9 @@ import dev.kord.rest.builder.interaction.group
 import dev.kord.rest.builder.interaction.subCommand
 import dev.triumphteam.cmd.core.CommandManager
 import dev.triumphteam.cmd.core.argument.InternalArgument
-import dev.triumphteam.cmd.core.command.ParentSubCommand
-import dev.triumphteam.cmd.core.command.RootCommand
-import dev.triumphteam.cmd.core.command.SubCommand
+import dev.triumphteam.cmd.core.command.InternalBranchCommand
+import dev.triumphteam.cmd.core.command.InternalRootCommand
+import dev.triumphteam.cmd.core.command.InternalLeafCommand
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor
@@ -84,8 +84,8 @@ public class SlashCommandManager<S>(
     private val registryContainer: SlashRegistryContainer<S>,
 ) : CommandManager<SlashSender, S, SlashCommandOptions<S>>(commandOptions) {
 
-    private val globalCommands: MutableMap<String, RootCommand<SlashSender, S>> = mutableMapOf()
-    private val guildCommands: MutableMap<Snowflake, MutableMap<String, RootCommand<SlashSender, S>>> = mutableMapOf()
+    private val globalCommands: MutableMap<String, InternalRootCommand<SlashSender, S>> = mutableMapOf()
+    private val guildCommands: MutableMap<Snowflake, MutableMap<String, InternalRootCommand<SlashSender, S>>> = mutableMapOf()
 
     private val commandQueue: MutableList<suspend () -> Unit> = mutableListOf()
 
@@ -141,9 +141,9 @@ public class SlashCommandManager<S>(
         val name = processor.name
 
         // Get or add command, then add its sub commands
-        val rootCommand: RootCommand<SlashSender, S> = guildCommands
+        val rootCommand: InternalRootCommand<SlashSender, S> = guildCommands
             .getOrPut(guildId) { mutableMapOf() }
-            .getOrPut(name) { RootCommand(processor) }
+            .getOrPut(name) { InternalRootCommand(processor) }
 
         rootCommand.addCommands(command, processor.commands(rootCommand))
 
@@ -207,7 +207,7 @@ public class SlashCommandManager<S>(
         }
     }
 
-    private suspend fun registerKordCommand(guildId: Snowflake, rootCommand: RootCommand<SlashSender, S>) {
+    private suspend fun registerKordCommand(guildId: Snowflake, rootCommand: InternalRootCommand<SlashSender, S>) {
         kord.createGuildChatInputCommand(
             guildId,
             rootCommand.name,
@@ -215,7 +215,7 @@ public class SlashCommandManager<S>(
         ) {
             // If only default then register with no groups or sub commands
             rootCommand.defaultCommand?.let {
-                if (it is SubCommand<SlashSender, S>) {
+                if (it is InternalLeafCommand<SlashSender, S>) {
                     options = it.mapArgumentsToKord()
                 }
                 return@createGuildChatInputCommand
@@ -223,15 +223,15 @@ public class SlashCommandManager<S>(
 
             val commands = rootCommand.commands.values
 
-            commands.filterIsInstance<SubCommand<SlashSender, S>>().forEach {
+            commands.filterIsInstance<InternalLeafCommand<SlashSender, S>>().forEach {
                 subCommand(it.name, it.desc) {
                     options = it.mapArgumentsToKord()
                 }
             }
 
-            commands.filterIsInstance<ParentSubCommand<SlashSender, S>>().forEach {
+            commands.filterIsInstance<InternalBranchCommand<SlashSender, S>>().forEach {
                 group(it.name, it.desc) {
-                    it.commands.values.filterIsInstance<SubCommand<SlashSender, S>>().forEach { sub ->
+                    it.commands.values.filterIsInstance<InternalLeafCommand<SlashSender, S>>().forEach { sub ->
                         subCommand(sub.name, sub.desc) {
                             options = sub.mapArgumentsToKord()
                         }

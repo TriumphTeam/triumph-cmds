@@ -23,18 +23,19 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiFunction;
 
 /**
- * This argument type is always ignored by the creator.
- * This is only used for arguments that are meant to be hidden and not actually part of a command.
+ * Represents an internal argument that provides a default behavior for unknown or
+ * unsupported types of arguments during processing.
+ * This will always throw an exception when trying to process the command.
+ *
+ * @param <S> The type of the sender.
  */
 public final class UnknownInternalArgument<S> extends StringInternalArgument<S> {
 
@@ -43,11 +44,7 @@ public final class UnknownInternalArgument<S> extends StringInternalArgument<S> 
     }
 
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull String value,
-            final @Nullable Object provided
-    ) {
+    public @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input) {
         return InternalArgument.invalid((meta, syntax) -> new InvalidArgumentContext(meta, syntax, "", "", Void.TYPE));
     }
 

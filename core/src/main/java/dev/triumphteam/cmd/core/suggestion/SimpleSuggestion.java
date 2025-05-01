@@ -31,7 +31,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class SimpleSuggestion<S> implements Suggestion<S> {
+public final class SimpleSuggestion<S> implements InternalSuggestion<S> {
 
     private final SuggestionResolver<S> resolver;
     private final SuggestionMethod method;
@@ -50,7 +50,7 @@ public final class SimpleSuggestion<S> implements Suggestion<S> {
             final @NotNull String current,
             final @NotNull List<String> arguments
     ) {
-        Stream<String> stream = resolver.resolve(sender, arguments).stream();
+        Stream<String> stream = resolver.resolve(new SuggestionContext<>(current, sender, arguments)).stream();
 
         switch (method) {
             case STARTS_WITH: {

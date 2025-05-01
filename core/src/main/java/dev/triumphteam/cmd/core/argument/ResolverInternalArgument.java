@@ -23,15 +23,13 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiFunction;
 
 /**
  * Normal {@link StringInternalArgument}.
@@ -51,33 +49,23 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull ArgumentResolver<S> resolver,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);
         this.resolver = resolver;
     }
 
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The {@link String} argument value.
-     * @return An Object value of the correct type, based on the result from the {@link ArgumentResolver}.
-     */
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull String value,
-            final @Nullable Object provided
-    ) {
+    public @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input) {
+        final String value = input.getInput();
         final Object result = resolver.resolve(sender, value);
 
         if (result == null) {
             return InternalArgument.invalid((commands, arguments) -> new InvalidArgumentContext(commands, arguments, value, getName(), getType()));
         }
 
-        return InternalArgument.success(result);
+        return InternalArgument.valid(result);
     }
 
     @Override
