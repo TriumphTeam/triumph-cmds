@@ -114,14 +114,12 @@ final class JdaMappingUtil {
                 .slash(name, description.isEmpty() ? name : description)
                 .setNSFW(rootCommand.getMeta().isPresent(NSFW.META_KEY));
 
-        final InternalCommand<SlashSender, S> defaultCommand = rootCommand.getDefaultCommand();
+        final InternalCommand<SlashSender, S> defaultCommand = rootCommand.getCommand(InternalCommand.DEFAULT_CMD_NAME);
         if (defaultCommand != null) {
             // Safe to cast because only subcommands can be default
             final InternalLeafCommand<SlashSender, S> subCommand = (InternalLeafCommand<SlashSender, S>) defaultCommand;
 
-            return commandData.addOptions(
-                    subCommand.getArgumentList().stream().map(JdaMappingUtil::mapOption).collect(Collectors.toList())
-            );
+            return commandData.addOptions(subCommand.getArgumentList().stream().map(JdaMappingUtil::mapOption).collect(Collectors.toList()));
         }
 
         final Collection<InternalCommand<SlashSender, S>> commands = rootCommand.getCommands().values();
@@ -154,6 +152,10 @@ final class JdaMappingUtil {
     public static <S> @NotNull SubcommandGroupData mapSubCommandGroup(final @NotNull InternalBranchCommand<SlashSender, S> parentCommand) {
         final String name = parentCommand.getName();
         final String description = parentCommand.getDescription();
+
+        if (parentCommand.hasArguments()) {
+            throw new IllegalStateException("Subcommand groups cannot have arguments.");
+        }
 
         return new SubcommandGroupData(name, description.isEmpty() ? name : description)
                 .addSubcommands(

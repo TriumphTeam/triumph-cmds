@@ -54,13 +54,11 @@ public class InternalRootCommand<D, S> extends InternalParentCommand<D, S> {
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull Deque<String> arguments
     ) {
-        System.out.println("On start of root -> " + arguments);
         // Test all requirements before continuing
         if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
 
         // Executing the command and catch all exceptions to rethrow with a better message
         try {
-            System.out.println("Before moving forward -> " + arguments);
             findAndExecute(sender, null, arguments);
         } catch (final @NotNull Throwable exception) {
             throw new CommandExecutionException("An error occurred while executing the command")

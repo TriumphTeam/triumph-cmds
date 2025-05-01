@@ -28,8 +28,6 @@ import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 /**
@@ -65,12 +63,8 @@ public abstract class AbstractInternalArgument<S> implements InternalArgument<S>
     }
 
     @Override
-    public @NotNull List<String> suggestions(
-            final @NotNull S sender,
-            final @NotNull Deque<String> arguments
-    ) {
-        final String current = arguments.peekLast();
-        return suggestion.getSuggestions(sender, current == null ? "" : current, new ArrayList<>(arguments));
+    public @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
+        return suggestion.getSuggestions(sender, current, arguments);
     }
 
     @Override

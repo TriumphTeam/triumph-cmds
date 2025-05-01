@@ -45,7 +45,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
@@ -55,7 +54,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
 
 @SuppressWarnings("unchecked")
 public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
@@ -235,10 +233,9 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
         return mappedArguments;
     }
 
-    @Override
     public @NotNull List<String> suggestions(
             final @NotNull S sender,
-            final @NotNull Deque<String> arguments
+            final @NotNull List<String> arguments
     ) {
         if (arguments.isEmpty()) return emptyList();
 
@@ -246,7 +243,12 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
         final InternalArgument<S> argument = getArgumentFromIndex(index);
         if (argument == null) return emptyList();
 
-        return argument.suggestions(sender, arguments);
+        if (arguments.isEmpty()) {
+            return argument.suggestions(sender, "", arguments);
+        }
+
+        final String current = arguments.get(index);
+        return argument.suggestions(sender, current, arguments);
     }
 
     public @Nullable InternalArgument<S> getArgumentFromIndex(final int index) {
@@ -259,20 +261,6 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
         }
 
         return argumentList.get(index);
-    }
-
-    public @NotNull List<String> suggest(
-            final @NotNull S sender,
-            final @NotNull String name,
-            final @NotNull String value
-    ) {
-        final InternalArgument<S> argument = getArgumentFromName(name);
-        if (argument == null) return emptyList();
-        return argument.suggestions(sender, new ArrayDeque<>(singleton(value)));
-    }
-
-    private @Nullable InternalArgument<S> getArgumentFromName(final @NotNull String name) {
-        return argumentMap.get(name);
     }
 
     private @NotNull String createSyntax(
@@ -327,13 +315,13 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
         return argumentList;
     }
 
-    public @NotNull Map<String, InternalArgument<S>> getArgumentMap() {
-        return argumentMap;
-    }
-
     public @Nullable InternalArgument<S> getArgument(final int index) {
         if (index >= argumentList.size()) return null;
         return argumentList.get(index);
+    }
+
+    public @Nullable InternalArgument<S> getArgument(final @NotNull String name) {
+        return argumentMap.get(name);
     }
 
     @Override

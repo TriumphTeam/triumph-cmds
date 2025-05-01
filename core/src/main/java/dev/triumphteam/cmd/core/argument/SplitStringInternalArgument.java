@@ -68,7 +68,6 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
         return CollectionInternalArgument.resolveCollection(sender, internalArgument, Arrays.asList(input.getInput().split(regex)), collectionType);
     }
 
-    @Override
     public @NotNull List<String> suggestions(
             final @NotNull S sender,
             final @NotNull Deque<String> arguments

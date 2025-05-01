@@ -39,7 +39,7 @@ public final class EnumUtils {
 
     /**
      * Slightly modified version from Guava's {@link com.google.common.base.Enums#getIfPresent}.
-     * Modifications done is to allow capture `?` instead of generic type.
+     * Modifications done are to allow capture `?` instead of generic type.
      *
      * @param enumClass A non-generic Enum class.
      * @return A map with enum values that was previously cached.
@@ -54,7 +54,7 @@ public final class EnumUtils {
 
     /**
      * Slightly modified version from Guava's {@link com.google.common.base.Enums#getIfPresent}.
-     * Modifications done is to allow capture `?` instead of generic type.
+     * Modifications done are to allow capture `?` instead of generic type.
      *
      * @param enumClass A non-generic Enum class.
      * @return A map with enum values that was just populated to the cache.

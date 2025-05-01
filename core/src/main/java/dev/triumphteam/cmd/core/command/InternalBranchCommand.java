@@ -28,13 +28,14 @@ import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import dev.triumphteam.cmd.core.processor.BranchCommandProcessor;
+import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.function.Supplier;
@@ -86,7 +87,6 @@ public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
             final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull Deque<String> arguments
     ) throws Throwable {
-        System.out.println("On start of branch -> " + arguments);
         // Test all requirements before continuing.
         if (!getSettings().testRequirements(getMessageRegistry(), sender, getMeta(), getSenderExtension())) return;
 
@@ -118,19 +118,18 @@ public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
             instance = createInstance(instanceSupplier);
         }
 
-        System.out.println("Before moving forward -> " + arguments);
         // Execute the command with the given instance.
         findAndExecute(sender, () -> instance, arguments);
     }
 
     @Override
     public @NotNull List<String> suggestions(@NotNull final S sender, final @NotNull Deque<String> arguments) {
-        // If we're dealing with only 1 argument it means it's the argument suggestion
+        // If we're dealing with only 1 argument, it means it's the argument suggestion
         if (arguments.size() == 1 && hasArgument) {
-            return argument.suggestions(sender, arguments);
+            return argument.suggestions(sender, arguments.peekLast(), new ArrayList<>(arguments));
         }
 
-        // If we do have arguments we need to pop them out before continuing
+        // If we do have arguments, we need to pop them out before continuing
         if (hasArgument) arguments.pop();
         return super.suggestions(sender, arguments);
     }
@@ -141,15 +140,18 @@ public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
      * @param instanceSupplier The instance supplier from parents.
      * @return An instance of this command for execution.
      */
-    private @NotNull Object createInstance(
-            final @Nullable Supplier<Object> instanceSupplier
-    ) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        // Non-static classes required parent instance
-        if (!isStatic) {
-            return constructor.newInstance(instanceSupplier == null ? invocationInstance : instanceSupplier.get());
-        }
+    public @NotNull Object createInstance(final @Nullable Supplier<Object> instanceSupplier) {
+        try {
+            // Non-static classes required parent instance
+            if (!isStatic) {
+                return constructor.newInstance(instanceSupplier == null ? invocationInstance : instanceSupplier.get());
+            }
 
-        return constructor.newInstance();
+            return constructor.newInstance();
+        } catch (final InvocationTargetException | InstantiationException | IllegalAccessException exception) {
+            throw new CommandExecutionException("An error occurred while creating the command instance")
+                    .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
+        }
     }
 
     /**
@@ -171,7 +173,7 @@ public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
         return constructor.newInstance(argumentValue);
     }
 
-    private @NotNull String createSyntax(final @NotNull InternalCommand parentCommand,
+    private @NotNull String createSyntax(final @NotNull InternalCommand<D, S> parentCommand,
             final @NotNull CommandProcessor<D, S> processor) {
         final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
         if (syntaxAnnotation != null) return syntaxAnnotation.value();

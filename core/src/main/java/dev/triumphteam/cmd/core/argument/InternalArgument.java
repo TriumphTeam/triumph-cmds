@@ -31,7 +31,6 @@ import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Deque;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -86,14 +85,7 @@ public interface InternalArgument<S> extends CommandMetaContainer {
 
     @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input);
 
-    /**
-     * Create a list of suggestion strings to return to the platform requesting it.
-     *
-     * @param sender    Rhe sender to get suggestions for.
-     * @param arguments The arguments used in the suggestion.
-     * @return A list of valid suggestions for the argument.
-     */
-    @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull Deque<String> arguments);
+    @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments);
 
     @FunctionalInterface
     interface Factory<S> {

@@ -34,10 +34,8 @@ import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,10 +126,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
     }
 
     @Override
-    public @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull Deque<String> arguments) {
-        final String last = arguments.peekLast();
-        final String current = last == null ? "" : last;
-
+    public @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
         final ArgumentParser.Result result = argumentParser.parse(arguments);
         final String resultCurrent = result.getCurrent();
 
@@ -207,12 +202,12 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         if (internalArgument == null) return null;
         final String raw = (waiting.isLongNameArgument() ? waiting.getLongName() : waiting.getName()) + ":";
         // Get a suggestion from the internal argument and map it to the "raw" argument
-        final List<String> suggestions = internalArgument.suggestions(sender, new ArrayDeque<>(Collections.singleton(current)))
+        final List<String> suggestions = internalArgument.suggestions(sender, current, Collections.singletonList(current))
                 .stream()
                 .map(it -> raw + it)
                 .collect(Collectors.toList());
 
-        // In case the suggestion returns nothing we just return the raw type as a suggestion
+        // In case the suggestion returns nothing, we just return the raw type as a suggestion
         if (suggestions.isEmpty()) return Collections.singletonList(raw);
 
         // If there are suggestions, we return them
@@ -234,7 +229,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         final InternalArgument<S> internalArgument = flagInternalArguments.get(flag);
         if (internalArgument == null) return null;
 
-        return internalArgument.suggestions(sender, new ArrayDeque<>(Collections.singleton(current)))
+        return internalArgument.suggestions(sender, current, Collections.singletonList(current))
                 .stream()
                 .map(it -> {
                     if (!type.hasEquals()) return it; // No equals, so we just suggest the argument

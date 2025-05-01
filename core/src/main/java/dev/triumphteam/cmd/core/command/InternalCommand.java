@@ -27,7 +27,6 @@ import dev.triumphteam.cmd.core.extension.command.Settings;
 import dev.triumphteam.cmd.core.extension.meta.CommandMetaContainer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Deque;
 import java.util.List;
 
 /**
@@ -40,18 +39,6 @@ public interface InternalCommand<D, S> extends CommandMetaContainer {
 
     String DEFAULT_CMD_NAME = "th-default";
     String PARENT_CMD_WITH_ARGS_NAME = "th-args-cmd";
-
-    /**
-     * Create a list of suggestion strings to return to the platform requesting it.
-     *
-     * @param sender    Rhe sender to get suggestions for.
-     * @param arguments The arguments used in the suggestion.
-     * @return A list of valid suggestions for the command.
-     */
-    @NotNull List<String> suggestions(
-            final @NotNull S sender,
-            final @NotNull Deque<String> arguments
-    );
 
     @NotNull Settings<D, S> getCommandSettings();
 

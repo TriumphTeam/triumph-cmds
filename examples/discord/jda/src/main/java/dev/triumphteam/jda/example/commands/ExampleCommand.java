@@ -35,23 +35,4 @@ public class ExampleCommand {
     public void execute(final SlashCommandSender sender, @Choice("hello") final String name, final User user) {
         sender.reply("Command sent was /example <" + name + "> <" + user.getName() + ">").queue();
     }
-
-    @Command
-    public class ArgsCommand {
-        private final String arg;
-
-        public ArgsCommand(final String arg) {
-            this.arg = arg;
-        }
-
-        @Command
-        public void execute(final SlashCommandSender sender, final String name) {
-
-        }
-
-        @Command("foo")
-        public void executeFoo(final SlashCommandSender sender, final String name, final int age) {
-
-        }
-    }
 }

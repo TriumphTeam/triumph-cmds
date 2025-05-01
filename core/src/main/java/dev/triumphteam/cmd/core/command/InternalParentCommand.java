@@ -34,6 +34,7 @@ import dev.triumphteam.cmd.core.processor.CommandProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +115,6 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
         leafCommand.execute(sender, instanceSupplier, leafCommand.mapArguments(arguments));
     }
 
-    @Override
     public @NotNull List<String> suggestions(
             final @NotNull S sender,
             final @NotNull Deque<String> arguments
@@ -136,14 +136,22 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
                     .collect(Collectors.toList());
         }
 
-        return command.suggestions(sender, arguments);
+        if (command instanceof InternalBranchCommand) {
+            return ((InternalBranchCommand<D, S>) command).suggestions(sender, arguments);
+        }
+
+        if (!(command instanceof InternalLeafCommand)) {
+            return emptyList();
+        }
+
+        return ((InternalLeafCommand<D, S>) command).suggestions(sender, new ArrayList<>(arguments));
     }
 
 
-    protected @Nullable InternalCommand<D, S> findCommand(
+    public @Nullable InternalCommand<D, S> findCommand(
             final @NotNull S sender,
             final @NotNull Deque<String> arguments,
-            final boolean message
+            final boolean sendMessage
     ) {
         final String name = arguments.peek();
 
@@ -154,7 +162,7 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
         if (name == null) {
             // No default command found, send a message and return null
             // If there is a default command, then return it
-            if (defaultCommand == null && message) {
+            if (defaultCommand == null && sendMessage) {
                 messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, ""));
             }
 
@@ -171,7 +179,7 @@ public abstract class InternalParentCommand<D, S> implements InternalCommand<D, 
         if (defaultCommand == null || !defaultCommand.hasArguments()) {
             // No command found with the name [name]
             final InternalCommand<D, S> parentCommandWithArgument = getCommandByName(InternalCommand.PARENT_CMD_WITH_ARGS_NAME);
-            if (parentCommandWithArgument == null && message) {
+            if (parentCommandWithArgument == null && sendMessage) {
                 messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, name));
             }
 

@@ -26,15 +26,13 @@ package dev.triumphteam.cmd.jda;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.command.ArgumentInput;
-import dev.triumphteam.cmd.core.command.InternalCommand;
-import dev.triumphteam.cmd.core.command.InternalParentCommand;
 import dev.triumphteam.cmd.core.command.InternalRootCommand;
-import dev.triumphteam.cmd.core.command.InternalLeafCommand;
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
-import dev.triumphteam.cmd.core.util.Pair;
+import dev.triumphteam.cmd.discord.LeafResult;
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
 import dev.triumphteam.cmd.discord.choices.ChoiceKey;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
@@ -57,6 +55,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,10 +67,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static dev.triumphteam.cmd.discord.CommandWalkUtil.findExecutable;
+
 /**
  * Command Manager for Slash Commands.
- * Allows for registering of global and guild specific commands.
- * As well the implementation of custom command senders.
+ * Allows for registering of global and guild-specific commands.
+ * As well as the implementation of custom command senders.
  *
  * @param <S> The sender type.
  */
@@ -149,20 +150,26 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         return create(jda, builder -> {});
     }
 
+    private static void setUpDefaults(final @NotNull MessageRegistry<SlashSender> registry) {
+        registry.register(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.reply("Unknown command: `" + context.getInvalidInput() + "`.").setEphemeral(true).queue());
+        registry.register(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
+        registry.register(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
+        registry.register(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.reply("Invalid argument `" + context.getInvalidInput() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").setEphemeral(true).queue());
+    }
+
     public void registerChoices(final @NotNull ChoiceKey key, final @NotNull Supplier<List<String>> choiceSupplier) {
         registryContainer.getChoiceRegistry().register(key, choiceSupplier);
     }
 
     public void execute(final @NotNull SlashCommandInteractionEvent event) {
-        final InternalRootCommand<SlashSender, S> command = getCommand(event, event.getName());
-        if (command == null) return;
-
         final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
-        // Immediately pop the main command out to remove itself from the deque.
-        commands.pop();
+
 
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new InteractionCommandSender(event));
+
+        final LeafResult<SlashSender, S> result = findExecutable(sender, getAppropriateMap(event), commands, true);
+        if (result == null) return;
 
         // Mapping of arguments
         final Map<String, ArgumentInput> arguments = new HashMap<>();
@@ -170,29 +177,36 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
             arguments.put(option.getName(), JdaMappingUtil.parsedValueFromType(option));
         }
 
-        command.execute(sender, null, commands, arguments);
-    }
-
-    private void findCommand() {
-
+        try {
+            result.getCommand().execute(sender, result.getInstanceSupplier(), arguments);
+        } catch (final @NotNull Throwable exception) {
+            throw new CommandExecutionException("An error occurred while executing the command")
+                    .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);
+        }
     }
 
     public void suggest(final @NotNull CommandAutoCompleteInteractionEvent event) {
-        final InternalRootCommand<SlashSender, S> command = getCommand(event, event.getName());
-        if (command == null) return;
-
         final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
-        // Immediately pop the main command out to remove itself from it
-        commands.pop();
 
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new SuggestionCommandSender(event));
-        final InternalLeafCommand<SlashSender, S> subCommand = findExecutable(commands, command);
-        if (subCommand == null) return;
+
+        final LeafResult<SlashSender, S> result = findExecutable(sender, getAppropriateMap(event), commands, true);
+        if (result == null) return;
 
         final AutoCompleteQuery option = event.getFocusedOption();
-        final List<String> suggestions = subCommand.suggest(sender, option.getName(), option.getValue());
-        event.replyChoiceStrings(suggestions.stream().limit(25).collect(Collectors.toList())).queue();
+        final List<String> arguments = event.getOptions().stream().map(OptionMapping::getAsString).collect(Collectors.toList());
+
+        // On discord platforms, we don't need to navigate the command and can go straight into the argument.
+        final InternalArgument<S> argument = result.getCommand().getArgument(option.getName());
+        if (argument == null) return;
+
+        final List<String> suggestions = argument.suggestions(sender, option.getValue(), arguments)
+                .stream()
+                .limit(25) // Discord only handles 25 at a time, :pensive:.
+                .collect(Collectors.toList());
+
+        event.replyChoiceStrings(suggestions).queue();
     }
 
     @Override
@@ -288,6 +302,14 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         return registryContainer;
     }
 
+    private @NotNull Map<String, InternalRootCommand<SlashSender, S>> getAppropriateMap(final @NotNull CommandInteractionPayload event) {
+        if (event.isGlobalCommand()) return globalCommands;
+
+        final Guild guild = event.getGuild();
+        if (guild == null) return Collections.emptyMap();
+        return guildCommands.getOrDefault(guild.getIdLong(), Collections.emptyMap());
+    }
+
     private @Nullable InternalRootCommand<SlashSender, S> getCommand(
             final @NotNull CommandInteractionPayload event,
             final @NotNull String name
@@ -300,34 +322,5 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         return guildCommands
                 .getOrDefault(guild.getIdLong(), Collections.emptyMap())
                 .get(name);
-    }
-
-    // TODO(important): ERROR ON GROUP WITH ARGS AS THEY ARE NOT ALLOWED
-    private @Nullable InternalLeafCommand<SlashSender, S> findExecutable(
-            final @NotNull Deque<String> commands,
-            final @NotNull InternalRootCommand<SlashSender, S> command
-    ) {
-
-        // If it's empty, we're talking about a default from Root
-        if (commands.isEmpty() && command instanceof InternalParentCommand) {
-            return (InternalLeafCommand<SlashSender, S>) ((InternalParentCommand<SlashSender, S>) command).getDefaultCommand();
-        }
-
-        InternalCommand<SlashSender, S> current = command;
-        while (true) {
-            if (current == null) return null;
-            if (current instanceof InternalLeafCommand) return (InternalLeafCommand<SlashSender, S>) current;
-            if (commands.isEmpty()) return null;
-
-            final InternalParentCommand<SlashSender, S> parentCommand = (InternalParentCommand<SlashSender, S>) current;
-            current = parentCommand.getCommand(commands.pop());
-        }
-    }
-
-    private static void setUpDefaults(final @NotNull MessageRegistry<SlashSender> registry) {
-        registry.register(MessageKey.UNKNOWN_COMMAND, (sender, context) -> sender.reply("Unknown command: `" + context.getInvalidInput() + "`.").setEphemeral(true).queue());
-        registry.register(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
-        registry.register(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
-        registry.register(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.reply("Invalid argument `" + context.getInvalidInput() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").setEphemeral(true).queue());
     }
 }
