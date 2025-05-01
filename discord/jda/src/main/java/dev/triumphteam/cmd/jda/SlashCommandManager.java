@@ -164,7 +164,6 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
     public void execute(final @NotNull SlashCommandInteractionEvent event) {
         final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
 
-
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new InteractionCommandSender(event));
 
@@ -206,7 +205,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
                 .limit(25) // Discord only handles 25 at a time, :pensive:.
                 .collect(Collectors.toList());
 
-        event.replyChoiceStrings(suggestions).queue();
+        event.replyChoices(JdaMappingUtil.mapChoices(suggestions, JdaMappingUtil.fromType(argument.getType()))).queue();
     }
 
     @Override

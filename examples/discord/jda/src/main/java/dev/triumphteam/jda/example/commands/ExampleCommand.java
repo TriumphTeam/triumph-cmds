@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.entities.User;
 public class ExampleCommand {
 
     @Command
-    public void execute(final SlashCommandSender sender, @Choice("hello") final String name, final User user) {
+    public void execute(final SlashCommandSender sender, @Choice("hello") final int name, final User user) {
         sender.reply("Command sent was /example <" + name + "> <" + user.getName() + ">").queue();
     }
 }

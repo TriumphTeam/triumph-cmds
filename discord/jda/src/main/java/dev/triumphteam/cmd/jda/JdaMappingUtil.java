@@ -24,6 +24,8 @@
 package dev.triumphteam.cmd.jda;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.command.ArgumentInput;
 import dev.triumphteam.cmd.core.command.InternalBranchCommand;
@@ -44,6 +46,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -57,11 +60,13 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 final class JdaMappingUtil {
 
@@ -166,6 +171,7 @@ final class JdaMappingUtil {
                 );
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static <S> @NotNull OptionData mapOption(final @NotNull InternalArgument<S> argument) {
         final String name = argument.getName();
         final String description = argument.getDescription();
@@ -179,21 +185,46 @@ final class JdaMappingUtil {
             enableSuggestions = argument.canSuggest();
         }
 
+        final OptionType type = fromType(argument.getType());
+
         final OptionData data = new OptionData(
-                fromType(argument.getType()),
+                type,
                 name,
                 description.isEmpty() ? name : description,
                 !argument.isOptional(),
                 enableSuggestions
         );
 
-        choice.ifPresent(internalChoice -> data.addChoices(
-                internalChoice.getChoices().stream()
-                        .map(it -> new net.dv8tion.jda.api.interactions.commands.Command.Choice(it, it))
-                        .collect(Collectors.toList())
-        ));
+        // Add choices if present.
+        choice.ifPresent(internalChoice -> data.addChoices(mapChoices(internalChoice.getChoices(), type)));
 
         return data;
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    public static List<Command.Choice> mapChoices(
+            final @NotNull List<String> original,
+            final @NotNull OptionType type
+    ) {
+        final Stream<String> stream = original.stream().limit(25);
+
+        final List<Command.Choice> choices;
+        switch (type) {
+            case NUMBER:
+                choices = stream.map(Doubles::tryParse).filter(Objects::nonNull)
+                        .map(value -> new Command.Choice(value.toString(), value))
+                        .collect(Collectors.toList());
+                break;
+            case INTEGER:
+                choices = stream.map(Longs::tryParse).filter(Objects::nonNull)
+                        .map(value -> new Command.Choice(value.toString(), value))
+                        .collect(Collectors.toList());
+                break;
+            default:
+                choices = stream.map(value -> new Command.Choice(value, value)).collect(Collectors.toList());
+        }
+
+        return choices;
     }
 
     public static boolean isStringType(final @NotNull OptionType type) {
