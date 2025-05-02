@@ -1,5 +1,6 @@
 package dev.triumphteam.bukkit.example;
 
+import com.google.common.primitives.Ints;
 import dev.triumphteam.bukkit.example.commands.ExampleCommand;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
@@ -13,12 +14,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class ExamplePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
         final BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this, builder -> {
+        });
+
+        commandManager.registerSuggestion(SuggestionKey.of("text"), context -> {
+            final Integer extra = Ints.tryParse(context.getExtra());
+            return IntStream.range(0, extra).mapToObj(String::valueOf).collect(Collectors.toList());
         });
 
         commandManager.registerSuggestion(SuggestionKey.of("radius"), context -> {

@@ -48,6 +48,8 @@ public @interface Suggestion {
      */
     @NotNull String value();
 
+    @NotNull String extra() default "";
+
     /**
      * Specifies which suggestion method should be used for argument suggestions.
      *

@@ -35,7 +35,7 @@ public interface InternalSuggestion<S, ST> {
             final @NotNull List<String> arguments
     );
 
-    default @NotNull InternalSuggestion<S, ST> copy(final @NotNull SuggestionMethod method) {
+    default @NotNull InternalSuggestion<S, ST> copy(final @NotNull SuggestionMethod method, final @NotNull String extra) {
         return this;
     }
 }

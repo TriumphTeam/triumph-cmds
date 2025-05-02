@@ -355,7 +355,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
 
         for (final Flag flag : group.getAll()) {
             final Class<?> argType = flag.getArgument();
-            final InternalSuggestion<S, ST> suggestion = createSuggestion(flag.getSuggestion(), argType, SuggestionMethod.STARTS_WITH);
+            final InternalSuggestion<S, ST> suggestion = createSuggestion(flag.getSuggestion(), argType, SuggestionMethod.STARTS_WITH, "");
 
             internalArguments.put(
                     flag,
@@ -382,7 +382,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
         for (final Argument argument : group.getAll()) {
             final Class<?> argType = argument.getType();
 
-            final InternalSuggestion<S, ST> suggestion = createSuggestion(argument.getSuggestion(), argType, SuggestionMethod.STARTS_WITH);
+            final InternalSuggestion<S, ST> suggestion = createSuggestion(argument.getSuggestion(), argType, SuggestionMethod.STARTS_WITH, "");
 
             if (argument instanceof ListArgument) {
                 final ListArgument listArgument = (ListArgument) argument;
@@ -549,18 +549,22 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
     }
 
     private @NotNull InternalSuggestion<S, ST> suggestionFromParam(final @NotNull Parameter parameter) {
-        final Suggestion parameterAnnotation = parameter.getAnnotation(Suggestion.class);
-        final SuggestionKey suggestionKey = parameterAnnotation == null ? null : SuggestionKey.of(parameterAnnotation.value());
+        final Suggestion annotation = parameter.getAnnotation(Suggestion.class);
+        final SuggestionKey suggestionKey = annotation == null ? null : SuggestionKey.of(annotation.value());
 
         final Class<?> type = getGenericType(parameter);
 
-        return createSuggestion(suggestionKey, type, parameterAnnotation == null ? SuggestionMethod.STARTS_WITH : parameterAnnotation.method());
+        final SuggestionMethod method = annotation == null ? SuggestionMethod.STARTS_WITH : annotation.method();
+        final String extra = annotation == null ? "" : annotation.extra();
+
+        return createSuggestion(suggestionKey, type, method, extra);
     }
 
     protected @NotNull InternalSuggestion<S, ST> createSuggestion(
             final @Nullable SuggestionKey suggestionKey,
             final @NotNull Class<?> type,
-            final @NotNull SuggestionMethod method
+            final @NotNull SuggestionMethod method,
+            final @NotNull String extra
     ) {
         if (suggestionKey == null || suggestionKey.getKey().isEmpty()) {
             if (Enum.class.isAssignableFrom(type)) {
@@ -576,10 +580,11 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
         final InternalSuggestion<S, ST> suggestion = suggestionRegistry.getSuggestion(suggestionKey);
         if (suggestion == null) {
             final InternalSuggestion<S, ST> localSuggestion = localSuggestions.get(suggestionKey);
-            if (localSuggestion != null) return localSuggestion;
+            if (localSuggestion != null) return localSuggestion.copy(method, extra);
 
             throw createException("Cannot find the suggestion key `" + suggestionKey + "`");
         }
-        return suggestion;
+        // TODO(important): INHERIT BY DEFAULT
+        return suggestion.copy(method, extra);
     }
 }

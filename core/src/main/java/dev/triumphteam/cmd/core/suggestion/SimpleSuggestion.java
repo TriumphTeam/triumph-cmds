@@ -33,15 +33,26 @@ public final class SimpleSuggestion<S, ST> implements InternalSuggestion<S, ST> 
     private final SimpleSuggestionHolder<S, ST> holder;
     private final SuggestionMapper<ST> mapper;
     private final SuggestionMethod method;
+    private final String extra;
 
     public SimpleSuggestion(
             final @NotNull SimpleSuggestionHolder<S, ST> holder,
             final @NotNull SuggestionMapper<ST> mapper,
             final @NotNull SuggestionMethod method
     ) {
+        this(holder, mapper, method, "");
+    }
+
+    public SimpleSuggestion(
+            final @NotNull SimpleSuggestionHolder<S, ST> holder,
+            final @NotNull SuggestionMapper<ST> mapper,
+            final @NotNull SuggestionMethod method,
+            final @NotNull String extra
+    ) {
         this.holder = holder;
         this.mapper = mapper;
         this.method = method;
+        this.extra = extra;
     }
 
     @Override
@@ -50,11 +61,11 @@ public final class SimpleSuggestion<S, ST> implements InternalSuggestion<S, ST> 
             final @NotNull String current,
             final @NotNull List<String> arguments
     ) {
-        return mapper.filter(current, holder.getSuggestions(new SuggestionContext<>(current, sender, arguments)), method);
+        return mapper.filter(current, holder.getSuggestions(new SuggestionContext<>(current, sender, arguments, extra)), method);
     }
 
     @Override
-    public @NotNull InternalSuggestion<S, ST> copy(final @NotNull SuggestionMethod method) {
-        return new SimpleSuggestion<>(holder, mapper, method);
+    public @NotNull InternalSuggestion<S, ST> copy(final @NotNull SuggestionMethod method, final @NotNull String extra) {
+        return new SimpleSuggestion<>(holder, mapper, method, extra);
     }
 }

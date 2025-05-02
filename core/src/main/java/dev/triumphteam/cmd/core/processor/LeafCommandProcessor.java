@@ -309,7 +309,7 @@ public final class LeafCommandProcessor<D, S, ST> extends AbstractCommandProcess
                 continue;
             }
 
-            map.put(i, createSuggestion(SuggestionKey.of(key), Void.TYPE, suggestion.method()));
+            map.put(i, createSuggestion(SuggestionKey.of(key), Void.TYPE, suggestion.method(), suggestion.extra()));
         }
 
         return map;
