@@ -39,7 +39,7 @@ final class BukkitCommand<S> extends Command {
     private final InternalRootCommand<CommandSender, S, String> rootCommand;
     private final SenderExtension<CommandSender, S> senderExtension;
 
-    BukkitCommand(final @NotNull RootCommandProcessor<CommandSender, S> processor) {
+    BukkitCommand(final @NotNull RootCommandProcessor<CommandSender, S, String> processor) {
         super(processor.getName(), processor.getDescription(), "", processor.getAliases());
 
         this.rootCommand = new InternalRootCommand<>(processor);

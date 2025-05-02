@@ -58,6 +58,8 @@ import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.EnumSuggestion;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
+import dev.triumphteam.cmd.core.suggestion.SimpleSuggestion;
+import dev.triumphteam.cmd.core.suggestion.SimpleSuggestionHolder;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
@@ -497,22 +499,10 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
             final Suggestion suggestionAnnotation = method.getAnnotation(Suggestion.class);
             if (suggestionAnnotation == null) continue;
 
-            // TODO(important): VALIDATIONS
-
-            Type returnType = method.getGenericReturnType();
+            final Type returnType = method.getGenericReturnType();
 
             if (!(returnType instanceof ParameterizedType)) {
                 throw createException("Suggestion method must return a List");
-            }
-
-            final ParameterizedType parameterizedType = (ParameterizedType) returnType;
-            if (parameterizedType.getRawType() != List.class) {
-                throw createException("Suggestion method must return a List");
-            }
-
-            final Type listType = parameterizedType.getActualTypeArguments()[0];
-            if (!listType.equals(String.class)) {
-                throw createException("Suggestion method must return a List of Strings");
             }
 
             final Parameter[] parameters = method.getParameters();
@@ -532,8 +522,27 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                 needsContext = true;
             }
 
-            // TODO(important): RE-ADD
-            // suggestions.put(SuggestionKey.of(suggestionAnnotation.value()), new LocalSuggestion<>(invocationInstance, method, needsContext));
+            final ParameterizedType parameterizedType = (ParameterizedType) returnType;
+            if (parameterizedType.getRawType() != List.class) {
+                throw createException("Suggestion method must return a List of suggestions");
+            }
+
+            final SuggestionKey key = SuggestionKey.of(suggestionAnnotation.value());
+
+            final Type listType = parameterizedType.getActualTypeArguments()[0];
+            if (listType.equals(String.class)) {
+
+                final SimpleSuggestionHolder<S, ST> holder = new SimpleSuggestionHolder.SimpleLocal<>(suggestionMapper, invocationInstance, method, needsContext);
+                suggestions.put(key, new SimpleSuggestion<>(holder, suggestionMapper, suggestionAnnotation.method()));
+                continue;
+            }
+
+            if (!(listType.equals(suggestionMapper.getType()))) {
+                throw createException("Suggestion method must return a List of strings or a List of '" + suggestionMapper.getType().getSimpleName() + "'");
+            }
+
+            final SimpleSuggestionHolder<S, ST> holder = new SimpleSuggestionHolder.RichLocal<>(invocationInstance, method, needsContext);
+            suggestions.put(key, new SimpleSuggestion<>(holder, suggestionMapper, suggestionAnnotation.method()));
         }
 
         return suggestions;

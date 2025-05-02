@@ -42,40 +42,40 @@ public final class SuggestionRegistry<S, ST> implements Registry {
     private final Map<SuggestionKey, InternalSuggestion<S, ST>> suggestions = new HashMap<>();
     private final Map<Class<?>, InternalSuggestion<S, ST>> typeSuggestions = new HashMap<>();
 
-    private final SuggestionMapper<ST> suggestionMapper;
-
-    public SuggestionRegistry(final @NotNull SuggestionMapper<ST> suggestionMapper) {
-        this.suggestionMapper = suggestionMapper;
-    }
-
-    /**
-     * Registers a new {@link SuggestionResolver} for the specific Key.
-     *
-     * @param key      The suggestion key.
-     * @param resolver The action to get the suggestions.
-     * @param method   The method os suggestion to be used.
-     */
     public void register(
             final @NotNull SuggestionKey key,
             final @NotNull SuggestionResolver<S, ST> resolver,
-            final @NotNull SuggestionMethod method
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionMapper<ST> suggestionMapper
     ) {
-        suggestions.put(key, new SimpleSuggestion<>(resolver, suggestionMapper, method));
+        suggestions.put(key, new SimpleSuggestion<>(new SimpleSuggestionHolder.RichResolver<>(resolver), suggestionMapper, method));
     }
 
-    /**
-     * Registers a new {@link SuggestionResolver} for the specific Key.
-     *
-     * @param type     The type to suggest for.
-     * @param resolver The action to get the suggestions.
-     * @param method   The method os suggestion to be used.
-     */
+    public void register(
+            final @NotNull SuggestionKey key,
+            final @NotNull SuggestionResolver.Simple<S> resolver,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionMapper<ST> suggestionMapper
+    ) {
+        suggestions.put(key, new SimpleSuggestion<>(new SimpleSuggestionHolder.SimpleResolver<>(resolver, suggestionMapper), suggestionMapper, method));
+    }
+
     public void register(
             final @NotNull Class<?> type,
             final @NotNull SuggestionResolver<S, ST> resolver,
-            final @NotNull SuggestionMethod method
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionMapper<ST> suggestionMapper
     ) {
-        typeSuggestions.put(type, new SimpleSuggestion<>(resolver, suggestionMapper, method));
+        typeSuggestions.put(type, new SimpleSuggestion<>(new SimpleSuggestionHolder.RichResolver<>(resolver), suggestionMapper, method));
+    }
+
+    public void register(
+            final @NotNull Class<?> type,
+            final @NotNull SuggestionResolver.Simple<S> resolver,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionMapper<ST> suggestionMapper
+    ) {
+        typeSuggestions.put(type, new SimpleSuggestion<>(new SimpleSuggestionHolder.SimpleResolver<>(resolver, suggestionMapper), suggestionMapper, method));
     }
 
     @Contract("null -> null")

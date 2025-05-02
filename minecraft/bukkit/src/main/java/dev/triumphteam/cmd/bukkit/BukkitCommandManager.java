@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S, BukkitCommandOptions<S>, String> {
 
     private final Plugin plugin;
-    private final RegistryContainer<CommandSender, S> registryContainer;
+    private final RegistryContainer<CommandSender, S, String> registryContainer;
 
     private final Map<String, BukkitCommand<S>> commands = new HashMap<>();
 
@@ -65,7 +65,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     private BukkitCommandManager(
             final @NotNull Plugin plugin,
             final @NotNull BukkitCommandOptions<S> commandOptions,
-            final @NotNull RegistryContainer<CommandSender, S> registryContainer
+            final @NotNull RegistryContainer<CommandSender, S, String> registryContainer
     ) {
         super(commandOptions);
         this.plugin = plugin;
@@ -94,7 +94,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             final @NotNull SenderExtension<CommandSender, S> senderExtension,
             final @NotNull Consumer<BukkitCommandOptions.Builder<S>> builder
     ) {
-        final RegistryContainer<CommandSender, S> registryContainer = new RegistryContainer<>();
+        final RegistryContainer<CommandSender, S, String> registryContainer = new RegistryContainer<>();
         final BukkitCommandOptions.Builder<S> extensionBuilder = new BukkitCommandOptions.Builder<>(registryContainer);
         builder.accept(extensionBuilder);
         return new BukkitCommandManager<>(plugin, extensionBuilder.build(senderExtension), registryContainer);
@@ -124,7 +124,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             final @NotNull Plugin plugin,
             final @NotNull Consumer<BukkitCommandOptions.Builder<CommandSender>> builder
     ) {
-        final RegistryContainer<CommandSender, CommandSender> registryContainer = new RegistryContainer<>();
+        final RegistryContainer<CommandSender, CommandSender, String> registryContainer = new RegistryContainer<>();
         final BukkitCommandOptions.Builder<CommandSender> extensionBuilder = new BukkitCommandOptions.Builder<>(registryContainer);
 
         // Setup defaults for Bukkit
@@ -180,7 +180,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
     @Override
     public void registerCommand(final @NotNull Object command) {
-        final RootCommandProcessor<CommandSender, S> processor = new RootCommandProcessor<>(
+        final RootCommandProcessor<CommandSender, S, String> processor = new RootCommandProcessor<>(
                 command,
                 getRegistryContainer(),
                 getCommandOptions()
@@ -190,7 +190,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
         // Get or add command, then add its sub commands
         final BukkitCommand<S> bukkitCommand = commands.computeIfAbsent(name, it -> createAndRegisterCommand(processor, name));
-        final InternalRootCommand<CommandSender, S> rootCommand = bukkitCommand.getRootCommand();
+        final InternalRootCommand<CommandSender, S, String> rootCommand = bukkitCommand.getRootCommand();
         rootCommand.addCommands(command, processor.commands(rootCommand));
 
         // TODO: ALIASES
@@ -202,16 +202,15 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     }
 
     @Override
-    protected @NotNull RegistryContainer<CommandSender, S> getRegistryContainer() {
+    protected @NotNull RegistryContainer<CommandSender, S, String> getRegistryContainer() {
         return registryContainer;
     }
 
     private @NotNull BukkitCommand<S> createAndRegisterCommand(
-            final @NotNull RootCommandProcessor<CommandSender, S> processor,
+            final @NotNull RootCommandProcessor<CommandSender, S, String> processor,
             final @NotNull String name
     ) {
-        // From ACF (https://github.com/aikar/commands)
-        // To allow commands to be registered on the plugin.yml
+        // To allow commands to be registered on the plugin.yml.
         final org.bukkit.command.Command oldCommand = commandMap.getCommand(name);
         if (oldCommand instanceof PluginIdentifiableCommand && ((PluginIdentifiableCommand) oldCommand).getPlugin() == plugin) {
             bukkitCommands.remove(name);

@@ -44,9 +44,14 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
         super(senderExtension, builder);
     }
 
-    public static final class Setup<S> extends CommandOptions.Setup<CommandSender, S, Setup<S>> {
-        public Setup(final @NotNull RegistryContainer<CommandSender, S> registryContainer) {
+    public static final class Setup<S> extends CommandOptions.Setup<CommandSender, S, Setup<S>, String> {
+        public Setup(final @NotNull RegistryContainer<CommandSender, S, String> registryContainer) {
             super(registryContainer);
+        }
+
+        @Override
+        protected @NotNull Setup<S> getThis() {
+            return this;
         }
     }
 
@@ -54,7 +59,7 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
 
         private CommandPermission globalPermission = null;
 
-        public Builder(final @NotNull RegistryContainer<CommandSender, S> registryContainer) {
+        public Builder(final @NotNull RegistryContainer<CommandSender, S, String> registryContainer) {
             super(new Setup<>(registryContainer));
 
             // Setters have to be done first thing, so they can be overridden.
@@ -63,6 +68,11 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
                 extension.setCommandExecutor(new DefaultCommandExecutor<>());
                 extension.setSuggestionMapper(new DefaultSuggestionMapper());
             });
+        }
+
+        @Override
+        protected @NotNull Builder<S> getThis() {
+            return this;
         }
 
         /**

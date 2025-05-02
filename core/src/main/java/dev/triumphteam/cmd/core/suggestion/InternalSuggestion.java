@@ -34,4 +34,8 @@ public interface InternalSuggestion<S, ST> {
             final @NotNull String current,
             final @NotNull List<String> arguments
     );
+
+    default @NotNull InternalSuggestion<S, ST> copy(final @NotNull SuggestionMethod method) {
+        return this;
+    }
 }

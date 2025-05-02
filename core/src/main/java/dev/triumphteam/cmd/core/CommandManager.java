@@ -32,6 +32,7 @@ import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
 import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
+import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.ContextualKey;
 import dev.triumphteam.cmd.core.message.MessageResolver;
@@ -123,7 +124,7 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, S
             final @NotNull SuggestionMethod method,
             final @NotNull SuggestionResolver<S, ST> resolver
     ) {
-        getRegistryContainer().getSuggestionRegistry().register(key, resolver, method);
+        getRegistryContainer().getSuggestionRegistry().register(key, resolver, method, getSuggestionMapper());
     }
 
     public void registerSuggestion(
@@ -131,7 +132,7 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, S
             final @NotNull SuggestionMethod method,
             final @NotNull SuggestionResolver.Simple<S> resolver
     ) {
-        // getRegistryContainer().getSuggestionRegistry().register(key, resolver, method);
+        getRegistryContainer().getSuggestionRegistry().register(key, resolver, method, getSuggestionMapper());
     }
 
     public void registerRichSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S, ST> resolver) {
@@ -147,7 +148,7 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, S
             final @NotNull SuggestionMethod method,
             final @NotNull SuggestionResolver<S, ST> resolver
     ) {
-        getRegistryContainer().getSuggestionRegistry().register(type, resolver, method);
+        getRegistryContainer().getSuggestionRegistry().register(type, resolver, method, getSuggestionMapper());
     }
 
     public void registerSuggestion(
@@ -155,7 +156,7 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, S
             final @NotNull SuggestionMethod method,
             final @NotNull SuggestionResolver.Simple<S> resolver
     ) {
-        // getRegistryContainer().getSuggestionRegistry().register(type, resolver, method);
+        getRegistryContainer().getSuggestionRegistry().register(type, resolver, method, getSuggestionMapper());
     }
 
     /**
@@ -228,5 +229,9 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, S
 
     protected @NotNull O getCommandOptions() {
         return commandOptions;
+    }
+
+    protected @NotNull SuggestionMapper<ST> getSuggestionMapper() {
+        return getCommandOptions().getCommandExtensions().getSuggestionMapper();
     }
 }

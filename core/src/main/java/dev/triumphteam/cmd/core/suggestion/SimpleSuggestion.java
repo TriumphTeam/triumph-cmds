@@ -27,20 +27,19 @@ import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Objects;
 
 public final class SimpleSuggestion<S, ST> implements InternalSuggestion<S, ST> {
 
-    private final SuggestionResolver<S, ST> resolver;
+    private final SimpleSuggestionHolder<S, ST> holder;
     private final SuggestionMapper<ST> mapper;
     private final SuggestionMethod method;
 
     public SimpleSuggestion(
-            final @NotNull SuggestionResolver<S, ST> resolver,
+            final @NotNull SimpleSuggestionHolder<S, ST> holder,
             final @NotNull SuggestionMapper<ST> mapper,
             final @NotNull SuggestionMethod method
     ) {
-        this.resolver = resolver;
+        this.holder = holder;
         this.mapper = mapper;
         this.method = method;
     }
@@ -51,27 +50,11 @@ public final class SimpleSuggestion<S, ST> implements InternalSuggestion<S, ST> 
             final @NotNull String current,
             final @NotNull List<String> arguments
     ) {
-        return mapper.filter(current, resolver.resolve(new SuggestionContext<>(current, sender, arguments)), method);
+        return mapper.filter(current, holder.getSuggestions(new SuggestionContext<>(current, sender, arguments)), method);
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        final SimpleSuggestion<?, ?> that = (SimpleSuggestion<?, ?>) o;
-        return Objects.equals(resolver, that.resolver) && Objects.equals(mapper, that.mapper) && method == that.method;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(resolver, mapper, method);
-    }
-
-    @Override
-    public @NotNull String toString() {
-        return "SimpleSuggestion{" +
-                "resolver=" + resolver +
-                ", mapper=" + mapper +
-                ", method=" + method +
-                '}';
+    public @NotNull InternalSuggestion<S, ST> copy(final @NotNull SuggestionMethod method) {
+        return new SimpleSuggestion<>(holder, mapper, method);
     }
 }

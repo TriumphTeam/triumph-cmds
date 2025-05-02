@@ -23,7 +23,6 @@
  */
 package dev.triumphteam.cmd.core.extension.registry;
 
-import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,11 +33,7 @@ public class RegistryContainer<D, S, ST> {
     private final FlagRegistry flagRegistry = new FlagRegistry();
     private final RequirementRegistry<D, S> requirementRegistry = new RequirementRegistry<>();
     private final MessageRegistry<S> messageRegistry = new MessageRegistry<>();
-    private final SuggestionRegistry<S, ST> suggestionRegistry;
-
-    public RegistryContainer(final @NotNull SuggestionMapper<ST> suggestionMapper) {
-        this.suggestionRegistry = new SuggestionRegistry<>(suggestionMapper);
-    }
+    private final SuggestionRegistry<S, ST> suggestionRegistry = new SuggestionRegistry<>();
 
     public @NotNull ArgumentRegistry<S, ST> getArgumentRegistry() {
         return argumentRegistry;
