@@ -26,23 +26,26 @@ package dev.triumphteam.cmds.simple;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultCommandExecutor;
-import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.extension.defaults.DefaultSuggestionMapper;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import org.jetbrains.annotations.NotNull;
 
-public final class SimpleOptionsBuilder<S> extends CommandOptions.Builder<S, S, CommandOptions<S, S>, SimpleSetup<S>, SimpleOptionsBuilder<S>> {
+public final class SimpleOptionsBuilder<S> extends CommandOptions.Builder<S, S, SimpleCommandOptions<S>, SimpleOptionsBuilder<S>, String> {
 
-    public SimpleOptionsBuilder(final @NotNull RegistryContainer<S, S> registryContainer) {
-        super(new SimpleSetup<>(registryContainer));
-
+    public SimpleOptionsBuilder() {
         extensions(extension -> {
             extension.setArgumentValidator(new DefaultArgumentValidator<>());
             extension.setCommandExecutor(new DefaultCommandExecutor<>());
+            extension.setSuggestionMapper(new DefaultSuggestionMapper());
         });
     }
 
+    @NotNull SimpleCommandOptions<S> build(final @NotNull SenderExtension<S, S> senderExtension) {
+        return new SimpleCommandOptions<>(senderExtension, this);
+    }
+
     @Override
-    public @NotNull CommandOptions<S, S> build(final @NotNull SenderExtension<S, S> senderExtension) {
-        return new CommandOptions<>(senderExtension, this);
+    protected @NotNull SimpleOptionsBuilder<S> getThis() {
+        return this;
     }
 }

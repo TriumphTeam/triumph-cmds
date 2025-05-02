@@ -25,7 +25,6 @@ package dev.triumphteam.cmds.simple;
 
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.command.InternalRootCommand;
-import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
@@ -41,18 +40,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandOptions<S, S>> {
+public final class SimpleCommandManager<S> extends CommandManager<S, S, SimpleCommandOptions<S>, String> {
 
-    private final Map<String, InternalRootCommand<S, S>> commands = new HashMap<>();
-
-    private final RegistryContainer<S, S> registryContainer;
+    private final Map<String, InternalRootCommand<S, S, String>> commands = new HashMap<>();
 
     private SimpleCommandManager(
-            final @NotNull CommandOptions<S, S> commandOptions,
-            final @NotNull RegistryContainer<S, S> registryContainer
+            final @NotNull SimpleCommandOptions<S> commandOptions,
+            final @NotNull RegistryContainer<S, S, String> registryContainer
     ) {
-        super(commandOptions);
-        this.registryContainer = registryContainer;
+        super(commandOptions, registryContainer);
     }
 
     @Contract("_, _ -> new")
@@ -60,15 +56,15 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandO
             final @NotNull SenderExtension<S, S> senderExtension,
             final @NotNull Consumer<SimpleOptionsBuilder<S>> builder
     ) {
-        final RegistryContainer<S, S> registryContainer = new RegistryContainer<>();
-        final SimpleOptionsBuilder<S> extensionBuilder = new SimpleOptionsBuilder<>(registryContainer);
+        final RegistryContainer<S, S, String> registryContainer = new RegistryContainer<>();
+        final SimpleOptionsBuilder<S> extensionBuilder = new SimpleOptionsBuilder<>();
         builder.accept(extensionBuilder);
         return new SimpleCommandManager<>(extensionBuilder.build(senderExtension), registryContainer);
     }
 
     @Override
     public void registerCommand(final @NotNull Object command) {
-        final RootCommandProcessor<S, S> processor = new RootCommandProcessor<>(
+        final RootCommandProcessor<S, S, String> processor = new RootCommandProcessor<>(
                 command,
                 getRegistryContainer(),
                 getCommandOptions()
@@ -76,17 +72,9 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandO
 
         final String name = processor.getName();
 
-        final InternalRootCommand<S, S> rootCommand = commands.computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
+        final InternalRootCommand<S, S, String> rootCommand = commands.computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
         rootCommand.addCommands(command, processor.commands(rootCommand));
         processor.getAliases().forEach(it -> commands.putIfAbsent(it, rootCommand));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected @NotNull RegistryContainer<S, S> getRegistryContainer() {
-        return registryContainer;
     }
 
     @Override
@@ -104,9 +92,9 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandO
         if (args.isEmpty()) return;
         final String commandName = args.get(0);
 
-        final InternalRootCommand<S, S> command = commands.get(commandName);
+        final InternalRootCommand<S, S, String> command = commands.get(commandName);
         if (command == null) {
-            registryContainer.getMessageRegistry().sendMessage(
+            getRegistryContainer().getMessageRegistry().sendMessage(
                     MessageKey.UNKNOWN_COMMAND,
                     sender,
                     // Empty meta
