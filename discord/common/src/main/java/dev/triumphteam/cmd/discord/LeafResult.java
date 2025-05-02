@@ -6,17 +6,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-public final class LeafResult<D, S> {
+public final class LeafResult<D, S, ST> {
 
-    private final InternalLeafCommand<D, S> command;
+    private final InternalLeafCommand<D, S, ST> command;
     private final Supplier<Object> instanceSupplier;
 
-    public LeafResult(final @NotNull InternalLeafCommand<D, S> command, final @Nullable Supplier<Object> instanceSupplier) {
+    public LeafResult(final @NotNull InternalLeafCommand<D, S, ST> command, final @Nullable Supplier<Object> instanceSupplier) {
         this.command = command;
         this.instanceSupplier = instanceSupplier;
     }
 
-    public @NotNull InternalLeafCommand<D, S> getCommand() {
+    public @NotNull InternalLeafCommand<D, S, ST> getCommand() {
         return command;
     }
 

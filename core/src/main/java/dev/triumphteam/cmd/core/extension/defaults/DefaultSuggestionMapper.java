@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public final class DefaultSuggestionMapper implements SuggestionMapper<String> {
 
     @Override
-    public @NotNull List<String> map(final @NotNull List<String> values) {
+    public @NotNull List<String> map(final @NotNull List<String> values, final @NotNull Class<?> type) {
         return values;
     }
 

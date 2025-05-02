@@ -23,26 +23,24 @@
  */
 package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.discord.ChoiceProcessor;
-import dev.triumphteam.cmd.discord.NsfwProcessor;
-import dev.triumphteam.cmd.discord.annotation.Choice;
-import dev.triumphteam.cmd.discord.annotation.NSFW;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultCommandExecutor;
-import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
+import dev.triumphteam.cmd.discord.NsfwProcessor;
+import dev.triumphteam.cmd.discord.annotation.NSFW;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S> {
+public final class JdaCommandOptions<S> extends CommandOptions<SlashSender, S, JdaCommandOptions<S>, Command.Choice> {
 
     private final boolean autoRegisterListener;
 
-    public SlashCommandOptions(
+    public JdaCommandOptions(
             final @NotNull SenderExtension<SlashSender, S> senderExtension,
             final @NotNull Builder<S> builder
     ) {
@@ -54,32 +52,29 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
         return autoRegisterListener;
     }
 
-    public static final class Setup<S> extends CommandOptions.Setup<SlashSender, S, Setup<S>> {
-        public Setup(final @NotNull RegistryContainer<SlashSender, S> registryContainer) {
-            super(registryContainer);
-        }
-    }
-
-    public static final class Builder<S> extends CommandOptions.Builder<SlashSender, S, SlashCommandOptions<S>, Setup<S>, Builder<S>> {
+    public static final class Builder<S> extends CommandOptions.Builder<SlashSender, S, JdaCommandOptions<S>, Builder<S>, Command.Choice> {
 
         private boolean autoRegisterListener = true;
 
-        public Builder(final @NotNull SlashRegistryContainer<S> registryContainer) {
-            super(new Setup<>(registryContainer));
-
+        public Builder() {
             // Setters have to be done first thing, so they can be overridden.
             extensions(extension -> {
                 extension.setArgumentValidator(new DefaultArgumentValidator<>());
                 extension.setCommandExecutor(new DefaultCommandExecutor<>());
-                extension.addAnnotationProcessor(Choice.class, new ChoiceProcessor(registryContainer.getChoiceRegistry()));
+                extension.setSuggestionMapper(new JdaSuggestionMapper());
                 extension.addAnnotationProcessor(NSFW.class, new NsfwProcessor());
             });
         }
 
+        @Override
+        protected @NotNull Builder<S> getThis() {
+            return this;
+        }
+
         /**
          * Disables the auto-registering of listeners, meaning you'll have to do your own listeners.
-         * Run command with {@link SlashCommandManager#execute(SlashCommandInteractionEvent)}.
-         * Run auto complete with {@link SlashCommandManager#suggest(CommandAutoCompleteInteractionEvent)}.
+         * Run command with {@link JdaCommandManager#execute(SlashCommandInteractionEvent)}.
+         * Run auto complete with {@link JdaCommandManager#suggest(CommandAutoCompleteInteractionEvent)}.
          *
          * @return This builder.
          */
@@ -89,9 +84,8 @@ public final class SlashCommandOptions<S> extends CommandOptions<SlashSender, S>
             return this;
         }
 
-        @Override
-        public @NotNull SlashCommandOptions<S> build(final @NotNull SenderExtension<SlashSender, S> senderExtension) {
-            return new SlashCommandOptions<>(senderExtension, this);
+        @NotNull JdaCommandOptions<S> build(final @NotNull SenderExtension<SlashSender, S> senderExtension) {
+            return new JdaCommandOptions<>(senderExtension, this);
         }
     }
 }

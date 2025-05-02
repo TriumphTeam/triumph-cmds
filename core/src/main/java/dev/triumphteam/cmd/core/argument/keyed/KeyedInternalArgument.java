@@ -151,7 +151,7 @@ public final class KeyedInternalArgument<S, ST> extends LimitlessInternalArgumen
     }
 
     private @NotNull List<ST> map(final @NotNull List<String> suggestions) {
-        return mapper.map(suggestions);
+        return mapper.map(suggestions, getType());
     }
 
     private @NotNull List<String> longFlags(

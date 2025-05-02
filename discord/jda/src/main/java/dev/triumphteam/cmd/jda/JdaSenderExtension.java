@@ -23,16 +23,21 @@
  */
 package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.discord.choices.ChoiceRegistry;
-import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
+import com.google.common.collect.ImmutableSet;
+import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
+import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import org.jetbrains.annotations.NotNull;
 
-// TODO: Comments
-public final class SlashRegistryContainer<S> extends RegistryContainer<SlashSender, S> {
+import java.util.Set;
 
-    private final ChoiceRegistry choiceRegistry = new ChoiceRegistry();
-    public @NotNull ChoiceRegistry getChoiceRegistry() {
-        return choiceRegistry;
+/**
+ * Simple validator that always returns true.
+ */
+final class JdaSenderExtension implements SenderExtension.Default<SlashSender> {
+
+    @Override
+    public @NotNull Set<Class<? extends SlashSender>> getAllowedSenders() {
+        return ImmutableSet.of(SlashSender.class, SlashCommandSender.class);
     }
 }

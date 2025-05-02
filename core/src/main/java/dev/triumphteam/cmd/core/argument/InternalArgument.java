@@ -87,6 +87,8 @@ public interface InternalArgument<S, ST> extends CommandMetaContainer {
 
     @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments);
 
+    @NotNull InternalSuggestion<S, ST> getSuggestion();
+
     @FunctionalInterface
     interface Factory<S, ST> {
 

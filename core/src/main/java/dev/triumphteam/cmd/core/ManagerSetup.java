@@ -68,11 +68,11 @@ public abstract class ManagerSetup<D, S, O extends CommandOptions<D, S, O, ST>, 
         registryContainer.getSuggestionRegistry().registerRich(key, resolver, method, suggestionMapper);
     }
 
-    public void registerStatiSuggestion(final @NotNull SuggestionKey key, final @NotNull List<String> suggestions) {
-        registerStatiSuggestion(key, commandOptions.getDefaultSuggestionMethod(), suggestions);
+    public void registerStaticSuggestion(final @NotNull SuggestionKey key, final @NotNull List<String> suggestions) {
+        registerStaticSuggestion(key, commandOptions.getDefaultSuggestionMethod(), suggestions);
     }
 
-    public void registerStatiSuggestion(
+    public void registerStaticSuggestion(
             final @NotNull SuggestionKey key,
             final @NotNull SuggestionMethod method,
             final @NotNull List<String> suggestions

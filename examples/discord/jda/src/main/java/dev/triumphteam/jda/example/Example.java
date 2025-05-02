@@ -23,26 +23,34 @@
  */
 package dev.triumphteam.jda.example;
 
-import dev.triumphteam.cmd.discord.choices.ChoiceKey;
-import dev.triumphteam.cmd.jda.SlashCommandManager;
-import dev.triumphteam.cmd.jda.SlashCommandOptions;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.jda.JdaCommandManager;
+import dev.triumphteam.cmd.jda.JdaCommandOptions;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import dev.triumphteam.jda.example.commands.ExampleCommand;
 import dev.triumphteam.jda.example.commands.ExampleCommandGroup;
 import dev.triumphteam.jda.example.commands.ExampleSubCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.interactions.commands.Command;
 
 import java.util.Arrays;
 
 public class Example {
 
     public static void main(String[] args) throws InterruptedException {
-        final JDA jda = JDABuilder.createDefault("").build().awaitReady();
+        final JDA jda = JDABuilder.createDefault(args[0]).build().awaitReady();
 
-        final SlashCommandManager<SlashSender> commandManager = SlashCommandManager.create(jda, SlashCommandOptions.Builder::disableAutoRegisterListener);
+        final JdaCommandManager<SlashSender> commandManager = JdaCommandManager.create(jda, JdaCommandOptions.Builder::disableAutoRegisterListener);
 
-        commandManager.registerChoices(ChoiceKey.of("hello"), () -> Arrays.asList("1", "2", "3", "4"));
+        commandManager.registerStaticRichSuggestion(
+                SuggestionKey.of("hello"),
+                Arrays.asList(
+                        new Command.Choice("name", "value"),
+                        new Command.Choice("name2", "value2"),
+                        new Command.Choice("name3", "value3")
+                )
+        );
 
         // Registering commands
         commandManager.registerCommand(820696172477677628L, new ExampleCommand());

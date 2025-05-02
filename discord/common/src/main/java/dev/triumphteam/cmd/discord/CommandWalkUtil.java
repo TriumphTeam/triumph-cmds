@@ -14,14 +14,14 @@ import java.util.function.Supplier;
 
 public final class CommandWalkUtil {
 
-    public static <D, S> @Nullable LeafResult<D, S> findExecutable(
+    public static <D, S, ST> @Nullable LeafResult<D, S, ST> findExecutable(
             final @NotNull S sender,
-            final @NotNull Map<String, InternalRootCommand<D, S>> commands,
+            final @NotNull Map<String, InternalRootCommand<D, S, ST>> commands,
             final @NotNull Deque<String> commandPath,
             final boolean sendMessage
     ) {
         // Immediately pop first to get root.
-        InternalParentCommand<D, S> parentCommand = commands.get(commandPath.pop());
+        InternalParentCommand<D, S, ST> parentCommand = commands.get(commandPath.pop());
         Supplier<Object> instanceSupplier = null;
        do {
             // Find command with this name;
@@ -29,7 +29,7 @@ public final class CommandWalkUtil {
             if (command == null) return null;
 
             if (command instanceof InternalLeafCommand) {
-                return new LeafResult<>((InternalLeafCommand<D, S>) command, instanceSupplier);
+                return new LeafResult<>((InternalLeafCommand<D, S, ST>) command, instanceSupplier);
             }
 
             if (!(command instanceof InternalBranchCommand)) {

@@ -33,10 +33,10 @@ import dev.triumphteam.cmd.core.command.InternalCommand;
 import dev.triumphteam.cmd.core.command.InternalLeafCommand;
 import dev.triumphteam.cmd.core.command.InternalRootCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
+import dev.triumphteam.cmd.core.suggestion.StaticSuggestion;
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
-import dev.triumphteam.cmd.discord.annotation.Choice;
 import dev.triumphteam.cmd.discord.annotation.NSFW;
-import dev.triumphteam.cmd.discord.choices.InternalChoice;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import gnu.trove.map.TLongObjectMap;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -63,7 +63,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -86,7 +85,6 @@ final class JdaMappingUtil {
             RESOLVED_FILED = OptionMapping.class.getDeclaredField("resolved");
             RESOLVED_FILED.setAccessible(true);
         } catch (NoSuchFieldException exception) {
-            exception.printStackTrace();
             throw new CommandExecutionException("An error occurred while trying to get resolved values from OptionMapper.");
         }
     }
@@ -111,7 +109,7 @@ final class JdaMappingUtil {
         }
     }
 
-    public static <S> @NotNull SlashCommandData mapCommand(final @NotNull InternalRootCommand<SlashSender, S> rootCommand) {
+    public static <S> @NotNull SlashCommandData mapCommand(final @NotNull InternalRootCommand<SlashSender, S, Command.Choice> rootCommand) {
         final String name = rootCommand.getName();
         final String description = rootCommand.getDescription();
 
@@ -119,34 +117,34 @@ final class JdaMappingUtil {
                 .slash(name, description.isEmpty() ? name : description)
                 .setNSFW(rootCommand.getMeta().isPresent(NSFW.META_KEY));
 
-        final InternalCommand<SlashSender, S> defaultCommand = rootCommand.getCommand(InternalCommand.DEFAULT_CMD_NAME);
+        final InternalCommand<SlashSender, S, Command.Choice> defaultCommand = rootCommand.getCommand(InternalCommand.DEFAULT_CMD_NAME);
         if (defaultCommand != null) {
             // Safe to cast because only subcommands can be default
-            final InternalLeafCommand<SlashSender, S> subCommand = (InternalLeafCommand<SlashSender, S>) defaultCommand;
+            final InternalLeafCommand<SlashSender, S, Command.Choice> subCommand = (InternalLeafCommand<SlashSender, S, Command.Choice>) defaultCommand;
 
             return commandData.addOptions(subCommand.getArgumentList().stream().map(JdaMappingUtil::mapOption).collect(Collectors.toList()));
         }
 
-        final Collection<InternalCommand<SlashSender, S>> commands = rootCommand.getCommands().values();
+        final Collection<InternalCommand<SlashSender, S, Command.Choice>> commands = rootCommand.getCommands().values();
 
         commandData.addSubcommands(
                 commands.stream().map(it -> {
                     if (!(it instanceof InternalLeafCommand)) return null;
-                    return mapSubCommand((InternalLeafCommand<SlashSender, S>) it);
+                    return mapSubCommand((InternalLeafCommand<SlashSender, S, Command.Choice>) it);
                 }).filter(Objects::nonNull).collect(Collectors.toList())
         );
 
         commandData.addSubcommandGroups(
                 commands.stream().map(it -> {
                     if (!(it instanceof InternalBranchCommand)) return null;
-                    return mapSubCommandGroup((InternalBranchCommand<SlashSender, S>) it);
+                    return mapSubCommandGroup((InternalBranchCommand<SlashSender, S, Command.Choice>) it);
                 }).filter(Objects::nonNull).collect(Collectors.toList())
         );
 
         return commandData;
     }
 
-    public static <S> @NotNull SubcommandData mapSubCommand(final @NotNull InternalLeafCommand<SlashSender, S> subCommand) {
+    public static <S> @NotNull SubcommandData mapSubCommand(final @NotNull InternalLeafCommand<SlashSender, S, Command.Choice> subCommand) {
         final String name = subCommand.getName();
         final String description = subCommand.getDescription();
 
@@ -154,7 +152,7 @@ final class JdaMappingUtil {
                 .addOptions(subCommand.getArgumentList().stream().map(JdaMappingUtil::mapOption).collect(Collectors.toList()));
     }
 
-    public static <S> @NotNull SubcommandGroupData mapSubCommandGroup(final @NotNull InternalBranchCommand<SlashSender, S> parentCommand) {
+    public static <S> @NotNull SubcommandGroupData mapSubCommandGroup(final @NotNull InternalBranchCommand<SlashSender, S, Command.Choice> parentCommand) {
         final String name = parentCommand.getName();
         final String description = parentCommand.getDescription();
 
@@ -166,25 +164,14 @@ final class JdaMappingUtil {
                 .addSubcommands(
                         parentCommand.getCommands().values().stream().map(it -> {
                             if (!(it instanceof InternalLeafCommand)) return null;
-                            return mapSubCommand((InternalLeafCommand<SlashSender, S>) it);
+                            return mapSubCommand((InternalLeafCommand<SlashSender, S, Command.Choice>) it);
                         }).filter(Objects::nonNull).collect(Collectors.toList())
                 );
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    public static <S> @NotNull OptionData mapOption(final @NotNull InternalArgument<S, ST> argument) {
+    public static <S> @NotNull OptionData mapOption(final @NotNull InternalArgument<S, Command.Choice> argument) {
         final String name = argument.getName();
         final String description = argument.getDescription();
-
-        final @NotNull Optional<InternalChoice> choice = argument.getMeta().get(Choice.META_KEY);
-
-        final boolean enableSuggestions;
-        if (argument instanceof ProvidedInternalArgument || choice.isPresent()) {
-            enableSuggestions = false;
-        } else {
-            enableSuggestions = argument.canSuggest();
-        }
-
         final OptionType type = fromType(argument.getType());
 
         final OptionData data = new OptionData(
@@ -192,11 +179,24 @@ final class JdaMappingUtil {
                 name,
                 description.isEmpty() ? name : description,
                 !argument.isOptional(),
-                enableSuggestions
+                false
         );
 
-        // Add choices if present.
-        choice.ifPresent(internalChoice -> data.addChoices(mapChoices(internalChoice.getChoices(), type)));
+        final InternalSuggestion<S, Command.Choice> suggestion = argument.getSuggestion();
+
+        // No need to do anything else if it is provided.
+        if (argument instanceof ProvidedInternalArgument) return data;
+
+        // Add choices and exit.
+        if (suggestion instanceof StaticSuggestion) {
+            data.addChoices(((StaticSuggestion<S, Command.Choice>) suggestion).getSuggestions());
+            return data;
+        }
+
+        // Finally, check if we can enable auto complete.
+        if (argument.canSuggest()) {
+            data.setAutoComplete(true);
+        }
 
         return data;
     }

@@ -29,12 +29,12 @@ import dev.triumphteam.cmd.core.command.ArgumentInput;
 import dev.triumphteam.cmd.core.command.InternalRootCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
+import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import dev.triumphteam.cmd.discord.LeafResult;
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
-import dev.triumphteam.cmd.discord.choices.ChoiceKey;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -49,11 +49,11 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
@@ -64,7 +64,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static dev.triumphteam.cmd.discord.CommandWalkUtil.findExecutable;
@@ -76,26 +75,23 @@ import static dev.triumphteam.cmd.discord.CommandWalkUtil.findExecutable;
  *
  * @param <S> The sender type.
  */
-public final class SlashCommandManager<S> extends CommandManager<SlashSender, S, SlashCommandOptions<S>> {
+public final class JdaCommandManager<S> extends CommandManager<SlashSender, S, JdaCommandOptions<S>, Command.Choice> {
 
     private final JDA jda;
 
-    private final SlashRegistryContainer<S> registryContainer;
+    private final Map<String, InternalRootCommand<SlashSender, S, Command.Choice>> globalCommands = new HashMap<>();
+    private final Map<Long, Map<String, InternalRootCommand<SlashSender, S, Command.Choice>>> guildCommands = new HashMap<>();
 
-    private final Map<String, InternalRootCommand<SlashSender, S>> globalCommands = new HashMap<>();
-    private final Map<Long, Map<String, InternalRootCommand<SlashSender, S>>> guildCommands = new HashMap<>();
-
-    private SlashCommandManager(
+    private JdaCommandManager(
             final @NotNull JDA jda,
-            final @NotNull SlashCommandOptions<S> commandOptions,
-            final @NotNull SlashRegistryContainer<S> registryContainer
+            final @NotNull JdaCommandOptions<S> commandOptions,
+            final @NotNull RegistryContainer<SlashSender, S, Command.Choice> registryContainer
     ) {
-        super(commandOptions);
+        super(commandOptions, registryContainer);
         this.jda = jda;
-        this.registryContainer = registryContainer;
 
         // All use the same factory
-        final InternalArgument.Factory<S> jdaArgumentFactory = ProvidedInternalArgument::new;
+        final InternalArgument.Factory<S, Command.Choice> jdaArgumentFactory = ProvidedInternalArgument::new;
 
         registerArgument(User.class, ProvidedUserInternalArgument::new);
         registerArgument(Role.class, jdaArgumentFactory);
@@ -109,7 +105,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         if (commandOptions.autoRegisterListener()) {
             try {
                 jda.awaitReady();
-                jda.addEventListener(new SlashCommandsListener(this));
+                jda.addEventListener(new JdaCommandsListener(this));
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -117,24 +113,24 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
     }
 
     @Contract("_, _, _ -> new")
-    public static <S> @NotNull SlashCommandManager<S> create(
+    public static <S> @NotNull JdaCommandManager<S> create(
             final @NotNull JDA jda,
             final @NotNull SenderExtension<SlashSender, S> senderExtension,
-            final @NotNull Consumer<SlashCommandOptions.Builder<S>> builder
+            final @NotNull Consumer<JdaCommandOptions.Builder<S>> builder
     ) {
-        final SlashRegistryContainer<S> registryContainer = new SlashRegistryContainer<>();
-        final SlashCommandOptions.Builder<S> extensionBuilder = new SlashCommandOptions.Builder<>(registryContainer);
+        final RegistryContainer<SlashSender, S, Command.Choice> registryContainer = new RegistryContainer<>();
+        final JdaCommandOptions.Builder<S> extensionBuilder = new JdaCommandOptions.Builder<>();
         builder.accept(extensionBuilder);
-        return new SlashCommandManager<>(jda, extensionBuilder.build(senderExtension), registryContainer);
+        return new JdaCommandManager<>(jda, extensionBuilder.build(senderExtension), registryContainer);
     }
 
     @Contract("_, _ -> new")
-    public static @NotNull SlashCommandManager<SlashSender> create(
+    public static @NotNull JdaCommandManager<SlashSender> create(
             final @NotNull JDA jda,
-            final @NotNull Consumer<SlashCommandOptions.Builder<SlashSender>> builder
+            final @NotNull Consumer<JdaCommandOptions.Builder<SlashSender>> builder
     ) {
-        final SlashRegistryContainer<SlashSender> registryContainer = new SlashRegistryContainer<>();
-        final SlashCommandOptions.Builder<SlashSender> extensionBuilder = new SlashCommandOptions.Builder<>(registryContainer);
+        final RegistryContainer<SlashSender, SlashSender, Command.Choice> registryContainer = new RegistryContainer<>();
+        final JdaCommandOptions.Builder<SlashSender> extensionBuilder = new JdaCommandOptions.Builder<>();
 
         // Setup defaults for Bukkit
         final MessageRegistry<SlashSender> messageRegistry = registryContainer.getMessageRegistry();
@@ -142,11 +138,11 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
 
         // Then accept configured values
         builder.accept(extensionBuilder);
-        return new SlashCommandManager<>(jda, extensionBuilder.build(new SlashSenderExtension()), registryContainer);
+        return new JdaCommandManager<>(jda, extensionBuilder.build(new JdaSenderExtension()), registryContainer);
     }
 
     @Contract("_ -> new")
-    public static @NotNull SlashCommandManager<SlashSender> create(final @NotNull JDA jda) {
+    public static @NotNull JdaCommandManager<SlashSender> create(final @NotNull JDA jda) {
         return create(jda, builder -> {});
     }
 
@@ -157,17 +153,13 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         registry.register(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.reply("Invalid argument `" + context.getInvalidInput() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").setEphemeral(true).queue());
     }
 
-    public void registerChoices(final @NotNull ChoiceKey key, final @NotNull Supplier<List<String>> choiceSupplier) {
-        registryContainer.getChoiceRegistry().register(key, choiceSupplier);
-    }
-
     public void execute(final @NotNull SlashCommandInteractionEvent event) {
         final Deque<String> commands = new ArrayDeque<>(Arrays.asList(event.getFullCommandName().split(" ")));
 
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new InteractionCommandSender(event));
 
-        final LeafResult<SlashSender, S> result = findExecutable(sender, getAppropriateMap(event), commands, true);
+        final LeafResult<SlashSender, S, Command.Choice> result = findExecutable(sender, getAppropriateMap(event), commands, true);
         if (result == null) return;
 
         // Mapping of arguments
@@ -190,27 +182,27 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         final SenderExtension<SlashSender, S> senderExtension = getCommandOptions().getCommandExtensions().getSenderExtension();
         final S sender = senderExtension.map(new SuggestionCommandSender(event));
 
-        final LeafResult<SlashSender, S> result = findExecutable(sender, getAppropriateMap(event), commands, true);
+        final LeafResult<SlashSender, S, Command.Choice> result = findExecutable(sender, getAppropriateMap(event), commands, true);
         if (result == null) return;
 
         final AutoCompleteQuery option = event.getFocusedOption();
         final List<String> arguments = event.getOptions().stream().map(OptionMapping::getAsString).collect(Collectors.toList());
 
         // On discord platforms, we don't need to navigate the command and can go straight into the argument.
-        final InternalArgument<S, ST> argument = result.getCommand().getArgument(option.getName());
+        final InternalArgument<S, Command.Choice> argument = result.getCommand().getArgument(option.getName());
         if (argument == null) return;
 
-        final List<String> suggestions = argument.suggestions(sender, option.getValue(), arguments)
+        final List<Command.Choice> suggestions = argument.suggestions(sender, option.getValue(), arguments)
                 .stream()
                 .limit(25) // Discord only handles 25 at a time, :pensive:.
                 .collect(Collectors.toList());
 
-        event.replyChoices(JdaMappingUtil.mapChoices(suggestions, JdaMappingUtil.fromType(argument.getType()))).queue();
+        event.replyChoices(suggestions).queue();
     }
 
     @Override
     public void registerCommand(final @NotNull Object command) {
-        final RootCommandProcessor<SlashSender, S> processor = new RootCommandProcessor<>(
+        final RootCommandProcessor<SlashSender, S, Command.Choice> processor = new RootCommandProcessor<>(
                 command,
                 getRegistryContainer(),
                 getCommandOptions()
@@ -219,7 +211,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         final String name = processor.getName();
 
         // Get or add a command, then add its sub commands
-        final InternalRootCommand<SlashSender, S> rootCommand = globalCommands
+        final InternalRootCommand<SlashSender, S, Command.Choice> rootCommand = globalCommands
                 .computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
 
         rootCommand.addCommands(command, processor.commands(rootCommand));
@@ -254,7 +246,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
     }
 
     public void registerCommand(final @NotNull Long guildId, final @NotNull Object command) {
-        final RootCommandProcessor<SlashSender, S> processor = new RootCommandProcessor<>(
+        final RootCommandProcessor<SlashSender, S, Command.Choice> processor = new RootCommandProcessor<>(
                 command,
                 getRegistryContainer(),
                 getCommandOptions()
@@ -263,7 +255,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         final String name = processor.getName();
 
         // Get or add a command, then add its sub commands
-        final InternalRootCommand<SlashSender, S> rootCommand = guildCommands
+        final InternalRootCommand<SlashSender, S, Command.Choice> rootCommand = guildCommands
                 .computeIfAbsent(guildId, it -> new HashMap<>())
                 .computeIfAbsent(name, it -> new InternalRootCommand<>(processor));
 
@@ -296,30 +288,11 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
 
     }
 
-    @Override
-    protected @NotNull SlashRegistryContainer<S> getRegistryContainer() {
-        return registryContainer;
-    }
-
-    private @NotNull Map<String, InternalRootCommand<SlashSender, S>> getAppropriateMap(final @NotNull CommandInteractionPayload event) {
+    private @NotNull Map<String, InternalRootCommand<SlashSender, S, Command.Choice>> getAppropriateMap(final @NotNull CommandInteractionPayload event) {
         if (event.isGlobalCommand()) return globalCommands;
 
         final Guild guild = event.getGuild();
         if (guild == null) return Collections.emptyMap();
         return guildCommands.getOrDefault(guild.getIdLong(), Collections.emptyMap());
-    }
-
-    private @Nullable InternalRootCommand<SlashSender, S> getCommand(
-            final @NotNull CommandInteractionPayload event,
-            final @NotNull String name
-    ) {
-        if (event.isGlobalCommand()) return globalCommands.get(name);
-
-        final Guild guild = event.getGuild();
-        // Should never be null here
-        if (guild == null) return null;
-        return guildCommands
-                .getOrDefault(guild.getIdLong(), Collections.emptyMap())
-                .get(name);
     }
 }

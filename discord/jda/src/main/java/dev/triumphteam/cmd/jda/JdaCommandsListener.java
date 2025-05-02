@@ -21,25 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.discord.choices;
+package dev.triumphteam.cmd.jda;
 
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
+public class JdaCommandsListener extends ListenerAdapter {
 
-public final class ChoiceRegistry {
+    private final JdaCommandManager<?> commandManager;
 
-    private final Map<ChoiceKey, Supplier<List<String>>> choices = new HashMap<>();
-
-    public void register(final @NotNull ChoiceKey key, final @NotNull Supplier<List<String>> resolver) {
-        choices.put(key, resolver);
+    public JdaCommandsListener(final @NotNull JdaCommandManager<?> commandManager) {
+        this.commandManager = commandManager;
     }
 
-    public @Nullable Supplier<List<String>> getChoiceResolver(final @NotNull ChoiceKey key) {
-        return choices.get(key);
+    @Override
+    public void onSlashCommandInteraction(@NotNull final SlashCommandInteractionEvent event) {
+        commandManager.execute(event);
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull final CommandAutoCompleteInteractionEvent event) {
+        commandManager.suggest(event);
     }
 }

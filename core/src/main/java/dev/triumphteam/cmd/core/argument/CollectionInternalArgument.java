@@ -73,13 +73,6 @@ public final class CollectionInternalArgument<S, ST> extends LimitlessInternalAr
         return resolveCollection(sender, internalArgument, Arrays.asList(input.getInput().split(" ")), collectionType);
     }
 
-    @Override
-    public @NotNull String toString() {
-        return "CollectionArgument{" +
-                "collectionType=" + collectionType +
-                ", super=" + super.toString() + "}";
-    }
-
     public static <S, ST> @NotNull InternalArgumentResult resolveCollection(
             final @NotNull S sender,
             final @NotNull InternalArgument<S, ST> internalArgument,
@@ -106,5 +99,12 @@ public final class CollectionInternalArgument<S, ST> extends LimitlessInternalAr
     private static Collection<Object> createCollection(final Class<?> collectionType) {
         if (collectionType == Set.class) return new HashSet<>();
         return new ArrayList<>();
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "CollectionArgument{" +
+                "collectionType=" + collectionType +
+                ", super=" + super.toString() + "}";
     }
 }

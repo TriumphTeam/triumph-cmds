@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.jda.example;
 
-import dev.triumphteam.cmd.jda.SlashCommandManager;
+import dev.triumphteam.cmd.jda.JdaCommandManager;
 import dev.triumphteam.cmd.jda.sender.SlashSender;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -32,9 +32,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class Listener extends ListenerAdapter {
 
-    private final SlashCommandManager<SlashSender> commandManager;
+    private final JdaCommandManager<SlashSender> commandManager;
 
-    public Listener(final @NotNull SlashCommandManager<SlashSender> commandManager) {
+    public Listener(final @NotNull JdaCommandManager<SlashSender> commandManager) {
         this.commandManager = commandManager;
     }
 

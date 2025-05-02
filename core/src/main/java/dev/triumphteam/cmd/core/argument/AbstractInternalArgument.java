@@ -115,7 +115,8 @@ public abstract class AbstractInternalArgument<S, ST> implements InternalArgumen
         return !(suggestion instanceof EmptySuggestion);
     }
 
-    protected @NotNull InternalSuggestion<S, ST> getSuggestion() {
+    @Override
+    public @NotNull InternalSuggestion<S, ST> getSuggestion() {
         return suggestion;
     }
 

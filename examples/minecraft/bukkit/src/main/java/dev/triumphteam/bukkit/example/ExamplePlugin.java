@@ -26,7 +26,7 @@ public final class ExamplePlugin extends JavaPlugin {
             return Arrays.asList("1", "2", "3");
         });
 
-        commandManager.registerStatiSuggestion(SuggestionKey.of("people"), Arrays.asList("John", "Jane", "Josh"));
+        commandManager.registerStaticSuggestion(SuggestionKey.of("people"), Arrays.asList("John", "Jane", "Josh"));
 
         commandManager.registerRichSuggestion(SuggestionKey.of("test"), context -> {
             return Arrays.asList("5", "8");

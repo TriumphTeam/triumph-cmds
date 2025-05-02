@@ -7,7 +7,11 @@ import java.util.List;
 
 public interface SuggestionMapper<ST> {
 
-    @NotNull List<ST> map(final @NotNull List<String> values);
+    @NotNull List<ST> map(final @NotNull List<String> values, final @NotNull Class<?> type);
+
+    default @NotNull List<ST> map(final @NotNull List<String> values) {
+        return map(values, String.class);
+    }
 
     @NotNull List<String> mapBackwards(final @NotNull List<ST> values);
 
