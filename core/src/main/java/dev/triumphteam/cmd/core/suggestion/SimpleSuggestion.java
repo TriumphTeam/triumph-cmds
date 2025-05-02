@@ -23,69 +23,55 @@
  */
 package dev.triumphteam.cmd.core.suggestion;
 
+import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public final class SimpleSuggestion<S> implements InternalSuggestion<S> {
+public final class SimpleSuggestion<S, ST> implements InternalSuggestion<S, ST> {
 
-    private final SuggestionResolver<S> resolver;
+    private final SuggestionResolver<S, ST> resolver;
+    private final SuggestionMapper<ST> mapper;
     private final SuggestionMethod method;
 
     public SimpleSuggestion(
-            final @NotNull SuggestionResolver<S> resolver,
+            final @NotNull SuggestionResolver<S, ST> resolver,
+            final @NotNull SuggestionMapper<ST> mapper,
             final @NotNull SuggestionMethod method
     ) {
         this.resolver = resolver;
+        this.mapper = mapper;
         this.method = method;
     }
 
     @Override
-    public @NotNull List<String> getSuggestions(
+    public @NotNull List<ST> getSuggestions(
             final @NotNull S sender,
             final @NotNull String current,
             final @NotNull List<String> arguments
     ) {
-        Stream<String> stream = resolver.resolve(new SuggestionContext<>(current, sender, arguments)).stream();
-
-        switch (method) {
-            case STARTS_WITH: {
-                stream = stream.filter(it -> it.toLowerCase().startsWith(current.toLowerCase()));
-                break;
-            }
-
-            case CONTAINS: {
-                stream = stream.filter(it -> it.toLowerCase().contains(current.toLowerCase()));
-                break;
-            }
-
-            default: break;
-        }
-
-        return stream.collect(Collectors.toList());
+        return mapper.filter(current, resolver.resolve(new SuggestionContext<>(current, sender, arguments)), method);
     }
 
     @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
+    public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        final SimpleSuggestion<?> that = (SimpleSuggestion<?>) o;
-        return resolver.equals(that.resolver);
+        final SimpleSuggestion<?, ?> that = (SimpleSuggestion<?, ?>) o;
+        return Objects.equals(resolver, that.resolver) && Objects.equals(mapper, that.mapper) && method == that.method;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resolver);
+        return Objects.hash(resolver, mapper, method);
     }
 
     @Override
     public @NotNull String toString() {
         return "SimpleSuggestion{" +
                 "resolver=" + resolver +
+                ", mapper=" + mapper +
+                ", method=" + method +
                 '}';
     }
 }

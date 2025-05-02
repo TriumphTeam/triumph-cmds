@@ -172,7 +172,7 @@ final class JdaMappingUtil {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    public static <S> @NotNull OptionData mapOption(final @NotNull InternalArgument<S> argument) {
+    public static <S> @NotNull OptionData mapOption(final @NotNull InternalArgument<S, ST> argument) {
         final String name = argument.getName();
         final String description = argument.getDescription();
 

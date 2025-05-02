@@ -47,7 +47,7 @@ import java.util.function.Supplier;
  *
  * @param <S> The sender type to be used.
  */
-public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
+public class InternalBranchCommand<D, S, ST> extends InternalParentCommand<D, S, ST> {
 
     private final String name;
     private final List<String> aliases;
@@ -57,16 +57,16 @@ public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
     private final Object invocationInstance;
     private final Constructor<?> constructor;
     private final boolean isStatic;
-    private final StringInternalArgument<S> argument;
+    private final StringInternalArgument<S, ST> argument;
     private final boolean hasArgument;
 
     public InternalBranchCommand(
             final @NotNull Object invocationInstance,
             final @NotNull Constructor<?> constructor,
             final boolean isStatic,
-            final @Nullable StringInternalArgument<S> argument,
-            final @NotNull BranchCommandProcessor<D, S> processor,
-            final @NotNull InternalCommand<D, S> parentCommand
+            final @Nullable StringInternalArgument<S, ST> argument,
+            final @NotNull BranchCommandProcessor<D, S, ST> processor,
+            final @NotNull InternalCommand<D, S, ST> parentCommand
     ) {
         super(processor);
 
@@ -123,7 +123,7 @@ public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
     }
 
     @Override
-    public @NotNull List<String> suggestions(@NotNull final S sender, final @NotNull Deque<String> arguments) {
+    public @NotNull List<ST> suggestions(@NotNull final S sender, final @NotNull Deque<String> arguments) {
         // If we're dealing with only 1 argument, it means it's the argument suggestion
         if (arguments.size() == 1 && hasArgument) {
             return argument.suggestions(sender, arguments.peekLast(), new ArrayList<>(arguments));
@@ -173,8 +173,8 @@ public class InternalBranchCommand<D, S> extends InternalParentCommand<D, S> {
         return constructor.newInstance(argumentValue);
     }
 
-    private @NotNull String createSyntax(final @NotNull InternalCommand<D, S> parentCommand,
-            final @NotNull CommandProcessor<D, S> processor) {
+    private @NotNull String createSyntax(final @NotNull InternalCommand<D, S, ST> parentCommand,
+            final @NotNull CommandProcessor<D, S, ST> processor) {
         final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
         if (syntaxAnnotation != null) return syntaxAnnotation.value();
 

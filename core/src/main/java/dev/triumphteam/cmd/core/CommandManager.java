@@ -25,12 +25,12 @@ package dev.triumphteam.cmd.core;
 
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
-import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
+import dev.triumphteam.cmd.core.argument.keyed.Arguments;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
+import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
+import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.message.ContextualKey;
@@ -52,7 +52,7 @@ import java.util.List;
  * @param <D> The default sender type.
  * @param <S> The sender type.
  */
-public abstract class CommandManager<D, S, O extends CommandOptions<D, S>> {
+public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, ST> {
 
     private final O commandOptions;
 
@@ -79,7 +79,7 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S>> {
     }
 
     /**
-     * Main method for unregistering commands to be implemented in other platform command managers.
+     * The main method for unregistering commands to be implemented in other platform command managers.
      *
      * @param command The command to be unregistered.
      */
@@ -106,58 +106,56 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S>> {
         getRegistryContainer().getArgumentRegistry().register(clazz, resolver);
     }
 
-    public final void registerArgument(final @NotNull Class<?> clazz, final @NotNull InternalArgument.Factory<S> factory) {
+    public final void registerArgument(final @NotNull Class<?> clazz, final @NotNull InternalArgument.Factory<S, ST> factory) {
         getRegistryContainer().getArgumentRegistry().register(clazz, factory);
     }
 
-    /**
-     * Registers a suggestion to be used for specific arguments.
-     *
-     * @param key      The {@link SuggestionKey} that identifies the registered suggestion.
-     * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
-     */
-    public void registerSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver<S> resolver) {
+    public void registerRichSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver<S, ST> resolver) {
+        registerRichSuggestion(key, SuggestionMethod.STARTS_WITH, resolver);
+    }
+
+    public void registerSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver.Simple<S> resolver) {
         registerSuggestion(key, SuggestionMethod.STARTS_WITH, resolver);
     }
 
-    /**
-     * Registers a suggestion to be used for specific arguments.
-     *
-     * @param key      The {@link SuggestionKey} that identifies the registered suggestion.
-     * @param method   The resolution method to use for suggestions.
-     * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
-     */
-    public void registerSuggestion(
+    public void registerRichSuggestion(
             final @NotNull SuggestionKey key,
             final @NotNull SuggestionMethod method,
-            final @NotNull SuggestionResolver<S> resolver
+            final @NotNull SuggestionResolver<S, ST> resolver
     ) {
         getRegistryContainer().getSuggestionRegistry().register(key, resolver, method);
     }
 
-    /**
-     * Registers a suggestion to be used for all arguments of a specific type.
-     *
-     * @param type     Using specific {@link Class} types as target for suggestions instead of keys.
-     * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
-     */
-    public void registerSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S> resolver) {
+    public void registerSuggestion(
+            final @NotNull SuggestionKey key,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionResolver.Simple<S> resolver
+    ) {
+        // getRegistryContainer().getSuggestionRegistry().register(key, resolver, method);
+    }
+
+    public void registerRichSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S, ST> resolver) {
+        registerRichSuggestion(type, SuggestionMethod.STARTS_WITH, resolver);
+    }
+
+    public void registerSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver.Simple<S> resolver) {
         registerSuggestion(type, SuggestionMethod.STARTS_WITH, resolver);
     }
 
-    /**
-     * Registers a suggestion to be used for all arguments of a specific type.
-     *
-     * @param type     Using specific {@link Class} types as target for suggestions instead of keys.
-     * @param method   The resolution method to use for suggestions.
-     * @param resolver The {@link SuggestionResolver} with the suggestion resolution.
-     */
+    public void registerRichSuggestion(
+            final @NotNull Class<?> type,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionResolver<S, ST> resolver
+    ) {
+        getRegistryContainer().getSuggestionRegistry().register(type, resolver, method);
+    }
+
     public void registerSuggestion(
             final @NotNull Class<?> type,
             final @NotNull SuggestionMethod method,
-            final @NotNull SuggestionResolver<S> resolver
+            final @NotNull SuggestionResolver.Simple<S> resolver
     ) {
-        getRegistryContainer().getSuggestionRegistry().register(type, resolver, method);
+        // getRegistryContainer().getSuggestionRegistry().register(type, resolver, method);
     }
 
     /**
@@ -226,7 +224,7 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S>> {
         getRegistryContainer().getRequirementRegistry().register(key, resolver);
     }
 
-    protected abstract @NotNull RegistryContainer<D, S> getRegistryContainer();
+    protected abstract @NotNull RegistryContainer<D, S, ST> getRegistryContainer();
 
     protected @NotNull O getCommandOptions() {
         return commandOptions;

@@ -32,14 +32,14 @@ import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 
-public class ProvidedInternalArgument<S> extends StringInternalArgument<S> {
+public class ProvidedInternalArgument<S, ST> extends StringInternalArgument<S, ST> {
 
     public ProvidedInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);

@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.bukkit;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultCommandExecutor;
+import dev.triumphteam.cmd.core.extension.defaults.DefaultSuggestionMapper;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import org.bukkit.command.CommandSender;
@@ -34,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender, S> {
+public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender, S, String> {
 
     public BukkitCommandOptions(
             final @NotNull SenderExtension<CommandSender, S> senderExtension,
@@ -49,17 +50,18 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
         }
     }
 
-    public static final class Builder<S> extends CommandOptions.Builder<CommandSender, S, BukkitCommandOptions<S>, Setup<S>, Builder<S>> {
+    public static final class Builder<S> extends CommandOptions.Builder<CommandSender, S, BukkitCommandOptions<S>, Setup<S>, Builder<S>, String> {
 
         private CommandPermission globalPermission = null;
 
         public Builder(final @NotNull RegistryContainer<CommandSender, S> registryContainer) {
             super(new Setup<>(registryContainer));
 
-            // Setters have to be done first thing, so they can be overriden.
+            // Setters have to be done first thing, so they can be overridden.
             extensions(extension -> {
                 extension.setArgumentValidator(new DefaultArgumentValidator<>());
                 extension.setCommandExecutor(new DefaultCommandExecutor<>());
+                extension.setSuggestionMapper(new DefaultSuggestionMapper());
             });
         }
 

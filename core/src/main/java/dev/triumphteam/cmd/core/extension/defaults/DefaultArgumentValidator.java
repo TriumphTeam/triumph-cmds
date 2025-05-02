@@ -31,12 +31,12 @@ import dev.triumphteam.cmd.core.extension.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
-public class DefaultArgumentValidator<S> implements ArgumentValidator<S> {
+public class DefaultArgumentValidator<S, ST> implements ArgumentValidator<S, ST> {
 
     @Override
     public ValidationResult<String> validate(
             final @NotNull CommandMeta data,
-            final @NotNull InternalArgument<S> argument,
+            final @NotNull InternalArgument<S, ST> argument,
             final int position,
             final int last
     ) {

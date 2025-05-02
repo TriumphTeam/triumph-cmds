@@ -43,15 +43,15 @@ import java.lang.reflect.AnnotatedElement;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-public final class BranchCommandProcessor<D, S> extends AbstractCommandProcessor<D, S> {
+public final class BranchCommandProcessor<D, S, ST> extends AbstractCommandProcessor<D, S, ST> {
 
     private final Class<?> klass;
 
     BranchCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull Class<?> klass,
-            final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandOptions<D, S> commandOptions,
+            final @NotNull RegistryContainer<D, S, ST> registryContainer,
+            final @NotNull CommandOptions<D, S, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         super(invocationInstance, klass, registryContainer, commandOptions, parentMeta);

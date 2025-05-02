@@ -36,7 +36,7 @@ import java.util.List;
 
 final class BukkitCommand<S> extends Command {
 
-    private final InternalRootCommand<CommandSender, S> rootCommand;
+    private final InternalRootCommand<CommandSender, S, String> rootCommand;
     private final SenderExtension<CommandSender, S> senderExtension;
 
     BukkitCommand(final @NotNull RootCommandProcessor<CommandSender, S> processor) {
@@ -54,7 +54,6 @@ final class BukkitCommand<S> extends Command {
     ) {
         rootCommand.execute(
                 senderExtension.map(sender),
-                null,
                 new ArrayDeque<>(Arrays.asList(args))
         );
         return true;
@@ -69,7 +68,7 @@ final class BukkitCommand<S> extends Command {
         return rootCommand.suggestions(senderExtension.map(sender), new ArrayDeque<>(Arrays.asList(args)));
     }
 
-    public @NotNull InternalRootCommand<CommandSender, S> getRootCommand() {
+    public @NotNull InternalRootCommand<CommandSender, S, String> getRootCommand() {
         return rootCommand;
     }
 }

@@ -41,7 +41,7 @@ import static dev.triumphteam.cmd.core.util.EnumUtils.populateCache;
  *
  * @param <S> The sender type.
  */
-public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
+public final class EnumInternalArgument<S, ST> extends StringInternalArgument<S, ST> {
 
     private final Class<? extends Enum<?>> enumType;
 
@@ -50,7 +50,7 @@ public final class EnumInternalArgument<S> extends StringInternalArgument<S> {
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<? extends Enum<?>> type,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);

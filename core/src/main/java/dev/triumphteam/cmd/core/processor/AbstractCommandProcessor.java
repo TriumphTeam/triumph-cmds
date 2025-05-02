@@ -51,20 +51,17 @@ import dev.triumphteam.cmd.core.argument.keyed.KeyedInternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.ListArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
+import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.EnumSuggestion;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
-import dev.triumphteam.cmd.core.suggestion.LocalSuggestion;
-import dev.triumphteam.cmd.core.suggestion.SimpleSuggestion;
 import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
-import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,7 +89,7 @@ import java.util.stream.Collectors;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> {
+abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST> {
 
     private static final Set<Class<?>> SUPPORTED_COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
@@ -103,21 +100,22 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
     private final Syntax syntax;
     private final AnnotatedElement annotatedElement;
 
-    private final RegistryContainer<D, S> registryContainer;
+    private final RegistryContainer<D, S, ST> registryContainer;
 
-    private final SuggestionRegistry<S> suggestionRegistry;
-    private final ArgumentRegistry<S> argumentRegistry;
+    private final SuggestionRegistry<S, ST> suggestionRegistry;
+    private final ArgumentRegistry<S, ST> argumentRegistry;
 
-    private final CommandOptions<D, S> commandOptions;
+    private final CommandOptions<D, S, ST> commandOptions;
     private final CommandMeta parentMeta;
 
-    private final Map<SuggestionKey, InternalSuggestion<S>> localSuggestions;
+    private final Map<SuggestionKey, InternalSuggestion<S, ST>> localSuggestions;
+    private final SuggestionMapper<ST> suggestionMapper;
 
     AbstractCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull AnnotatedElement annotatedElement,
-            final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandOptions<D, S> commandOptions,
+            final @NotNull RegistryContainer<D, S, ST> registryContainer,
+            final @NotNull CommandOptions<D, S, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         this.invocationInstance = invocationInstance;
@@ -131,6 +129,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         this.registryContainer = registryContainer;
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
         this.argumentRegistry = registryContainer.getArgumentRegistry();
+        this.suggestionMapper = commandOptions.getCommandExtensions().getSuggestionMapper();
 
         this.syntax = annotatedElement.getAnnotation(Syntax.class);
 
@@ -140,12 +139,12 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
     protected abstract String defaultCommandName();
 
     @Override
-    public @NotNull RegistryContainer<D, S> getRegistryContainer() {
+    public @NotNull RegistryContainer<D, S, ST> getRegistryContainer() {
         return registryContainer;
     }
 
     @Override
-    public @NotNull CommandOptions<D, S> getCommandOptions() {
+    public @NotNull CommandOptions<D, S, ST> getCommandOptions() {
         return commandOptions;
     }
 
@@ -198,11 +197,11 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         return description;
     }
 
-    protected @NotNull InternalArgument<S> argumentFromParameter(
+    protected @NotNull InternalArgument<S, ST> argumentFromParameter(
             final @NotNull CommandMeta meta,
             final @NotNull Parameter parameter,
             final @NotNull List<String> argDescriptions,
-            final @NotNull Map<Integer, InternalSuggestion<S>> suggestions,
+            final @NotNull Map<Integer, InternalSuggestion<S, ST>> suggestions,
             final @NotNull ArgumentGroup<Flag> flagGroup,
             final @NotNull ArgumentGroup<Argument> argumentGroup,
             final int position
@@ -215,7 +214,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         // Handles collection internalArgument.
         if (SUPPORTED_COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
             final Class<?> collectionType = getGenericType(parameter);
-            final InternalArgument<S> argument = createSimpleArgument(
+            final InternalArgument<S, ST> argument = createSimpleArgument(
                     meta,
                     collectionType,
                     argumentName,
@@ -288,7 +287,8 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                     createFlagInternals(meta, flagGroup),
                     createNamedArgumentInternals(meta, argumentGroup),
                     flagGroup,
-                    argumentGroup
+                    argumentGroup,
+                    suggestionMapper
             );
         }
 
@@ -303,12 +303,12 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         );
     }
 
-    protected @NotNull StringInternalArgument<S> createSimpleArgument(
+    protected @NotNull StringInternalArgument<S, ST> createSimpleArgument(
             final @NotNull CommandMeta meta,
             final @NotNull Class<?> type,
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         // All other types default to the resolver.
@@ -327,7 +327,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                 );
             }
 
-            final InternalArgument.Factory<S> factory = argumentRegistry.getFactory(type);
+            final InternalArgument.Factory<S, ST> factory = argumentRegistry.getFactory(type);
             if (factory != null) {
                 return factory.create(meta, name, description, type, suggestion, optional);
             }
@@ -345,15 +345,15 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         );
     }
 
-    private Map<Flag, StringInternalArgument<S>> createFlagInternals(
+    private Map<Flag, StringInternalArgument<S, ST>> createFlagInternals(
             final @NotNull CommandMeta meta,
             final @NotNull ArgumentGroup<Flag> group
     ) {
-        final Map<Flag, StringInternalArgument<S>> internalArguments = new HashMap<>();
+        final Map<Flag, StringInternalArgument<S, ST>> internalArguments = new HashMap<>();
 
         for (final Flag flag : group.getAll()) {
             final Class<?> argType = flag.getArgument();
-            final InternalSuggestion<S> suggestion = createSuggestion(flag.getSuggestion(), argType);
+            final InternalSuggestion<S, ST> suggestion = createSuggestion(flag.getSuggestion(), argType, SuggestionMethod.STARTS_WITH);
 
             internalArguments.put(
                     flag,
@@ -371,21 +371,21 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         return internalArguments;
     }
 
-    private Map<Argument, StringInternalArgument<S>> createNamedArgumentInternals(
+    private Map<Argument, StringInternalArgument<S, ST>> createNamedArgumentInternals(
             final @NotNull CommandMeta meta,
             final @NotNull ArgumentGroup<Argument> group
     ) {
-        final Map<Argument, StringInternalArgument<S>> internalArguments = new HashMap<>();
+        final Map<Argument, StringInternalArgument<S, ST>> internalArguments = new HashMap<>();
 
         for (final Argument argument : group.getAll()) {
             final Class<?> argType = argument.getType();
 
-            final InternalSuggestion<S> suggestion = createSuggestion(argument.getSuggestion(), argType);
+            final InternalSuggestion<S, ST> suggestion = createSuggestion(argument.getSuggestion(), argType, SuggestionMethod.STARTS_WITH);
 
             if (argument instanceof ListArgument) {
                 final ListArgument listArgument = (ListArgument) argument;
 
-                final InternalArgument<S> internalArgument = createSimpleArgument(
+                final InternalArgument<S, ST> internalArgument = createSimpleArgument(
                         meta,
                         listArgument.getType(),
                         listArgument.getName(),
@@ -435,8 +435,9 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
      * @return The final internalArgument name.
      */
     private @NotNull String getArgName(final @NotNull Parameter parameter) {
-        if (parameter.isAnnotationPresent(ArgName.class)) {
-            return parameter.getAnnotation(ArgName.class).value();
+        final ArgName argNameAnnotation = parameter.getAnnotation(ArgName.class);
+        if (argNameAnnotation != null) {
+            return argNameAnnotation.value();
         }
 
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, parameter.getName());
@@ -489,8 +490,8 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         return type;
     }
 
-    private Map<SuggestionKey, InternalSuggestion<S>> collectLocalSuggestions() {
-        final Map<SuggestionKey, InternalSuggestion<S>> suggestions = new HashMap<>();
+    private Map<SuggestionKey, InternalSuggestion<S, ST>> collectLocalSuggestions() {
+        final Map<SuggestionKey, InternalSuggestion<S, ST>> suggestions = new HashMap<>();
 
         for (final Method method : invocationInstance.getClass().getDeclaredMethods()) {
             final Suggestion suggestionAnnotation = method.getAnnotation(Suggestion.class);
@@ -531,40 +532,45 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                 needsContext = true;
             }
 
-            suggestions.put(SuggestionKey.of(suggestionAnnotation.value()), new LocalSuggestion<>(invocationInstance, method, needsContext));
+            // TODO(important): RE-ADD
+            // suggestions.put(SuggestionKey.of(suggestionAnnotation.value()), new LocalSuggestion<>(invocationInstance, method, needsContext));
         }
 
         return suggestions;
     }
 
-    private @NotNull InternalSuggestion<S> suggestionFromParam(final @NotNull Parameter parameter) {
+    private @NotNull InternalSuggestion<S, ST> suggestionFromParam(final @NotNull Parameter parameter) {
         final Suggestion parameterAnnotation = parameter.getAnnotation(Suggestion.class);
         final SuggestionKey suggestionKey = parameterAnnotation == null ? null : SuggestionKey.of(parameterAnnotation.value());
 
         final Class<?> type = getGenericType(parameter);
 
-        return createSuggestion(suggestionKey, type);
+        return createSuggestion(suggestionKey, type, parameterAnnotation == null ? SuggestionMethod.STARTS_WITH : parameterAnnotation.method());
     }
 
-    protected @NotNull InternalSuggestion<S> createSuggestion(final @Nullable SuggestionKey suggestionKey, final @NotNull Class<?> type) {
+    protected @NotNull InternalSuggestion<S, ST> createSuggestion(
+            final @Nullable SuggestionKey suggestionKey,
+            final @NotNull Class<?> type,
+            final @NotNull SuggestionMethod method
+    ) {
         if (suggestionKey == null || suggestionKey.getKey().isEmpty()) {
             if (Enum.class.isAssignableFrom(type)) {
-                return new EnumSuggestion<>((Class<? extends Enum<?>>) type, commandOptions.suggestLowercaseEnum());
+                return new EnumSuggestion<>((Class<? extends Enum<?>>) type, suggestionMapper, method, commandOptions.suggestLowercaseEnum());
             }
 
-            final Pair<SuggestionResolver<S>, SuggestionMethod> pair = suggestionRegistry.getSuggestionResolver(type);
-            if (pair != null) return new SimpleSuggestion<>(pair.first(), pair.second());
+            final InternalSuggestion<S, ST> suggestion = suggestionRegistry.getSuggestion(type);
+            if (suggestion != null) return suggestion;
 
             return new EmptySuggestion<>();
         }
 
-        final Pair<SuggestionResolver<S>, SuggestionMethod> pair = suggestionRegistry.getSuggestionResolver(suggestionKey);
-        if (pair == null) {
-            final InternalSuggestion<S> suggestion = localSuggestions.get(suggestionKey);
-            if (suggestion != null) return suggestion;
+        final InternalSuggestion<S, ST> suggestion = suggestionRegistry.getSuggestion(suggestionKey);
+        if (suggestion == null) {
+            final InternalSuggestion<S, ST> localSuggestion = localSuggestions.get(suggestionKey);
+            if (localSuggestion != null) return localSuggestion;
 
             throw createException("Cannot find the suggestion key `" + suggestionKey + "`");
         }
-        return new SimpleSuggestion<>(pair.first(), pair.second());
+        return suggestion;
     }
 }

@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @param <S> The sender type.
  */
-public abstract class AbstractInternalArgument<S> implements InternalArgument<S> {
+public abstract class AbstractInternalArgument<S, ST> implements InternalArgument<S, ST> {
 
     private final CommandMeta meta;
 
@@ -44,14 +44,14 @@ public abstract class AbstractInternalArgument<S> implements InternalArgument<S>
     private final String description;
     private final Class<?> type;
     private final boolean optional;
-    private final InternalSuggestion<S> suggestion;
+    private final InternalSuggestion<S, ST> suggestion;
 
     public AbstractInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         this.meta = meta;
@@ -63,7 +63,7 @@ public abstract class AbstractInternalArgument<S> implements InternalArgument<S>
     }
 
     @Override
-    public @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
+    public @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
         return suggestion.getSuggestions(sender, current, arguments);
     }
 
@@ -115,7 +115,7 @@ public abstract class AbstractInternalArgument<S> implements InternalArgument<S>
         return !(suggestion instanceof EmptySuggestion);
     }
 
-    protected @NotNull InternalSuggestion<S> getSuggestion() {
+    protected @NotNull InternalSuggestion<S, ST> getSuggestion() {
         return suggestion;
     }
 

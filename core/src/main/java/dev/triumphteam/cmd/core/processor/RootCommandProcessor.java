@@ -58,7 +58,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 @SuppressWarnings("unchecked")
-public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
+public class RootCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST> {
 
     private final Object invocationInstance;
 
@@ -67,13 +67,13 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
     private final List<String> aliases;
     private final String description;
 
-    private final CommandOptions<D, S> commandOptions;
-    private final RegistryContainer<D, S> registryContainer;
+    private final CommandOptions<D, S, ST> commandOptions;
+    private final RegistryContainer<D, S, ST> registryContainer;
 
     public RootCommandProcessor(
             final @NotNull Object invocationInstance,
-            final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandOptions<D, S> commandOptions
+            final @NotNull RegistryContainer<D, S, ST> registryContainer,
+            final @NotNull CommandOptions<D, S, ST> commandOptions
     ) {
         this.invocationInstance = invocationInstance;
 
@@ -100,12 +100,12 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
     }
 
     @Override
-    public @NotNull CommandOptions<D, S> getCommandOptions() {
+    public @NotNull CommandOptions<D, S, ST> getCommandOptions() {
         return commandOptions;
     }
 
     @Override
-    public @NotNull RegistryContainer<D, S> getRegistryContainer() {
+    public @NotNull RegistryContainer<D, S, ST> getRegistryContainer() {
         return registryContainer;
     }
 
@@ -142,26 +142,26 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         return meta.build();
     }
 
-    public @NotNull List<InternalCommand<D, S>> commands(final @NotNull InternalCommand<D, S> parentCommand) {
+    public @NotNull List<InternalCommand<D, S, ST>> commands(final @NotNull InternalCommand<D, S, ST> parentCommand) {
         final Class<?> klass = invocationInstance.getClass();
 
-        final List<InternalCommand<D, S>> subCommands = new ArrayList<>();
+        final List<InternalCommand<D, S, ST>> subCommands = new ArrayList<>();
         subCommands.addAll(methodCommands(parentCommand, klass.getDeclaredMethods()));
         subCommands.addAll(classCommands(parentCommand, klass.getDeclaredClasses()));
 
         return subCommands;
     }
 
-    private @NotNull List<InternalCommand<D, S>> methodCommands(
-            final @NotNull InternalCommand<D, S> parentCommand,
+    private @NotNull List<InternalCommand<D, S, ST>> methodCommands(
+            final @NotNull InternalCommand<D, S, ST> parentCommand,
             final @NotNull Method[] methods
     ) {
-        final List<InternalCommand<D, S>> commands = new ArrayList<>();
+        final List<InternalCommand<D, S, ST>> commands = new ArrayList<>();
         for (final Method method : methods) {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
-            final LeafCommandProcessor<D, S> processor = new LeafCommandProcessor<>(
+            final LeafCommandProcessor<D, S, ST> processor = new LeafCommandProcessor<>(
                     invocationInstance,
                     method,
                     registryContainer,
@@ -179,16 +179,16 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         return commands;
     }
 
-    private @NotNull List<InternalCommand<D, S>> classCommands(
-            final @NotNull InternalCommand<D, S> parentCommand,
+    private @NotNull List<InternalCommand<D, S, ST>> classCommands(
+            final @NotNull InternalCommand<D, S, ST> parentCommand,
             final @NotNull Class<?>[] classes
     ) {
-        final List<InternalCommand<D, S>> commands = new ArrayList<>();
+        final List<InternalCommand<D, S, ST>> commands = new ArrayList<>();
         for (final Class<?> klass : classes) {
             // Ignore non-public methods
             if (!Modifier.isPublic(klass.getModifiers())) continue;
 
-            final BranchCommandProcessor<D, S> processor = new BranchCommandProcessor<>(
+            final BranchCommandProcessor<D, S, ST> processor = new BranchCommandProcessor<>(
                     invocationInstance,
                     klass,
                     registryContainer,
@@ -217,7 +217,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
                 throw new CommandRegistrationException("Inner command class can only have a maximum of 1 argument, " + arguments + " found", klass);
             }
 
-            final InternalArgument<S> argument;
+            final InternalArgument<S, ST> argument;
             if (!hasArgument) argument = null;
             else {
                 if (!InternalCommand.PARENT_CMD_WITH_ARGS_NAME.equals(processor.getName())) {
@@ -244,11 +244,11 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
                 }
             }
 
-            final InternalBranchCommand<D, S> parent = new InternalBranchCommand<>(
+            final InternalBranchCommand<D, S, ST> parent = new InternalBranchCommand<>(
                     invocationInstance,
                     constructor,
                     isStatic,
-                    (StringInternalArgument<S>) argument,
+                    (StringInternalArgument<S, ST>) argument,
                     processor,
                     parentCommand
             );

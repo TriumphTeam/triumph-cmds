@@ -41,10 +41,10 @@ import java.util.stream.Collectors;
  *
  * @param <S> The sender type.
  */
-public final class SplitStringInternalArgument<S> extends StringInternalArgument<S> {
+public final class SplitStringInternalArgument<S, ST> extends StringInternalArgument<S, ST> {
 
     private final String regex;
-    private final InternalArgument<S> internalArgument;
+    private final InternalArgument<S, ST> internalArgument;
     private final Class<?> collectionType;
 
     public SplitStringInternalArgument(
@@ -52,9 +52,9 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull String regex,
-            final @NotNull InternalArgument<S> internalArgument,
+            final @NotNull InternalArgument<S, ST> internalArgument,
             final @NotNull Class<?> collectionType,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, String.class, suggestion, optional);

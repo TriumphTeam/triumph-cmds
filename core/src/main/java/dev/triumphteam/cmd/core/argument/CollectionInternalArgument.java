@@ -42,18 +42,18 @@ import java.util.Set;
  *
  * @param <S> The sender type.
  */
-public final class CollectionInternalArgument<S> extends LimitlessInternalArgument<S> {
+public final class CollectionInternalArgument<S, ST> extends LimitlessInternalArgument<S, ST> {
 
-    private final InternalArgument<S> internalArgument;
+    private final InternalArgument<S, ST> internalArgument;
     private final Class<?> collectionType;
 
     public CollectionInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull InternalArgument<S> internalArgument,
+            final @NotNull InternalArgument<S, ST> internalArgument,
             final @NotNull Class<?> collectionType,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, String.class, suggestion, optional);
@@ -80,9 +80,9 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
                 ", super=" + super.toString() + "}";
     }
 
-    public static <S> @NotNull InternalArgumentResult resolveCollection(
+    public static <S, ST> @NotNull InternalArgumentResult resolveCollection(
             final @NotNull S sender,
-            final @NotNull InternalArgument<S> internalArgument,
+            final @NotNull InternalArgument<S, ST> internalArgument,
             final @NotNull Collection<String> value,
             final @NotNull Class<?> collectionType
     ) {

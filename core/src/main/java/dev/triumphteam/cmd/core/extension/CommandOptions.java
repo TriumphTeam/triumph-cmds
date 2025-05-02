@@ -37,10 +37,7 @@ import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.message.MessageResolver;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,22 +45,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unchecked")
-public class CommandOptions<D, S> {
+public class CommandOptions<D, S, ST> {
 
-    private final CommandExtensions<D, S> commandExtensions;
+    private final CommandExtensions<D, S, ST> commandExtensions;
     private final boolean suggestLowercaseEnum;
 
     public CommandOptions(
             final @NotNull SenderExtension<D, S> senderExtension,
-            final @NotNull Builder<D, S, ?, ?, ?> builder
+            final @NotNull Builder<D, S, ?, ?, ?, ST> builder
     ) {
 
         this.commandExtensions = builder.extensionBuilder.build(senderExtension);
         this.suggestLowercaseEnum = builder.suggestLowercaseEnum;
     }
 
-    public @NotNull CommandExtensions<D, S> getCommandExtensions() {
+    public @NotNull CommandExtensions<D, S, ST> getCommandExtensions() {
         return commandExtensions;
     }
 
@@ -71,47 +67,49 @@ public class CommandOptions<D, S> {
         return suggestLowercaseEnum;
     }
 
-    public static abstract class Builder<D, S, O extends CommandOptions<D, S>, I extends Setup<D, S, I>, B extends Builder<D, S, O, I, B>> {
+    public static abstract class Builder<D, S, O extends CommandOptions<D, S, ST>, I extends Setup<D, S, I, ST>, B extends Builder<D, S, O, I, B, ST>, ST> {
 
-        private boolean suggestLowercaseEnum = false;
-        private final ExtensionBuilder<D, S> extensionBuilder = new ExtensionBuilder<>();
+        private final ExtensionBuilder<D, S, ST> extensionBuilder = new ExtensionBuilder<>();
         private final I setup;
+        private boolean suggestLowercaseEnum = false;
 
         public Builder(final @NotNull I setup) {
             this.setup = setup;
         }
 
+        protected abstract @NotNull B getThis();
+
         @Contract("_ -> this")
         public @NotNull B setup(final @NotNull Consumer<I> consumer) {
             consumer.accept(setup);
-            return (B) this;
+            return getThis();
         }
 
         @Contract("_ -> this")
-        public @NotNull B extensions(final @NotNull Consumer<ExtensionBuilder<D, S>> consumer) {
+        public @NotNull B extensions(final @NotNull Consumer<ExtensionBuilder<D, S, ST>> consumer) {
             consumer.accept(extensionBuilder);
-            return (B) this;
+            return getThis();
         }
 
         @Contract(" -> this")
         public @NotNull B suggestLowercaseEnum() {
             this.suggestLowercaseEnum = true;
-            return (B) this;
+            return getThis();
         }
 
         public abstract @NotNull O build(final @NotNull SenderExtension<D, S> senderExtension);
     }
 
-    public static abstract class Setup<D, S, I extends Setup<D, S, I>> {
-        private final RegistryContainer<D, S> registryContainer;
+    public static abstract class Setup<D, S, I extends Setup<D, S, I, ST>, ST> {
+        private final RegistryContainer<D, S, ST> registryContainer;
 
         private final MessageRegistry<S> messageRegistry;
-        private final SuggestionRegistry<S> suggestionRegistry;
-        private final ArgumentRegistry<S> argumentRegistry;
+        private final SuggestionRegistry<S, ST> suggestionRegistry;
+        private final ArgumentRegistry<S, ST> argumentRegistry;
         private final NamedArgumentRegistry namedArgumentRegistry;
         private final FlagRegistry flagRegistry;
 
-        public Setup(final @NotNull RegistryContainer<D, S> registryContainer) {
+        public Setup(final @NotNull RegistryContainer<D, S, ST> registryContainer) {
             this.registryContainer = registryContainer;
 
             this.messageRegistry = registryContainer.getMessageRegistry();
@@ -121,13 +119,15 @@ public class CommandOptions<D, S> {
             this.flagRegistry = registryContainer.getFlagRegistry();
         }
 
+        protected abstract @NotNull I getThis();
+
         @Contract("_, _ -> new")
         public <C extends MessageContext> @NotNull I message(
                 final @NotNull MessageKey<C> messageKey,
                 final @NotNull MessageResolver<S, C> resolver
         ) {
             messageRegistry.register(messageKey, resolver);
-            return (I) this;
+            return getThis();
         }
 
         @Contract("_, _ -> new")
@@ -136,16 +136,17 @@ public class CommandOptions<D, S> {
                 final @NotNull ArgumentResolver<S> resolver
         ) {
             argumentRegistry.register(type, resolver);
-            return (I) this;
+            return getThis();
         }
 
-        @Contract("_, _ -> new")
+        // TODO(important): RE-ADD THIS
+        /*@Contract("_, _ -> new")
         public @NotNull I suggestion(
                 final @NotNull Class<?> type,
                 final @NotNull SuggestionResolver<S> resolver
         ) {
             suggestionRegistry.register(type, resolver, SuggestionMethod.STARTS_WITH);
-            return (I) this;
+            return getThis();
         }
 
         @Contract("_, _ -> new")
@@ -154,8 +155,8 @@ public class CommandOptions<D, S> {
                 final @NotNull SuggestionResolver<S> resolver
         ) {
             suggestionRegistry.register(key, resolver, SuggestionMethod.STARTS_WITH);
-            return (I) this;
-        }
+            return getThis();
+        }*/
 
         @Contract("_, _ -> new")
         public @NotNull I namedArguments(
@@ -163,7 +164,7 @@ public class CommandOptions<D, S> {
                 final @NotNull List<Argument> arguments
         ) {
             namedArgumentRegistry.register(key, arguments);
-            return (I) this;
+            return getThis();
         }
 
         @Contract("_, _ -> new")
@@ -180,7 +181,7 @@ public class CommandOptions<D, S> {
                 final @NotNull List<Flag> flags
         ) {
             flagRegistry.register(key, flags);
-            return (I) this;
+            return getThis();
         }
 
         @Contract("_, _ -> new")
@@ -191,7 +192,7 @@ public class CommandOptions<D, S> {
             return flags(key, Arrays.asList(flags));
         }
 
-        protected @NotNull RegistryContainer<D, S> getRegistryContainer() {
+        protected @NotNull RegistryContainer<D, S, ST> getRegistryContainer() {
             return registryContainer;
         }
     }

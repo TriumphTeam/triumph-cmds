@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.extension.defaults;
 
-import dev.triumphteam.cmd.core.command.CommandExecutor;
+import dev.triumphteam.cmd.core.extension.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import org.jetbrains.annotations.NotNull;

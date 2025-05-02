@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.command.ArgumentInput;
 import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
+import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.util.Pair;
@@ -43,10 +44,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S> {
+public final class KeyedInternalArgument<S, ST> extends LimitlessInternalArgument<S, ST> {
 
-    private final Map<Flag, StringInternalArgument<S>> flagInternalArguments;
-    private final Map<Argument, StringInternalArgument<S>> argumentInternalArguments;
+    private final Map<Flag, StringInternalArgument<S, ST>> flagInternalArguments;
+    private final Map<Argument, StringInternalArgument<S, ST>> argumentInternalArguments;
+    private final SuggestionMapper<ST> mapper;
 
     private final ArgumentParser argumentParser;
 
@@ -54,14 +56,16 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull Map<Flag, StringInternalArgument<S>> flagInternalArguments,
-            final @NotNull Map<Argument, StringInternalArgument<S>> argumentInternalArguments,
+            final @NotNull Map<Flag, StringInternalArgument<S, ST>> flagInternalArguments,
+            final @NotNull Map<Argument, StringInternalArgument<S, ST>> argumentInternalArguments,
             final @NotNull ArgumentGroup<Flag> flagGroup,
-            final @NotNull ArgumentGroup<Argument> argumentGroup
+            final @NotNull ArgumentGroup<Argument> argumentGroup,
+            final @NotNull SuggestionMapper<ST> mapper
     ) {
         super(meta, name, description, Flags.class, new EmptySuggestion<>(), true);
         this.flagInternalArguments = flagInternalArguments;
         this.argumentInternalArguments = argumentInternalArguments;
+        this.mapper = mapper;
         this.argumentParser = new ArgumentParser(flagGroup, argumentGroup);
     }
 
@@ -75,7 +79,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
             final Argument argument = entry.getKey();
             final String raw = entry.getValue();
 
-            final StringInternalArgument<S> internalArgument = argumentInternalArguments.get(argument);
+            final StringInternalArgument<S, ST> internalArgument = argumentInternalArguments.get(argument);
             if (internalArgument == null) continue;
 
             final InternalArgumentResult resolved =
@@ -103,7 +107,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
                 continue;
             }
 
-            final StringInternalArgument<S> internalArgument = flagInternalArguments.get(flag);
+            final StringInternalArgument<S, ST> internalArgument = flagInternalArguments.get(flag);
             if (internalArgument == null) continue;
 
             final InternalArgumentResult resolved =
@@ -126,24 +130,28 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
     }
 
     @Override
-    public @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
+    public @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
         final ArgumentParser.Result result = argumentParser.parse(arguments);
         final String resultCurrent = result.getCurrent();
 
         // Checking if we're waiting for a flag argument
         final List<String> waitingFlagArguments = handleFlagArgument(resultCurrent, result, sender);
-        if (waitingFlagArguments != null) return waitingFlagArguments;
+        if (waitingFlagArguments != null) return map(waitingFlagArguments);
 
         // Checking if we're waiting for an argument
         final List<String> waitingArguments = handleNamedArgument(resultCurrent, result, sender);
-        if (waitingArguments != null) return waitingArguments;
+        if (waitingArguments != null) return map(waitingArguments);
 
         // Handle flags only when they are typed
-        if (current.startsWith("--")) return longFlags(resultCurrent, result.getFlags());
-        if (current.startsWith("-")) return flags(resultCurrent, result.getFlags());
+        if (current.startsWith("--")) return map(longFlags(resultCurrent, result.getFlags()));
+        if (current.startsWith("-")) return map(flags(resultCurrent, result.getFlags()));
 
         // If we're not dealing with flags or arguments, we return a list of named arguments that haven't been used yet
-        return namedArguments(resultCurrent, result.getNamedArguments());
+        return map(namedArguments(resultCurrent, result.getNamedArguments()));
+    }
+
+    private @NotNull List<ST> map(final @NotNull List<String> suggestions) {
+        return mapper.map(suggestions);
     }
 
     private @NotNull List<String> longFlags(
@@ -198,7 +206,7 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         if (waiting == null) return null;
 
         // If so we get the internal version of the argument, this will likely never be null
-        final InternalArgument<S> internalArgument = argumentInternalArguments.get(waiting);
+        final InternalArgument<S, ST> internalArgument = argumentInternalArguments.get(waiting);
         if (internalArgument == null) return null;
         final String raw = (waiting.isLongNameArgument() ? waiting.getLongName() : waiting.getName()) + ":";
         // Get a suggestion from the internal argument and map it to the "raw" argument
@@ -226,10 +234,10 @@ public final class KeyedInternalArgument<S> extends LimitlessInternalArgument<S>
         final ArgumentParser.Result.FlagType type = waitingFlag.second();
         if (flag == null || type == null) return null;
 
-        final InternalArgument<S> internalArgument = flagInternalArguments.get(flag);
+        final InternalArgument<S, ST> internalArgument = flagInternalArguments.get(flag);
         if (internalArgument == null) return null;
 
-        return internalArgument.suggestions(sender, current, Collections.singletonList(current))
+        return mapper.mapBackwards(internalArgument.suggestions(sender, current, Collections.singletonList(current)))
                 .stream()
                 .map(it -> {
                     if (!type.hasEquals()) return it; // No equals, so we just suggest the argument

@@ -27,9 +27,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface InternalSuggestion<S> {
+public interface InternalSuggestion<S, ST> {
 
-    @NotNull List<String> getSuggestions(
+    @NotNull List<ST> getSuggestions(
             final @NotNull S sender,
             final @NotNull String current,
             final @NotNull List<String> arguments

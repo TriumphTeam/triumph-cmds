@@ -33,14 +33,14 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <S> The sender type.
  */
-public abstract class StringInternalArgument<S> extends AbstractInternalArgument<S> {
+public abstract class StringInternalArgument<S, ST> extends AbstractInternalArgument<S, ST> {
 
     public StringInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);

@@ -115,6 +115,6 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S, CommandO
             return;
         }
 
-        command.execute(sender, null, new ArrayDeque<>(args.subList(1, args.size())));
+        command.execute(sender, new ArrayDeque<>(args.subList(1, args.size())));
     }
 }

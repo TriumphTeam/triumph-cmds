@@ -31,6 +31,7 @@ import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.ValidationResult;
+import dev.triumphteam.cmd.core.extension.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extension.command.Settings;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
@@ -56,12 +57,12 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 
 @SuppressWarnings("unchecked")
-public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
+public class InternalLeafCommand<D, S, ST> implements InternalCommand<D, S, ST> {
 
     private final Class<? extends S> senderType;
 
-    private final List<InternalArgument<S>> argumentList;
-    private final Map<String, InternalArgument<S>> argumentMap;
+    private final List<InternalArgument<S, ST>> argumentList;
+    private final Map<String, InternalArgument<S, ST>> argumentMap;
 
     private final String name;
     private final List<String> aliases;
@@ -82,8 +83,8 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
     public InternalLeafCommand(
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
-            final @NotNull LeafCommandProcessor<D, S> processor,
-            final @NotNull InternalCommand<D, S> parentCommand
+            final @NotNull LeafCommandProcessor<D, S, ST> processor,
+            final @NotNull InternalCommand<D, S, ST> parentCommand
     ) {
         this.invocationInstance = invocationInstance;
         this.method = method;
@@ -103,7 +104,7 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
 
         this.containsLimitless = argumentList.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
 
-        final CommandOptions<D, S> commandOptions = processor.getCommandOptions();
+        final CommandOptions<D, S, ST> commandOptions = processor.getCommandOptions();
 
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderExtension = commandOptions.getCommandExtensions().getSenderExtension();
@@ -144,17 +145,17 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
             return;
         }
 
-        for (final InternalArgument<S> internalArgument : argumentList) {
+        for (final InternalArgument<S, ST> internalArgument : argumentList) {
             final ArgumentInput argumentInput = arguments.get(internalArgument.getName());
 
             final InternalArgumentResult result;
             if (internalArgument instanceof LimitlessInternalArgument) {
-                final LimitlessInternalArgument<S> limitlessArgument = (LimitlessInternalArgument<S>) internalArgument;
+                final LimitlessInternalArgument<S, ST> limitlessArgument = (LimitlessInternalArgument<S, ST>) internalArgument;
 
                 // From this point on [commandArgs] is treated as a simple Collection instead of Deque
                 result = limitlessArgument.resolve(sender, argumentInput == null ? new ArgumentInput("") : argumentInput);
             } else if (internalArgument instanceof StringInternalArgument) {
-                final StringInternalArgument<S> stringArgument = (StringInternalArgument<S>) internalArgument;
+                final StringInternalArgument<S, ST> stringArgument = (StringInternalArgument<S, ST>) internalArgument;
 
                 ArgumentInput usableInput = argumentInput;
                 if (argumentInput == null || argumentInput.getInput().isEmpty()) {
@@ -204,7 +205,7 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
         int index = 0;
         while (!arguments.isEmpty()) {
             final String arg = arguments.peek();
-            final InternalArgument<S> internalArgument = getArgument(index);
+            final InternalArgument<S, ST> internalArgument = getArgument(index);
 
             if (internalArgument == null || arg.isEmpty()) {
                 mappedArguments.put(String.valueOf(index), new ArgumentInput(arg));
@@ -233,14 +234,14 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
         return mappedArguments;
     }
 
-    public @NotNull List<String> suggestions(
+    public @NotNull List<ST> suggestions(
             final @NotNull S sender,
             final @NotNull List<String> arguments
     ) {
         if (arguments.isEmpty()) return emptyList();
 
         final int index = arguments.size() - 1;
-        final InternalArgument<S> argument = getArgumentFromIndex(index);
+        final InternalArgument<S, ST> argument = getArgumentFromIndex(index);
         if (argument == null) return emptyList();
 
         if (arguments.isEmpty()) {
@@ -251,11 +252,11 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
         return argument.suggestions(sender, current, arguments);
     }
 
-    public @Nullable InternalArgument<S> getArgumentFromIndex(final int index) {
+    public @Nullable InternalArgument<S, ST> getArgumentFromIndex(final int index) {
         if (!hasArguments()) return null;
         final int size = argumentList.size();
         if (index >= size) {
-            final InternalArgument<S> last = argumentList.get(size - 1);
+            final InternalArgument<S, ST> last = argumentList.get(size - 1);
             if (last instanceof LimitlessInternalArgument) return last;
             return null;
         }
@@ -264,8 +265,8 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
     }
 
     private @NotNull String createSyntax(
-            final @NotNull InternalCommand<D, S> parentCommand,
-            final @NotNull CommandProcessor<D, S> processor
+            final @NotNull InternalCommand<D, S, ST> parentCommand,
+            final @NotNull CommandProcessor<D, S, ST> processor
     ) {
         final Syntax syntaxAnnotation = processor.getSyntaxAnnotation();
         if (syntaxAnnotation != null) return syntaxAnnotation.value();
@@ -311,16 +312,16 @@ public class InternalLeafCommand<D, S> implements InternalCommand<D, S> {
         return syntax;
     }
 
-    public @NotNull List<InternalArgument<S>> getArgumentList() {
+    public @NotNull List<InternalArgument<S, ST>> getArgumentList() {
         return argumentList;
     }
 
-    public @Nullable InternalArgument<S> getArgument(final int index) {
+    public @Nullable InternalArgument<S, ST> getArgument(final int index) {
         if (index >= argumentList.size()) return null;
         return argumentList.get(index);
     }
 
-    public @Nullable InternalArgument<S> getArgument(final @NotNull String name) {
+    public @Nullable InternalArgument<S, ST> getArgument(final @NotNull String name) {
         return argumentMap.get(name);
     }
 

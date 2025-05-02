@@ -23,8 +23,8 @@
  */
 package dev.triumphteam.cmd.core.suggestion;
 
+import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import dev.triumphteam.cmd.core.extension.registry.Registry;
-import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,11 +37,16 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public final class SuggestionRegistry<S> implements Registry {
+public final class SuggestionRegistry<S, ST> implements Registry {
 
-    // TODO(important): actually make this a suggestion instead of a dumb pair
-    private final Map<SuggestionKey, Pair<SuggestionResolver<S>, SuggestionMethod>> suggestions = new HashMap<>();
-    private final Map<Class<?>, Pair<SuggestionResolver<S>, SuggestionMethod>> typeSuggestions = new HashMap<>();
+    private final Map<SuggestionKey, InternalSuggestion<S, ST>> suggestions = new HashMap<>();
+    private final Map<Class<?>, InternalSuggestion<S, ST>> typeSuggestions = new HashMap<>();
+
+    private final SuggestionMapper<ST> suggestionMapper;
+
+    public SuggestionRegistry(final @NotNull SuggestionMapper<ST> suggestionMapper) {
+        this.suggestionMapper = suggestionMapper;
+    }
 
     /**
      * Registers a new {@link SuggestionResolver} for the specific Key.
@@ -52,10 +57,10 @@ public final class SuggestionRegistry<S> implements Registry {
      */
     public void register(
             final @NotNull SuggestionKey key,
-            final @NotNull SuggestionResolver<S> resolver,
+            final @NotNull SuggestionResolver<S, ST> resolver,
             final @NotNull SuggestionMethod method
     ) {
-        suggestions.put(key, new Pair<>(resolver, method));
+        suggestions.put(key, new SimpleSuggestion<>(resolver, suggestionMapper, method));
     }
 
     /**
@@ -67,31 +72,19 @@ public final class SuggestionRegistry<S> implements Registry {
      */
     public void register(
             final @NotNull Class<?> type,
-            final @NotNull SuggestionResolver<S> resolver,
+            final @NotNull SuggestionResolver<S, ST> resolver,
             final @NotNull SuggestionMethod method
     ) {
-        typeSuggestions.put(type, new Pair<>(resolver, method));
+        typeSuggestions.put(type, new SimpleSuggestion<>(resolver, suggestionMapper, method));
     }
 
-    /**
-     * Gets the {@link SuggestionResolver} for the specific Key.
-     *
-     * @param key The specific key.
-     * @return A saved {@link SuggestionResolver}.
-     */
     @Contract("null -> null")
-    public @Nullable Pair<SuggestionResolver<S>, SuggestionMethod> getSuggestionResolver(final @Nullable SuggestionKey key) {
+    public @Nullable InternalSuggestion<S, ST> getSuggestion(final @Nullable SuggestionKey key) {
         if (key == null) return null;
         return suggestions.get(key);
     }
 
-    /**
-     * Gets the {@link SuggestionResolver} for the specific type.
-     *
-     * @param type The specific type.
-     * @return A saved {@link SuggestionResolver}.
-     */
-    public @Nullable Pair<SuggestionResolver<S>, SuggestionMethod> getSuggestionResolver(final @NotNull Class<?> type) {
+    public @Nullable InternalSuggestion<S, ST> getSuggestion(final @NotNull Class<?> type) {
         return typeSuggestions.get(type);
     }
 }

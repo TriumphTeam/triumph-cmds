@@ -39,7 +39,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <S> The sender type.
  */
-public final class ResolverInternalArgument<S> extends StringInternalArgument<S> {
+public final class ResolverInternalArgument<S, ST> extends StringInternalArgument<S, ST> {
 
     private final ArgumentResolver<S> resolver;
 
@@ -49,7 +49,7 @@ public final class ResolverInternalArgument<S> extends StringInternalArgument<S>
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull ArgumentResolver<S> resolver,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);

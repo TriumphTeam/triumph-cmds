@@ -23,36 +23,42 @@
  */
 package dev.triumphteam.cmd.core.suggestion;
 
+import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import dev.triumphteam.cmd.core.util.EnumUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public final class EnumSuggestion<S> implements InternalSuggestion<S> {
+public final class EnumSuggestion<S, ST> implements InternalSuggestion<S, ST> {
 
     private final Class<? extends Enum<?>> enumType;
+    private final SuggestionMapper<ST> mapper;
+    private final SuggestionMethod method;
     private final boolean suggestLowercase;
 
     public EnumSuggestion(
             final @NotNull Class<? extends Enum<?>> enumType,
+            final @NotNull SuggestionMapper<ST> mapper,
+            final @NotNull SuggestionMethod method,
             final boolean suggestLowercase
     ) {
         this.enumType = enumType;
+        this.mapper = mapper;
+        this.method = method;
         this.suggestLowercase = suggestLowercase;
 
         EnumUtils.populateCache(enumType);
     }
 
     @Override
-    public @NotNull List<String> getSuggestions(
+    public @NotNull List<ST> getSuggestions(
             final @NotNull S sender,
             final @NotNull String current,
             final @NotNull List<String> arguments
     ) {
-        return EnumUtils.getEnumConstants(enumType)
+        final List<String> suggestions = EnumUtils.getEnumConstants(enumType)
                 .values()
                 .stream()
                 .map(it -> {
@@ -62,27 +68,29 @@ public final class EnumSuggestion<S> implements InternalSuggestion<S> {
                     return suggestLowercase ? name.toLowerCase() : name;
                 })
                 .filter(Objects::nonNull)
-                .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
                 .collect(Collectors.toList());
+
+        return mapper.filter(current, mapper.map(suggestions), method);
     }
 
     @Override
-    public boolean equals(final @Nullable Object o) {
-        if (this == o) return true;
+    public boolean equals(final Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        final EnumSuggestion<?> that = (EnumSuggestion<?>) o;
-        return enumType.equals(that.enumType);
+        final EnumSuggestion<?, ?> that = (EnumSuggestion<?, ?>) o;
+        return suggestLowercase == that.suggestLowercase && Objects.equals(enumType, that.enumType) && Objects.equals(mapper, that.mapper);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(enumType);
+        return Objects.hash(enumType, suggestLowercase, mapper);
     }
 
     @Override
     public @NotNull String toString() {
         return "EnumSuggestion{" +
                 "enumType=" + enumType +
+                ", suggestLowercase=" + suggestLowercase +
+                ", mapper=" + mapper +
                 '}';
     }
 }

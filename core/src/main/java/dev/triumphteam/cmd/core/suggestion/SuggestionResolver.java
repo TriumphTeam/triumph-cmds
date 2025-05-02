@@ -31,7 +31,14 @@ import java.util.List;
  * Functional interface to allow simple requirement suggestion without the use of any hard coded data.e command sender type.
  */
 @FunctionalInterface
-public interface SuggestionResolver<S> {
+public interface SuggestionResolver<S, ST> {
 
-    @NotNull List<String> resolve(final @NotNull SuggestionContext<S> context);
+    @NotNull List<ST> resolve(final @NotNull SuggestionContext<S> context);
+
+    @FunctionalInterface
+    interface Simple<S> extends SuggestionResolver<S, String> {
+
+        @Override
+        @NotNull List<String> resolve(final @NotNull SuggestionContext<S> context);
+    }
 }

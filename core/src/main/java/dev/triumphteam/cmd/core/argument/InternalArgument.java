@@ -39,7 +39,7 @@ import java.util.function.BiFunction;
  *
  * @param <S> The sender type.
  */
-public interface InternalArgument<S> extends CommandMetaContainer {
+public interface InternalArgument<S, ST> extends CommandMetaContainer {
 
     static InternalArgumentResult valid(final @NotNull Object value) {
         return new InternalArgumentResult.Valid(value);
@@ -85,17 +85,17 @@ public interface InternalArgument<S> extends CommandMetaContainer {
 
     @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input);
 
-    @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments);
+    @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments);
 
     @FunctionalInterface
-    interface Factory<S> {
+    interface Factory<S, ST> {
 
-        @NotNull StringInternalArgument<S> create(
+        @NotNull StringInternalArgument<S, ST> create(
                 final @NotNull CommandMeta meta,
                 final @NotNull String name,
                 final @NotNull String description,
                 final @NotNull Class<?> type,
-                final @NotNull InternalSuggestion<S> suggestion,
+                final @NotNull InternalSuggestion<S, ST> suggestion,
                 final boolean optional
         );
     }

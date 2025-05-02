@@ -25,6 +25,10 @@ public final class ExamplePlugin extends JavaPlugin {
             return Arrays.asList("1", "2", "3");
         });
 
+        commandManager.registerRichSuggestion(SuggestionKey.of("test"), context -> {
+            return Arrays.asList("5", "8");
+        });
+
         commandManager.registerNamedArguments(
                 ArgumentKey.of("query-parameters"),
                 Argument.forBoolean().name("rev").longName("reversed").build(),

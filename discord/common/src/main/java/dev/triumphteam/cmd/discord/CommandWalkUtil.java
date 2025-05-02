@@ -25,7 +25,7 @@ public final class CommandWalkUtil {
         Supplier<Object> instanceSupplier = null;
        do {
             // Find command with this name;
-            final InternalCommand<D, S> command = parentCommand.findCommand(sender, commandPath, sendMessage);
+            final InternalCommand<D, S, ST> command = parentCommand.findCommand(sender, commandPath, sendMessage);
             if (command == null) return null;
 
             if (command instanceof InternalLeafCommand) {
@@ -36,7 +36,7 @@ public final class CommandWalkUtil {
                 throw new IllegalStateException("Command should be either a branch or leaf command.");
             }
 
-            final InternalBranchCommand<D, S> branchCommand = (InternalBranchCommand<D, S>) command;
+            final InternalBranchCommand<D, S, ST> branchCommand = (InternalBranchCommand<D, S, ST>) command;
 
             if (branchCommand.hasArguments()) {
                 throw new IllegalStateException("Argument as sub commands are not allowed on Discord.");

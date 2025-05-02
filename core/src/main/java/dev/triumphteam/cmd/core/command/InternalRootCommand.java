@@ -26,21 +26,19 @@ package dev.triumphteam.cmd.core.command;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Deque;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class InternalRootCommand<D, S> extends InternalParentCommand<D, S> {
+public class InternalRootCommand<D, S, ST> extends InternalParentCommand<D, S, ST> {
 
     private final String name;
     private final List<String> aliases;
     private final String description;
     private final String syntax;
 
-    public InternalRootCommand(final @NotNull RootCommandProcessor<D, S> processor) {
+    public InternalRootCommand(final @NotNull RootCommandProcessor<D, S, ST> processor) {
         super(processor);
 
         this.name = processor.getName();
@@ -51,7 +49,6 @@ public class InternalRootCommand<D, S> extends InternalParentCommand<D, S> {
 
     public void execute(
             final @NotNull S sender,
-            final @Nullable Supplier<Object> instanceSupplier,
             final @NotNull Deque<String> arguments
     ) {
         // Test all requirements before continuing

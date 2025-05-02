@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @param <S> The sender type.
  */
-public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgument<S> {
+public final class JoinedStringInternalArgument<S, ST> extends LimitlessInternalArgument<S, ST> {
 
     private final CharSequence delimiter;
 
@@ -46,7 +46,7 @@ public final class JoinedStringInternalArgument<S> extends LimitlessInternalArgu
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull CharSequence delimiter,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, String.class, suggestion, optional);

@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <S> The type of the sender.
  */
-public final class UnknownInternalArgument<S> extends StringInternalArgument<S> {
+public final class UnknownInternalArgument<S, ST> extends StringInternalArgument<S, ST> {
 
     public UnknownInternalArgument(final @NotNull Class<?> type) {
         super(new CommandMeta.Builder(null).build(), "unknown", "unknown.", type, new EmptySuggestion<>(), false);

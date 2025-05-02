@@ -197,7 +197,7 @@ public final class SlashCommandManager<S> extends CommandManager<SlashSender, S,
         final List<String> arguments = event.getOptions().stream().map(OptionMapping::getAsString).collect(Collectors.toList());
 
         // On discord platforms, we don't need to navigate the command and can go straight into the argument.
-        final InternalArgument<S> argument = result.getCommand().getArgument(option.getName());
+        final InternalArgument<S, ST> argument = result.getCommand().getArgument(option.getName());
         if (argument == null) return;
 
         final List<String> suggestions = argument.suggestions(sender, option.getValue(), arguments)

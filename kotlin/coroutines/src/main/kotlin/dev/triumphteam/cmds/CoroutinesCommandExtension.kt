@@ -26,7 +26,7 @@ package dev.triumphteam.cmds
 import dev.triumphteam.cmd.core.argument.InternalArgument
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument
-import dev.triumphteam.cmd.core.command.CommandExecutor
+import dev.triumphteam.cmd.core.extension.command.CommandExecutor
 import dev.triumphteam.cmd.core.extension.ExtensionBuilder
 import dev.triumphteam.cmd.core.extension.ValidationResult
 import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget
@@ -60,7 +60,7 @@ public class CoroutinesCommandExtension<D, S>(
     private val coroutineScope: CoroutineScope,
     private val coroutineContext: CoroutineContext,
 ) : Processor<D, S>,
-    ArgumentValidator<S>,
+    ArgumentValidator<S, ST>,
     CommandExecutor<S> {
 
     private companion object {
@@ -88,7 +88,7 @@ public class CoroutinesCommandExtension<D, S>(
     /** Validation uses the same as the defaults but with an addition modification to allow [Continuation]. */
     override fun validate(
         meta: CommandMeta,
-        argument: InternalArgument<S>,
+        argument: InternalArgument<S, ST>,
         position: Int,
         last: Int,
     ): ValidationResult<String> {

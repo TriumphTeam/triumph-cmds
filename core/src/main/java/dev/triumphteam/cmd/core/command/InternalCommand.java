@@ -35,7 +35,7 @@ import java.util.List;
  * Some holders are {@link InternalParentCommand}s.
  * And actual commands can be for example {@link InternalLeafCommand}.
  */
-public interface InternalCommand<D, S> extends CommandMetaContainer {
+public interface InternalCommand<D, S, ST> extends CommandMetaContainer {
 
     String DEFAULT_CMD_NAME = "th-default";
     String PARENT_CMD_WITH_ARGS_NAME = "th-args-cmd";

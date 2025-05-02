@@ -33,14 +33,14 @@ import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
-class ProvidedUserInternalArgument<S> extends StringInternalArgument<S> {
+class ProvidedUserInternalArgument<S, ST> extends StringInternalArgument<S, ST> {
 
     public ProvidedUserInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull InternalSuggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);
