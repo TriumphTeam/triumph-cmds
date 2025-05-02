@@ -107,7 +107,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
     private final SuggestionRegistry<S, ST> suggestionRegistry;
     private final ArgumentRegistry<S, ST> argumentRegistry;
 
-    private final CommandOptions<D, S, ST> commandOptions;
+    private final CommandOptions<D, S, ?, ST> commandOptions;
     private final CommandMeta parentMeta;
 
     private final Map<SuggestionKey, InternalSuggestion<S, ST>> localSuggestions;
@@ -117,7 +117,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
             final @NotNull Object invocationInstance,
             final @NotNull AnnotatedElement annotatedElement,
             final @NotNull RegistryContainer<D, S, ST> registryContainer,
-            final @NotNull CommandOptions<D, S, ST> commandOptions,
+            final @NotNull CommandOptions<D, S, ?, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         this.invocationInstance = invocationInstance;
@@ -146,7 +146,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
     }
 
     @Override
-    public @NotNull CommandOptions<D, S, ST> getCommandOptions() {
+    public @NotNull CommandOptions<D, S, ?, ST> getCommandOptions() {
         return commandOptions;
     }
 

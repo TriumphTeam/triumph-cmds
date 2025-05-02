@@ -51,7 +51,7 @@ public final class BranchCommandProcessor<D, S, ST> extends AbstractCommandProce
             final @NotNull Object invocationInstance,
             final @NotNull Class<?> klass,
             final @NotNull RegistryContainer<D, S, ST> registryContainer,
-            final @NotNull CommandOptions<D, S, ST> commandOptions,
+            final @NotNull CommandOptions<D, S, ?, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         super(invocationInstance, klass, registryContainer, commandOptions, parentMeta);

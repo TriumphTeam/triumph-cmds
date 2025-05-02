@@ -104,7 +104,7 @@ public class InternalLeafCommand<D, S, ST> implements InternalCommand<D, S, ST> 
 
         this.containsLimitless = argumentList.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
 
-        final CommandOptions<D, S, ST> commandOptions = processor.getCommandOptions();
+        final CommandOptions<D, S, ?, ST> commandOptions = processor.getCommandOptions();
 
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderExtension = commandOptions.getCommandExtensions().getSenderExtension();

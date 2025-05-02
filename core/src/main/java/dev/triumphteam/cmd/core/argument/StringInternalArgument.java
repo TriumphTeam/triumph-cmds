@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
+import dev.triumphteam.cmd.core.suggestion.StaticSuggestion;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -44,6 +45,13 @@ public abstract class StringInternalArgument<S, ST> extends AbstractInternalArgu
             final boolean optional
     ) {
         super(meta, name, description, type, suggestion, optional);
+    }
+
+    protected boolean canUseInput(final @NotNull String input) {
+        final InternalSuggestion<S, ST> suggestion = getSuggestion();
+        if (!(suggestion instanceof StaticSuggestion)) return true;
+        final StaticSuggestion<S, ST> staticSuggestion = (StaticSuggestion<S, ST>) suggestion;
+        return staticSuggestion.contains(input);
     }
 
     @Override

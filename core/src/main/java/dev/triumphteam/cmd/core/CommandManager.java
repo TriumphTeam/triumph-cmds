@@ -23,29 +23,9 @@
  */
 package dev.triumphteam.cmd.core;
 
-import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.InternalArgument;
-import dev.triumphteam.cmd.core.argument.keyed.Argument;
-import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
-import dev.triumphteam.cmd.core.argument.keyed.Arguments;
-import dev.triumphteam.cmd.core.argument.keyed.Flag;
-import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
-import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
-import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
-import dev.triumphteam.cmd.core.message.ContextualKey;
-import dev.triumphteam.cmd.core.message.MessageResolver;
-import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.requirement.RequirementKey;
-import dev.triumphteam.cmd.core.requirement.RequirementResolver;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Base command manager for all platforms.
@@ -53,12 +33,13 @@ import java.util.List;
  * @param <D> The default sender type.
  * @param <S> The sender type.
  */
-public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, ST> {
+public abstract class CommandManager<D, S, O extends CommandOptions<D, S, O, ST>, ST> extends ManagerSetup<D, S, O, ST> {
 
-    private final O commandOptions;
-
-    public CommandManager(final @NotNull O commandOptions) {
-        this.commandOptions = commandOptions;
+    public CommandManager(
+            final @NotNull O commandOptions,
+            final @NotNull RegistryContainer<D, S, ST> registryContainer
+    ) {
+        super(registryContainer, commandOptions);
     }
 
     /**
@@ -73,7 +54,7 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, S
      *
      * @param commands A list of commands to be registered.
      */
-    public final void registerCommand(final @NotNull Object @NotNull ... commands) {
+    public final void registerCommands(final @NotNull Object @NotNull ... commands) {
         for (final Object command : commands) {
             registerCommand(command);
         }
@@ -95,143 +76,5 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S, ST>, S
         for (final Object command : commands) {
             unregisterCommand(command);
         }
-    }
-
-    /**
-     * Registers a custom argument.
-     *
-     * @param clazz    The class of the argument to be registered.
-     * @param resolver The {@link ArgumentResolver} with the argument resolution.
-     */
-    public final void registerArgument(final @NotNull Class<?> clazz, final @NotNull ArgumentResolver<S> resolver) {
-        getRegistryContainer().getArgumentRegistry().register(clazz, resolver);
-    }
-
-    public final void registerArgument(final @NotNull Class<?> clazz, final @NotNull InternalArgument.Factory<S, ST> factory) {
-        getRegistryContainer().getArgumentRegistry().register(clazz, factory);
-    }
-
-    public void registerRichSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver<S, ST> resolver) {
-        registerRichSuggestion(key, SuggestionMethod.STARTS_WITH, resolver);
-    }
-
-    public void registerSuggestion(final @NotNull SuggestionKey key, final @NotNull SuggestionResolver.Simple<S> resolver) {
-        registerSuggestion(key, SuggestionMethod.STARTS_WITH, resolver);
-    }
-
-    public void registerRichSuggestion(
-            final @NotNull SuggestionKey key,
-            final @NotNull SuggestionMethod method,
-            final @NotNull SuggestionResolver<S, ST> resolver
-    ) {
-        getRegistryContainer().getSuggestionRegistry().register(key, resolver, method, getSuggestionMapper());
-    }
-
-    public void registerSuggestion(
-            final @NotNull SuggestionKey key,
-            final @NotNull SuggestionMethod method,
-            final @NotNull SuggestionResolver.Simple<S> resolver
-    ) {
-        getRegistryContainer().getSuggestionRegistry().register(key, resolver, method, getSuggestionMapper());
-    }
-
-    public void registerRichSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver<S, ST> resolver) {
-        registerRichSuggestion(type, SuggestionMethod.STARTS_WITH, resolver);
-    }
-
-    public void registerSuggestion(final @NotNull Class<?> type, final @NotNull SuggestionResolver.Simple<S> resolver) {
-        registerSuggestion(type, SuggestionMethod.STARTS_WITH, resolver);
-    }
-
-    public void registerRichSuggestion(
-            final @NotNull Class<?> type,
-            final @NotNull SuggestionMethod method,
-            final @NotNull SuggestionResolver<S, ST> resolver
-    ) {
-        getRegistryContainer().getSuggestionRegistry().register(type, resolver, method, getSuggestionMapper());
-    }
-
-    public void registerSuggestion(
-            final @NotNull Class<?> type,
-            final @NotNull SuggestionMethod method,
-            final @NotNull SuggestionResolver.Simple<S> resolver
-    ) {
-        getRegistryContainer().getSuggestionRegistry().register(type, resolver, method, getSuggestionMapper());
-    }
-
-    /**
-     * Registers a list of arguments to be used as named arguments in a command.
-     *
-     * @param key       The {@link ArgumentKey} to represent the list.
-     * @param arguments The list of arguments.
-     */
-    public final void registerNamedArguments(final @NotNull ArgumentKey key, final @NotNull Argument @NotNull ... arguments) {
-        registerNamedArguments(key, Arrays.asList(arguments));
-    }
-
-    /**
-     * Registers a list of arguments to be used on a {@link Arguments} argument in a command.
-     *
-     * @param key       The {@link ArgumentKey} to represent the list.
-     * @param arguments The {@link List} of arguments.
-     */
-    public final void registerNamedArguments(final @NotNull ArgumentKey key, final @NotNull List<Argument> arguments) {
-        getRegistryContainer().getNamedArgumentRegistry().register(key, arguments);
-    }
-
-    /**
-     * Registers a list of flags to be used on a {@link Flags} argument or {@link Arguments} argument, in a command.
-     *
-     * @param key   The {@link FlagKey} to represent the list.
-     * @param flags The list of flags.
-     */
-    public final void registerFlags(final @NotNull FlagKey key, final @NotNull Flag @NotNull ... flags) {
-        registerFlags(key, Arrays.asList(flags));
-    }
-
-    /**
-     * Registers a list of flags to be used on a {@link Flags} argument or {@link Arguments} argument, in a command.
-     *
-     * @param key   The {@link FlagKey} to represent the list.
-     * @param flags The {@link List} of flags.
-     */
-    public final void registerFlags(final @NotNull FlagKey key, final @NotNull List<Flag> flags) {
-        getRegistryContainer().getFlagRegistry().register(key, flags);
-    }
-
-    /**
-     * Registers a custom message.
-     *
-     * @param key      The {@link ContextualKey} of the message to be registered.
-     * @param resolver The {@link ArgumentResolver} with the message sending resolution.
-     */
-    public final <C extends MessageContext> void registerMessage(
-            final @NotNull ContextualKey<C> key,
-            final @NotNull MessageResolver<S, C> resolver
-    ) {
-        getRegistryContainer().getMessageRegistry().register(key, resolver);
-    }
-
-    /**
-     * Registers a requirement.
-     *
-     * @param key      The {@link RequirementKey} of the requirement to be registered.
-     * @param resolver The {@link ArgumentResolver} with the requirement resolution.
-     */
-    public final void registerRequirement(
-            final @NotNull RequirementKey key,
-            final @NotNull RequirementResolver<D, S> resolver
-    ) {
-        getRegistryContainer().getRequirementRegistry().register(key, resolver);
-    }
-
-    protected abstract @NotNull RegistryContainer<D, S, ST> getRegistryContainer();
-
-    protected @NotNull O getCommandOptions() {
-        return commandOptions;
-    }
-
-    protected @NotNull SuggestionMapper<ST> getSuggestionMapper() {
-        return getCommandOptions().getCommandExtensions().getSuggestionMapper();
     }
 }

@@ -67,13 +67,13 @@ public class RootCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST
     private final List<String> aliases;
     private final String description;
 
-    private final CommandOptions<D, S, ST> commandOptions;
+    private final CommandOptions<D, S, ?, ST> commandOptions;
     private final RegistryContainer<D, S, ST> registryContainer;
 
     public RootCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull RegistryContainer<D, S, ST> registryContainer,
-            final @NotNull CommandOptions<D, S, ST> commandOptions
+            final @NotNull CommandOptions<D, S, ?, ST> commandOptions
     ) {
         this.invocationInstance = invocationInstance;
 
@@ -100,7 +100,7 @@ public class RootCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST
     }
 
     @Override
-    public @NotNull CommandOptions<D, S, ST> getCommandOptions() {
+    public @NotNull CommandOptions<D, S, ?, ST> getCommandOptions() {
         return commandOptions;
     }
 

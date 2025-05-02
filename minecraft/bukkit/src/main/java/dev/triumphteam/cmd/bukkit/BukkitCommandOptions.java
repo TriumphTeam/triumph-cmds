@@ -27,7 +27,6 @@ import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultSuggestionMapper;
-import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
@@ -35,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender, S, String> {
+public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender, S, BukkitCommandOptions<S>, String> {
 
     public BukkitCommandOptions(
             final @NotNull SenderExtension<CommandSender, S> senderExtension,
@@ -44,24 +43,11 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
         super(senderExtension, builder);
     }
 
-    public static final class Setup<S> extends CommandOptions.Setup<CommandSender, S, Setup<S>, String> {
-        public Setup(final @NotNull RegistryContainer<CommandSender, S, String> registryContainer) {
-            super(registryContainer);
-        }
-
-        @Override
-        protected @NotNull Setup<S> getThis() {
-            return this;
-        }
-    }
-
-    public static final class Builder<S> extends CommandOptions.Builder<CommandSender, S, BukkitCommandOptions<S>, Setup<S>, Builder<S>, String> {
+    public static final class Builder<S> extends CommandOptions.Builder<CommandSender, S, BukkitCommandOptions<S>, Builder<S>, String> {
 
         private CommandPermission globalPermission = null;
 
-        public Builder(final @NotNull RegistryContainer<CommandSender, S, String> registryContainer) {
-            super(new Setup<>(registryContainer));
-
+        public Builder() {
             // Setters have to be done first thing, so they can be overridden.
             extensions(extension -> {
                 extension.setArgumentValidator(new DefaultArgumentValidator<>());
@@ -102,8 +88,7 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
             return setGlobalPermission(new CommandPermission(nodes, description, permissionDefault));
         }
 
-        @Override
-        public @NotNull BukkitCommandOptions<S> build(final @NotNull SenderExtension<CommandSender, S> senderExtension) {
+        @NotNull BukkitCommandOptions<S> build(final @NotNull SenderExtension<CommandSender, S> senderExtension) {
             // Add permissions
             extensions(extension -> extension.addProcessor(new PermissionProcessor<>(globalPermission)));
 

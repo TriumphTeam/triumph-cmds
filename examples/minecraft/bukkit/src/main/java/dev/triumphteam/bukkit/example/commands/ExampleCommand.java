@@ -26,7 +26,8 @@ public class ExampleCommand {
     // Usage is the same as others.
     @Command("foo")
     @NamedArguments("query-parameters")
-    public void executeFoo(final CommandSender sender, @Suggestion(value = "text", extra = "500") final String name, final Arguments age) {
+    public void executeFoo(final CommandSender sender, @Suggestion("people") final String name, final Arguments age) {
+        System.out.println(name);
         System.out.println(age);
         System.out.println(age.getArgument("r", Integer.class));
         sender.sendMessage("foo");

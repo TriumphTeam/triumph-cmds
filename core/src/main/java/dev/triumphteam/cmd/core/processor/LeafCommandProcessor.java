@@ -84,7 +84,7 @@ public final class LeafCommandProcessor<D, S, ST> extends AbstractCommandProcess
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull RegistryContainer<D, S, ST> registryContainer,
-            final @NotNull CommandOptions<D, S, ST> commandOptions,
+            final @NotNull CommandOptions<D, S, ?, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         super(invocationInstance, method, registryContainer, commandOptions, parentMeta);

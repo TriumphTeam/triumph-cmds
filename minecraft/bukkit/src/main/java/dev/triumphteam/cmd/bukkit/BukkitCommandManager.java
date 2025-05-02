@@ -55,7 +55,6 @@ import java.util.stream.Collectors;
 public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S, BukkitCommandOptions<S>, String> {
 
     private final Plugin plugin;
-    private final RegistryContainer<CommandSender, S, String> registryContainer;
 
     private final Map<String, BukkitCommand<S>> commands = new HashMap<>();
 
@@ -67,9 +66,11 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             final @NotNull BukkitCommandOptions<S> commandOptions,
             final @NotNull RegistryContainer<CommandSender, S, String> registryContainer
     ) {
-        super(commandOptions);
+        super(commandOptions, registryContainer);
         this.plugin = plugin;
-        this.registryContainer = registryContainer;
+
+        // Accept the setup consumer to easily set up the manager.
+        commandOptions.getSetup().accept(this);
 
         this.commandMap = getCommandMap();
         this.bukkitCommands = getBukkitCommands(commandMap);
@@ -95,7 +96,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             final @NotNull Consumer<BukkitCommandOptions.Builder<S>> builder
     ) {
         final RegistryContainer<CommandSender, S, String> registryContainer = new RegistryContainer<>();
-        final BukkitCommandOptions.Builder<S> extensionBuilder = new BukkitCommandOptions.Builder<>(registryContainer);
+        final BukkitCommandOptions.Builder<S> extensionBuilder = new BukkitCommandOptions.Builder<>();
         builder.accept(extensionBuilder);
         return new BukkitCommandManager<>(plugin, extensionBuilder.build(senderExtension), registryContainer);
     }
@@ -125,7 +126,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
             final @NotNull Consumer<BukkitCommandOptions.Builder<CommandSender>> builder
     ) {
         final RegistryContainer<CommandSender, CommandSender, String> registryContainer = new RegistryContainer<>();
-        final BukkitCommandOptions.Builder<CommandSender> extensionBuilder = new BukkitCommandOptions.Builder<>(registryContainer);
+        final BukkitCommandOptions.Builder<CommandSender> extensionBuilder = new BukkitCommandOptions.Builder<>();
 
         // Setup defaults for Bukkit
         final MessageRegistry<CommandSender> messageRegistry = registryContainer.getMessageRegistry();
@@ -199,11 +200,6 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     @Override
     public void unregisterCommand(final @NotNull Object command) {
         // TODO add a remove functionality
-    }
-
-    @Override
-    protected @NotNull RegistryContainer<CommandSender, S, String> getRegistryContainer() {
-        return registryContainer;
     }
 
     private @NotNull BukkitCommand<S> createAndRegisterCommand(

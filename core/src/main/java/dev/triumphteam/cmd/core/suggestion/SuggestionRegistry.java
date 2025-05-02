@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,47 +45,65 @@ public final class SuggestionRegistry<S, ST> implements Registry {
 
     public void register(
             final @NotNull SuggestionKey key,
-            final @NotNull SuggestionResolver<S, ST> resolver,
+            final @NotNull SuggestionResolver.Simple<S> resolver,
             final @NotNull SuggestionMethod method,
             final @NotNull SuggestionMapper<ST> suggestionMapper
     ) {
-        suggestions.put(key, new SimpleSuggestion<>(new SimpleSuggestionHolder.RichResolver<>(resolver), suggestionMapper, method));
+        this.suggestions.put(key, new SimpleSuggestion<>(new SimpleSuggestionHolder.SimpleResolver<>(resolver, suggestionMapper), suggestionMapper, method));
     }
 
-    public void register(
+    public void registerRich(
             final @NotNull SuggestionKey key,
+            final @NotNull SuggestionResolver<S, ST> resolver,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionMapper<ST> suggestionMapper
+    ) {
+        this.suggestions.put(key, new SimpleSuggestion<>(new SimpleSuggestionHolder.RichResolver<>(resolver), suggestionMapper, method));
+    }
+
+    public void registerStatic(
+            final @NotNull SuggestionKey key,
+            final @NotNull List<String> suggestions,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionMapper<ST> suggestionMapper
+    ) {
+        this.suggestions.put(key, new StaticSuggestion<>(new SimpleSuggestionHolder.SimpleStatic<>(suggestions, suggestionMapper.map(suggestions)), suggestionMapper, method));
+    }
+
+    public void registerStaticRich(
+            final @NotNull SuggestionKey key,
+            final @NotNull List<ST> suggestions,
+            final @NotNull SuggestionMethod method,
+            final @NotNull SuggestionMapper<ST> suggestionMapper
+    ) {
+        this.suggestions.put(key, new StaticSuggestion<>(new SimpleSuggestionHolder.RichStatic<>(suggestions, suggestionMapper.mapBackwards(suggestions)), suggestionMapper, method));
+    }
+
+    public void register(
+            final @NotNull Class<?> type,
             final @NotNull SuggestionResolver.Simple<S> resolver,
             final @NotNull SuggestionMethod method,
             final @NotNull SuggestionMapper<ST> suggestionMapper
     ) {
-        suggestions.put(key, new SimpleSuggestion<>(new SimpleSuggestionHolder.SimpleResolver<>(resolver, suggestionMapper), suggestionMapper, method));
+        this.typeSuggestions.put(type, new SimpleSuggestion<>(new SimpleSuggestionHolder.SimpleResolver<>(resolver, suggestionMapper), suggestionMapper, method));
     }
 
-    public void register(
+    public void registerRich(
             final @NotNull Class<?> type,
             final @NotNull SuggestionResolver<S, ST> resolver,
             final @NotNull SuggestionMethod method,
             final @NotNull SuggestionMapper<ST> suggestionMapper
     ) {
-        typeSuggestions.put(type, new SimpleSuggestion<>(new SimpleSuggestionHolder.RichResolver<>(resolver), suggestionMapper, method));
-    }
-
-    public void register(
-            final @NotNull Class<?> type,
-            final @NotNull SuggestionResolver.Simple<S> resolver,
-            final @NotNull SuggestionMethod method,
-            final @NotNull SuggestionMapper<ST> suggestionMapper
-    ) {
-        typeSuggestions.put(type, new SimpleSuggestion<>(new SimpleSuggestionHolder.SimpleResolver<>(resolver, suggestionMapper), suggestionMapper, method));
+        this.typeSuggestions.put(type, new SimpleSuggestion<>(new SimpleSuggestionHolder.RichResolver<>(resolver), suggestionMapper, method));
     }
 
     @Contract("null -> null")
     public @Nullable InternalSuggestion<S, ST> getSuggestion(final @Nullable SuggestionKey key) {
         if (key == null) return null;
-        return suggestions.get(key);
+        return this.suggestions.get(key);
     }
 
     public @Nullable InternalSuggestion<S, ST> getSuggestion(final @NotNull Class<?> type) {
-        return typeSuggestions.get(type);
+        return this.typeSuggestions.get(type);
     }
 }

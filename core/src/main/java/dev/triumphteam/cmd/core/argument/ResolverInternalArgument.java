@@ -59,10 +59,15 @@ public final class ResolverInternalArgument<S, ST> extends StringInternalArgumen
     @Override
     public @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input) {
         final String value = input.getInput();
+
+        if (!canUseInput(value)) {
+            return InternalArgument.invalid((commands, syntax) -> new InvalidArgumentContext(commands, syntax, value, getName(), getType()));
+        }
+
         final Object result = resolver.resolve(sender, value);
 
         if (result == null) {
-            return InternalArgument.invalid((commands, arguments) -> new InvalidArgumentContext(commands, arguments, value, getName(), getType()));
+            return InternalArgument.invalid((commands, syntax) -> new InvalidArgumentContext(commands, syntax, value, getName(), getType()));
         }
 
         return InternalArgument.valid(result);

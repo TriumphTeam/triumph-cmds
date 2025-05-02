@@ -26,7 +26,7 @@ package dev.triumphteam.cmds
 import dev.triumphteam.cmd.core.argument.keyed.Flags
 
 /**
- * Checks if the flag key is present or not using operator function.
+ * Checks if the flag key is present or not using the operator function.
  * Useful for simple flags like `-l`.
  * Where you just want to check if the flag was added or not.
  */

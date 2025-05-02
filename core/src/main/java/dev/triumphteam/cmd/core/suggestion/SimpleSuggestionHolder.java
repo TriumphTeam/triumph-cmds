@@ -11,6 +11,13 @@ public interface SimpleSuggestionHolder<S, ST> {
 
     @NotNull List<ST> getSuggestions(final @NotNull SuggestionContext<S> context);
 
+    interface Static<ST> extends SimpleSuggestionHolder<Object, ST> {
+
+        boolean contains(final @NotNull String suggestion);
+
+        @NotNull List<ST> getSuggestions();
+    }
+
     class RichResolver<S, ST> implements SimpleSuggestionHolder<S, ST> {
 
         private final SuggestionResolver<S, ST> resolver;
@@ -112,6 +119,64 @@ public interface SimpleSuggestionHolder<S, ST> {
             // Object is List<ST> at this point.
             //noinspection unchecked
             return (List<ST>) invoke(context);
+        }
+    }
+
+    class SimpleStatic<ST> implements Static<ST> {
+
+        private final List<String> suggestions;
+        private final List<ST> mapped;
+
+        public SimpleStatic(
+                final @NotNull List<String> suggestions,
+                final @NotNull List<ST> mapped
+        ) {
+            this.suggestions = suggestions;
+            this.mapped = mapped;
+        }
+
+        @Override
+        public @NotNull List<ST> getSuggestions(final @NotNull SuggestionContext<Object> context) {
+            return getSuggestions();
+        }
+
+        @Override
+        public boolean contains(final @NotNull String suggestion) {
+            return suggestions.contains(suggestion);
+        }
+
+        @Override
+        public @NotNull List<ST> getSuggestions() {
+            return mapped;
+        }
+    }
+
+    class RichStatic<ST> implements Static<ST> {
+
+        private final List<ST> suggestions;
+        private final List<String> backwardsMapped;
+
+        public RichStatic(
+                final @NotNull List<ST> suggestions,
+                final @NotNull List<String> backwardsMapped
+        ) {
+            this.suggestions = suggestions;
+            this.backwardsMapped = backwardsMapped;
+        }
+
+        @Override
+        public @NotNull List<ST> getSuggestions(final @NotNull SuggestionContext<Object> context) {
+            return getSuggestions();
+        }
+
+        @Override
+        public boolean contains(final @NotNull String suggestion) {
+            return backwardsMapped.contains(suggestion);
+        }
+
+        @Override
+        public @NotNull List<ST> getSuggestions() {
+            return suggestions;
         }
     }
 }
