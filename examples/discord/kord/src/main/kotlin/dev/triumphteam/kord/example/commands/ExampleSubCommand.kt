@@ -24,6 +24,7 @@
 package dev.triumphteam.kord.example.commands
 
 import dev.triumphteam.cmd.core.annotations.Command
+import dev.triumphteam.cmd.core.annotations.Suggestion
 import dev.triumphteam.cmds.kord.sender.SlashSender
 
 @Command("kord-sub")
@@ -35,7 +36,7 @@ public class ExampleSubCommand {
     }
 
     @Command("second")
-    public suspend fun second(sender: SlashSender, text: String) {
+    public suspend fun second(sender: SlashSender, @Suggestion("example") text: String) {
         sender.reply("Command sent was /sub second <$text>")
     }
 }

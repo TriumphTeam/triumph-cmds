@@ -214,7 +214,7 @@ public class SlashCommandManager<S> internal constructor(
             // Handle the default command first.
             rootCommand.getCommand(InternalCommand.DEFAULT_CMD_NAME)?.let { command ->
                 if (command !is InternalLeafCommand) return@let
-                options = command.mapArgumentsToKord()
+                options = command.kordArguments
                 return@createGuildChatInputCommand
             }
 
@@ -223,7 +223,7 @@ public class SlashCommandManager<S> internal constructor(
             // Handle normal sub commands.
             commands.filterIsInstance<InternalLeafCommand<SlashSender, S, Choice>>().forEach {
                 subCommand(it.name, it.kordDescription) {
-                    options = it.mapArgumentsToKord()
+                    options = it.kordArguments
                 }
             }
 
@@ -232,7 +232,7 @@ public class SlashCommandManager<S> internal constructor(
                 group(it.name, it.kordDescription) {
                     it.commands.values.filterIsInstance<InternalLeafCommand<SlashSender, S, Choice>>().forEach { sub ->
                         subCommand(sub.name, sub.kordDescription) {
-                            options = sub.mapArgumentsToKord()
+                            options = sub.kordArguments
                         }
                     }
                 }

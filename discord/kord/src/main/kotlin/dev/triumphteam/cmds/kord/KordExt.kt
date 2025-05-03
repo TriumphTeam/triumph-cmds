@@ -24,6 +24,7 @@
 package dev.triumphteam.cmds.kord
 
 import dev.kord.common.entity.ApplicationCommandOptionType
+import dev.kord.common.entity.Choice
 import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Entity
 import dev.kord.core.entity.Member
@@ -48,6 +49,9 @@ import dev.kord.rest.builder.interaction.UserBuilder
 import dev.triumphteam.cmd.core.argument.InternalArgument
 import dev.triumphteam.cmd.core.command.InternalCommand
 import dev.triumphteam.cmd.core.command.InternalLeafCommand
+import dev.triumphteam.cmd.core.suggestion.StaticSuggestion
+import dev.triumphteam.cmd.discord.ProvidedInternalArgument
+import dev.triumphteam.cmds.kord.sender.SlashSender
 import java.util.ArrayDeque
 import java.util.Deque
 
@@ -68,7 +72,7 @@ private val TYPE_MAPPING: Map<Class<*>, ApplicationCommandOptionType> = mapOf(
     Entity::class.java to ApplicationCommandOptionType.Mentionable,
 )
 
-private val OPTION_BUILDER_MAPPING: Map<ApplicationCommandOptionType, (InternalArgument<*, *>) -> OptionsBuilder> =
+private val OPTION_BUILDER_MAPPING: Map<ApplicationCommandOptionType, (InternalArgument<*, Choice>) -> OptionsBuilder> =
     mapOf(
         ApplicationCommandOptionType.Integer to { argument ->
             IntegerOptionBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
@@ -128,17 +132,50 @@ internal val ChatInputCommandInteraction.fullNAME: Deque<String>
         )
     }
 
-private fun OptionsBuilder.defaults(argument: InternalArgument<*, *>) {
+private fun <S> OptionsBuilder.defaults(argument: InternalArgument<S, Choice>) {
     required = !argument.isOptional
-    // autocomplete = argument.shouldAutoComplete()
+
+    val suggestion = argument.suggestion
+
+    // No need to do anything else if it is provided.
+    if (argument is ProvidedInternalArgument<S, Choice>) return
+
+    // Add choices and exit.
+    if (suggestion is StaticSuggestion<S, Choice>) {
+        when (this) {
+            is IntegerOptionBuilder -> {
+                suggestion.suggestions.filterIsInstance<Choice.IntegerChoice>().forEach { choice ->
+                    choice(choice.name, choice.value, choice.nameLocalizations)
+                }
+            }
+
+            is NumberOptionBuilder -> {
+                suggestion.suggestions.filterIsInstance<Choice.NumberChoice>().forEach { choice ->
+                    choice(choice.name, choice.value, choice.nameLocalizations)
+                }
+            }
+
+            is StringChoiceBuilder -> {
+                suggestion.suggestions.filterIsInstance<Choice.StringChoice>().forEach { choice ->
+                    choice(choice.name, choice.value, choice.nameLocalizations)
+                }
+            }
+
+            else -> {}
+        }
+
+        return
+    }
+
+
+    // Finally, check if we can enable auto complete.
+    autocomplete = argument.canSuggest()
 }
 
-private fun InternalArgument<*, *>.toKordOption(): OptionsBuilder =
-    OPTION_BUILDER_MAPPING[kordType]?.invoke(this) ?: StringChoiceBuilder(
-        name,
-        kordDescription
-    ).apply { defaults(this@toKordOption) }
+private fun <S> InternalArgument<S, Choice>.toKordOption(): OptionsBuilder =
+    OPTION_BUILDER_MAPPING[kordType]?.invoke(this) ?: StringChoiceBuilder(name, kordDescription)
+        .apply { defaults(this@toKordOption) }
 
-internal fun InternalLeafCommand<*, *, *>.mapArgumentsToKord(): MutableList<OptionsBuilder> =
-    argumentList.map { arg -> arg.toKordOption() }.toMutableList()
+internal val <S> InternalLeafCommand<SlashSender, S, Choice>.kordArguments: MutableList<OptionsBuilder>
+    get() = argumentList.map { argument -> argument.toKordOption() }.toMutableList()
 
