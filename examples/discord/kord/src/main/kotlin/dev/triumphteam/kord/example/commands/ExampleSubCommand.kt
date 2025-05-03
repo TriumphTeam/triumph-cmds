@@ -26,8 +26,9 @@ package dev.triumphteam.kord.example.commands
 import dev.triumphteam.cmd.core.annotations.Command
 import dev.triumphteam.cmds.kord.sender.SlashSender
 
-@Command("sub")
+@Command("kord-sub")
 public class ExampleSubCommand {
+
     @Command("first")
     public suspend fun first(sender: SlashSender) {
         sender.reply("Command sent was /sub first")

@@ -27,10 +27,12 @@ import dev.kord.core.entity.User
 import dev.triumphteam.cmd.core.annotations.Command
 import dev.triumphteam.cmds.kord.sender.SlashSender
 
-@Command("group")
+@Command("kord-group")
 public class ExampleCommandGroup {
+
     @Command("test")
     public inner class Group {
+
         @Command("first")
         public suspend fun first(sender: SlashSender) {
             sender.reply("Command sent was /group test first")

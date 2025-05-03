@@ -24,8 +24,6 @@
 package dev.triumphteam.cmd.jda;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Longs;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.command.ArgumentInput;
 import dev.triumphteam.cmd.core.command.InternalBranchCommand;
@@ -60,12 +58,10 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 final class JdaMappingUtil {
 
@@ -128,17 +124,21 @@ final class JdaMappingUtil {
         final Collection<InternalCommand<SlashSender, S, Command.Choice>> commands = rootCommand.getCommands().values();
 
         commandData.addSubcommands(
-                commands.stream().map(it -> {
-                    if (!(it instanceof InternalLeafCommand)) return null;
-                    return mapSubCommand((InternalLeafCommand<SlashSender, S, Command.Choice>) it);
-                }).filter(Objects::nonNull).collect(Collectors.toList())
+                commands.stream()
+                        .filter(it -> !it.isHidden())
+                        .map(it -> {
+                            if (!(it instanceof InternalLeafCommand)) return null;
+                            return mapSubCommand((InternalLeafCommand<SlashSender, S, Command.Choice>) it);
+                        }).filter(Objects::nonNull).collect(Collectors.toList())
         );
 
         commandData.addSubcommandGroups(
-                commands.stream().map(it -> {
-                    if (!(it instanceof InternalBranchCommand)) return null;
-                    return mapSubCommandGroup((InternalBranchCommand<SlashSender, S, Command.Choice>) it);
-                }).filter(Objects::nonNull).collect(Collectors.toList())
+                commands.stream()
+                        .filter(it -> !it.isHidden())
+                        .map(it -> {
+                            if (!(it instanceof InternalBranchCommand)) return null;
+                            return mapSubCommandGroup((InternalBranchCommand<SlashSender, S, Command.Choice>) it);
+                        }).filter(Objects::nonNull).collect(Collectors.toList())
         );
 
         return commandData;
@@ -201,32 +201,6 @@ final class JdaMappingUtil {
         return data;
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    public static List<Command.Choice> mapChoices(
-            final @NotNull List<String> original,
-            final @NotNull OptionType type
-    ) {
-        final Stream<String> stream = original.stream().limit(25);
-
-        final List<Command.Choice> choices;
-        switch (type) {
-            case NUMBER:
-                choices = stream.map(Doubles::tryParse).filter(Objects::nonNull)
-                        .map(value -> new Command.Choice(value.toString(), value))
-                        .collect(Collectors.toList());
-                break;
-            case INTEGER:
-                choices = stream.map(Longs::tryParse).filter(Objects::nonNull)
-                        .map(value -> new Command.Choice(value.toString(), value))
-                        .collect(Collectors.toList());
-                break;
-            default:
-                choices = stream.map(value -> new Command.Choice(value, value)).collect(Collectors.toList());
-        }
-
-        return choices;
-    }
-
     public static boolean isStringType(final @NotNull OptionType type) {
         return STRING_OPTIONS.contains(type);
     }
@@ -237,8 +211,8 @@ final class JdaMappingUtil {
         map.put(short.class, OptionType.INTEGER);
         map.put(Integer.class, OptionType.INTEGER);
         map.put(int.class, OptionType.INTEGER);
-        map.put(Long.class, OptionType.NUMBER);
-        map.put(long.class, OptionType.NUMBER);
+        map.put(Long.class, OptionType.INTEGER);
+        map.put(long.class, OptionType.INTEGER);
         map.put(Double.class, OptionType.NUMBER);
         map.put(double.class, OptionType.NUMBER);
         map.put(Float.class, OptionType.NUMBER);

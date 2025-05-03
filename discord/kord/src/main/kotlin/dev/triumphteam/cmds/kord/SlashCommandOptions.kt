@@ -23,12 +23,15 @@
  */
 package dev.triumphteam.cmds.kord
 
+import dev.kord.common.entity.ApplicationCommandOptionType
+import dev.kord.common.entity.Choice
+import dev.kord.common.entity.optional.Optional
 import dev.kord.core.Kord
 import dev.triumphteam.cmd.core.extension.CommandOptions
+import dev.triumphteam.cmd.core.extension.SuggestionMapper
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension
-import dev.triumphteam.cmd.discord.ChoiceProcessor
+import dev.triumphteam.cmd.core.suggestion.SuggestionMethod
 import dev.triumphteam.cmd.discord.NsfwProcessor
-import dev.triumphteam.cmd.discord.annotation.Choice
 import dev.triumphteam.cmd.discord.annotation.NSFW
 import dev.triumphteam.cmds.kord.sender.SlashSender
 import dev.triumphteam.cmds.useCoroutines
@@ -36,30 +39,76 @@ import dev.triumphteam.cmds.useCoroutines
 public class SlashCommandOptions<S>(
     senderExtension: SenderExtension<SlashSender, S>,
     builder: Builder<S>,
-) : CommandOptions<SlashSender, S>(senderExtension, builder) {
+) : CommandOptions<SlashSender, S, SlashCommandOptions<S>, Choice>(senderExtension, builder) {
 
-    public class Setup<S>(registryContainer: SlashRegistryContainer<S>) :
-        CommandOptions.Setup<SlashSender, S, Setup<S>>(registryContainer)
-
-    public class Builder<S>(
-        registryContainer: SlashRegistryContainer<S>,
-        kord: Kord,
-    ) :
-        CommandOptions.Builder<SlashSender, S, SlashCommandOptions<S>, Setup<S>, Builder<S>>(
-            Setup(registryContainer)
-        ) {
+    public class Builder<S>(kord: Kord) :
+        CommandOptions.Builder<SlashSender, S, SlashCommandOptions<S>, Builder<S>, Choice>() {
 
         init {
             // Setters have to be done first thing, so they can be overridden.
             extensions { extension ->
                 extension.useCoroutines(coroutineScope = kord, coroutineContext = kord.coroutineContext)
-                extension.addAnnotationProcessor(Choice::class.java, ChoiceProcessor(registryContainer.choiceRegistry))
+                extension.setSuggestionMapper(KordSuggestionMapper())
                 extension.addAnnotationProcessor(NSFW::class.java, NsfwProcessor())
             }
         }
 
-        override fun build(senderExtension: SenderExtension<SlashSender, S>): SlashCommandOptions<S> {
+        override fun getThis(): Builder<S> = this
+
+        internal fun build(senderExtension: SenderExtension<SlashSender, S>): SlashCommandOptions<S> {
             return SlashCommandOptions(senderExtension, this)
+        }
+    }
+}
+
+internal class KordSuggestionMapper : SuggestionMapper<Choice> {
+
+    override fun map(values: List<String>, type: Class<*>): List<Choice> {
+        return values.mapToChoices(type)
+    }
+
+    override fun mapBackwards(values: List<Choice>): List<String> {
+        // TODO(important): NEEDS A LOT OF TESTING!!!
+        return values.map { it.value.toString() }
+    }
+
+    override fun filter(
+        input: String,
+        values: List<Choice>,
+        method: SuggestionMethod,
+    ): List<Choice> {
+        return when (method) {
+            SuggestionMethod.STARTS_WITH -> values.filter { it.name.lowercase().startsWith(input.lowercase()) }
+            SuggestionMethod.CONTAINS -> values.filter { input.lowercase() in it.name.lowercase() }
+            else -> values
+        }
+    }
+
+    override fun getType(): Class<*> = Choice::class.java
+
+    private fun List<String>.mapToChoices(type: Class<*>): List<Choice> {
+        val kordType = type.kordType
+        // TODO(important): Make the limit a shared constant
+        val sequence = asSequence().take(25)
+
+        return when (kordType) {
+            is ApplicationCommandOptionType.Number -> {
+                sequence
+                    .mapNotNull(String::toDoubleOrNull)
+                    .map { Choice.NumberChoice(it.toString(), Optional.Missing(), it.toDouble()) }
+                    .toList()
+            }
+
+            is ApplicationCommandOptionType.Integer -> {
+                sequence
+                    .mapNotNull(String::toLongOrNull)
+                    .map { Choice.IntegerChoice(it.toString(), Optional.Missing(), it) }
+                    .toList()
+            }
+
+            else -> {
+                sequence.map { Choice.StringChoice(it, Optional.Missing(), it) }.toList()
+            }
         }
     }
 }

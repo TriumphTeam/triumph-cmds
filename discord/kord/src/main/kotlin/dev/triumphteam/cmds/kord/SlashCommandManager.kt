@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmds.kord
 
+import dev.kord.common.entity.Choice
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.core.behavior.interaction.suggestString
@@ -35,7 +36,7 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.GuildChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.channel.TextChannel
-import dev.kord.core.entity.interaction.GroupCommand
+import dev.kord.core.entity.interaction.GuildChatInputCommandInteraction
 import dev.kord.core.entity.interaction.ResolvableOptionValue
 import dev.kord.core.event.gateway.ReadyEvent
 import dev.kord.core.event.interaction.ChatInputCommandInteractionCreateEvent
@@ -45,17 +46,20 @@ import dev.kord.rest.builder.interaction.group
 import dev.kord.rest.builder.interaction.subCommand
 import dev.triumphteam.cmd.core.CommandManager
 import dev.triumphteam.cmd.core.argument.InternalArgument
+import dev.triumphteam.cmd.core.command.ArgumentInput
 import dev.triumphteam.cmd.core.command.InternalBranchCommand
-import dev.triumphteam.cmd.core.command.InternalRootCommand
+import dev.triumphteam.cmd.core.command.InternalCommand
 import dev.triumphteam.cmd.core.command.InternalLeafCommand
+import dev.triumphteam.cmd.core.command.InternalRootCommand
+import dev.triumphteam.cmd.core.exceptions.CommandExecutionException
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor
-import dev.triumphteam.cmd.core.util.Pair
+import dev.triumphteam.cmd.discord.CommandWalkUtil.findExecutable
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument
 import dev.triumphteam.cmds.kord.sender.SlashSender
 import kotlinx.coroutines.launch
-import java.util.ArrayDeque
+import java.lang.reflect.InvocationTargetException
 
 public fun SlashCommandManager(
     kord: Kord,
@@ -67,25 +71,23 @@ public fun <S> SlashCommandManager(
     senderExtension: SenderExtension<SlashSender, S>,
     builder: SlashCommandOptions.Builder<S>.() -> Unit = {},
 ): SlashCommandManager<S> {
-    val registryContainer = SlashRegistryContainer<S>()
+    val registryContainer = RegistryContainer<SlashSender, S, Choice>()
     return SlashCommandManager(
-        kord,
-        SlashCommandOptions
-            .Builder(registryContainer, kord)
-            .apply(builder)
-            .build(senderExtension),
-        registryContainer
+        kord = kord,
+        commandOptions = SlashCommandOptions.Builder<S>(kord).apply(builder).build(senderExtension),
+        registryContainer = registryContainer,
     )
 }
 
-public class SlashCommandManager<S>(
+public class SlashCommandManager<S> internal constructor(
     private val kord: Kord,
     commandOptions: SlashCommandOptions<S>,
-    private val registryContainer: SlashRegistryContainer<S>,
-) : CommandManager<SlashSender, S, SlashCommandOptions<S>>(commandOptions) {
+    private val registryContainer: RegistryContainer<SlashSender, S, Choice>,
+) : CommandManager<SlashSender, S, SlashCommandOptions<S>, Choice>(commandOptions, registryContainer) {
 
-    private val globalCommands: MutableMap<String, InternalRootCommand<SlashSender, S>> = mutableMapOf()
-    private val guildCommands: MutableMap<Snowflake, MutableMap<String, InternalRootCommand<SlashSender, S>>> = mutableMapOf()
+    private val globalCommands: MutableMap<String, InternalRootCommand<SlashSender, S, Choice>> = mutableMapOf()
+    private val guildCommands: MutableMap<Snowflake, MutableMap<String, InternalRootCommand<SlashSender, S, Choice>>> =
+        mutableMapOf()
 
     private val commandQueue: MutableList<suspend () -> Unit> = mutableListOf()
 
@@ -101,9 +103,10 @@ public class SlashCommandManager<S>(
         }
 
         // All use the same factory
-        val jdaArgumentFactory = InternalArgument.Factory<S> { meta, name, description, type, suggestion, optional ->
-            ProvidedInternalArgument(meta, name, description, type, suggestion, optional)
-        }
+        val jdaArgumentFactory =
+            InternalArgument.Factory<S, Choice> { meta, name, description, type, suggestion, optional ->
+                ProvidedInternalArgument(meta, name, description, type, suggestion, optional)
+            }
 
         registerArgument(User::class.java, jdaArgumentFactory)
         registerArgument(Role::class.java, jdaArgumentFactory)
@@ -132,7 +135,7 @@ public class SlashCommandManager<S>(
     }
 
     public fun registerCommand(guildId: Snowflake, command: Any) {
-        val processor: RootCommandProcessor<SlashSender, S> = RootCommandProcessor(
+        val processor: RootCommandProcessor<SlashSender, S, Choice> = RootCommandProcessor(
             command,
             registryContainer,
             commandOptions
@@ -140,8 +143,8 @@ public class SlashCommandManager<S>(
 
         val name = processor.name
 
-        // Get or add command, then add its sub commands
-        val rootCommand: InternalRootCommand<SlashSender, S> = guildCommands
+        // Get or add a command, then add its sub commands
+        val rootCommand: InternalRootCommand<SlashSender, S, Choice> = guildCommands
             .getOrPut(guildId) { mutableMapOf() }
             .getOrPut(name) { InternalRootCommand(processor) }
 
@@ -161,44 +164,35 @@ public class SlashCommandManager<S>(
         TODO("Not yet implemented")
     }
 
-    override fun getRegistryContainer(): RegistryContainer<SlashSender, S> {
-        return registryContainer
-    }
+    private fun execute(event: ChatInputCommandInteractionCreateEvent) {
+        val commands = event.interaction.fullNAME
 
-    private suspend fun execute(event: ChatInputCommandInteractionCreateEvent) {
-        val command = event.interaction.command
+        val senderExtension: SenderExtension<SlashSender, S> = commandOptions.commandExtensions.senderExtension
+        val sender = senderExtension.map(DummySender(event))
 
-        val name = command.rootName
+        val result = findExecutable(sender, getAppropriateMap(event), commands, true)
+        if (result == null) return
 
-        val commands = ArrayDeque<String>()
-        if (command is dev.kord.core.entity.interaction.SubCommand) {
-            commands.add(command.name)
-        }
-
-        if (command is GroupCommand) {
-            commands.add(command.groupName)
-            commands.add(command.name)
-        }
-
-        val rootCommand = guildCommands[event.interaction.invokedCommandGuildId]?.get(name) ?: return
-
-        val sender = commandOptions.commandExtensions.senderExtension.map(DummySender(event))
-
-        // Mapping all arguments
-        val arguments: Map<String, Pair<String, Any>> = command.options.map { (key, value) ->
+        val arguments = event.interaction.command.options.mapNotNull { (key, value) ->
             when (value) {
                 is ResolvableOptionValue<*> -> {
-                    val resolvedObject = value.resolvedObject
-                    key to Pair(resolvedObject.toString(), resolvedObject as Any)
+                    val resolvedObject = value.resolvedObject ?: return@mapNotNull null
+                    key to ArgumentInput(resolvedObject.toString(), resolvedObject)
                 }
+
                 else -> {
-                    val wrappedValue = value.value
-                    key to Pair(wrappedValue.toString(), wrappedValue.toString() as Any)
+                    val wrappedValue = value.value.toString()
+                    key to ArgumentInput(wrappedValue, wrappedValue)
                 }
             }
         }.toMap()
 
-        rootCommand.executeNonLinear(sender, null, commands, arguments)
+        runCatching {
+            result.getCommand().execute(sender, result.instanceSupplier, arguments)
+        }.onFailure { throwable ->
+            throw CommandExecutionException("An error occurred while executing the command")
+                .initCause(if (throwable is InvocationTargetException) throwable.cause else throwable)
+        }
     }
 
     private suspend fun suggest(event: GuildAutoCompleteInteractionCreateEvent) {
@@ -207,37 +201,51 @@ public class SlashCommandManager<S>(
         }
     }
 
-    private suspend fun registerKordCommand(guildId: Snowflake, rootCommand: InternalRootCommand<SlashSender, S>) {
+    private suspend fun registerKordCommand(
+        guildId: Snowflake,
+        rootCommand: InternalRootCommand<SlashSender, S, Choice>,
+    ) {
         kord.createGuildChatInputCommand(
             guildId,
             rootCommand.name,
-            rootCommand.desc
+            rootCommand.kordDescription
         ) {
-            // If only default then register with no groups or sub commands
-            rootCommand.defaultCommand?.let {
-                if (it is InternalLeafCommand<SlashSender, S>) {
-                    options = it.mapArgumentsToKord()
-                }
+
+            // Handle the default command first.
+            rootCommand.getCommand(InternalCommand.DEFAULT_CMD_NAME)?.let { command ->
+                if (command !is InternalLeafCommand) return@let
+                options = command.mapArgumentsToKord()
                 return@createGuildChatInputCommand
             }
 
-            val commands = rootCommand.commands.values
+            val commands = rootCommand.commands.values.filterNot { it.isHidden }
 
-            commands.filterIsInstance<InternalLeafCommand<SlashSender, S>>().forEach {
-                subCommand(it.name, it.desc) {
+            // Handle normal sub commands.
+            commands.filterIsInstance<InternalLeafCommand<SlashSender, S, Choice>>().forEach {
+                subCommand(it.name, it.kordDescription) {
                     options = it.mapArgumentsToKord()
                 }
             }
 
-            commands.filterIsInstance<InternalBranchCommand<SlashSender, S>>().forEach {
-                group(it.name, it.desc) {
-                    it.commands.values.filterIsInstance<InternalLeafCommand<SlashSender, S>>().forEach { sub ->
-                        subCommand(sub.name, sub.desc) {
+            // Handle group sub commands.
+            commands.filterIsInstance<InternalBranchCommand<SlashSender, S, Choice>>().forEach {
+                group(it.name, it.kordDescription) {
+                    it.commands.values.filterIsInstance<InternalLeafCommand<SlashSender, S, Choice>>().forEach { sub ->
+                        subCommand(sub.name, sub.kordDescription) {
                             options = sub.mapArgumentsToKord()
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun getAppropriateMap(event: ChatInputCommandInteractionCreateEvent): Map<String, InternalRootCommand<SlashSender, S, Choice>> {
+        val interaction = event.interaction
+        if (interaction is GuildChatInputCommandInteraction) {
+            return guildCommands[interaction.guildId] ?: mutableMapOf()
+        }
+
+        return globalCommands
     }
 }

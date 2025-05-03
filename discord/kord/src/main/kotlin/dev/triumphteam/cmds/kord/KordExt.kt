@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmds.kord
 
+import dev.kord.common.entity.ApplicationCommandOptionType
 import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Entity
 import dev.kord.core.entity.Member
@@ -31,6 +32,9 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.GuildChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.channel.TextChannel
+import dev.kord.core.entity.interaction.ChatInputCommandInteraction
+import dev.kord.core.entity.interaction.GroupCommand
+import dev.kord.core.entity.interaction.SubCommand
 import dev.kord.rest.builder.interaction.AttachmentBuilder
 import dev.kord.rest.builder.interaction.BooleanBuilder
 import dev.kord.rest.builder.interaction.ChannelBuilder
@@ -44,75 +48,97 @@ import dev.kord.rest.builder.interaction.UserBuilder
 import dev.triumphteam.cmd.core.argument.InternalArgument
 import dev.triumphteam.cmd.core.command.InternalCommand
 import dev.triumphteam.cmd.core.command.InternalLeafCommand
-import dev.triumphteam.cmd.discord.ProvidedInternalArgument
-import dev.triumphteam.cmd.discord.annotation.Choice
+import java.util.ArrayDeque
+import java.util.Deque
 
-private val optionsMap: Map<Class<*>, (InternalArgument<*, *>) -> OptionsBuilder> = mapOf(
-    Int::class.java to { argument ->
-        IntegerOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Short::class.java to { argument ->
-        IntegerOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Long::class.java to { argument ->
-        NumberOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Double::class.java to { argument ->
-        NumberOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Float::class.java to { argument ->
-        NumberOptionBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Boolean::class.java to { argument ->
-        BooleanBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Role::class.java to { argument ->
-        RoleBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    User::class.java to { argument ->
-        UserBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Member::class.java to { argument ->
-        UserBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    TextChannel::class.java to { argument ->
-        ChannelBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    MessageChannel::class.java to { argument ->
-        ChannelBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    GuildChannel::class.java to { argument ->
-        ChannelBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Attachment::class.java to { argument ->
-        AttachmentBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
-    Entity::class.java to { argument ->
-        MentionableBuilder(argument.name, argument.desc).apply { defaults(argument) }
-    },
+private val TYPE_MAPPING: Map<Class<*>, ApplicationCommandOptionType> = mapOf(
+    Int::class.java to ApplicationCommandOptionType.Integer,
+    Short::class.java to ApplicationCommandOptionType.Integer,
+    Long::class.java to ApplicationCommandOptionType.Integer,
+    Double::class.java to ApplicationCommandOptionType.Number,
+    Float::class.java to ApplicationCommandOptionType.Number,
+    Boolean::class.java to ApplicationCommandOptionType.Boolean,
+    Role::class.java to ApplicationCommandOptionType.Role,
+    User::class.java to ApplicationCommandOptionType.User,
+    Member::class.java to ApplicationCommandOptionType.User,
+    TextChannel::class.java to ApplicationCommandOptionType.Channel,
+    MessageChannel::class.java to ApplicationCommandOptionType.Channel,
+    GuildChannel::class.java to ApplicationCommandOptionType.Channel,
+    Attachment::class.java to ApplicationCommandOptionType.Attachment,
+    Entity::class.java to ApplicationCommandOptionType.Mentionable,
 )
 
-private val InternalArgument<*, *>.desc
+private val OPTION_BUILDER_MAPPING: Map<ApplicationCommandOptionType, (InternalArgument<*, *>) -> OptionsBuilder> =
+    mapOf(
+        ApplicationCommandOptionType.Integer to { argument ->
+            IntegerOptionBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
+        },
+        ApplicationCommandOptionType.Number to { argument ->
+            NumberOptionBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
+        },
+        ApplicationCommandOptionType.Boolean to { argument ->
+            BooleanBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
+        },
+        ApplicationCommandOptionType.Role to { argument ->
+            RoleBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
+        },
+        ApplicationCommandOptionType.User to { argument ->
+            UserBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
+        },
+        ApplicationCommandOptionType.Channel to { argument ->
+            ChannelBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
+        },
+        ApplicationCommandOptionType.Attachment to { argument ->
+            AttachmentBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
+        },
+        ApplicationCommandOptionType.Mentionable to { argument ->
+            MentionableBuilder(argument.name, argument.kordDescription).apply { defaults(argument) }
+        },
+    )
+
+internal val InternalArgument<*, *>.kordType: ApplicationCommandOptionType
+    get() = type.kordType
+
+internal val Class<*>.kordType: ApplicationCommandOptionType
+    get() = TYPE_MAPPING[this] ?: ApplicationCommandOptionType.String
+
+private val InternalArgument<*, *>.kordDescription
     get() = description.ifEmpty { name }
 
-internal val InternalCommand<*, *>.desc
+internal val InternalCommand<*, *, *>.kordDescription
     get() = description.ifEmpty { name }
+
+internal val ChatInputCommandInteraction.fullNAME: Deque<String>
+    get() {
+        val command = command // Needed for smart casting.
+        return ArrayDeque(
+            buildList {
+                add(command.rootName) // Root is always there.
+
+                if (command is GroupCommand) {
+                    add(command.groupName)
+                    add(command.name)
+                    return@buildList
+                }
+
+                if (command is SubCommand) {
+                    add(command.name)
+                }
+            }
+        )
+    }
 
 private fun OptionsBuilder.defaults(argument: InternalArgument<*, *>) {
     required = !argument.isOptional
-    autocomplete = argument.shouldAutoComplete()
-}
-
-private fun InternalArgument<*, *>.shouldAutoComplete(): Boolean {
-    if (meta.isPresent(Choice.META_KEY) || this is ProvidedInternalArgument) return false
-    return canSuggest()
+    // autocomplete = argument.shouldAutoComplete()
 }
 
 private fun InternalArgument<*, *>.toKordOption(): OptionsBuilder =
-    optionsMap[type]?.invoke(this) ?: StringChoiceBuilder(
+    OPTION_BUILDER_MAPPING[kordType]?.invoke(this) ?: StringChoiceBuilder(
         name,
-        desc
+        kordDescription
     ).apply { defaults(this@toKordOption) }
 
-internal fun InternalLeafCommand<*, *>.mapArgumentsToKord(): MutableList<OptionsBuilder> =
+internal fun InternalLeafCommand<*, *, *>.mapArgumentsToKord(): MutableList<OptionsBuilder> =
     argumentList.map { arg -> arg.toKordOption() }.toMutableList()
+
