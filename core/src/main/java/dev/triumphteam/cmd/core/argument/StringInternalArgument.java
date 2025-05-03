@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import dev.triumphteam.cmd.core.suggestion.StaticSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Differently from the {@link LimitlessInternalArgument}, this internalArgument will always be just one string as the arg value.
@@ -42,9 +43,10 @@ public abstract class StringInternalArgument<S, ST> extends AbstractInternalArgu
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
-        super(meta, name, description, type, suggestion, optional);
+        super(meta, name, description, type, suggestion, defaultValue, optional);
     }
 
     protected boolean canUseInput(final @NotNull String input) {

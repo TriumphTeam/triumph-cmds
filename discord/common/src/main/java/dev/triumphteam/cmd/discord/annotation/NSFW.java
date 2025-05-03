@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.discord.annotation;
 
 import dev.triumphteam.cmd.core.extension.meta.MetaKey;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -32,11 +33,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a command as NSFW, which means that it can only be used in NSFW channels.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Inherited
 public @interface NSFW {
 
-    MetaKey<Boolean> META_KEY = MetaKey.of("nsfw", Boolean.class);
+    @NotNull MetaKey<Boolean> META_KEY = MetaKey.of("nsfw", Boolean.class);
 }

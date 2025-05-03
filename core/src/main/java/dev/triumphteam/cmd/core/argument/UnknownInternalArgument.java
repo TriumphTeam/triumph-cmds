@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 public final class UnknownInternalArgument<S, ST> extends StringInternalArgument<S, ST> {
 
     public UnknownInternalArgument(final @NotNull Class<?> type) {
-        super(new CommandMeta.Builder(null).build(), "unknown", "unknown.", type, new EmptySuggestion<>(), false);
+        super(new CommandMeta.Builder(null).build(), "unknown", "unknown.", type, new EmptySuggestion<>(), null, false);
     }
 
     @Override

@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,9 +56,10 @@ public final class SplitStringInternalArgument<S, ST> extends StringInternalArgu
             final @NotNull InternalArgument<S, ST> internalArgument,
             final @NotNull Class<?> collectionType,
             final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
-        super(meta, name, description, String.class, suggestion, optional);
+        super(meta, name, description, String.class, suggestion, defaultValue, optional);
         this.regex = regex;
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;

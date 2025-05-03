@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 
@@ -51,12 +52,13 @@ public final class EnumInternalArgument<S, ST> extends StringInternalArgument<S,
             final @NotNull String description,
             final @NotNull Class<? extends Enum<?>> type,
             final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
-        super(meta, name, description, type, suggestion, optional);
+        super(meta, name, description, type, suggestion, defaultValue, optional);
         this.enumType = type;
 
-        // Populates on creation to reduce runtime of first run for certain enums, like Bukkit's Material.
+        // Populates on creation to reduce runtime of the first run for certain enums, like Bukkit's Material.
         populateCache(type);
     }
 

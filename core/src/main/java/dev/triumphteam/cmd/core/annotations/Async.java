@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.annotations;
 
 import dev.triumphteam.cmd.core.extension.meta.MetaKey;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -40,5 +41,5 @@ import java.lang.annotation.Target;
 public @interface Async {
 
     // Async's annotation meta key
-    MetaKey<Void> META_KEY = MetaKey.of("async", Void.TYPE);
+    @NotNull MetaKey<Boolean> META_KEY = MetaKey.of("async", boolean.class);
 }

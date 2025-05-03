@@ -85,9 +85,13 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
     /**
      * Creates a new instance of the {@link BukkitCommandManager}.
+     * This method allows customization of the command manager through the provided builder.
      *
-     * @param plugin The {@link Plugin} instance created.
-     * @return A new instance of the {@link BukkitCommandManager}.
+     * @param plugin          The {@link Plugin} instance associated with this command manager.
+     * @param senderExtension The {@link SenderExtension} responsible for handling sender mapping and validation.
+     * @param builder         A {@link Consumer} that configures the {@link BukkitCommandOptions.Builder} for the command manager.
+     * @param <S>             The type of the sender that will be used in the command manager.
+     * @return A new instance of the {@link BukkitCommandManager} configured with the given options.
      */
     @Contract("_, _, _ -> new")
     public static <S> @NotNull BukkitCommandManager<S> create(
@@ -114,11 +118,12 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
     }
 
     /**
-     * Creates a new instance of the {@link BukkitCommandManager}.
-     * This factory adds all the defaults based on the default sender {@link CommandSender}.
+     * Creates a new instance of {@link BukkitCommandManager} with default settings for Bukkit functionality.
+     * The method accepts a builder to customize the command manager's options.
      *
-     * @param plugin The {@link Plugin} instance created.
-     * @return A new instance of the {@link BukkitCommandManager}.
+     * @param plugin  The {@link Plugin} instance associated with this command manager.
+     * @param builder A {@link Consumer} that configures the {@link BukkitCommandOptions.Builder} for the command manager.
+     * @return A new instance of {@link BukkitCommandManager} configured with the provided options and defaults.
      */
     @Contract("_, _ -> new")
     public static @NotNull BukkitCommandManager<CommandSender> create(
@@ -189,7 +194,7 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
 
         final String name = processor.getName();
 
-        // Get or add command, then add its sub commands
+        // Get or add a command, then add its sub commands
         final BukkitCommand<S> bukkitCommand = commands.computeIfAbsent(name, it -> createAndRegisterCommand(processor, name));
         final InternalRootCommand<CommandSender, S, String> rootCommand = bukkitCommand.getRootCommand();
         rootCommand.addCommands(command, processor.commands(rootCommand));

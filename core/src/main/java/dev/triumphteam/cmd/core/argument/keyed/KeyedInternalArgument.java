@@ -62,7 +62,7 @@ public final class KeyedInternalArgument<S, ST> extends LimitlessInternalArgumen
             final @NotNull ArgumentGroup<Argument> argumentGroup,
             final @NotNull SuggestionMapper<ST> mapper
     ) {
-        super(meta, name, description, Flags.class, new EmptySuggestion<>(), true);
+        super(meta, name, description, Flags.class, new EmptySuggestion<>(), null, true);
         this.flagInternalArguments = flagInternalArguments;
         this.argumentInternalArguments = argumentInternalArguments;
         this.mapper = mapper;

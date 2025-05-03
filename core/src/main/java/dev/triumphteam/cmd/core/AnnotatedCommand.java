@@ -29,6 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class can be extended to allow customizing the command without using annotations.
+ */
 public abstract class AnnotatedCommand {
 
     private final String command;

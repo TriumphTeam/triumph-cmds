@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -47,9 +48,10 @@ public final class JoinedStringInternalArgument<S, ST> extends LimitlessInternal
             final @NotNull String description,
             final @NotNull CharSequence delimiter,
             final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
-        super(meta, name, description, String.class, suggestion, optional);
+        super(meta, name, description, String.class, suggestion, defaultValue, optional);
         this.delimiter = delimiter;
     }
 

@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ import java.util.List;
  * Which is divided into {@link StringInternalArgument} and {@link LimitlessInternalArgument}.
  *
  * @param <S> The sender type.
+ * @param <ST> The suggestion type.
  */
 public abstract class AbstractInternalArgument<S, ST> implements InternalArgument<S, ST> {
 
@@ -43,6 +45,7 @@ public abstract class AbstractInternalArgument<S, ST> implements InternalArgumen
     private final String name;
     private final String description;
     private final Class<?> type;
+    private final String defaultValue;
     private final boolean optional;
     private final InternalSuggestion<S, ST> suggestion;
 
@@ -52,6 +55,7 @@ public abstract class AbstractInternalArgument<S, ST> implements InternalArgumen
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
         this.meta = meta;
@@ -59,6 +63,7 @@ public abstract class AbstractInternalArgument<S, ST> implements InternalArgumen
         this.description = description;
         this.type = type;
         this.suggestion = suggestion;
+        this.defaultValue = defaultValue;
         this.optional = optional;
     }
 
@@ -108,6 +113,11 @@ public abstract class AbstractInternalArgument<S, ST> implements InternalArgumen
     @Override
     public boolean isOptional() {
         return optional;
+    }
+
+    @Override
+    public @Nullable String getDefaultValue() {
+        return defaultValue;
     }
 
     @Override

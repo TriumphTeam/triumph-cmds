@@ -112,6 +112,15 @@ public final class JdaCommandManager<S> extends CommandManager<Sender, S, JdaCom
         }
     }
 
+    /**
+     * Creates a new instance of {@link JdaCommandManager} with the provided parameters.
+     *
+     * @param jda The JDA instance used to register commands and handle interactions.
+     * @param senderExtension The extension to handle sender mapping and validation.
+     * @param builder A consumer to configure additional options for the command manager.
+     * @param <S> The sender type that is tied to the command execution.
+     * @return A new instance of {@link JdaCommandManager} configured with the provided parameters.
+     */
     @Contract("_, _, _ -> new")
     public static <S> @NotNull JdaCommandManager<S> create(
             final @NotNull JDA jda,
@@ -124,6 +133,13 @@ public final class JdaCommandManager<S> extends CommandManager<Sender, S, JdaCom
         return new JdaCommandManager<>(jda, extensionBuilder.build(senderExtension), registryContainer);
     }
 
+    /**
+     * Creates a new instance of {@link JdaCommandManager} with the provided JDA instance and configuration options.
+     *
+     * @param jda The JDA instance used to register commands and handle interactions.
+     * @param builder A consumer to configure additional options for the command manager.
+     * @return A new instance of {@link JdaCommandManager} configured with the provided parameters.
+     */
     @Contract("_, _ -> new")
     public static @NotNull JdaCommandManager<Sender> create(
             final @NotNull JDA jda,
@@ -141,6 +157,12 @@ public final class JdaCommandManager<S> extends CommandManager<Sender, S, JdaCom
         return new JdaCommandManager<>(jda, extensionBuilder.build(new JdaSenderExtension()), registryContainer);
     }
 
+    /**
+     * Creates a new instance of {@link JdaCommandManager} with the provided JDA instance.
+     *
+     * @param jda The JDA instance used to register commands and handle interactions.
+     * @return A new instance of {@link JdaCommandManager} configured with default settings.
+     */
     @Contract("_ -> new")
     public static @NotNull JdaCommandManager<Sender> create(final @NotNull JDA jda) {
         return create(jda, builder -> {});

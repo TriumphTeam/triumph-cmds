@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Contains all the command flags that was typed by the user in an easy-to-access way.
+ * Contains all the command flags typed by the user in an easy-to-access way.
  */
 public interface Flags extends Keyed {
 

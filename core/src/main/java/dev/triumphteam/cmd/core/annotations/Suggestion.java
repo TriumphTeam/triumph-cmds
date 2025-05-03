@@ -48,6 +48,11 @@ public @interface Suggestion {
      */
     @NotNull String value();
 
+    /**
+     * Provides additional optional data or metadata associated with the suggestion.
+     *
+     * @return An additional string to complement the suggestion.
+     */
     @NotNull String extra() default "";
 
     /**

@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Modified from commons-cli.
- * https://github.com/apache/commons-cli
+ * <a href="https://github.com/apache/commons-cli">...</a>
  */
 final class FlagValidator {
 

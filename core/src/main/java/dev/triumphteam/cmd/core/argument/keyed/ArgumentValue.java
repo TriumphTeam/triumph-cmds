@@ -23,4 +23,7 @@
  */
 package dev.triumphteam.cmd.core.argument.keyed;
 
-public interface ArgumentValue {}
+/**
+ * Represents a value associated with an argument on the named argument system.
+ */
+interface ArgumentValue {}

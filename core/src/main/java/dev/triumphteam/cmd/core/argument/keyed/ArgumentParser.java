@@ -135,7 +135,7 @@ final class ArgumentParser {
     /**
      * Parser handler for named arguments.
      *
-     * @param result    The results instance to add to.
+     * @param result    The result instance to add to.
      * @param token     The current named argument token.
      * @param separator The position of the separator.
      */

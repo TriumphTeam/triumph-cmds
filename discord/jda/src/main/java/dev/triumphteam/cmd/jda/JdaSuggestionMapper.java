@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static dev.triumphteam.cmd.jda.JdaMappingUtil.fromType;
 
-public final class JdaSuggestionMapper implements SuggestionMapper<Command.Choice> {
+final class JdaSuggestionMapper implements SuggestionMapper<Command.Choice> {
 
     @Override
     public @NotNull List<Command.Choice> map(final @NotNull List<String> values, final @NotNull Class<?> type) {

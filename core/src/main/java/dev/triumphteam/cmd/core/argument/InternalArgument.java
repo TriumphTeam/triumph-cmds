@@ -30,6 +30,7 @@ import dev.triumphteam.cmd.core.extension.meta.CommandMetaContainer;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -75,11 +76,13 @@ public interface InternalArgument<S, ST> extends CommandMetaContainer {
     @NotNull Class<?> getType();
 
     /**
-     * If argument is optional or not.
+     * If the argument is optional or not.
      *
      * @return Whether the argument is optional.
      */
     boolean isOptional();
+
+    @Nullable String getDefaultValue();
 
     boolean canSuggest();
 

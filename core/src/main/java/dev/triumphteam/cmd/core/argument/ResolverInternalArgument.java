@@ -30,6 +30,7 @@ import dev.triumphteam.cmd.core.extension.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Normal {@link StringInternalArgument}.
@@ -50,9 +51,10 @@ public final class ResolverInternalArgument<S, ST> extends StringInternalArgumen
             final @NotNull Class<?> type,
             final @NotNull ArgumentResolver<S> resolver,
             final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
-        super(meta, name, description, type, suggestion, optional);
+        super(meta, name, description, type, suggestion, defaultValue, optional);
         this.resolver = resolver;
     }
 

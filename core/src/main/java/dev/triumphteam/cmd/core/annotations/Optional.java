@@ -30,10 +30,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks the argument as optional, so if a user doesn't type it, it'll be null.
- * Argument must be nullable in Kotlin.
+ * Marks the argument as optional.
+ * <p>
+ * Attention: If {@link Optional#defaultValue()} is not set, the argument will be nullable.
+ * If it is set, the argument will be non-nullable.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Optional {}
+public @interface Optional {
+
+    /**
+     * Specifies the default value for the annotated argument.
+     *
+     * @return The default value as a string. If not specified, return an empty string which will be treated as null.
+     */
+    String defaultValue() default "";
+}

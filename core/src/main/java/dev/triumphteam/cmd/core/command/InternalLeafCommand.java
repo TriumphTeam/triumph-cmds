@@ -159,9 +159,17 @@ public class InternalLeafCommand<D, S, ST> implements InternalCommand<D, S, ST> 
 
                 ArgumentInput usableInput = argumentInput;
                 if (argumentInput == null || argumentInput.getInput().isEmpty()) {
-                    // TODO(important): ADD OPTIONAL VALUE PROVIDER
                     if (internalArgument.isOptional()) {
-                        usableInput = new ArgumentInput("TODO");
+                        final String defaultValue = stringArgument.getDefaultValue();
+
+                        // If nothing is provided, we just add null and move on.
+                        if (defaultValue == null) {
+                            invokeArguments.add(null);
+                            continue;
+                        }
+
+                        // If not null, we provide the default as input.
+                        usableInput = new ArgumentInput(defaultValue);
                     } else {
                         messageRegistry.sendMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, sender, new SyntaxMessageContext(meta, syntax));
                         return;

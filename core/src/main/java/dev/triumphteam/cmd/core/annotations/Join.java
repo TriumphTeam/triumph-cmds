@@ -41,7 +41,7 @@ public @interface Join {
 
     /**
      * Sets the delimiter of the join.
-     * By default, it uses a space.
+     * By default, it uses space.
      *
      * @return The delimiter of to be used by the join method.
      */

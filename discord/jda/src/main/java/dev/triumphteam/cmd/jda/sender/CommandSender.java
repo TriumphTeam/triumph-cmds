@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface CommandSender extends Sender {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @NotNull MessageChannelUnion getChannel();
 

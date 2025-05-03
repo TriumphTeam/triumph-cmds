@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.argument;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A limitless internalArgument is an internalArgument type that won't check for internalArgument size.
@@ -41,9 +42,10 @@ public abstract class LimitlessInternalArgument<S, ST> extends AbstractInternalA
             final @NotNull String description,
             final @NotNull Class<?> type,
             final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean isOptional
     ) {
-        super(meta, name, description, type, suggestion, isOptional);
+        super(meta, name, description, type, suggestion, defaultValue, isOptional);
     }
 
     @Override

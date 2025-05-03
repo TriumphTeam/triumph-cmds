@@ -211,7 +211,22 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
         final Class<?> type = parameter.getType();
         final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(argDescriptions, parameter, position);
-        final boolean optional = parameter.isAnnotationPresent(Optional.class);
+
+        final Optional optionalAnnotation = parameter.getAnnotation(Optional.class);
+        final boolean isOptional = optionalAnnotation != null;
+
+        // Grab the default value of the annotation.
+        final String defaultValue;
+        if (optionalAnnotation == null) {
+            defaultValue = null;
+        } else {
+            final String value = optionalAnnotation.defaultValue();
+            if (value.isEmpty()) {
+                defaultValue = null;
+            } else {
+                defaultValue = value;
+            }
+        }
 
         // Handles collection internalArgument.
         if (SUPPORTED_COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
@@ -222,6 +237,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                     argumentName,
                     argumentDescription,
                     suggestions.getOrDefault(position, suggestionFromParam(parameter)),
+                    null,
                     true
             );
 
@@ -241,7 +257,8 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                         argument,
                         type,
                         suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                        optional
+                        defaultValue,
+                        isOptional
                 );
             }
 
@@ -252,7 +269,8 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                     argument,
                     type,
                     suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                    optional
+                    defaultValue,
+                    isOptional
             );
         }
 
@@ -265,7 +283,8 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                     argumentDescription,
                     joinAnnotation.value(),
                     suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                    optional
+                    defaultValue,
+                    isOptional
             );
         }
 
@@ -301,7 +320,8 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                 argumentName,
                 argumentDescription,
                 suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                optional
+                defaultValue,
+                isOptional
         );
     }
 
@@ -311,6 +331,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
         // All other types default to the resolver.
@@ -325,6 +346,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                         description,
                         (Class<? extends Enum<?>>) type,
                         suggestion,
+                        defaultValue,
                         optional
                 );
             }
@@ -343,6 +365,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                 type,
                 resolver,
                 suggestion,
+                defaultValue,
                 optional
         );
     }
@@ -365,6 +388,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                             "",
                             flag.getDescription(),
                             suggestion,
+                            null,
                             true
                     )
             );
@@ -393,6 +417,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                         listArgument.getName(),
                         listArgument.getDescription(),
                         suggestion,
+                        null,
                         true
                 );
 
@@ -406,6 +431,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                                 internalArgument,
                                 listArgument.getType(),
                                 suggestion,
+                                null,
                                 true
                         )
                 );
@@ -421,6 +447,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
                             argument.getName(),
                             argument.getDescription(),
                             suggestion,
+                            null,
                             true
                     )
             );
