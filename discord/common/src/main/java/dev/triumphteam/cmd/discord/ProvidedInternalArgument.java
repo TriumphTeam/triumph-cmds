@@ -42,7 +42,7 @@ public class ProvidedInternalArgument<S, ST> extends StringInternalArgument<S, S
             final @NotNull InternalSuggestion<S, ST> suggestion,
             final boolean optional
     ) {
-        super(meta, name, description, type, suggestion, optional);
+        super(meta, name, description, type, suggestion, null, optional);
     }
 
     @Override
