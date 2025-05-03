@@ -23,15 +23,15 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.meta.CommandMetaContainer;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Deque;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -39,9 +39,16 @@ import java.util.function.BiFunction;
  * Command argument.
  *
  * @param <S> The sender type.
- * @param <T> The Argument type.
  */
-public interface InternalArgument<S, T> extends CommandMetaContainer {
+public interface InternalArgument<S, ST> extends CommandMetaContainer {
+
+    static InternalArgumentResult valid(final @NotNull Object value) {
+        return new InternalArgumentResult.Valid(value);
+    }
+
+    static InternalArgumentResult invalid(final @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> context) {
+        return new InternalArgumentResult.Invalid(context);
+    }
 
     /**
      * Gets the name of the argument.
@@ -69,72 +76,31 @@ public interface InternalArgument<S, T> extends CommandMetaContainer {
     @NotNull Class<?> getType();
 
     /**
-     * If argument is optional or not.
+     * If the argument is optional or not.
      *
      * @return Whether the argument is optional.
      */
     boolean isOptional();
 
+    @Nullable String getDefaultValue();
+
     boolean canSuggest();
 
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender   The sender to resolve to.
-     * @param value    The argument value.
-     * @param provided A provided value by a platform in case parsing isn't needed.
-     * @return A resolve {@link Result}.
-     */
-    @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull T value,
-            final @Nullable Object provided
-    );
+    @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input);
 
-    /**
-     * Resolves the argument type.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The argument value.
-     * @return A resolve {@link Result}.
-     */
-    default @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull T value
-    ) {
-        return resolve(sender, value, null);
-    }
+    @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments);
 
-    /**
-     * Create a list of suggestion strings to return to the platform requesting it.
-     *
-     * @param sender    Rhe sender to get suggestions for.
-     * @param arguments The arguments used in the suggestion.
-     * @return A list of valid suggestions for the argument.
-     */
-    @NotNull List<String> suggestions(final @NotNull S sender, final @NotNull Deque<String> arguments);
-
-    static Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> success(
-            final @NotNull Object value
-    ) {
-        return new Result.Success<>(value);
-    }
-
-    static Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> invalid(
-            final @NotNull BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext> context
-    ) {
-        return new Result.Failure<>(context);
-    }
+    @NotNull InternalSuggestion<S, ST> getSuggestion();
 
     @FunctionalInterface
-    interface Factory<S> {
+    interface Factory<S, ST> {
 
-        @NotNull StringInternalArgument<S> create(
+        @NotNull StringInternalArgument<S, ST> create(
                 final @NotNull CommandMeta meta,
                 final @NotNull String name,
                 final @NotNull String description,
                 final @NotNull Class<?> type,
-                final @NotNull Suggestion<S> suggestion,
+                final @NotNull InternalSuggestion<S, ST> suggestion,
                 final boolean optional
         );
     }

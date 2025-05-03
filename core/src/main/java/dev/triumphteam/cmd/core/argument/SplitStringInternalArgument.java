@@ -23,10 +23,10 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
-import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -43,10 +42,10 @@ import java.util.stream.Collectors;
  *
  * @param <S> The sender type.
  */
-public final class SplitStringInternalArgument<S> extends StringInternalArgument<S> {
+public final class SplitStringInternalArgument<S, ST> extends StringInternalArgument<S, ST> {
 
     private final String regex;
-    private final InternalArgument<S, String> internalArgument;
+    private final InternalArgument<S, ST> internalArgument;
     private final Class<?> collectionType;
 
     public SplitStringInternalArgument(
@@ -54,34 +53,23 @@ public final class SplitStringInternalArgument<S> extends StringInternalArgument
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull String regex,
-            final @NotNull InternalArgument<S, String> internalArgument,
+            final @NotNull InternalArgument<S, ST> internalArgument,
             final @NotNull Class<?> collectionType,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
-        super(meta, name, description, String.class, suggestion, optional);
+        super(meta, name, description, String.class, suggestion, defaultValue, optional);
         this.regex = regex;
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;
     }
 
-    /**
-     * Takes a string and splits it into a collection.
-     *
-     * @param sender The sender to resolve to.
-     * @param value  The argument value.
-     * @return A collection of the split strings.
-     */
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull String value,
-            final @Nullable Object provided
-    ) {
-        return CollectionInternalArgument.resolveCollection(sender, internalArgument, Arrays.asList(value.split(regex)), List.class);
+    public @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input) {
+        return CollectionInternalArgument.resolveCollection(sender, internalArgument, Arrays.asList(input.getInput().split(regex)), collectionType);
     }
 
-    @Override
     public @NotNull List<String> suggestions(
             final @NotNull S sender,
             final @NotNull Deque<String> arguments

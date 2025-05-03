@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.bukkit;
 
-import dev.triumphteam.cmd.core.command.RootCommand;
+import dev.triumphteam.cmd.core.command.InternalRootCommand;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.bukkit.command.Command;
@@ -36,13 +36,13 @@ import java.util.List;
 
 final class BukkitCommand<S> extends Command {
 
-    private final RootCommand<CommandSender, S> rootCommand;
+    private final InternalRootCommand<CommandSender, S, String> rootCommand;
     private final SenderExtension<CommandSender, S> senderExtension;
 
-    BukkitCommand(final @NotNull RootCommandProcessor<CommandSender, S> processor) {
+    BukkitCommand(final @NotNull RootCommandProcessor<CommandSender, S, String> processor) {
         super(processor.getName(), processor.getDescription(), "", processor.getAliases());
 
-        this.rootCommand = new RootCommand<>(processor);
+        this.rootCommand = new InternalRootCommand<>(processor);
         this.senderExtension = processor.getCommandOptions().getCommandExtensions().getSenderExtension();
     }
 
@@ -54,7 +54,6 @@ final class BukkitCommand<S> extends Command {
     ) {
         rootCommand.execute(
                 senderExtension.map(sender),
-                null,
                 new ArrayDeque<>(Arrays.asList(args))
         );
         return true;
@@ -69,7 +68,7 @@ final class BukkitCommand<S> extends Command {
         return rootCommand.suggestions(senderExtension.map(sender), new ArrayDeque<>(Arrays.asList(args)));
     }
 
-    public @NotNull RootCommand<CommandSender, S> getRootCommand() {
+    public @NotNull InternalRootCommand<CommandSender, S, String> getRootCommand() {
         return rootCommand;
     }
 }

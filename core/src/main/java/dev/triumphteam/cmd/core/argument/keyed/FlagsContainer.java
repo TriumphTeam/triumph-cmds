@@ -44,7 +44,7 @@ abstract class FlagsContainer implements Arguments {
     }
 
     @Override
-    public @NotNull <T> Optional<T> getFlagValue(final @NotNull String flag, final @NotNull Class<T> type) {
+    public @NotNull <T> Optional<T> getFlagValue(final @NotNull String flag, final @NotNull Class<? super T> type) {
         final ArgumentValue flagValue = flags.get(flag);
         if (flagValue == null) return Optional.empty();
         if (!(flagValue instanceof SimpleArgumentValue)) return Optional.empty();

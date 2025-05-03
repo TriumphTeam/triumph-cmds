@@ -30,7 +30,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows to specify the name of the argument instead of just using the parameter name.
+ * Allows specifying the name of the argument instead of just using the parameter name.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -38,7 +38,8 @@ import java.lang.annotation.Target;
 public @interface ArgName {
 
     /**
-     * Gets the name of the argument.
+     * The name of the argument.
+     * This overrides the parameter name.
      *
      * @return The name of the argument
      */

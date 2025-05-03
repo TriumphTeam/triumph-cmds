@@ -35,11 +35,11 @@ import org.jetbrains.annotations.Nullable;
 public interface ArgumentResolver<S> {
 
     /**
-     * Resolves the current argument based on the given arg.
+     * Resolves the current argument based on the given argument.
      *
      * @param sender The sender which can be used for checks.
-     * @param arg    The typed argument.
+     * @param argument    The typed argument.
      * @return An Object with the resolved value or null.
      */
-    @Nullable Object resolve(final @NotNull S sender, final @NotNull String arg);
+    @Nullable Object resolve(final @NotNull S sender, final @NotNull String argument);
 }

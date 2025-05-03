@@ -23,22 +23,26 @@
  */
 package dev.triumphteam.cmd.core.extension.defaults;
 
-import dev.triumphteam.cmd.core.command.CommandExecutor;
+import dev.triumphteam.cmd.core.extension.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
-public final class DefaultCommandExecutor implements CommandExecutor {
+public final class DefaultCommandExecutor<S> implements CommandExecutor<S> {
 
     @Override
     public void execute(
             final @NotNull CommandMeta meta,
+            final @NotNull MessageRegistry<S> messageRegistry,
+            final @NotNull S sender,
             final @NotNull Object instance,
             final @NotNull Method method,
             final @NotNull List<Object> arguments
     ) throws Throwable {
-        method.invoke(instance, arguments.toArray());
+        // Executes and handles the result.
+        handleResult(meta, messageRegistry, sender, method.invoke(instance, arguments.toArray()));
     }
 }

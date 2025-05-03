@@ -55,7 +55,7 @@ public @interface Flag {
      * Long flag identifier. Isn't required either, as long as either flag or long flag has values.
      * Flags must not have spaces.
      *
-     * @return The flag's long identifier.
+     * @return The flag's long-identifier.
      */
     @NotNull String longFlag() default "";
 

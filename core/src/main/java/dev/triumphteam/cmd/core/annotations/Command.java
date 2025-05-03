@@ -41,16 +41,13 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface Command {
 
-    // Default commands use this name.
-    String DEFAULT_CMD_NAME = "th-default";
-
     /**
      * Command's name.
      * Must not have spaces.
      *
      * @return The command name.
      */
-    @NotNull String value() default DEFAULT_CMD_NAME;
+    @NotNull String value() default "";
 
     /**
      * List with all command aliases.

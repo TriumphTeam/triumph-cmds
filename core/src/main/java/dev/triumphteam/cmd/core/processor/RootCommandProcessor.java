@@ -25,14 +25,15 @@ package dev.triumphteam.cmd.core.processor;
 
 import com.google.common.base.CaseFormat;
 import dev.triumphteam.cmd.core.AnnotatedCommand;
+import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentGroup;
-import dev.triumphteam.cmd.core.command.Command;
-import dev.triumphteam.cmd.core.command.ParentSubCommand;
-import dev.triumphteam.cmd.core.command.SubCommand;
+import dev.triumphteam.cmd.core.command.InternalBranchCommand;
+import dev.triumphteam.cmd.core.command.InternalCommand;
+import dev.triumphteam.cmd.core.command.InternalLeafCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget;
@@ -57,7 +58,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 @SuppressWarnings("unchecked")
-public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
+public class RootCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST> {
 
     private final Object invocationInstance;
 
@@ -66,13 +67,13 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
     private final List<String> aliases;
     private final String description;
 
-    private final CommandOptions<D, S> commandOptions;
-    private final RegistryContainer<D, S> registryContainer;
+    private final CommandOptions<D, S, ?, ST> commandOptions;
+    private final RegistryContainer<D, S, ST> registryContainer;
 
     public RootCommandProcessor(
             final @NotNull Object invocationInstance,
-            final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandOptions<D, S> commandOptions
+            final @NotNull RegistryContainer<D, S, ST> registryContainer,
+            final @NotNull CommandOptions<D, S, ?, ST> commandOptions
     ) {
         this.invocationInstance = invocationInstance;
 
@@ -99,12 +100,12 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
     }
 
     @Override
-    public @NotNull CommandOptions<D, S> getCommandOptions() {
+    public @NotNull CommandOptions<D, S, ?, ST> getCommandOptions() {
         return commandOptions;
     }
 
     @Override
-    public @NotNull RegistryContainer<D, S> getRegistryContainer() {
+    public @NotNull RegistryContainer<D, S, ST> getRegistryContainer() {
         return registryContainer;
     }
 
@@ -141,26 +142,26 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         return meta.build();
     }
 
-    public @NotNull List<Command<D, S>> commands(final @NotNull Command<D, S> parentCommand) {
+    public @NotNull List<InternalCommand<D, S, ST>> commands(final @NotNull InternalCommand<D, S, ST> parentCommand) {
         final Class<?> klass = invocationInstance.getClass();
 
-        final List<Command<D, S>> subCommands = new ArrayList<>();
+        final List<InternalCommand<D, S, ST>> subCommands = new ArrayList<>();
         subCommands.addAll(methodCommands(parentCommand, klass.getDeclaredMethods()));
         subCommands.addAll(classCommands(parentCommand, klass.getDeclaredClasses()));
 
         return subCommands;
     }
 
-    private @NotNull List<Command<D, S>> methodCommands(
-            final @NotNull Command<D, S> parentCommand,
+    private @NotNull List<InternalCommand<D, S, ST>> methodCommands(
+            final @NotNull InternalCommand<D, S, ST> parentCommand,
             final @NotNull Method[] methods
     ) {
-        final List<Command<D, S>> commands = new ArrayList<>();
+        final List<InternalCommand<D, S, ST>> commands = new ArrayList<>();
         for (final Method method : methods) {
             // Ignore non-public methods
             if (!Modifier.isPublic(method.getModifiers())) continue;
 
-            final SubCommandProcessor<D, S> processor = new SubCommandProcessor<>(
+            final LeafCommandProcessor<D, S, ST> processor = new LeafCommandProcessor<>(
                     invocationInstance,
                     method,
                     registryContainer,
@@ -171,23 +172,23 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
             // Not a command, ignore the method
             if (processor.getName() == null) continue;
 
-            // Add new command
-            commands.add(new SubCommand<>(invocationInstance, method, processor, parentCommand));
+            // Add a new command
+            commands.add(new InternalLeafCommand<>(invocationInstance, method, processor, parentCommand));
         }
 
         return commands;
     }
 
-    private @NotNull List<Command<D, S>> classCommands(
-            final @NotNull Command<D, S> parentCommand,
+    private @NotNull List<InternalCommand<D, S, ST>> classCommands(
+            final @NotNull InternalCommand<D, S, ST> parentCommand,
             final @NotNull Class<?>[] classes
     ) {
-        final List<Command<D, S>> commands = new ArrayList<>();
+        final List<InternalCommand<D, S, ST>> commands = new ArrayList<>();
         for (final Class<?> klass : classes) {
             // Ignore non-public methods
             if (!Modifier.isPublic(klass.getModifiers())) continue;
 
-            final ParentCommandProcessor<D, S> processor = new ParentCommandProcessor<>(
+            final BranchCommandProcessor<D, S, ST> processor = new BranchCommandProcessor<>(
                     invocationInstance,
                     klass,
                     registryContainer,
@@ -216,10 +217,10 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
                 throw new CommandRegistrationException("Inner command class can only have a maximum of 1 argument, " + arguments + " found", klass);
             }
 
-            final InternalArgument<S, ?> argument;
+            final InternalArgument<S, ST> argument;
             if (!hasArgument) argument = null;
             else {
-                if (!dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME.equals(processor.getName())) {
+                if (!InternalCommand.PARENT_CMD_WITH_ARGS_NAME.equals(processor.getName())) {
                     throw new CommandRegistrationException("Inner command class with argument must not have a name", klass);
                 }
 
@@ -243,18 +244,18 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
                 }
             }
 
-            final ParentSubCommand<D, S> parent = new ParentSubCommand<>(
+            final InternalBranchCommand<D, S, ST> parent = new InternalBranchCommand<>(
                     invocationInstance,
                     constructor,
                     isStatic,
-                    (StringInternalArgument<S>) argument,
+                    (StringInternalArgument<S, ST>) argument,
                     processor,
                     parentCommand
             );
 
             // Add children commands to parent
             parent.addCommands(invocationInstance, methodCommands(parent, klass.getDeclaredMethods()));
-            parent.addCommands(invocationInstance, classCommands(parentCommand, klass.getDeclaredClasses()));
+            parent.addCommands(invocationInstance, classCommands(parent, klass.getDeclaredClasses()));
 
             // Add parent command to main list
             commands.add(parent);
@@ -265,8 +266,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
 
     private @NotNull String nameOf() {
         final Class<?> commandClass = invocationInstance.getClass();
-        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation =
-                commandClass.getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);
+        final Command commandAnnotation = commandClass.getAnnotation(Command.class);
 
         String name = null;
         if (commandAnnotation != null) {
@@ -276,10 +276,10 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
         }
 
         if (name == null) {
-            throw new CommandRegistrationException("No \"@" + Command.class.getSimpleName() + "\" annotation found or class doesn't extend \"" + AnnotatedCommand.class.getSimpleName() + "\"", invocationInstance.getClass());
+            throw new CommandRegistrationException("No \"@" + InternalCommand.class.getSimpleName() + "\" annotation found or class doesn't extend \"" + AnnotatedCommand.class.getSimpleName() + "\"", invocationInstance.getClass());
         }
 
-        if (name.isEmpty() || name.equals(dev.triumphteam.cmd.core.annotations.Command.DEFAULT_CMD_NAME)) {
+        if (name.isEmpty() || name.equals(InternalCommand.DEFAULT_CMD_NAME)) {
             throw new CommandRegistrationException("Command name must not be empty", invocationInstance.getClass());
         }
 
@@ -288,8 +288,7 @@ public class RootCommandProcessor<D, S> implements CommandProcessor<D, S> {
 
     private @NotNull List<String> aliasesOf() {
         final Class<?> commandClass = invocationInstance.getClass();
-        final dev.triumphteam.cmd.core.annotations.Command commandAnnotation =
-                commandClass.getAnnotation(dev.triumphteam.cmd.core.annotations.Command.class);
+        final Command commandAnnotation = commandClass.getAnnotation(Command.class);
 
         List<String> aliases = null;
         if (commandAnnotation != null) {

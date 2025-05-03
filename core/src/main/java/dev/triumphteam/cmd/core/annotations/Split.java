@@ -32,9 +32,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Split annotation, allows you to split a string into a list.
- * For example: diamond;stone;iron;gold, into [diamond, stone, iron, gold].
- * The splitting is type safe.
+ * Split annotation allows you to split a string into a list.
+ * For example, diamond;stone;iron;gold, into [diamond, stone, iron, gold].
+ * The splitting type is safe.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

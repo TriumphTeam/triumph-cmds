@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.annotations;
 
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Documented;
@@ -48,7 +49,16 @@ public @interface Suggestion {
     @NotNull String value();
 
     /**
-     * @return If strict then only suggested values are allowed as valid arguments.
+     * Provides additional optional data or metadata associated with the suggestion.
+     *
+     * @return An additional string to complement the suggestion.
      */
-    boolean strict() default false;
+    @NotNull String extra() default "";
+
+    /**
+     * Specifies which suggestion method should be used for argument suggestions.
+     *
+     * @return The default suggestion method, which is {@link SuggestionMethod#STARTS_WITH}.
+     */
+    @NotNull SuggestionMethod method() default SuggestionMethod.STARTS_WITH;
 }

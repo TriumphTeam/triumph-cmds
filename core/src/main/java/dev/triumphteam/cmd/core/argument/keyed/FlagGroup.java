@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Basically a holder that contains all the needed flags for the command.
+ * Basically a holder that contains all the necessary flags for the command.
  */
 final class FlagGroup implements ArgumentGroup<Flag> {
 

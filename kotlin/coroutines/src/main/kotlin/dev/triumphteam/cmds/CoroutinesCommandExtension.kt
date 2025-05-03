@@ -26,15 +26,16 @@ package dev.triumphteam.cmds
 import dev.triumphteam.cmd.core.argument.InternalArgument
 import dev.triumphteam.cmd.core.argument.LimitlessInternalArgument
 import dev.triumphteam.cmd.core.argument.UnknownInternalArgument
-import dev.triumphteam.cmd.core.command.CommandExecutor
 import dev.triumphteam.cmd.core.extension.ExtensionBuilder
 import dev.triumphteam.cmd.core.extension.ValidationResult
 import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget
 import dev.triumphteam.cmd.core.extension.argument.ArgumentValidator
+import dev.triumphteam.cmd.core.extension.command.CommandExecutor
 import dev.triumphteam.cmd.core.extension.command.Processor
 import dev.triumphteam.cmd.core.extension.command.Settings
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta
 import dev.triumphteam.cmd.core.extension.meta.MetaKey
+import dev.triumphteam.cmd.core.extension.registry.MessageRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,22 +46,20 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.jvm.kotlinFunction
 
-public fun <D, S, B : ExtensionBuilder<D, S>> B.useCoroutines(
+public fun <D, S, B : ExtensionBuilder<D, S, ST>, ST> B.useCoroutines(
     coroutineContext: CoroutineContext = Dispatchers.Default,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineContext),
 ) {
-    val kotlinArgumentExtension = CoroutinesCommandExtension<D, S>(coroutineScope, coroutineContext)
+    val kotlinArgumentExtension = CoroutinesCommandExtension<D, S, ST>(coroutineScope, coroutineContext)
     addProcessor(kotlinArgumentExtension)
     setArgumentValidator(kotlinArgumentExtension)
     setCommandExecutor(kotlinArgumentExtension)
 }
 
-public class CoroutinesCommandExtension<D, S>(
+public class CoroutinesCommandExtension<D, S, ST>(
     private val coroutineScope: CoroutineScope,
     private val coroutineContext: CoroutineContext,
-) : Processor<D, S>,
-    ArgumentValidator<S>,
-    CommandExecutor {
+) : Processor<D, S>, ArgumentValidator<S, ST>, CommandExecutor<S> {
 
     private companion object {
         /** The key that'll represent a suspending function. */
@@ -72,7 +71,7 @@ public class CoroutinesCommandExtension<D, S>(
         element: AnnotatedElement,
         target: ProcessorTarget,
         meta: CommandMeta.Builder,
-        settingsBuilder: Settings.Builder<D, S>
+        settingsBuilder: Settings.Builder<D, S>,
     ) {
         if (element !is Method) return
         // Not really necessary but doesn't hurt to check
@@ -87,7 +86,7 @@ public class CoroutinesCommandExtension<D, S>(
     /** Validation uses the same as the defaults but with an addition modification to allow [Continuation]. */
     override fun validate(
         meta: CommandMeta,
-        argument: InternalArgument<S, *>,
+        argument: InternalArgument<S, ST>,
         position: Int,
         last: Int,
     ): ValidationResult<String> {
@@ -104,7 +103,7 @@ public class CoroutinesCommandExtension<D, S>(
         }
 
         // Validation for limitless
-        if (position != suspendLast && argument is LimitlessInternalArgument<*>) {
+        if (position != suspendLast && argument is LimitlessInternalArgument<*, *>) {
             return invalid("Limitless internalArgument is only allowed as the last internalArgument")
         }
 
@@ -120,23 +119,35 @@ public class CoroutinesCommandExtension<D, S>(
         }
 
         // Could not find the type registered
-        if (argument is UnknownInternalArgument<*>) {
-            return invalid("No internalArgument of type \"" + argument.getType().name + "\" registered")
+        if (argument is UnknownInternalArgument<*, *>) {
+            return invalid("No internalArgument of type \"" + argument.type.name + "\" registered")
         }
 
-        // If everything goes well, we now have valid argument
+        // If everything goes well, we now have a valid argument
         return valid()
     }
 
     /** Executes the command with normal reflection or call suspending if the method is suspending. */
-    override fun execute(meta: CommandMeta, instance: Any, method: Method, arguments: MutableList<Any>) {
+    override fun execute(
+        meta: CommandMeta,
+        messageRegistry: MessageRegistry<S?>,
+        sender: S & Any,
+        instance: Any,
+        method: Method,
+        arguments: List<Any?>,
+    ) {
         if (meta.isPresent(SUSPEND_META_KEY)) {
             coroutineScope.launch(coroutineContext) {
-                method.kotlinFunction?.callSuspend(instance, *arguments.toTypedArray())
+                handleResult(
+                    meta,
+                    messageRegistry,
+                    sender,
+                    method.kotlinFunction?.callSuspend(instance, *arguments.toTypedArray())
+                )
             }
             return
         }
 
-        method.invoke(instance, *arguments.toTypedArray())
+        handleResult(meta, messageRegistry, sender, method.invoke(instance, *arguments.toTypedArray()))
     }
 }

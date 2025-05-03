@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Contains all the command flags that was typed by the user in an easy-to-access way.
+ * Contains all the command flags typed by the user in an easy-to-access way.
  */
 public interface Flags extends Keyed {
 
@@ -53,11 +53,11 @@ public interface Flags extends Keyed {
      * @param <T>  The value type, based on the class from before.
      * @return The flag's value.
      */
-    <T> @NotNull Optional<T> getFlagValue(final @NotNull String flag, final @NotNull Class<T> type);
+    <T> @NotNull Optional<T> getFlagValue(final @NotNull String flag, final @NotNull Class<? super T> type);
 
     /**
-     * Instead of converting the value to the desired type, simply get it as string.
-     * If flag is not present then optional will be empty.
+     * Instead of converting the value to the desired type, get it as string.
+     * If a flag is not present, then optional will be empty.
      *
      * @param flag The flag to get the value from.
      * @return The flag's value.

@@ -30,6 +30,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * An argument container for using "Named Arguments" and "Flag Arguments".
+ * Using the syntax: name:value or --flag.
+ */
 public interface Arguments extends Flags {
 
     /**

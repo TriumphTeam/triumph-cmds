@@ -1,18 +1,18 @@
 /**
  * MIT License
- * <p>
+ *
  * Copyright (c) 2019-2021 Matt
- * <p>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * <p>
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * <p>
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,6 +30,7 @@ import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.annotations.Join;
 import dev.triumphteam.cmd.core.annotations.Optional;
 import dev.triumphteam.cmd.core.annotations.Split;
+import dev.triumphteam.cmd.core.annotations.Suggestion;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.ArgumentResolver;
 import dev.triumphteam.cmd.core.argument.CollectionInternalArgument;
@@ -48,25 +49,27 @@ import dev.triumphteam.cmd.core.argument.keyed.Flags;
 import dev.triumphteam.cmd.core.argument.keyed.Keyed;
 import dev.triumphteam.cmd.core.argument.keyed.KeyedInternalArgument;
 import dev.triumphteam.cmd.core.argument.keyed.ListArgument;
-import dev.triumphteam.cmd.core.exceptions.SubCommandRegistrationException;
+import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.extension.CommandOptions;
+import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.extension.registry.ArgumentRegistry;
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
 import dev.triumphteam.cmd.core.suggestion.EnumSuggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import dev.triumphteam.cmd.core.suggestion.SimpleSuggestion;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.SimpleSuggestionHolder;
+import dev.triumphteam.cmd.core.suggestion.SuggestionContext;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
 import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
-import dev.triumphteam.cmd.core.util.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -88,7 +91,7 @@ import java.util.stream.Collectors;
  * @param <S> The sender type.
  */
 @SuppressWarnings("unchecked")
-abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> {
+abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST> {
 
     private static final Set<Class<?>> SUPPORTED_COLLECTIONS = new HashSet<>(Arrays.asList(List.class, Set.class));
 
@@ -99,19 +102,22 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
     private final Syntax syntax;
     private final AnnotatedElement annotatedElement;
 
-    private final RegistryContainer<D, S> registryContainer;
+    private final RegistryContainer<D, S, ST> registryContainer;
 
-    private final SuggestionRegistry<S> suggestionRegistry;
-    private final ArgumentRegistry<S> argumentRegistry;
+    private final SuggestionRegistry<S, ST> suggestionRegistry;
+    private final ArgumentRegistry<S, ST> argumentRegistry;
 
-    private final CommandOptions<D, S> commandOptions;
+    private final CommandOptions<D, S, ?, ST> commandOptions;
     private final CommandMeta parentMeta;
+
+    private final Map<SuggestionKey, InternalSuggestion<S, ST>> localSuggestions;
+    private final SuggestionMapper<ST> suggestionMapper;
 
     AbstractCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull AnnotatedElement annotatedElement,
-            final @NotNull RegistryContainer<D, S> registryContainer,
-            final @NotNull CommandOptions<D, S> commandOptions,
+            final @NotNull RegistryContainer<D, S, ST> registryContainer,
+            final @NotNull CommandOptions<D, S, ?, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         this.invocationInstance = invocationInstance;
@@ -125,17 +131,22 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         this.registryContainer = registryContainer;
         this.suggestionRegistry = registryContainer.getSuggestionRegistry();
         this.argumentRegistry = registryContainer.getArgumentRegistry();
+        this.suggestionMapper = commandOptions.getCommandExtensions().getSuggestionMapper();
 
         this.syntax = annotatedElement.getAnnotation(Syntax.class);
+
+        this.localSuggestions = collectLocalSuggestions();
     }
 
+    protected abstract String defaultCommandName();
+
     @Override
-    public @NotNull RegistryContainer<D, S> getRegistryContainer() {
+    public @NotNull RegistryContainer<D, S, ST> getRegistryContainer() {
         return registryContainer;
     }
 
     @Override
-    public @NotNull CommandOptions<D, S> getCommandOptions() {
+    public @NotNull CommandOptions<D, S, ?, ST> getCommandOptions() {
         return commandOptions;
     }
 
@@ -149,8 +160,8 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
     }
 
     @Contract("_ -> new")
-    protected @NotNull SubCommandRegistrationException createException(final @NotNull String message) {
-        return new SubCommandRegistrationException(message, annotatedElement, invocationInstance.getClass());
+    protected @NotNull CommandRegistrationException createException(final @NotNull String message) {
+        return new CommandRegistrationException(message, annotatedElement, invocationInstance.getClass());
     }
 
     private @Nullable String nameOf() {
@@ -158,6 +169,9 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
 
         // Not a command element
         if (commandAnnotation == null) return null;
+
+        final String name = commandAnnotation.value();
+        if (name.isEmpty()) return defaultCommandName();
 
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, commandAnnotation.value());
     }
@@ -185,11 +199,11 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         return description;
     }
 
-    protected @NotNull InternalArgument<S, ?> argumentFromParameter(
+    protected @NotNull InternalArgument<S, ST> argumentFromParameter(
             final @NotNull CommandMeta meta,
             final @NotNull Parameter parameter,
             final @NotNull List<String> argDescriptions,
-            final @NotNull Map<Integer, Suggestion<S>> suggestions,
+            final @NotNull Map<Integer, InternalSuggestion<S, ST>> suggestions,
             final @NotNull ArgumentGroup<Flag> flagGroup,
             final @NotNull ArgumentGroup<Argument> argumentGroup,
             final int position
@@ -197,29 +211,44 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         final Class<?> type = parameter.getType();
         final String argumentName = getArgName(parameter);
         final String argumentDescription = getArgumentDescription(argDescriptions, parameter, position);
-        final boolean optional = parameter.isAnnotationPresent(Optional.class);
+
+        final Optional optionalAnnotation = parameter.getAnnotation(Optional.class);
+        final boolean isOptional = optionalAnnotation != null;
+
+        // Grab the default value of the annotation.
+        final String defaultValue;
+        if (optionalAnnotation == null) {
+            defaultValue = null;
+        } else {
+            final String value = optionalAnnotation.defaultValue();
+            if (value.isEmpty()) {
+                defaultValue = null;
+            } else {
+                defaultValue = value;
+            }
+        }
 
         // Handles collection internalArgument.
-        // TODO: Add more collection types.
         if (SUPPORTED_COLLECTIONS.stream().anyMatch(it -> it.isAssignableFrom(type))) {
             final Class<?> collectionType = getGenericType(parameter);
-            final InternalArgument<S, String> argument = createSimpleArgument(
+            final InternalArgument<S, ST> argument = createSimpleArgument(
                     meta,
                     collectionType,
                     argumentName,
                     argumentDescription,
                     suggestions.getOrDefault(position, suggestionFromParam(parameter)),
+                    null,
                     true
             );
 
-            // Throw exception on unknown arguments for collection parameter type
+            // Throw exception on unknown arguments for a collection parameter type
             if (argument instanceof UnknownInternalArgument) {
                 throw createException("No internalArgument of type \"" + argument.getType().getName() + "\" registered");
             }
 
-            // TODO(matt): null check only instead
-            if (parameter.isAnnotationPresent(Split.class)) {
-                final Split splitAnnotation = parameter.getAnnotation(Split.class);
+
+            final Split splitAnnotation = parameter.getAnnotation(Split.class);
+            if (splitAnnotation != null) {
                 return new SplitStringInternalArgument<>(
                         meta,
                         argumentName,
@@ -228,7 +257,8 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                         argument,
                         type,
                         suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                        optional
+                        defaultValue,
+                        isOptional
                 );
             }
 
@@ -239,20 +269,22 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                     argument,
                     type,
                     suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                    optional
+                    defaultValue,
+                    isOptional
             );
         }
 
         // Handler for using String with `@Join`.
-        if (type == String.class && parameter.isAnnotationPresent(Join.class)) {
-            final Join joinAnnotation = parameter.getAnnotation(Join.class);
+        final Join joinAnnotation = parameter.getAnnotation(Join.class);
+        if (type == String.class && joinAnnotation != null) {
             return new JoinedStringInternalArgument<>(
                     meta,
                     argumentName,
                     argumentDescription,
                     joinAnnotation.value(),
                     suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                    optional
+                    defaultValue,
+                    isOptional
             );
         }
 
@@ -276,27 +308,30 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                     createFlagInternals(meta, flagGroup),
                     createNamedArgumentInternals(meta, argumentGroup),
                     flagGroup,
-                    argumentGroup
+                    argumentGroup,
+                    suggestionMapper
             );
         }
 
-        // No more exceptions found so now just create simple argument
+        // No more exceptions found so now create a simple argument
         return createSimpleArgument(
                 meta,
                 type,
                 argumentName,
                 argumentDescription,
                 suggestions.getOrDefault(position, suggestionFromParam(parameter)),
-                optional
+                defaultValue,
+                isOptional
         );
     }
 
-    protected @NotNull StringInternalArgument<S> createSimpleArgument(
+    protected @NotNull StringInternalArgument<S, ST> createSimpleArgument(
             final @NotNull CommandMeta meta,
             final @NotNull Class<?> type,
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
         // All other types default to the resolver.
@@ -311,11 +346,12 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                         description,
                         (Class<? extends Enum<?>>) type,
                         suggestion,
+                        defaultValue,
                         optional
                 );
             }
 
-            final InternalArgument.Factory<S> factory = argumentRegistry.getFactory(type);
+            final InternalArgument.Factory<S, ST> factory = argumentRegistry.getFactory(type);
             if (factory != null) {
                 return factory.create(meta, name, description, type, suggestion, optional);
             }
@@ -329,19 +365,20 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                 type,
                 resolver,
                 suggestion,
+                defaultValue,
                 optional
         );
     }
 
-    private Map<Flag, StringInternalArgument<S>> createFlagInternals(
+    private Map<Flag, StringInternalArgument<S, ST>> createFlagInternals(
             final @NotNull CommandMeta meta,
             final @NotNull ArgumentGroup<Flag> group
     ) {
-        final Map<Flag, StringInternalArgument<S>> internalArguments = new HashMap<>();
+        final Map<Flag, StringInternalArgument<S, ST>> internalArguments = new HashMap<>();
 
         for (final Flag flag : group.getAll()) {
             final Class<?> argType = flag.getArgument();
-            final Suggestion<S> suggestion = createSuggestion(flag.getSuggestion(), argType);
+            final InternalSuggestion<S, ST> suggestion = createSuggestion(flag.getSuggestion(), argType, SuggestionMethod.STARTS_WITH, "");
 
             internalArguments.put(
                     flag,
@@ -351,6 +388,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                             "",
                             flag.getDescription(),
                             suggestion,
+                            null,
                             true
                     )
             );
@@ -359,26 +397,27 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         return internalArguments;
     }
 
-    private Map<Argument, StringInternalArgument<S>> createNamedArgumentInternals(
+    private Map<Argument, StringInternalArgument<S, ST>> createNamedArgumentInternals(
             final @NotNull CommandMeta meta,
             final @NotNull ArgumentGroup<Argument> group
     ) {
-        final Map<Argument, StringInternalArgument<S>> internalArguments = new HashMap<>();
+        final Map<Argument, StringInternalArgument<S, ST>> internalArguments = new HashMap<>();
 
         for (final Argument argument : group.getAll()) {
             final Class<?> argType = argument.getType();
 
-            final Suggestion<S> suggestion = createSuggestion(argument.getSuggestion(), argType);
+            final InternalSuggestion<S, ST> suggestion = createSuggestion(argument.getSuggestion(), argType, SuggestionMethod.STARTS_WITH, "");
 
             if (argument instanceof ListArgument) {
                 final ListArgument listArgument = (ListArgument) argument;
 
-                final InternalArgument<S, String> internalArgument = createSimpleArgument(
+                final InternalArgument<S, ST> internalArgument = createSimpleArgument(
                         meta,
                         listArgument.getType(),
                         listArgument.getName(),
                         listArgument.getDescription(),
                         suggestion,
+                        null,
                         true
                 );
 
@@ -392,6 +431,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                                 internalArgument,
                                 listArgument.getType(),
                                 suggestion,
+                                null,
                                 true
                         )
                 );
@@ -407,6 +447,7 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
                             argument.getName(),
                             argument.getDescription(),
                             suggestion,
+                            null,
                             true
                     )
             );
@@ -423,8 +464,9 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
      * @return The final internalArgument name.
      */
     private @NotNull String getArgName(final @NotNull Parameter parameter) {
-        if (parameter.isAnnotationPresent(ArgName.class)) {
-            return parameter.getAnnotation(ArgName.class).value();
+        final ArgName argNameAnnotation = parameter.getAnnotation(ArgName.class);
+        if (argNameAnnotation != null) {
+            return argNameAnnotation.value();
         }
 
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, parameter.getName());
@@ -477,31 +519,99 @@ abstract class AbstractCommandProcessor<D, S> implements CommandProcessor<D, S> 
         return type;
     }
 
-    protected @NotNull Suggestion<S> createSuggestion(final @Nullable SuggestionKey suggestionKey, final @NotNull Class<?> type) {
-        if (suggestionKey == null || suggestionKey.getKey().isEmpty()) {
-            if (Enum.class.isAssignableFrom(type)) {
-                return new EnumSuggestion<>((Class<? extends Enum<?>>) type, commandOptions.suggestLowercaseEnum());
+    private Map<SuggestionKey, InternalSuggestion<S, ST>> collectLocalSuggestions() {
+        final Map<SuggestionKey, InternalSuggestion<S, ST>> suggestions = new HashMap<>();
+
+        for (final Method method : invocationInstance.getClass().getDeclaredMethods()) {
+            final Suggestion suggestionAnnotation = method.getAnnotation(Suggestion.class);
+            if (suggestionAnnotation == null) continue;
+
+            final Type returnType = method.getGenericReturnType();
+
+            if (!(returnType instanceof ParameterizedType)) {
+                throw createException("Suggestion method must return a List");
             }
 
-            final Pair<SuggestionResolver<S>, SuggestionMethod> pair = suggestionRegistry.getSuggestionResolver(type);
-            if (pair != null) return new SimpleSuggestion<>(pair.first(), pair.second());
+            final Parameter[] parameters = method.getParameters();
+            if (parameters.length > 1) {
+                throw createException("Suggestion method must have either context as first parameter or no parameters at all");
+            }
+
+            final Parameter parameter = parameters.length == 1 ? parameters[0] : null;
+            final boolean needsContext;
+            if (parameter == null) {
+                needsContext = false;
+            } else {
+                if (parameter.getType() != SuggestionContext.class) {
+                    throw createException("Suggestion method must have either context as first parameter or no parameters at all");
+                }
+
+                needsContext = true;
+            }
+
+            final ParameterizedType parameterizedType = (ParameterizedType) returnType;
+            if (parameterizedType.getRawType() != List.class) {
+                throw createException("Suggestion method must return a List of suggestions");
+            }
+
+            final SuggestionKey key = SuggestionKey.of(suggestionAnnotation.value());
+
+            final Type listType = parameterizedType.getActualTypeArguments()[0];
+            if (listType.equals(String.class)) {
+
+                final SimpleSuggestionHolder<S, ST> holder = new SimpleSuggestionHolder.SimpleLocal<>(suggestionMapper, invocationInstance, method, needsContext);
+                suggestions.put(key, new SimpleSuggestion<>(holder, suggestionMapper, suggestionAnnotation.method()));
+                continue;
+            }
+
+            if (!(listType.equals(suggestionMapper.getType()))) {
+                throw createException("Suggestion method must return a List of strings or a List of '" + suggestionMapper.getType().getSimpleName() + "'");
+            }
+
+            final SimpleSuggestionHolder<S, ST> holder = new SimpleSuggestionHolder.RichLocal<>(invocationInstance, method, needsContext);
+            suggestions.put(key, new SimpleSuggestion<>(holder, suggestionMapper, suggestionAnnotation.method()));
+        }
+
+        return suggestions;
+    }
+
+    private @NotNull InternalSuggestion<S, ST> suggestionFromParam(final @NotNull Parameter parameter) {
+        final Suggestion annotation = parameter.getAnnotation(Suggestion.class);
+        final SuggestionKey suggestionKey = annotation == null ? null : SuggestionKey.of(annotation.value());
+
+        final Class<?> type = getGenericType(parameter);
+
+        final SuggestionMethod method = annotation == null ? SuggestionMethod.STARTS_WITH : annotation.method();
+        final String extra = annotation == null ? "" : annotation.extra();
+
+        return createSuggestion(suggestionKey, type, method, extra);
+    }
+
+    protected @NotNull InternalSuggestion<S, ST> createSuggestion(
+            final @Nullable SuggestionKey suggestionKey,
+            final @NotNull Class<?> type,
+            final @NotNull SuggestionMethod method,
+            final @NotNull String extra
+    ) {
+        if (suggestionKey == null || suggestionKey.getKey().isEmpty()) {
+            if (Enum.class.isAssignableFrom(type)) {
+                return new EnumSuggestion<>((Class<? extends Enum<?>>) type, suggestionMapper, method, commandOptions.suggestLowercaseEnum());
+            }
+
+            final InternalSuggestion<S, ST> suggestion = suggestionRegistry.getSuggestion(type);
+            if (suggestion != null) return suggestion;
 
             return new EmptySuggestion<>();
         }
 
-        final Pair<SuggestionResolver<S>, SuggestionMethod> pair = suggestionRegistry.getSuggestionResolver(suggestionKey);
-        if (pair == null) {
+        final InternalSuggestion<S, ST> suggestion = suggestionRegistry.getSuggestion(suggestionKey);
+        if (suggestion == null) {
+            final InternalSuggestion<S, ST> localSuggestion = localSuggestions.get(suggestionKey);
+            if (localSuggestion != null) return localSuggestion.copy(method, extra);
+
             throw createException("Cannot find the suggestion key `" + suggestionKey + "`");
         }
-        return new SimpleSuggestion<>(pair.first(), pair.second());
-    }
-
-    private @NotNull Suggestion<S> suggestionFromParam(final @NotNull Parameter parameter) {
-        final dev.triumphteam.cmd.core.annotations.Suggestion parameterAnnotation = parameter.getAnnotation(dev.triumphteam.cmd.core.annotations.Suggestion.class);
-        final SuggestionKey suggestionKey = parameterAnnotation == null ? null : SuggestionKey.of(parameterAnnotation.value());
-
-        final Class<?> type = getGenericType(parameter);
-
-        return createSuggestion(suggestionKey, type);
+        // TODO(important): INHERIT BY DEFAULT
+        return suggestion.copy(method, extra);
     }
 }

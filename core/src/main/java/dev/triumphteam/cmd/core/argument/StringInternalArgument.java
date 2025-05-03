@@ -24,8 +24,10 @@
 package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
+import dev.triumphteam.cmd.core.suggestion.StaticSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Differently from the {@link LimitlessInternalArgument}, this internalArgument will always be just one string as the arg value.
@@ -33,17 +35,25 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <S> The sender type.
  */
-public abstract class StringInternalArgument<S> extends AbstractInternalArgument<S, String> {
+public abstract class StringInternalArgument<S, ST> extends AbstractInternalArgument<S, ST> {
 
     public StringInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
-        super(meta, name, description, type, suggestion, optional);
+        super(meta, name, description, type, suggestion, defaultValue, optional);
+    }
+
+    protected boolean canUseInput(final @NotNull String input) {
+        final InternalSuggestion<S, ST> suggestion = getSuggestion();
+        if (!(suggestion instanceof StaticSuggestion)) return true;
+        final StaticSuggestion<S, ST> staticSuggestion = (StaticSuggestion<S, ST>) suggestion;
+        return staticSuggestion.contains(input);
     }
 
     @Override

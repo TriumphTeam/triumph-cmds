@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.core.extension;
 
-import dev.triumphteam.cmd.core.command.CommandExecutor;
+import dev.triumphteam.cmd.core.extension.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extension.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extension.argument.ArgumentValidator;
 import dev.triumphteam.cmd.core.extension.command.Processor;
@@ -34,27 +34,30 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 
-public final class CommandExtensions<D, S> {
+public final class CommandExtensions<D, S, ST> {
 
     private final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors;
     private final List<Processor<D, S>> processors;
 
     private final SenderExtension<D, S> senderExtension;
-    private final ArgumentValidator<S> argumentValidator;
-    private final CommandExecutor commandExecutor;
+    private final ArgumentValidator<S, ST> argumentValidator;
+    private final CommandExecutor<S> commandExecutor;
+    private final SuggestionMapper<ST> suggestionMapper;
 
     public CommandExtensions(
             final @NotNull SenderExtension<D, S> senderExtension,
             final @NotNull Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> annotationProcessors,
             final @NotNull List<Processor<D, S>> processors,
-            final @NotNull ArgumentValidator<S> argumentValidator,
-            final @NotNull CommandExecutor commandExecutor
+            final @NotNull ArgumentValidator<S, ST> argumentValidator,
+            final @NotNull CommandExecutor<S> commandExecutor,
+            final @NotNull SuggestionMapper<ST> suggestionMapper
     ) {
         this.senderExtension = senderExtension;
         this.annotationProcessors = annotationProcessors;
         this.processors = processors;
         this.argumentValidator = argumentValidator;
         this.commandExecutor = commandExecutor;
+        this.suggestionMapper = suggestionMapper;
     }
 
     public @NotNull Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> getAnnotationProcessors() {
@@ -65,15 +68,19 @@ public final class CommandExtensions<D, S> {
         return processors;
     }
 
-    public @NotNull ArgumentValidator<S> getArgumentValidator() {
+    public @NotNull ArgumentValidator<S, ST> getArgumentValidator() {
         return argumentValidator;
     }
 
-    public @NotNull CommandExecutor getCommandExecutor() {
+    public @NotNull CommandExecutor<S> getCommandExecutor() {
         return commandExecutor;
     }
 
     public @NotNull SenderExtension<D, S> getSenderExtension() {
         return senderExtension;
+    }
+
+    public @NotNull SuggestionMapper<ST> getSuggestionMapper() {
+        return suggestionMapper;
     }
 }

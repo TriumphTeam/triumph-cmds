@@ -23,19 +23,19 @@
  */
 package dev.triumphteam.cmd.core.argument;
 
-import dev.triumphteam.cmd.core.extension.Result;
+import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
-import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 
 /**
  * Collection argument, a {@link LimitlessInternalArgument} but returns a {@link List} instead.
@@ -43,21 +43,22 @@ import java.util.function.BiFunction;
  *
  * @param <S> The sender type.
  */
-public final class CollectionInternalArgument<S> extends LimitlessInternalArgument<S> {
+public final class CollectionInternalArgument<S, ST> extends LimitlessInternalArgument<S, ST> {
 
-    private final InternalArgument<S, String> internalArgument;
+    private final InternalArgument<S, ST> internalArgument;
     private final Class<?> collectionType;
 
     public CollectionInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
-            final @NotNull InternalArgument<S, String> internalArgument,
+            final @NotNull InternalArgument<S, ST> internalArgument,
             final @NotNull Class<?> collectionType,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
-        super(meta, name, description, String.class, suggestion, optional);
+        super(meta, name, description, String.class, suggestion, defaultValue, optional);
         this.internalArgument = internalArgument;
         this.collectionType = collectionType;
     }
@@ -66,28 +67,17 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
      * Resolves the argument type.
      *
      * @param sender The sender to resolve to.
-     * @param value  The arguments {@link List}.
      * @return A {@link java.util.Collection} type as the resolved value.
      */
     @Override
-    public @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolve(
-            final @NotNull S sender,
-            final @NotNull Collection<String> value,
-            final @Nullable Object provided
+    public @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input
     ) {
-        return resolveCollection(sender, internalArgument, value, collectionType);
+        return resolveCollection(sender, internalArgument, Arrays.asList(input.getInput().split(" ")), collectionType);
     }
 
-    @Override
-    public @NotNull String toString() {
-        return "CollectionArgument{" +
-                "collectionType=" + collectionType +
-                ", super=" + super.toString() + "}";
-    }
-
-    public static <S> @NotNull Result<@Nullable Object, BiFunction<@NotNull CommandMeta, @NotNull String, @NotNull InvalidArgumentContext>> resolveCollection(
+    public static <S, ST> @NotNull InternalArgumentResult resolveCollection(
             final @NotNull S sender,
-            final @NotNull InternalArgument<S, String> internalArgument,
+            final @NotNull InternalArgument<S, ST> internalArgument,
             final @NotNull Collection<String> value,
             final @NotNull Class<?> collectionType
     ) {
@@ -95,21 +85,28 @@ public final class CollectionInternalArgument<S> extends LimitlessInternalArgume
         final Collection<Object> collection = createCollection(collectionType);
 
         for (final String arg : value) {
-            final Result<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>> resolved = internalArgument.resolve(sender, arg);
+            final InternalArgumentResult resolved = internalArgument.resolve(sender, new ArgumentInput(arg));
 
             // If an error occurs, it needs to be delegated back to the caller.
-            if (!(resolved instanceof Result.Success)) return resolved;
+            if (!(resolved instanceof InternalArgumentResult.Valid)) return resolved;
 
             // If success, then we collect the result's value.
-            collection.add(((Result.Success<Object, BiFunction<CommandMeta, String, InvalidArgumentContext>>) resolved).getValue());
+            collection.add(((InternalArgumentResult.Valid) resolved).getValue());
         }
 
         // Return the collection as a success
-        return InternalArgument.success(collection);
+        return InternalArgument.valid(collection);
     }
 
     private static Collection<Object> createCollection(final Class<?> collectionType) {
         if (collectionType == Set.class) return new HashSet<>();
         return new ArrayList<>();
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "CollectionArgument{" +
+                "collectionType=" + collectionType +
+                ", super=" + super.toString() + "}";
     }
 }

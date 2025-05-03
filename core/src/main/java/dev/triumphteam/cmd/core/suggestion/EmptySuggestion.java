@@ -29,17 +29,16 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
-public final class EmptySuggestion<S> implements Suggestion<S> {
+public final class EmptySuggestion<S, ST> implements InternalSuggestion<S, ST> {
 
     @Override
-    public @NotNull List<String> getSuggestions(
+    public @NotNull List<ST> getSuggestions(
             final @NotNull S sender,
             final @NotNull String current,
             final @NotNull List<String> arguments
     ) {
         return emptyList();
     }
-
 
     @Override
     public @NotNull String toString() {

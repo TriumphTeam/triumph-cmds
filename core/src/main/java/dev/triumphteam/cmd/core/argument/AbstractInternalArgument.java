@@ -25,11 +25,10 @@ package dev.triumphteam.cmd.core.argument;
 
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import dev.triumphteam.cmd.core.suggestion.EmptySuggestion;
-import dev.triumphteam.cmd.core.suggestion.Suggestion;
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 /**
@@ -37,24 +36,26 @@ import java.util.List;
  * Which is divided into {@link StringInternalArgument} and {@link LimitlessInternalArgument}.
  *
  * @param <S> The sender type.
- * @param <T> The Argument type.
+ * @param <ST> The suggestion type.
  */
-public abstract class AbstractInternalArgument<S, T> implements InternalArgument<S, T> {
+public abstract class AbstractInternalArgument<S, ST> implements InternalArgument<S, ST> {
 
     private final CommandMeta meta;
 
     private final String name;
     private final String description;
     private final Class<?> type;
+    private final String defaultValue;
     private final boolean optional;
-    private final Suggestion<S> suggestion;
+    private final InternalSuggestion<S, ST> suggestion;
 
     public AbstractInternalArgument(
             final @NotNull CommandMeta meta,
             final @NotNull String name,
             final @NotNull String description,
             final @NotNull Class<?> type,
-            final @NotNull Suggestion<S> suggestion,
+            final @NotNull InternalSuggestion<S, ST> suggestion,
+            final @Nullable String defaultValue,
             final boolean optional
     ) {
         this.meta = meta;
@@ -62,16 +63,13 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
         this.description = description;
         this.type = type;
         this.suggestion = suggestion;
+        this.defaultValue = defaultValue;
         this.optional = optional;
     }
 
     @Override
-    public @NotNull List<String> suggestions(
-            final @NotNull S sender,
-            final @NotNull Deque<String> arguments
-    ) {
-        final String current = arguments.peekLast();
-        return suggestion.getSuggestions(sender, current == null ? "" : current, new ArrayList<>(arguments));
+    public @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
+        return suggestion.getSuggestions(sender, current, arguments);
     }
 
     @Override
@@ -118,11 +116,17 @@ public abstract class AbstractInternalArgument<S, T> implements InternalArgument
     }
 
     @Override
+    public @Nullable String getDefaultValue() {
+        return defaultValue;
+    }
+
+    @Override
     public boolean canSuggest() {
         return !(suggestion instanceof EmptySuggestion);
     }
 
-    protected @NotNull Suggestion<S> getSuggestion() {
+    @Override
+    public @NotNull InternalSuggestion<S, ST> getSuggestion() {
         return suggestion;
     }
 

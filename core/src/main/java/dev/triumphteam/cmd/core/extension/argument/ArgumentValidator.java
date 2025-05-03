@@ -28,11 +28,11 @@ import dev.triumphteam.cmd.core.extension.ValidationResult;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
 import org.jetbrains.annotations.NotNull;
 
-public interface ArgumentValidator<S> {
+public interface ArgumentValidator<S, ST> {
 
     ValidationResult<String> validate(
             final @NotNull CommandMeta meta,
-            final @NotNull InternalArgument<S, ?> argument,
+            final @NotNull InternalArgument<S, ST> argument,
             final int position,
             final int last
     );

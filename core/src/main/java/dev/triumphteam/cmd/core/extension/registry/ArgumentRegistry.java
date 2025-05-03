@@ -42,10 +42,10 @@ import java.util.Map;
  *
  * @param <S> The sender type.
  */
-public final class ArgumentRegistry<S> implements Registry {
+public final class ArgumentRegistry<S, ST> implements Registry {
 
     private final Map<Class<?>, ArgumentResolver<S>> arguments = new HashMap<>();
-    private final Map<Class<?>, InternalArgument.Factory<S>> internals = new HashMap<>();
+    private final Map<Class<?>, InternalArgument.Factory<S, ST>> internals = new HashMap<>();
 
     @SuppressWarnings("UnstableApiUsage")
     public ArgumentRegistry() {
@@ -80,7 +80,7 @@ public final class ArgumentRegistry<S> implements Registry {
         arguments.put(clazz, argument);
     }
 
-    public void register(final @NotNull Class<?> clazz, final @NotNull InternalArgument.Factory<S> factory) {
+    public void register(final @NotNull Class<?> clazz, final @NotNull InternalArgument.Factory<S, ST> factory) {
         internals.put(clazz, factory);
     }
 
@@ -88,7 +88,7 @@ public final class ArgumentRegistry<S> implements Registry {
         return arguments.get(clazz);
     }
 
-    public @Nullable InternalArgument.Factory<S> getFactory(final @NotNull Class<?> clazz) {
+    public @Nullable InternalArgument.Factory<S, ST> getFactory(final @NotNull Class<?> clazz) {
         return internals.get(clazz);
     }
 }

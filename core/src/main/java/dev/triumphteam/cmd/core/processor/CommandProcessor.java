@@ -23,6 +23,7 @@
  */
 package dev.triumphteam.cmd.core.processor;
 
+import dev.triumphteam.cmd.core.annotations.Requirement;
 import dev.triumphteam.cmd.core.annotations.Requirements;
 import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
@@ -49,7 +50,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public interface CommandProcessor<D, S> {
+public interface CommandProcessor<D, S, ST> {
 
     /**
      * Create a new meta and handle some processing before it's fully created.
@@ -58,35 +59,34 @@ public interface CommandProcessor<D, S> {
      */
     @NotNull CommandMeta createMeta(final @NotNull Settings.Builder<D, S> settingsBuilder);
 
-    @NotNull CommandOptions<D, S> getCommandOptions();
+    @NotNull CommandOptions<D, S, ?, ST> getCommandOptions();
 
-    @NotNull RegistryContainer<D, S> getRegistryContainer();
+    @NotNull RegistryContainer<D, S, ST> getRegistryContainer();
 
     @NotNull AnnotatedElement getAnnotatedElement();
 
     @Nullable Syntax getSyntaxAnnotation();
 
     /**
-     * Process all annotations for the specific {@link AnnotatedElement}.
+     * Process-all annotations for the specific {@link AnnotatedElement}.
      *
      * @param extensions The main extensions to get the processors from.
      * @param element    The annotated element to process its annotations.
      * @param target     The target of the annotation.
-     * @param meta       The meta builder that'll be passed to processors.
+     * @param meta       The meta-builder that'll be passed to processors.
      */
     @SuppressWarnings("unchecked")
     default void processAnnotations(
-            final @NotNull CommandExtensions<?, ?> extensions,
+            final @NotNull CommandExtensions<D, S, ST> extensions,
             final @NotNull AnnotatedElement element,
             final @NotNull ProcessorTarget target,
             final @NotNull CommandMeta.Builder meta
     ) {
-        final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> processors
-                = extensions.getAnnotationProcessors();
+        final Map<Class<? extends Annotation>, AnnotationProcessor<? extends Annotation>> processors = extensions.getAnnotationProcessors();
 
         for (final Annotation annotation : element.getAnnotations()) {
-            @SuppressWarnings("rawtypes") final AnnotationProcessor annotationProcessor
-                    = processors.get(annotation.annotationType());
+            //noinspection rawtypes
+            final AnnotationProcessor annotationProcessor = processors.get(annotation.annotationType());
 
             // No processors available
             if (annotationProcessor == null) continue;
@@ -115,7 +115,7 @@ public interface CommandProcessor<D, S> {
     }
 
     default void processCommandMeta(
-            final @NotNull CommandExtensions<D, S> extensions,
+            final @NotNull CommandExtensions<D, S, ST> extensions,
             final @NotNull AnnotatedElement element,
             final @NotNull ProcessorTarget target,
             final @NotNull CommandMeta.Builder meta,
@@ -124,13 +124,13 @@ public interface CommandProcessor<D, S> {
         extensions.getProcessors().forEach(it -> it.process(element, target, meta, settingsBuilder));
     }
 
-    default @NotNull List<dev.triumphteam.cmd.core.annotations.@NotNull Requirement> getRequirementsFromAnnotations() {
+    default @NotNull List<@NotNull Requirement> getRequirementsFromAnnotations() {
         final AnnotatedElement element = getAnnotatedElement();
 
         final Requirements requirements = element.getAnnotation(Requirements.class);
         if (requirements != null) return Arrays.asList(requirements.value());
 
-        final dev.triumphteam.cmd.core.annotations.Requirement requirement = element.getAnnotation(dev.triumphteam.cmd.core.annotations.Requirement.class);
+        final Requirement requirement = element.getAnnotation(Requirement.class);
         if (requirement == null) return Collections.emptyList();
         return Collections.singletonList(requirement);
     }

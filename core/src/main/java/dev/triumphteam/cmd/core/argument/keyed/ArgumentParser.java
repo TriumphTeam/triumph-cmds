@@ -68,9 +68,11 @@ final class ArgumentParser {
         boolean pendingResultReset = false;
 
         while (tokens.hasNext()) {
+            final String token = tokens.next();
+
             // Reset waiting argument because it's a new token
             result.setArgumentWaiting(null);
-            result.setCurrent("");
+            result.setCurrent(token);
 
             // Reset the flag argument that is pending
             if (pendingResultReset) {
@@ -78,9 +80,7 @@ final class ArgumentParser {
                 result.setFlagWaiting(null);
             }
 
-            final String token = tokens.next();
-
-            // If escaping the flag then just, skip
+            // If escaping the flag, then skip
             if (token.startsWith(ESCAPE)) {
                 result.addNonToken(token);
                 continue;
@@ -92,12 +92,12 @@ final class ArgumentParser {
                 result.addFlag(waitingFlag.first(), token);
                 result.setCurrent(token);
 
-                // Mark for result reset after
+                // Mark for a result reset after
                 pendingResultReset = true;
                 continue;
             }
 
-            // Checks if it's a flag, if not then it could be named
+            // Checks if it's a flag, if not, then it could be named
             if ((!token.startsWith(LONG) || LONG.equals(token)) && (!token.startsWith(SHORT) || SHORT.equals(token))) {
                 final int separator = token.indexOf(ARGUMENT_SEPARATOR);
 
@@ -135,7 +135,7 @@ final class ArgumentParser {
     /**
      * Parser handler for named arguments.
      *
-     * @param result    The results instance to add to.
+     * @param result    The result instance to add to.
      * @param token     The current named argument token.
      * @param separator The position of the separator.
      */

@@ -23,176 +23,79 @@
  */
 package dev.triumphteam.cmd.core.extension;
 
-import dev.triumphteam.cmd.core.argument.ArgumentResolver;
-import dev.triumphteam.cmd.core.argument.keyed.Argument;
-import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
-import dev.triumphteam.cmd.core.argument.keyed.Flag;
-import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
-import dev.triumphteam.cmd.core.extension.registry.ArgumentRegistry;
-import dev.triumphteam.cmd.core.extension.registry.FlagRegistry;
-import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
-import dev.triumphteam.cmd.core.extension.registry.NamedArgumentRegistry;
-import dev.triumphteam.cmd.core.extension.registry.RegistryContainer;
+import dev.triumphteam.cmd.core.ManagerSetup;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
-import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.message.MessageResolver;
-import dev.triumphteam.cmd.core.message.context.MessageContext;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionMethod;
-import dev.triumphteam.cmd.core.suggestion.SuggestionRegistry;
-import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unchecked")
-public class CommandOptions<D, S> {
+public class CommandOptions<D, S, O extends CommandOptions<D, S, O, ST>, ST> {
 
-    private final CommandExtensions<D, S> commandExtensions;
+    private final CommandExtensions<D, S, ST> commandExtensions;
     private final boolean suggestLowercaseEnum;
+    private final Consumer<ManagerSetup<D, S, O, ST>> setup;
+    private final SuggestionMethod suggestionMethod;
 
     public CommandOptions(
             final @NotNull SenderExtension<D, S> senderExtension,
-            final @NotNull Builder<D, S, ?, ?, ?> builder
+            final @NotNull Builder<D, S, O, ?, ST> builder
     ) {
 
         this.commandExtensions = builder.extensionBuilder.build(senderExtension);
         this.suggestLowercaseEnum = builder.suggestLowercaseEnum;
+        this.setup = builder.setup;
+        this.suggestionMethod = builder.suggestionMethod;
     }
 
-    public @NotNull CommandExtensions<D, S> getCommandExtensions() {
+    public @NotNull CommandExtensions<D, S, ST> getCommandExtensions() {
         return commandExtensions;
+    }
+
+    public @NotNull Consumer<ManagerSetup<D, S, O, ST>> getSetup() {
+        return setup;
+    }
+
+    public @NotNull SuggestionMethod getDefaultSuggestionMethod() {
+        return suggestionMethod;
     }
 
     public boolean suggestLowercaseEnum() {
         return suggestLowercaseEnum;
     }
 
-    public static abstract class Builder<D, S, O extends CommandOptions<D, S>, I extends Setup<D, S, I>, B extends Builder<D, S, O, I, B>> {
+    public static abstract class Builder<D, S, O extends CommandOptions<D, S, O, ST>, B extends Builder<D, S, O, B, ST>, ST> {
 
+        private final ExtensionBuilder<D, S, ST> extensionBuilder = new ExtensionBuilder<>();
+        private Consumer<ManagerSetup<D, S, O, ST>> setup = setup -> {};
         private boolean suggestLowercaseEnum = false;
-        private final ExtensionBuilder<D, S> extensionBuilder = new ExtensionBuilder<>();
-        private final I setup;
+        private SuggestionMethod suggestionMethod = SuggestionMethod.STARTS_WITH;
 
-        public Builder(final @NotNull I setup) {
-            this.setup = setup;
+        protected abstract @NotNull B getThis();
+
+        @Contract("_ -> this")
+        public @NotNull B setup(final @NotNull Consumer<ManagerSetup<D, S, O, ST>> consumer) {
+            this.setup = consumer;
+            return getThis();
         }
 
         @Contract("_ -> this")
-        public @NotNull B setup(final @NotNull Consumer<I> consumer) {
-            consumer.accept(setup);
-            return (B) this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull B extensions(final @NotNull Consumer<ExtensionBuilder<D, S>> consumer) {
+        public @NotNull B extensions(final @NotNull Consumer<ExtensionBuilder<D, S, ST>> consumer) {
             consumer.accept(extensionBuilder);
-            return (B) this;
+            return getThis();
         }
 
         @Contract(" -> this")
         public @NotNull B suggestLowercaseEnum() {
             this.suggestLowercaseEnum = true;
-            return (B) this;
+            return getThis();
         }
 
-        public abstract @NotNull O build(final @NotNull SenderExtension<D, S> senderExtension);
-    }
-
-    public static abstract class Setup<D, S, I extends Setup<D, S, I>> {
-        private final RegistryContainer<D, S> registryContainer;
-
-        private final MessageRegistry<S> messageRegistry;
-        private final SuggestionRegistry<S> suggestionRegistry;
-        private final ArgumentRegistry<S> argumentRegistry;
-        private final NamedArgumentRegistry namedArgumentRegistry;
-        private final FlagRegistry flagRegistry;
-
-        public Setup(final @NotNull RegistryContainer<D, S> registryContainer) {
-            this.registryContainer = registryContainer;
-
-            this.messageRegistry = registryContainer.getMessageRegistry();
-            this.suggestionRegistry = registryContainer.getSuggestionRegistry();
-            this.argumentRegistry = registryContainer.getArgumentRegistry();
-            this.namedArgumentRegistry = registryContainer.getNamedArgumentRegistry();
-            this.flagRegistry = registryContainer.getFlagRegistry();
-        }
-
-        @Contract("_, _ -> new")
-        public <C extends MessageContext> @NotNull I message(
-                final @NotNull MessageKey<C> messageKey,
-                final @NotNull MessageResolver<S, C> resolver
-        ) {
-            messageRegistry.register(messageKey, resolver);
-            return (I) this;
-        }
-
-        @Contract("_, _ -> new")
-        public @NotNull I argument(
-                final @NotNull Class<?> type,
-                final @NotNull ArgumentResolver<S> resolver
-        ) {
-            argumentRegistry.register(type, resolver);
-            return (I) this;
-        }
-
-        @Contract("_, _ -> new")
-        public @NotNull I suggestion(
-                final @NotNull Class<?> type,
-                final @NotNull SuggestionResolver<S> resolver
-        ) {
-            suggestionRegistry.register(type, resolver, SuggestionMethod.STARTS_WITH);
-            return (I) this;
-        }
-
-        @Contract("_, _ -> new")
-        public @NotNull I suggestion(
-                final @NotNull SuggestionKey key,
-                final @NotNull SuggestionResolver<S> resolver
-        ) {
-            suggestionRegistry.register(key, resolver, SuggestionMethod.STARTS_WITH);
-            return (I) this;
-        }
-
-        @Contract("_, _ -> new")
-        public @NotNull I namedArguments(
-                final @NotNull ArgumentKey key,
-                final @NotNull List<Argument> arguments
-        ) {
-            namedArgumentRegistry.register(key, arguments);
-            return (I) this;
-        }
-
-        @Contract("_, _ -> new")
-        public @NotNull I namedArguments(
-                final @NotNull ArgumentKey key,
-                final @NotNull Argument @NotNull ... arguments
-        ) {
-            return namedArguments(key, Arrays.asList(arguments));
-        }
-
-        @Contract("_, _ -> new")
-        public @NotNull I flags(
-                final @NotNull FlagKey key,
-                final @NotNull List<Flag> flags
-        ) {
-            flagRegistry.register(key, flags);
-            return (I) this;
-        }
-
-        @Contract("_, _ -> new")
-        public @NotNull I flags(
-                final @NotNull FlagKey key,
-                final @NotNull Flag @NotNull ... flags
-        ) {
-            return flags(key, Arrays.asList(flags));
-        }
-
-        protected @NotNull RegistryContainer<D, S> getRegistryContainer() {
-            return registryContainer;
+        @Contract("_ -> this")
+        public @NotNull B defaultSuggestionMethod(final @NotNull SuggestionMethod suggestionMethod) {
+            this.suggestionMethod = suggestionMethod;
+            return getThis();
         }
     }
 }
