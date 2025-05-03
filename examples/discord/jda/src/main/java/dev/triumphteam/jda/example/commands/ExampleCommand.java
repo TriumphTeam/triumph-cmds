@@ -25,14 +25,14 @@ package dev.triumphteam.jda.example.commands;
 
 import dev.triumphteam.cmd.core.annotations.Command;
 import dev.triumphteam.cmd.core.annotations.Suggestion;
-import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
+import dev.triumphteam.cmd.jda.sender.CommandSender;
 import net.dv8tion.jda.api.entities.User;
 
 @Command("example")
 public class ExampleCommand {
 
     @Command
-    public void execute(final SlashCommandSender sender, @Suggestion("hello") final String name, final User user) {
+    public void execute(final CommandSender sender, @Suggestion("hello") final String name, final User user) {
         sender.reply("Command sent was /example <" + name + "> <" + user.getName() + ">").queue();
     }
 }

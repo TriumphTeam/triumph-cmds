@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
+import dev.triumphteam.cmd.jda.sender.CommandSender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-final class InteractionCommandSender implements SlashCommandSender {
+final class InteractionCommandSender implements CommandSender {
 
     private final SlashCommandInteractionEvent event;
 

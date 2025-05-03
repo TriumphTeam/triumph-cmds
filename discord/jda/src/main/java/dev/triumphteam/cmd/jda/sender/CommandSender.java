@@ -21,16 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmds.kord
+package dev.triumphteam.cmd.jda.sender;
 
-import dev.kord.core.behavior.interaction.respondPublic
-import dev.kord.core.event.interaction.ChatInputCommandInteractionCreateEvent
-import dev.triumphteam.cmds.kord.sender.SlashSender
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
+import org.jetbrains.annotations.NotNull;
 
-internal class DummySender(private val event: ChatInputCommandInteractionCreateEvent) : SlashSender {
-    override suspend fun reply(message: String) {
-        event.interaction.respondPublic {
-            content = message
-        }
-    }
+/**
+ * Works like a shortcut for most things present on {@link SlashCommandInteractionEvent}.
+ * Contains the more useful methods from it but still allows you to get the original event if more is needed.
+ */
+public interface CommandSender extends Sender {
+
+    @Override
+    @NotNull MessageChannelUnion getChannel();
+
+    /**
+     * Gets the original event if more options are needed.
+     *
+     * @return The original event.
+     */
+    @NotNull SlashCommandInteractionEvent getEvent();
+
+    /**
+     * Gets the interaction hook for the command.
+     *
+     * @return The interaction hook.
+     */
+    @NotNull InteractionHook getHook();
 }

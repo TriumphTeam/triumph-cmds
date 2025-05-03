@@ -24,11 +24,12 @@
 package dev.triumphteam.cmds.kord
 
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension
-import dev.triumphteam.cmds.kord.sender.SlashSender
+import dev.triumphteam.cmds.kord.sender.CommandSender
+import dev.triumphteam.cmds.kord.sender.Sender
 
-internal class SlashSenderExtension : SenderExtension.Default<SlashSender> {
+internal class SlashSenderExtension : SenderExtension.Default<Sender> {
 
-    override fun getAllowedSenders(): Set<Class<out SlashSender>> {
-        return setOf(SlashSender::class.java)
+    override fun getAllowedSenders(): Set<Class<out Sender>> {
+        return setOf(Sender::class.java, CommandSender::class.java)
     }
 }

@@ -25,7 +25,8 @@ package dev.triumphteam.kord.example
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
-import dev.triumphteam.cmds.kord.SlashCommandManager
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey
+import dev.triumphteam.cmds.kord.KordCommandManager
 import dev.triumphteam.kord.example.commands.ExampleCommand
 import dev.triumphteam.kord.example.commands.ExampleCommandGroup
 import dev.triumphteam.kord.example.commands.ExampleSubCommand
@@ -33,8 +34,8 @@ import dev.triumphteam.kord.example.commands.ExampleSubCommand
 public suspend fun main(args: Array<String>) {
     val kord = Kord(args[0])
 
-    val manager = SlashCommandManager(kord)
-    manager.registerSuggestion(String::class.java) { _, _ -> listOf("ass", "ss") }
+    val manager = KordCommandManager(kord)
+    manager.registerStaticSuggestion(SuggestionKey.of("example"), listOf("name1", "name2", "name3"))
 
     manager.apply {
         registerCommand(Snowflake(820696172477677628), ExampleCommand())

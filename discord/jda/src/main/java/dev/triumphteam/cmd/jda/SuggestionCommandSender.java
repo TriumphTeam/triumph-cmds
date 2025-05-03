@@ -23,7 +23,7 @@
  */
 package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.jda.sender.SlashSender;
+import dev.triumphteam.cmd.jda.sender.Sender;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-final class SuggestionCommandSender implements SlashSender {
+final class SuggestionCommandSender implements Sender {
 
     private final CommandAutoCompleteInteractionEvent event;
 

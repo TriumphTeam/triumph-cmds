@@ -33,16 +33,16 @@ import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.core.suggestion.SuggestionMethod
 import dev.triumphteam.cmd.discord.NsfwProcessor
 import dev.triumphteam.cmd.discord.annotation.NSFW
-import dev.triumphteam.cmds.kord.sender.SlashSender
+import dev.triumphteam.cmds.kord.sender.Sender
 import dev.triumphteam.cmds.useCoroutines
 
-public class SlashCommandOptions<S>(
-    senderExtension: SenderExtension<SlashSender, S>,
+public class KordCommandOptions<S>(
+    senderExtension: SenderExtension<Sender, S>,
     builder: Builder<S>,
-) : CommandOptions<SlashSender, S, SlashCommandOptions<S>, Choice>(senderExtension, builder) {
+) : CommandOptions<Sender, S, KordCommandOptions<S>, Choice>(senderExtension, builder) {
 
     public class Builder<S>(kord: Kord) :
-        CommandOptions.Builder<SlashSender, S, SlashCommandOptions<S>, Builder<S>, Choice>() {
+        CommandOptions.Builder<Sender, S, KordCommandOptions<S>, Builder<S>, Choice>() {
 
         init {
             // Setters have to be done first thing, so they can be overridden.
@@ -55,8 +55,8 @@ public class SlashCommandOptions<S>(
 
         override fun getThis(): Builder<S> = this
 
-        internal fun build(senderExtension: SenderExtension<SlashSender, S>): SlashCommandOptions<S> {
-            return SlashCommandOptions(senderExtension, this)
+        internal fun build(senderExtension: SenderExtension<Sender, S>): KordCommandOptions<S> {
+            return KordCommandOptions(senderExtension, this)
         }
     }
 }
@@ -68,7 +68,6 @@ internal class KordSuggestionMapper : SuggestionMapper<Choice> {
     }
 
     override fun mapBackwards(values: List<Choice>): List<String> {
-        // TODO(important): NEEDS A LOT OF TESTING!!!
         return values.map { it.value.toString() }
     }
 

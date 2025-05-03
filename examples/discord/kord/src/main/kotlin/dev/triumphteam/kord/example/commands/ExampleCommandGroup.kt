@@ -25,7 +25,7 @@ package dev.triumphteam.kord.example.commands
 
 import dev.kord.core.entity.User
 import dev.triumphteam.cmd.core.annotations.Command
-import dev.triumphteam.cmds.kord.sender.SlashSender
+import dev.triumphteam.cmds.kord.sender.Sender
 
 @Command("kord-group")
 public class ExampleCommandGroup {
@@ -34,13 +34,17 @@ public class ExampleCommandGroup {
     public inner class Group {
 
         @Command("first")
-        public suspend fun first(sender: SlashSender) {
-            sender.reply("Command sent was /group test first")
+        public suspend fun first(sender: Sender) {
+            sender.respondPublic {
+                content = "Command sent was /group test first"
+            }
         }
 
         @Command("second")
-        public suspend fun second(sender: SlashSender, user: User) {
-            sender.reply("Command sent was /group test second <$user>")
+        public suspend fun second(sender: Sender, user: User) {
+            sender.respondPublic {
+                content = "Command sent was /group test second <$user>"
+            }
         }
     }
 }

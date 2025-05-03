@@ -23,39 +23,51 @@
  */
 package dev.triumphteam.cmd.jda.sender;
 
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
 /**
- * Works like a shortcut for most things present on {@link SlashCommandInteractionEvent}.
- * Contains the more useful methods from it but still allows you to get the original event if more is needed.
+ * Simpler sender, used for suggestions and commands.
  */
-public interface SlashCommandSender extends SlashSender {
-
-    @Override
-    @NotNull MessageChannelUnion getChannel();
+public interface Sender {
 
     /**
-     * Gets the original event if more options are needed.
+     * Gets the guild that the command was sent in or null if it was sent in a private message.
      *
-     * @return The original event.
+     * @return The guild.
      */
-    @NotNull SlashCommandInteractionEvent getEvent();
+    @Nullable Guild getGuild();
 
     /**
-     * Gets the interaction hook for the command.
+     * Gets the channel that the command was sent in.
      *
-     * @return The interaction hook.
+     * @return The channel.
      */
-    @NotNull InteractionHook getHook();
+    @Nullable MessageChannelUnion getChannel();
+
+    /**
+     * Gets the user that sent the command.
+     *
+     * @return The user.
+     */
+    @NotNull User getUser();
+
+    /**
+     * Gets the member that sent the command or null if the user is not a member.
+     *
+     * @return The member.
+     */
+    @Nullable Member getMember();
 
     /**
      * Replies to the command with a string message.

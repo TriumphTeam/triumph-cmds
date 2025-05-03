@@ -24,7 +24,7 @@
 package dev.triumphteam.jda.example.commands;
 
 import dev.triumphteam.cmd.core.annotations.Command;
-import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
+import dev.triumphteam.cmd.jda.sender.CommandSender;
 
 @Command("group")
 public class ExampleCommandGroup {
@@ -33,12 +33,12 @@ public class ExampleCommandGroup {
     public class Group {
 
         @Command("first")
-        public void first(final SlashCommandSender sender) {
+        public void first(final CommandSender sender) {
             sender.reply("Command sent was /group test first").queue();
         }
 
         @Command("second")
-        public void second(final SlashCommandSender sender, final int user) {
+        public void second(final CommandSender sender, final int user) {
             sender.reply("Command sent was /group test second <" + user + ">").queue();
         }
     }

@@ -25,8 +25,8 @@ package dev.triumphteam.cmd.jda;
 
 import com.google.common.collect.ImmutableSet;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
-import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
-import dev.triumphteam.cmd.jda.sender.SlashSender;
+import dev.triumphteam.cmd.jda.sender.CommandSender;
+import dev.triumphteam.cmd.jda.sender.Sender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -34,10 +34,10 @@ import java.util.Set;
 /**
  * Simple validator that always returns true.
  */
-final class JdaSenderExtension implements SenderExtension.Default<SlashSender> {
+final class JdaSenderExtension implements SenderExtension.Default<Sender> {
 
     @Override
-    public @NotNull Set<Class<? extends SlashSender>> getAllowedSenders() {
-        return ImmutableSet.of(SlashSender.class, SlashCommandSender.class);
+    public @NotNull Set<Class<? extends Sender>> getAllowedSenders() {
+        return ImmutableSet.of(Sender.class, CommandSender.class);
     }
 }

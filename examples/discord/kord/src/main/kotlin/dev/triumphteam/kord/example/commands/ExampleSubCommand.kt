@@ -23,20 +23,43 @@
  */
 package dev.triumphteam.kord.example.commands
 
+import dev.kord.core.entity.User
 import dev.triumphteam.cmd.core.annotations.Command
 import dev.triumphteam.cmd.core.annotations.Suggestion
-import dev.triumphteam.cmds.kord.sender.SlashSender
+import dev.triumphteam.cmd.core.suggestion.SuggestionContext
+import dev.triumphteam.cmds.kord.sender.Sender
 
 @Command("kord-sub")
 public class ExampleSubCommand {
 
+    @Suggestion("quick")
+    public fun quickSuggestion(context: SuggestionContext<Sender>): List<String> {
+        println(context.arguments)
+        return listOf(
+            "Alexander",
+            "Isabella",
+            "Benjamin",
+            "Charlotte",
+            "Daniel",
+            "Emma",
+            "Gabriel",
+            "Hannah",
+            "Isaac",
+            "Julia"
+        )
+    }
+
     @Command("first")
-    public suspend fun first(sender: SlashSender) {
-        sender.reply("Command sent was /sub first")
+    public suspend fun first(sender: Sender, user: User, @Suggestion("quick") name: String) {
+        sender.respondPublic {
+            content = "Command sent was /sub first <$name>"
+        }
     }
 
     @Command("second")
-    public suspend fun second(sender: SlashSender, @Suggestion("example") text: String) {
-        sender.reply("Command sent was /sub second <$text>")
+    public suspend fun second(sender: Sender, @Suggestion("example") text: String) {
+        sender.respondPublic {
+            content = "Command sent was /sub second <$text>"
+        }
     }
 }

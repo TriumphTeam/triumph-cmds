@@ -24,19 +24,19 @@
 package dev.triumphteam.jda.example.commands;
 
 import dev.triumphteam.cmd.core.annotations.Command;
-import dev.triumphteam.cmd.jda.sender.SlashCommandSender;
+import dev.triumphteam.cmd.jda.sender.CommandSender;
 import net.dv8tion.jda.api.entities.User;
 
 @Command("sub")
 public class ExampleSubCommand {
 
     @Command("first")
-    public void first(final SlashCommandSender sender) {
+    public void first(final CommandSender sender) {
         sender.reply("Command sent was /sub first").queue();
     }
 
     @Command("second")
-    public void second(final SlashCommandSender sender, final User user, final String test) {
+    public void second(final CommandSender sender, final User user, final String test) {
         sender.reply("Command sent was /sub second <" + user.getName() + ">").queue();
     }
 }

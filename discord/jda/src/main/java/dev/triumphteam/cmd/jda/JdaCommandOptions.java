@@ -29,19 +29,19 @@ import dev.triumphteam.cmd.core.extension.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.discord.NsfwProcessor;
 import dev.triumphteam.cmd.discord.annotation.NSFW;
-import dev.triumphteam.cmd.jda.sender.SlashSender;
+import dev.triumphteam.cmd.jda.sender.Sender;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public final class JdaCommandOptions<S> extends CommandOptions<SlashSender, S, JdaCommandOptions<S>, Command.Choice> {
+public final class JdaCommandOptions<S> extends CommandOptions<Sender, S, JdaCommandOptions<S>, Command.Choice> {
 
     private final boolean autoRegisterListener;
 
     public JdaCommandOptions(
-            final @NotNull SenderExtension<SlashSender, S> senderExtension,
+            final @NotNull SenderExtension<Sender, S> senderExtension,
             final @NotNull Builder<S> builder
     ) {
         super(senderExtension, builder);
@@ -52,7 +52,7 @@ public final class JdaCommandOptions<S> extends CommandOptions<SlashSender, S, J
         return autoRegisterListener;
     }
 
-    public static final class Builder<S> extends CommandOptions.Builder<SlashSender, S, JdaCommandOptions<S>, Builder<S>, Command.Choice> {
+    public static final class Builder<S> extends CommandOptions.Builder<Sender, S, JdaCommandOptions<S>, Builder<S>, Command.Choice> {
 
         private boolean autoRegisterListener = true;
 
@@ -84,7 +84,7 @@ public final class JdaCommandOptions<S> extends CommandOptions<SlashSender, S, J
             return this;
         }
 
-        @NotNull JdaCommandOptions<S> build(final @NotNull SenderExtension<SlashSender, S> senderExtension) {
+        @NotNull JdaCommandOptions<S> build(final @NotNull SenderExtension<Sender, S> senderExtension) {
             return new JdaCommandOptions<>(senderExtension, this);
         }
     }

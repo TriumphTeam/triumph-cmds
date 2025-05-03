@@ -33,8 +33,8 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.GuildChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.channel.TextChannel
-import dev.kord.core.entity.interaction.ChatInputCommandInteraction
 import dev.kord.core.entity.interaction.GroupCommand
+import dev.kord.core.entity.interaction.InteractionCommand
 import dev.kord.core.entity.interaction.SubCommand
 import dev.kord.rest.builder.interaction.AttachmentBuilder
 import dev.kord.rest.builder.interaction.BooleanBuilder
@@ -51,7 +51,7 @@ import dev.triumphteam.cmd.core.command.InternalCommand
 import dev.triumphteam.cmd.core.command.InternalLeafCommand
 import dev.triumphteam.cmd.core.suggestion.StaticSuggestion
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument
-import dev.triumphteam.cmds.kord.sender.SlashSender
+import dev.triumphteam.cmds.kord.sender.Sender
 import java.util.ArrayDeque
 import java.util.Deque
 
@@ -112,21 +112,20 @@ private val InternalArgument<*, *>.kordDescription
 internal val InternalCommand<*, *, *>.kordDescription
     get() = description.ifEmpty { name }
 
-internal val ChatInputCommandInteraction.fullNAME: Deque<String>
+internal val InteractionCommand.fullName: Deque<String>
     get() {
-        val command = command // Needed for smart casting.
         return ArrayDeque(
             buildList {
-                add(command.rootName) // Root is always there.
+                add(rootName) // Root is always there.
 
-                if (command is GroupCommand) {
-                    add(command.groupName)
-                    add(command.name)
+                if (this@fullName is GroupCommand) {
+                    add(groupName)
+                    add(name)
                     return@buildList
                 }
 
-                if (command is SubCommand) {
-                    add(command.name)
+                if (this@fullName is SubCommand) {
+                    add(name)
                 }
             }
         )
@@ -163,10 +162,8 @@ private fun <S> OptionsBuilder.defaults(argument: InternalArgument<S, Choice>) {
 
             else -> {}
         }
-
         return
     }
-
 
     // Finally, check if we can enable auto complete.
     autocomplete = argument.canSuggest()
@@ -176,6 +173,8 @@ private fun <S> InternalArgument<S, Choice>.toKordOption(): OptionsBuilder =
     OPTION_BUILDER_MAPPING[kordType]?.invoke(this) ?: StringChoiceBuilder(name, kordDescription)
         .apply { defaults(this@toKordOption) }
 
-internal val <S> InternalLeafCommand<SlashSender, S, Choice>.kordArguments: MutableList<OptionsBuilder>
+internal val <S> InternalLeafCommand<Sender, S, Choice>.kordArguments: MutableList<OptionsBuilder>
     get() = argumentList.map { argument -> argument.toKordOption() }.toMutableList()
 
+
+internal data class KordOption(internal val name: String, internal val value: String, internal val focused: Boolean)

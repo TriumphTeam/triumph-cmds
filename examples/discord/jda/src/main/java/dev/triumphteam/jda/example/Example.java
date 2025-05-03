@@ -26,7 +26,7 @@ package dev.triumphteam.jda.example;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.jda.JdaCommandManager;
 import dev.triumphteam.cmd.jda.JdaCommandOptions;
-import dev.triumphteam.cmd.jda.sender.SlashSender;
+import dev.triumphteam.cmd.jda.sender.Sender;
 import dev.triumphteam.jda.example.commands.ExampleCommand;
 import dev.triumphteam.jda.example.commands.ExampleCommandGroup;
 import dev.triumphteam.jda.example.commands.ExampleSubCommand;
@@ -41,7 +41,7 @@ public class Example {
     public static void main(String[] args) throws InterruptedException {
         final JDA jda = JDABuilder.createDefault(args[0]).build().awaitReady();
 
-        final JdaCommandManager<SlashSender> commandManager = JdaCommandManager.create(jda, JdaCommandOptions.Builder::disableAutoRegisterListener);
+        final JdaCommandManager<Sender> commandManager = JdaCommandManager.create(jda, JdaCommandOptions.Builder::disableAutoRegisterListener);
 
         commandManager.registerStaticRichSuggestion(
                 SuggestionKey.of("hello"),

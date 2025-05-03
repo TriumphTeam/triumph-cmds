@@ -35,7 +35,7 @@ import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import dev.triumphteam.cmd.core.suggestion.StaticSuggestion;
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
 import dev.triumphteam.cmd.discord.annotation.NSFW;
-import dev.triumphteam.cmd.jda.sender.SlashSender;
+import dev.triumphteam.cmd.jda.sender.Sender;
 import gnu.trove.map.TLongObjectMap;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
@@ -105,7 +105,7 @@ final class JdaMappingUtil {
         }
     }
 
-    public static <S> @NotNull SlashCommandData mapCommand(final @NotNull InternalRootCommand<SlashSender, S, Command.Choice> rootCommand) {
+    public static <S> @NotNull SlashCommandData mapCommand(final @NotNull InternalRootCommand<Sender, S, Command.Choice> rootCommand) {
         final String name = rootCommand.getName();
         final String description = rootCommand.getDescription();
 
@@ -113,22 +113,22 @@ final class JdaMappingUtil {
                 .slash(name, description.isEmpty() ? name : description)
                 .setNSFW(rootCommand.getMeta().isPresent(NSFW.META_KEY));
 
-        final InternalCommand<SlashSender, S, Command.Choice> defaultCommand = rootCommand.getCommand(InternalCommand.DEFAULT_CMD_NAME);
+        final InternalCommand<Sender, S, Command.Choice> defaultCommand = rootCommand.getCommand(InternalCommand.DEFAULT_CMD_NAME);
         if (defaultCommand != null) {
             // Safe to cast because only subcommands can be default
-            final InternalLeafCommand<SlashSender, S, Command.Choice> subCommand = (InternalLeafCommand<SlashSender, S, Command.Choice>) defaultCommand;
+            final InternalLeafCommand<Sender, S, Command.Choice> subCommand = (InternalLeafCommand<Sender, S, Command.Choice>) defaultCommand;
 
             return commandData.addOptions(subCommand.getArgumentList().stream().map(JdaMappingUtil::mapOption).collect(Collectors.toList()));
         }
 
-        final Collection<InternalCommand<SlashSender, S, Command.Choice>> commands = rootCommand.getCommands().values();
+        final Collection<InternalCommand<Sender, S, Command.Choice>> commands = rootCommand.getCommands().values();
 
         commandData.addSubcommands(
                 commands.stream()
                         .filter(it -> !it.isHidden())
                         .map(it -> {
                             if (!(it instanceof InternalLeafCommand)) return null;
-                            return mapSubCommand((InternalLeafCommand<SlashSender, S, Command.Choice>) it);
+                            return mapSubCommand((InternalLeafCommand<Sender, S, Command.Choice>) it);
                         }).filter(Objects::nonNull).collect(Collectors.toList())
         );
 
@@ -137,14 +137,14 @@ final class JdaMappingUtil {
                         .filter(it -> !it.isHidden())
                         .map(it -> {
                             if (!(it instanceof InternalBranchCommand)) return null;
-                            return mapSubCommandGroup((InternalBranchCommand<SlashSender, S, Command.Choice>) it);
+                            return mapSubCommandGroup((InternalBranchCommand<Sender, S, Command.Choice>) it);
                         }).filter(Objects::nonNull).collect(Collectors.toList())
         );
 
         return commandData;
     }
 
-    public static <S> @NotNull SubcommandData mapSubCommand(final @NotNull InternalLeafCommand<SlashSender, S, Command.Choice> subCommand) {
+    public static <S> @NotNull SubcommandData mapSubCommand(final @NotNull InternalLeafCommand<Sender, S, Command.Choice> subCommand) {
         final String name = subCommand.getName();
         final String description = subCommand.getDescription();
 
@@ -152,7 +152,7 @@ final class JdaMappingUtil {
                 .addOptions(subCommand.getArgumentList().stream().map(JdaMappingUtil::mapOption).collect(Collectors.toList()));
     }
 
-    public static <S> @NotNull SubcommandGroupData mapSubCommandGroup(final @NotNull InternalBranchCommand<SlashSender, S, Command.Choice> parentCommand) {
+    public static <S> @NotNull SubcommandGroupData mapSubCommandGroup(final @NotNull InternalBranchCommand<Sender, S, Command.Choice> parentCommand) {
         final String name = parentCommand.getName();
         final String description = parentCommand.getDescription();
 
@@ -164,7 +164,7 @@ final class JdaMappingUtil {
                 .addSubcommands(
                         parentCommand.getCommands().values().stream().map(it -> {
                             if (!(it instanceof InternalLeafCommand)) return null;
-                            return mapSubCommand((InternalLeafCommand<SlashSender, S, Command.Choice>) it);
+                            return mapSubCommand((InternalLeafCommand<Sender, S, Command.Choice>) it);
                         }).filter(Objects::nonNull).collect(Collectors.toList())
                 );
     }
