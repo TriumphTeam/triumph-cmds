@@ -69,9 +69,6 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         super(commandOptions, registryContainer);
         this.plugin = plugin;
 
-        // Accept the setup consumer to easily set up the manager.
-        commandOptions.getSetup().accept(this);
-
         this.commandMap = getCommandMap();
         this.bukkitCommands = getBukkitCommands(commandMap);
 

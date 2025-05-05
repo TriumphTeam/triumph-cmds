@@ -40,6 +40,9 @@ public abstract class CommandManager<D, S, O extends CommandOptions<D, S, O, ST>
             final @NotNull RegistryContainer<D, S, ST> registryContainer
     ) {
         super(registryContainer, commandOptions);
+
+        // Accept the setup consumer to easily set up the manager.
+        commandOptions.getSetup().accept(this);
     }
 
     /**
