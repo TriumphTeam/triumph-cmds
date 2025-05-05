@@ -36,7 +36,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import dev.triumphteam.cmd.discord.LeafResult;
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
-import dev.triumphteam.cmd.discord.annotation.Defer;
+import dev.triumphteam.cmd.jda.annotation.Defer;
 import dev.triumphteam.cmd.jda.sender.Sender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;

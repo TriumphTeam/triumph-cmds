@@ -21,25 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.discord.annotation;
+package dev.triumphteam.cmd.jda;
 
-import dev.triumphteam.cmd.core.extension.meta.MetaKey;
+import dev.triumphteam.cmd.core.extension.annotation.AnnotationProcessor;
+import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget;
+import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.jda.annotation.Defer;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.reflect.AnnotatedElement;
 
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-@Inherited
-public @interface Defer {
+class DeferProcessor implements AnnotationProcessor<Defer> {
 
-    @NotNull MetaKey<Boolean> META_KEY = MetaKey.of("defer", Boolean.class);
-
-    boolean ephemeral() default false;
+    @Override
+    public void process(
+            final @NotNull Defer annotation,
+            final @NotNull ProcessorTarget target,
+            final @NotNull AnnotatedElement element,
+            final @NotNull CommandMeta.Builder meta
+    ) {
+        if (target != ProcessorTarget.COMMAND) return;
+        meta.add(Defer.META_KEY, annotation.ephemeral());
+    }
 }

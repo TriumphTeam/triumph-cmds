@@ -31,9 +31,7 @@ import dev.triumphteam.cmd.core.extension.CommandOptions
 import dev.triumphteam.cmd.core.extension.SuggestionMapper
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.core.suggestion.SuggestionMethod
-import dev.triumphteam.cmd.discord.DeferProcessor
 import dev.triumphteam.cmd.discord.NsfwProcessor
-import dev.triumphteam.cmd.discord.annotation.Defer
 import dev.triumphteam.cmd.discord.annotation.NSFW
 import dev.triumphteam.cmds.kord.sender.Sender
 import dev.triumphteam.cmds.useCoroutines
@@ -57,7 +55,6 @@ public class KordCommandOptions<S>(
                 )
                 extension.setSuggestionMapper(KordSuggestionMapper())
                 extension.addAnnotationProcessor(NSFW::class.java, NsfwProcessor())
-                extension.addAnnotationProcessor(Defer::class.java, DeferProcessor())
             }
         }
 

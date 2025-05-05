@@ -58,7 +58,6 @@ import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor
 import dev.triumphteam.cmd.discord.DiscordCommandUtil.findExecutable
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument
-import dev.triumphteam.cmd.discord.annotation.Defer
 import dev.triumphteam.cmd.discord.annotation.NSFW
 import dev.triumphteam.cmds.contains
 import dev.triumphteam.cmds.kord.sender.Sender
@@ -191,15 +190,8 @@ public class KordCommandManager<S> internal constructor(
             }
         }.toMap()
 
-        val command = result.command
-
         runCatching {
-            // Check if the command was marked to be deferred.
-            if (command.meta.getOrDefault(Defer.META_KEY, false)) {
-                event.interaction.deferEphemeralResponse()
-            }
-
-            command.execute(sender, result.instanceSupplier, arguments)
+            result.command.execute(sender, result.instanceSupplier, arguments)
         }.onFailure { throwable ->
             throw CommandExecutionException("An error occurred while executing the command")
                 .initCause(if (throwable is InvocationTargetException) throwable.cause else throwable)
@@ -245,15 +237,17 @@ public class KordCommandManager<S> internal constructor(
             rootCommand.getCommand(InternalCommand.DEFAULT_CMD_NAME)?.let { command ->
                 if (command !is InternalLeafCommand) return@let
                 options = command.kordArguments
+                description = command.kordDescription
                 return@createGuildChatInputCommand
             }
 
             val commands = rootCommand.commands.values.filterNot { it.isHidden }
 
             // Handle normal sub commands.
-            commands.filterIsInstance<InternalLeafCommand<Sender, S, Choice>>().forEach {
-                subCommand(it.name, it.kordDescription) {
-                    options = it.kordArguments
+            commands.filterIsInstance<InternalLeafCommand<Sender, S, Choice>>().forEach { group ->
+                subCommand(group.name, group.kordDescription) {
+                    options = group.kordArguments
+                    description = group.kordDescription
                 }
             }
 
@@ -263,6 +257,7 @@ public class KordCommandManager<S> internal constructor(
                     it.commands.values.filterIsInstance<InternalLeafCommand<Sender, S, Choice>>().forEach { sub ->
                         subCommand(sub.name, sub.kordDescription) {
                             options = sub.kordArguments
+                            description = sub.kordDescription
                         }
                     }
                 }
