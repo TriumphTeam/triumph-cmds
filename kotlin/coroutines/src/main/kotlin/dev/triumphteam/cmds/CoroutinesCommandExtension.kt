@@ -49,8 +49,11 @@ import kotlin.reflect.jvm.kotlinFunction
 public fun <D, S, B : ExtensionBuilder<D, S, ST>, ST> B.useCoroutines(
     coroutineContext: CoroutineContext = Dispatchers.Default,
     coroutineScope: CoroutineScope = CoroutineScope(coroutineContext),
+    validateOptionals: Boolean = true,
+    validateLimitless: Boolean = true,
 ) {
-    val kotlinArgumentExtension = CoroutinesCommandExtension<D, S, ST>(coroutineScope, coroutineContext)
+    val kotlinArgumentExtension =
+        CoroutinesCommandExtension<D, S, ST>(coroutineScope, coroutineContext, validateOptionals, validateLimitless)
     addProcessor(kotlinArgumentExtension)
     setArgumentValidator(kotlinArgumentExtension)
     setCommandExecutor(kotlinArgumentExtension)
@@ -59,6 +62,8 @@ public fun <D, S, B : ExtensionBuilder<D, S, ST>, ST> B.useCoroutines(
 public class CoroutinesCommandExtension<D, S, ST>(
     private val coroutineScope: CoroutineScope,
     private val coroutineContext: CoroutineContext,
+    private val validateOptionals: Boolean,
+    private val validateLimitless: Boolean,
 ) : Processor<D, S>, ArgumentValidator<S, ST>, CommandExecutor<S> {
 
     private companion object {
@@ -98,12 +103,12 @@ public class CoroutinesCommandExtension<D, S, ST>(
         val suspendLast = if (suspend) last - 1 else last
 
         // Validation for optionals
-        if (position != suspendLast && argument.isOptional) {
+        if (validateOptionals && (position != suspendLast && argument.isOptional)) {
             return invalid("Optional internalArgument is only allowed as the last internalArgument")
         }
 
         // Validation for limitless
-        if (position != suspendLast && argument is LimitlessInternalArgument<*, *>) {
+        if (validateLimitless && (position != suspendLast && argument is LimitlessInternalArgument<*, *>)) {
             return invalid("Limitless internalArgument is only allowed as the last internalArgument")
         }
 

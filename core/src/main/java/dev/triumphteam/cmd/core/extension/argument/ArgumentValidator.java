@@ -30,22 +30,22 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ArgumentValidator<S, ST> {
 
-    ValidationResult<String> validate(
+    @NotNull ValidationResult<String> validate(
             final @NotNull CommandMeta meta,
             final @NotNull InternalArgument<S, ST> argument,
             final int position,
             final int last
     );
 
-    default ValidationResult<String> invalid(final @NotNull String message) {
+    default @NotNull ValidationResult<String> invalid(final @NotNull String message) {
         return new ValidationResult.Invalid<>(message);
     }
 
-    default ValidationResult<String> valid() {
+    default @NotNull ValidationResult<String> valid() {
         return new ValidationResult.Valid<>();
     }
 
-    default ValidationResult<String> ignore() {
+    default @NotNull ValidationResult<String> ignore() {
         return new ValidationResult.Ignore<>();
     }
 }

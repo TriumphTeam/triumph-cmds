@@ -47,7 +47,12 @@ public class KordCommandOptions<S>(
         init {
             // Setters have to be done first thing, so they can be overridden.
             extensions { extension ->
-                extension.useCoroutines(coroutineScope = kord, coroutineContext = kord.coroutineContext)
+                extension.useCoroutines(
+                    coroutineScope = kord,
+                    coroutineContext = kord.coroutineContext,
+                    validateOptionals = false,
+                    validateLimitless = false,
+                )
                 extension.setSuggestionMapper(KordSuggestionMapper())
                 extension.addAnnotationProcessor(NSFW::class.java, NsfwProcessor())
             }
@@ -59,55 +64,56 @@ public class KordCommandOptions<S>(
             return KordCommandOptions(senderExtension, this)
         }
     }
-}
 
-internal class KordSuggestionMapper : SuggestionMapper<Choice> {
+    private class KordSuggestionMapper : SuggestionMapper<Choice> {
 
-    override fun map(values: List<String>, type: Class<*>): List<Choice> {
-        return values.mapToChoices(type)
-    }
+        override fun map(values: List<String>, type: Class<*>): List<Choice> {
+            return values.mapToChoices(type)
+        }
 
-    override fun mapBackwards(values: List<Choice>): List<String> {
-        return values.map { it.value.toString() }
-    }
+        override fun mapBackwards(values: List<Choice>): List<String> {
+            return values.map { it.value.toString() }
+        }
 
-    override fun filter(
-        input: String,
-        values: List<Choice>,
-        method: SuggestionMethod,
-    ): List<Choice> {
-        return when (method) {
-            SuggestionMethod.STARTS_WITH -> values.filter { it.name.lowercase().startsWith(input.lowercase()) }
-            SuggestionMethod.CONTAINS -> values.filter { input.lowercase() in it.name.lowercase() }
-            else -> values
+        override fun filter(
+            input: String,
+            values: List<Choice>,
+            method: SuggestionMethod,
+        ): List<Choice> {
+            return when (method) {
+                SuggestionMethod.STARTS_WITH -> values.filter { it.name.lowercase().startsWith(input.lowercase()) }
+                SuggestionMethod.CONTAINS -> values.filter { input.lowercase() in it.name.lowercase() }
+                else -> values
+            }
+        }
+
+        override fun getType(): Class<*> = Choice::class.java
+
+        private fun List<String>.mapToChoices(type: Class<*>): List<Choice> {
+            val kordType = type.kordType
+            // TODO(important): Make the limit a shared constant
+            val sequence = asSequence().take(25)
+
+            return when (kordType) {
+                is ApplicationCommandOptionType.Number -> {
+                    sequence
+                        .mapNotNull(String::toDoubleOrNull)
+                        .map { Choice.NumberChoice(it.toString(), Optional.Missing(), it.toDouble()) }
+                        .toList()
+                }
+
+                is ApplicationCommandOptionType.Integer -> {
+                    sequence
+                        .mapNotNull(String::toLongOrNull)
+                        .map { Choice.IntegerChoice(it.toString(), Optional.Missing(), it) }
+                        .toList()
+                }
+
+                else -> {
+                    sequence.map { Choice.StringChoice(it, Optional.Missing(), it) }.toList()
+                }
+            }
         }
     }
 
-    override fun getType(): Class<*> = Choice::class.java
-
-    private fun List<String>.mapToChoices(type: Class<*>): List<Choice> {
-        val kordType = type.kordType
-        // TODO(important): Make the limit a shared constant
-        val sequence = asSequence().take(25)
-
-        return when (kordType) {
-            is ApplicationCommandOptionType.Number -> {
-                sequence
-                    .mapNotNull(String::toDoubleOrNull)
-                    .map { Choice.NumberChoice(it.toString(), Optional.Missing(), it.toDouble()) }
-                    .toList()
-            }
-
-            is ApplicationCommandOptionType.Integer -> {
-                sequence
-                    .mapNotNull(String::toLongOrNull)
-                    .map { Choice.IntegerChoice(it.toString(), Optional.Missing(), it) }
-                    .toList()
-            }
-
-            else -> {
-                sequence.map { Choice.StringChoice(it, Optional.Missing(), it) }.toList()
-            }
-        }
-    }
 }

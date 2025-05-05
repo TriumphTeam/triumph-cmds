@@ -59,7 +59,7 @@ public final class JdaCommandOptions<S> extends CommandOptions<Sender, S, JdaCom
         public Builder() {
             // Setters have to be done first thing, so they can be overridden.
             extensions(extension -> {
-                extension.setArgumentValidator(new DefaultArgumentValidator<>());
+                extension.setArgumentValidator(new DefaultArgumentValidator<>(false, false));
                 extension.setCommandExecutor(new DefaultCommandExecutor<>());
                 extension.setSuggestionMapper(new JdaSuggestionMapper());
                 extension.addAnnotationProcessor(NSFW.class, new NsfwProcessor());

@@ -6,7 +6,7 @@ coroutines = "1.6.4"
 license = "0.16.1"
 
 # Core
-guava = "31.1-jre"
+guava = "33.4.8-jre"
 annotations = "24.1.0"
 
 # Testing

@@ -33,20 +33,32 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultArgumentValidator<S, ST> implements ArgumentValidator<S, ST> {
 
+    private final boolean validateOptionals;
+    private final boolean validateLimitless;
+
+    public DefaultArgumentValidator() {
+        this(true, true);
+    }
+
+    public DefaultArgumentValidator(final boolean validateOptionals, final boolean validateLimitless) {
+        this.validateOptionals = validateOptionals;
+        this.validateLimitless = validateLimitless;
+    }
+
     @Override
-    public ValidationResult<String> validate(
+    public @NotNull ValidationResult<String> validate(
             final @NotNull CommandMeta data,
             final @NotNull InternalArgument<S, ST> argument,
             final int position,
             final int last
     ) {
         // Validation for optionals
-        if (position != last && argument.isOptional()) {
+        if (validateOptionals && (position != last && argument.isOptional())) {
             return invalid("Optional internalArgument is only allowed as the last internalArgument");
         }
 
         // Validation for limitless
-        if (position != last && argument instanceof LimitlessInternalArgument) {
+        if (validateLimitless && (position != last && argument instanceof LimitlessInternalArgument)) {
             return invalid("Limitless internalArgument is only allowed as the last internalArgument");
         }
 
