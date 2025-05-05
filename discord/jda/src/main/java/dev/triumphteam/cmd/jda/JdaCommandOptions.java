@@ -27,7 +27,9 @@ import dev.triumphteam.cmd.core.extension.CommandOptions;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
+import dev.triumphteam.cmd.discord.DeferProcessor;
 import dev.triumphteam.cmd.discord.NsfwProcessor;
+import dev.triumphteam.cmd.discord.annotation.Defer;
 import dev.triumphteam.cmd.discord.annotation.NSFW;
 import dev.triumphteam.cmd.jda.sender.Sender;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -63,6 +65,7 @@ public final class JdaCommandOptions<S> extends CommandOptions<Sender, S, JdaCom
                 extension.setCommandExecutor(new DefaultCommandExecutor<>());
                 extension.setSuggestionMapper(new JdaSuggestionMapper());
                 extension.addAnnotationProcessor(NSFW.class, new NsfwProcessor());
+                extension.addAnnotationProcessor(Defer.class, new DeferProcessor());
             });
         }
 

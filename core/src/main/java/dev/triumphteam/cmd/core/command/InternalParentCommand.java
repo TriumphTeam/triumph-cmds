@@ -84,7 +84,7 @@ public abstract class InternalParentCommand<D, S, ST> implements InternalCommand
             final @NotNull List<InternalCommand<D, S, ST>> commands
     ) {
         for (final InternalCommand<D, S, ST> command : commands) {
-            // If it's a parent command with argument we add it
+            // If it's a parent command with an argument, we add it
             if (command instanceof InternalBranchCommand && command.hasArguments()) {
                 if (this.commands.containsKey(InternalCommand.PARENT_CMD_WITH_ARGS_NAME)) {
                     throw new CommandRegistrationException("Only one inner command with argument is allowed per command", instance.getClass());

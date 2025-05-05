@@ -56,8 +56,9 @@ import dev.triumphteam.cmd.core.exceptions.CommandExecutionException
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor
-import dev.triumphteam.cmd.discord.CommandWalkUtil.findExecutable
+import dev.triumphteam.cmd.discord.DiscordCommandUtil.findExecutable
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument
+import dev.triumphteam.cmd.discord.annotation.Defer
 import dev.triumphteam.cmd.discord.annotation.NSFW
 import dev.triumphteam.cmds.contains
 import dev.triumphteam.cmds.kord.sender.Sender
@@ -167,7 +168,7 @@ public class KordCommandManager<S> internal constructor(
         TODO("Not yet implemented")
     }
 
-    private fun execute(event: ChatInputCommandInteractionCreateEvent) {
+    private suspend fun execute(event: ChatInputCommandInteractionCreateEvent) {
         val commands = event.interaction.command.fullName
 
         val senderExtension: SenderExtension<Sender, S> = commandOptions.commandExtensions.senderExtension
@@ -190,8 +191,15 @@ public class KordCommandManager<S> internal constructor(
             }
         }.toMap()
 
+        val command = result.command
+
         runCatching {
-            result.getCommand().execute(sender, result.instanceSupplier, arguments)
+            // Check if the command was marked to be deferred.
+            if (command.meta.getOrDefault(Defer.META_KEY, false)) {
+                event.interaction.deferEphemeralResponse()
+            }
+
+            command.execute(sender, result.instanceSupplier, arguments)
         }.onFailure { throwable ->
             throw CommandExecutionException("An error occurred while executing the command")
                 .initCause(if (throwable is InvocationTargetException) throwable.cause else throwable)

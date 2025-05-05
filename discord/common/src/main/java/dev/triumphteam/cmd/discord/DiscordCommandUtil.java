@@ -35,7 +35,7 @@ import java.util.Deque;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public final class CommandWalkUtil {
+public final class DiscordCommandUtil {
 
     public static <D, S, ST> @Nullable LeafResult<D, S, ST> findExecutable(
             final @NotNull S sender,

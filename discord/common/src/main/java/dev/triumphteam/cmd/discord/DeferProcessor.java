@@ -23,24 +23,24 @@
  */
 package dev.triumphteam.cmd.discord;
 
-import dev.triumphteam.cmd.discord.annotation.NSFW;
 import dev.triumphteam.cmd.core.extension.annotation.AnnotationProcessor;
 import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.discord.annotation.Defer;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.AnnotatedElement;
 
-public class NsfwProcessor implements AnnotationProcessor<NSFW> {
+public class DeferProcessor implements AnnotationProcessor<Defer> {
 
     @Override
     public void process(
-            final @NotNull NSFW annotation,
+            final @NotNull Defer annotation,
             final @NotNull ProcessorTarget target,
             final @NotNull AnnotatedElement element,
             final @NotNull CommandMeta.Builder meta
     ) {
-        if (target != ProcessorTarget.ROOT_COMMAND) return;
-        meta.add(NSFW.META_KEY, true);
+        if (target != ProcessorTarget.COMMAND) return;
+        meta.add(Defer.META_KEY, annotation.ephemeral());
     }
 }

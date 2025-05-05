@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.jda;
 import dev.triumphteam.cmd.core.CommandManager;
 import dev.triumphteam.cmd.core.argument.InternalArgument;
 import dev.triumphteam.cmd.core.command.ArgumentInput;
+import dev.triumphteam.cmd.core.command.InternalLeafCommand;
 import dev.triumphteam.cmd.core.command.InternalRootCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
@@ -35,6 +36,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import dev.triumphteam.cmd.discord.LeafResult;
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument;
+import dev.triumphteam.cmd.discord.annotation.Defer;
 import dev.triumphteam.cmd.jda.sender.Sender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -66,7 +68,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static dev.triumphteam.cmd.discord.CommandWalkUtil.findExecutable;
+import static dev.triumphteam.cmd.discord.DiscordCommandUtil.findExecutable;
 
 /**
  * Command Manager for Slash Commands.
@@ -115,10 +117,10 @@ public final class JdaCommandManager<S> extends CommandManager<Sender, S, JdaCom
     /**
      * Creates a new instance of {@link JdaCommandManager} with the provided parameters.
      *
-     * @param jda The JDA instance used to register commands and handle interactions.
+     * @param jda             The JDA instance used to register commands and handle interactions.
      * @param senderExtension The extension to handle sender mapping and validation.
-     * @param builder A consumer to configure additional options for the command manager.
-     * @param <S> The sender type that is tied to the command execution.
+     * @param builder         A consumer to configure additional options for the command manager.
+     * @param <S>             The sender type that is tied to the command execution.
      * @return A new instance of {@link JdaCommandManager} configured with the provided parameters.
      */
     @Contract("_, _, _ -> new")
@@ -136,7 +138,7 @@ public final class JdaCommandManager<S> extends CommandManager<Sender, S, JdaCom
     /**
      * Creates a new instance of {@link JdaCommandManager} with the provided JDA instance and configuration options.
      *
-     * @param jda The JDA instance used to register commands and handle interactions.
+     * @param jda     The JDA instance used to register commands and handle interactions.
      * @param builder A consumer to configure additional options for the command manager.
      * @return A new instance of {@link JdaCommandManager} configured with the provided parameters.
      */
@@ -190,8 +192,15 @@ public final class JdaCommandManager<S> extends CommandManager<Sender, S, JdaCom
             arguments.put(option.getName(), JdaMappingUtil.parsedValueFromType(option));
         }
 
+        final InternalLeafCommand<Sender, S, Command.Choice> command = result.getCommand();
+
         try {
-            result.getCommand().execute(sender, result.getInstanceSupplier(), arguments);
+            // Check if the command was marked to be deferred.
+            if (command.getMeta().getOrDefault(Defer.META_KEY, false)) {
+                event.deferReply().queue();
+            }
+
+            command.execute(sender, result.getInstanceSupplier(), arguments);
         } catch (final @NotNull Throwable exception) {
             throw new CommandExecutionException("An error occurred while executing the command")
                     .initCause(exception instanceof InvocationTargetException ? exception.getCause() : exception);

@@ -21,26 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package dev.triumphteam.cmd.discord;
+package dev.triumphteam.cmd.discord.annotation;
 
-import dev.triumphteam.cmd.discord.annotation.NSFW;
-import dev.triumphteam.cmd.core.extension.annotation.AnnotationProcessor;
-import dev.triumphteam.cmd.core.extension.annotation.ProcessorTarget;
-import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.meta.MetaKey;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.AnnotatedElement;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class NsfwProcessor implements AnnotationProcessor<NSFW> {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+@Inherited
+public @interface Defer {
 
-    @Override
-    public void process(
-            final @NotNull NSFW annotation,
-            final @NotNull ProcessorTarget target,
-            final @NotNull AnnotatedElement element,
-            final @NotNull CommandMeta.Builder meta
-    ) {
-        if (target != ProcessorTarget.ROOT_COMMAND) return;
-        meta.add(NSFW.META_KEY, true);
-    }
+    @NotNull MetaKey<Boolean> META_KEY = MetaKey.of("defer", Boolean.class);
+
+    boolean ephemeral() default false;
 }
