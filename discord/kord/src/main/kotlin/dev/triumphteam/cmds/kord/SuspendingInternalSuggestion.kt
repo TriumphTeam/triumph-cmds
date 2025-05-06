@@ -10,6 +10,7 @@ internal interface SuspendingInternalSuggestion<S : Any> : InternalSuggestion<S,
         sender: S,
         current: String,
         arguments: List<String>,
+        argumentsMap: Map<String, String>,
     ): List<Choice>
 }
 
@@ -21,7 +22,8 @@ internal class SimpleSuspendingInternalSuggestion<S : Any>(
         sender: S,
         current: String,
         arguments: List<String>,
+        argumentsMap: Map<String, String>,
     ): List<Choice> {
-        return resolver(SuggestionContext(current, sender, arguments, ""))
+        return resolver(SuggestionContext.of(current, sender, arguments, argumentsMap))
     }
 }

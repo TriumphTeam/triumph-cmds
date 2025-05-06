@@ -130,7 +130,12 @@ public final class KeyedInternalArgument<S, ST> extends LimitlessInternalArgumen
     }
 
     @Override
-    public @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
+    public @NotNull List<ST> suggestions(
+            final @NotNull S sender,
+            final @NotNull String current,
+            final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap
+    ) {
         final ArgumentParser.Result result = argumentParser.parse(arguments);
         final String resultCurrent = result.getCurrent();
 
@@ -210,7 +215,7 @@ public final class KeyedInternalArgument<S, ST> extends LimitlessInternalArgumen
         if (internalArgument == null) return null;
         final String raw = (waiting.isLongNameArgument() ? waiting.getLongName() : waiting.getName()) + ":";
         // Get a suggestion from the internal argument and map it to the "raw" argument
-        final List<String> suggestions = internalArgument.suggestions(sender, current, Collections.singletonList(current))
+        final List<String> suggestions = internalArgument.suggestions(sender, current, Collections.singletonList(current), Collections.emptyMap())
                 .stream()
                 .map(it -> raw + it)
                 .collect(Collectors.toList());
@@ -237,7 +242,7 @@ public final class KeyedInternalArgument<S, ST> extends LimitlessInternalArgumen
         final InternalArgument<S, ST> internalArgument = flagInternalArguments.get(flag);
         if (internalArgument == null) return null;
 
-        return mapper.mapBackwards(internalArgument.suggestions(sender, current, Collections.singletonList(current)))
+        return mapper.mapBackwards(internalArgument.suggestions(sender, current, Collections.singletonList(current), Collections.emptyMap()))
                 .stream()
                 .map(it -> {
                     if (!type.hasEquals()) return it; // No equals, so we just suggest the argument

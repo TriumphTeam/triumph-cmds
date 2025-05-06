@@ -88,8 +88,7 @@ public final class SplitStringInternalArgument<S, ST> extends StringInternalArgu
 
         if (!(suggestion instanceof InternalSuggestion.Simple)) return Collections.emptyList();
 
-
-        return ((InternalSuggestion.Simple<S, ST>) suggestion).getSuggestions(sender, current, new ArrayList<>(arguments))
+        return ((InternalSuggestion.Simple<S, ST>) suggestion).getSuggestions(sender, current, new ArrayList<>(arguments), Collections.emptyMap())
                 .stream()
                 .map(it -> map + it)
                 .collect(Collectors.toList());

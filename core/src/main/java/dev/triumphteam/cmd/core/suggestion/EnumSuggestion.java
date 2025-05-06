@@ -28,6 +28,7 @@ import dev.triumphteam.cmd.core.util.EnumUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -56,7 +57,8 @@ public final class EnumSuggestion<S, ST> implements InternalSuggestion.Simple<S,
     public @NotNull List<ST> getSuggestions(
             final @NotNull S sender,
             final @NotNull String current,
-            final @NotNull List<String> arguments
+            final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap
     ) {
         final List<String> suggestions = EnumUtils.getEnumConstants(enumType)
                 .values()

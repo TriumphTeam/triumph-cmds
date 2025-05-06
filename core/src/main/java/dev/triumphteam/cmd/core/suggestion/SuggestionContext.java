@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.suggestion;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public final class SuggestionContext<S> {
@@ -33,17 +34,20 @@ public final class SuggestionContext<S> {
     private final String input;
     private final S sender;
     private final List<String> arguments;
+    private final Map<String, String> argumentsMap;
     private final String extra;
 
     public SuggestionContext(
             final @NotNull String input,
             final @NotNull S sender,
             final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap,
             final @NotNull String extra
     ) {
         this.input = input;
         this.sender = sender;
         this.arguments = arguments;
+        this.argumentsMap = argumentsMap;
         this.extra = extra;
     }
 
@@ -51,17 +55,19 @@ public final class SuggestionContext<S> {
             final @NotNull String input,
             final @NotNull S sender,
             final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap,
             final @NotNull String extra
     ) {
-        return new SuggestionContext<>(input, sender, arguments, extra);
+        return new SuggestionContext<>(input, sender, arguments, argumentsMap, extra);
     }
 
     public static <S> @NotNull SuggestionContext<S> of(
             final @NotNull String input,
             final @NotNull S sender,
-            final @NotNull List<String> arguments
+            final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap
     ) {
-        return new SuggestionContext<>(input, sender, arguments, "");
+        return new SuggestionContext<>(input, sender, arguments, argumentsMap, "");
     }
 
     public @NotNull String getInput() {
@@ -74,6 +80,10 @@ public final class SuggestionContext<S> {
 
     public @NotNull List<String> getArguments() {
         return arguments;
+    }
+
+    public @NotNull Map<String, String> getArgumentsMap() {
+        return argumentsMap;
     }
 
     public @NotNull String getExtra() {

@@ -228,7 +228,7 @@ public final class JdaCommandManager<S> extends CommandManager<JdaCommandManager
         final InternalArgument<S, Command.Choice> argument = result.getCommand().getArgument(option.getName());
         if (argument == null) return;
 
-        final List<Command.Choice> suggestions = argument.suggestions(sender, option.getValue(), arguments)
+        final List<Command.Choice> suggestions = argument.suggestions(sender, option.getValue(), arguments, Collections.emptyMap())
                 .stream()
                 .limit(25) // Discord only handles 25 at a time, :pensive:.
                 .collect(Collectors.toList());

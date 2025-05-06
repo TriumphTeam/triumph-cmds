@@ -251,15 +251,23 @@ public class InternalLeafCommand<D, S, ST> implements InternalCommand<D, S, ST> 
         if (arguments.isEmpty()) return emptyList();
 
         final int index = arguments.size() - 1;
-        final InternalArgument<S, ST> argument = getArgumentFromIndex(index);
-        if (argument == null) return emptyList();
+        final InternalArgument<S, ST> currentArgument = getArgumentFromIndex(index);
+        if (currentArgument == null) return emptyList();
+
+        final Map<String, String> argumentsMap = new HashMap<>();
+        for (int i = 0; i < argumentList.size(); i++) {
+            final InternalArgument<S, ST> argument = argumentList.get(i);
+            if (i < arguments.size()) {
+                argumentsMap.put(argument.getName(), arguments.get(i));
+            }
+        }
 
         if (arguments.isEmpty()) {
-            return argument.suggestions(sender, "", arguments);
+            return currentArgument.suggestions(sender, "", arguments, argumentsMap);
         }
 
         final String current = arguments.get(index);
-        return argument.suggestions(sender, current, arguments);
+        return currentArgument.suggestions(sender, current, arguments, argumentsMap);
     }
 
     public @Nullable InternalArgument<S, ST> getArgumentFromIndex(final int index) {

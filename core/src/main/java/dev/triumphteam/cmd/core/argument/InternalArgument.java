@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
@@ -88,7 +89,12 @@ public interface InternalArgument<S, ST> extends CommandMetaContainer {
 
     @NotNull InternalArgumentResult resolve(final @NotNull S sender, final @NotNull ArgumentInput input);
 
-    @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments);
+    @NotNull List<ST> suggestions(
+            final @NotNull S sender,
+            final @NotNull String current,
+            final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap
+    );
 
     @NotNull InternalSuggestion<S, ST> getSuggestion();
 

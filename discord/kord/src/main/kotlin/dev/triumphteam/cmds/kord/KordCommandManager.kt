@@ -33,6 +33,7 @@ import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Member
 import dev.kord.core.entity.Role
 import dev.kord.core.entity.User
+import dev.kord.core.entity.application.GuildChatInputCommand
 import dev.kord.core.entity.channel.GuildChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.channel.TextChannel
@@ -107,6 +108,7 @@ public class KordCommandManager<S : Any> internal constructor(
         kord.on<ReadyEvent> {
             // Sets kord to ready
             isKordReady = true
+
             commandQueue.forEach { it() }
         }
 
@@ -161,7 +163,9 @@ public class KordCommandManager<S : Any> internal constructor(
         rootCommand.addCommands(command, processor.commands(rootCommand))
 
         if (!isKordReady) {
-            commandQueue.add { registerKordCommand(guildId, rootCommand) }
+            commandQueue.add {
+                registerKordCommand(guildId, rootCommand)
+            }
             return
         }
 
@@ -176,6 +180,18 @@ public class KordCommandManager<S : Any> internal constructor(
 
     public fun registerRichSuspendingSuggestion(key: SuggestionKey, resolver: SuspendingRichSuggestion<S>) {
         registryContainer.suggestionRegistry.register(key, SimpleSuspendingInternalSuggestion(resolver))
+    }
+
+    public suspend fun updateCommands(guild: Guild) {
+        // Delete all commands.
+        guild.getApplicationCommands().collect { command ->
+            command.delete()
+        }
+
+        // Register them again.
+        guildCommands[guild.id]?.values?.forEach { rootCommand ->
+            registerKordCommand(guild.id, rootCommand)
+        }
     }
 
     private suspend fun execute(event: ChatInputCommandInteractionCreateEvent) {
@@ -222,6 +238,7 @@ public class KordCommandManager<S : Any> internal constructor(
             .map { (key, value) -> KordOption(key, value.value.toString(), value.focused) }
 
         val focused = options.find(KordOption::focused) ?: return
+        val argumentMap = options.associate { it.name to it.value }
         val arguments = options.map(KordOption::value)
 
         // On discord platforms, we don't need to navigate the command and can go straight into the argument.
@@ -229,8 +246,14 @@ public class KordCommandManager<S : Any> internal constructor(
         if (suggestion == null) return
 
         val suggestions = when (suggestion) {
-            is InternalSuggestion.Simple -> suggestion.getSuggestions(sender, focused.value, arguments).take(25)
-            is SuspendingInternalSuggestion -> suggestion.getSuggestions(sender, focused.value, arguments).take(25)
+            is InternalSuggestion.Simple -> {
+                suggestion.getSuggestions(sender, focused.value, arguments, argumentMap).take(25)
+            }
+
+            is SuspendingInternalSuggestion -> {
+                suggestion.getSuggestions(sender, focused.value, arguments, argumentMap).take(25)
+            }
+
             else -> return
         }
 
@@ -240,8 +263,8 @@ public class KordCommandManager<S : Any> internal constructor(
     private suspend fun registerKordCommand(
         guildId: Snowflake,
         rootCommand: InternalRootCommand<Sender, S, Choice>,
-    ) {
-        kord.createGuildChatInputCommand(
+    ): GuildChatInputCommand {
+        return kord.createGuildChatInputCommand(
             guildId,
             rootCommand.name,
             rootCommand.kordDescription

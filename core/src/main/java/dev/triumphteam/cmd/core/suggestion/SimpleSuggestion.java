@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.extension.SuggestionMapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 public final class SimpleSuggestion<S, ST> implements InternalSuggestion.Simple<S, ST> {
 
@@ -59,9 +60,10 @@ public final class SimpleSuggestion<S, ST> implements InternalSuggestion.Simple<
     public @NotNull List<ST> getSuggestions(
             final @NotNull S sender,
             final @NotNull String current,
-            final @NotNull List<String> arguments
+            final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap
     ) {
-        return mapper.filter(current, holder.getSuggestions(new SuggestionContext<>(current, sender, arguments, extra)), method);
+        return mapper.filter(current, holder.getSuggestions(SuggestionContext.of(current, sender, arguments, argumentsMap, extra)), method);
     }
 
     @Override

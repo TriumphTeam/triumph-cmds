@@ -31,12 +31,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Command internalArgument.
  * Which is divided into {@link StringInternalArgument} and {@link LimitlessInternalArgument}.
  *
- * @param <S> The sender type.
+ * @param <S>  The sender type.
  * @param <ST> The suggestion type.
  */
 public abstract class AbstractInternalArgument<S, ST> implements InternalArgument<S, ST> {
@@ -69,9 +70,14 @@ public abstract class AbstractInternalArgument<S, ST> implements InternalArgumen
     }
 
     @Override
-    public @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
+    public @NotNull List<ST> suggestions(
+            final @NotNull S sender,
+            final @NotNull String current,
+            final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap
+    ) {
         if (!(suggestion instanceof InternalSuggestion.Simple)) return Collections.emptyList();
-        return ((InternalSuggestion.Simple<S, ST>) suggestion).getSuggestions(sender, current, arguments);
+        return ((InternalSuggestion.Simple<S, ST>) suggestion).getSuggestions(sender, current, arguments, argumentsMap);
     }
 
     @Override

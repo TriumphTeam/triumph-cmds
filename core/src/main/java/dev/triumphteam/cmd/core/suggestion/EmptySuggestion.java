@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.suggestion;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.emptyList;
 
@@ -35,7 +36,8 @@ public final class EmptySuggestion<S, ST> implements InternalSuggestion.Simple<S
     public @NotNull List<ST> getSuggestions(
             final @NotNull S sender,
             final @NotNull String current,
-            final @NotNull List<String> arguments
+            final @NotNull List<String> arguments,
+            final @NotNull Map<String, String> argumentsMap
     ) {
         return emptyList();
     }
