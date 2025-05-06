@@ -29,7 +29,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
-public final class EmptySuggestion<S, ST> implements InternalSuggestion<S, ST> {
+public final class EmptySuggestion<S, ST> implements InternalSuggestion.Simple<S, ST> {
 
     @Override
     public @NotNull List<ST> getSuggestions(

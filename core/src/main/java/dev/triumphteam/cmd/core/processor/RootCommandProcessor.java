@@ -65,21 +65,19 @@ public class RootCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST
     private final String name;
     private final Syntax syntax;
     private final List<String> aliases;
-    private final String description;
 
-    private final CommandOptions<D, S, ?, ST> commandOptions;
+    private final CommandOptions<?, ?, D, S, ST> commandOptions;
     private final RegistryContainer<D, S, ST> registryContainer;
 
     public RootCommandProcessor(
             final @NotNull Object invocationInstance,
             final @NotNull RegistryContainer<D, S, ST> registryContainer,
-            final @NotNull CommandOptions<D, S, ?, ST> commandOptions
+            final @NotNull CommandOptions<?, ?, D, S, ST> commandOptions
     ) {
         this.invocationInstance = invocationInstance;
 
         this.name = nameOf();
         this.aliases = aliasesOf();
-        this.description = descriptionOf();
 
         this.registryContainer = registryContainer;
         this.commandOptions = commandOptions;
@@ -95,12 +93,8 @@ public class RootCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST
         return aliases;
     }
 
-    public @NotNull String getDescription() {
-        return description;
-    }
-
     @Override
-    public @NotNull CommandOptions<D, S, ?, ST> getCommandOptions() {
+    public @NotNull CommandOptions<?, ?, D, S, ST> getCommandOptions() {
         return commandOptions;
     }
 
@@ -125,7 +119,7 @@ public class RootCommandProcessor<D, S, ST> implements CommandProcessor<D, S, ST
 
         // Defaults
         meta.add(MetaKey.NAME, getName());
-        meta.add(MetaKey.DESCRIPTION, getDescription());
+        meta.add(MetaKey.DESCRIPTION, descriptionOf());
 
         // Process all the class annotations
         final Class<?> klass = invocationInstance.getClass();

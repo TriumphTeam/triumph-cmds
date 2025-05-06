@@ -29,13 +29,16 @@ import java.util.List;
 
 public interface InternalSuggestion<S, ST> {
 
-    @NotNull List<ST> getSuggestions(
-            final @NotNull S sender,
-            final @NotNull String current,
-            final @NotNull List<String> arguments
-    );
-
     default @NotNull InternalSuggestion<S, ST> copy(final @NotNull SuggestionMethod method, final @NotNull String extra) {
         return this;
+    }
+
+    interface Simple<S, ST> extends InternalSuggestion<S, ST> {
+
+        @NotNull List<ST> getSuggestions(
+                final @NotNull S sender,
+                final @NotNull String current,
+                final @NotNull List<String> arguments
+        );
     }
 }

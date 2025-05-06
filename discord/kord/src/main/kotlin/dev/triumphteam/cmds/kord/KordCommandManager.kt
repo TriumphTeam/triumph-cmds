@@ -56,6 +56,9 @@ import dev.triumphteam.cmd.core.exceptions.CommandExecutionException
 import dev.triumphteam.cmd.core.extension.registry.RegistryContainer
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor
+import dev.triumphteam.cmd.core.suggestion.InternalSuggestion
+import dev.triumphteam.cmd.core.suggestion.SuggestionContext
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey
 import dev.triumphteam.cmd.discord.DiscordCommandUtil.findExecutable
 import dev.triumphteam.cmd.discord.ProvidedInternalArgument
 import dev.triumphteam.cmd.discord.annotation.NSFW
@@ -64,12 +67,14 @@ import dev.triumphteam.cmds.kord.sender.Sender
 import kotlinx.coroutines.launch
 import java.lang.reflect.InvocationTargetException
 
+public typealias SuspendingRichSuggestion<S> = suspend (SuggestionContext<S>) -> List<Choice>
+
 public fun KordCommandManager(
     kord: Kord,
     builder: KordCommandOptions.Builder<Sender>.() -> Unit = {},
 ): KordCommandManager<Sender> = KordCommandManager(kord, SlashSenderExtension(), builder)
 
-public fun <S> KordCommandManager(
+public fun <S : Any> KordCommandManager(
     kord: Kord,
     senderExtension: SenderExtension<Sender, S>,
     builder: KordCommandOptions.Builder<S>.() -> Unit = {},
@@ -82,11 +87,11 @@ public fun <S> KordCommandManager(
     )
 }
 
-public class KordCommandManager<S> internal constructor(
+public class KordCommandManager<S : Any> internal constructor(
     private val kord: Kord,
     commandOptions: KordCommandOptions<S>,
     private val registryContainer: RegistryContainer<Sender, S, Choice>,
-) : CommandManager<Sender, S, KordCommandOptions<S>, Choice>(commandOptions, registryContainer) {
+) : CommandManager<KordCommandManager<S>, KordCommandOptions<S>, Sender, S, Choice>(commandOptions, registryContainer) {
 
     private val globalCommands: MutableMap<String, InternalRootCommand<Sender, S, Choice>> = mutableMapOf()
     private val guildCommands: MutableMap<Snowflake, MutableMap<String, InternalRootCommand<Sender, S, Choice>>> =
@@ -120,6 +125,8 @@ public class KordCommandManager<S> internal constructor(
         registerArgument(Attachment::class.java, providedArgumentFactory)
         registerArgument(Entity::class.java, providedArgumentFactory)
     }
+
+    override fun getThis(): KordCommandManager<S> = this
 
     override fun registerCommand(command: Any) {
         TODO("Not yet implemented")
@@ -165,6 +172,10 @@ public class KordCommandManager<S> internal constructor(
 
     override fun unregisterCommand(command: Any) {
         TODO("Not yet implemented")
+    }
+
+    public fun registerRichSuspendingSuggestion(key: SuggestionKey, resolver: SuspendingRichSuggestion<S>) {
+        registryContainer.suggestionRegistry.register(key, SimpleSuspendingInternalSuggestion(resolver))
     }
 
     private suspend fun execute(event: ChatInputCommandInteractionCreateEvent) {
@@ -214,10 +225,15 @@ public class KordCommandManager<S> internal constructor(
         val arguments = options.map(KordOption::value)
 
         // On discord platforms, we don't need to navigate the command and can go straight into the argument.
-        val argument = result.getCommand().getArgument(focused.name)
-        if (argument == null) return
+        val suggestion = result.getCommand().getArgument(focused.name)?.suggestion
+        if (suggestion == null) return
 
-        val suggestions = argument.suggestions(sender, focused.value, arguments).take(25)
+        val suggestions = when (suggestion) {
+            is InternalSuggestion.Simple -> suggestion.getSuggestions(sender, focused.value, arguments).take(25)
+            is SuspendingInternalSuggestion -> suggestion.getSuggestions(sender, focused.value, arguments).take(25)
+            else -> return
+        }
+
         event.interaction.suggest(suggestions)
     }
 

@@ -77,7 +77,7 @@ import static dev.triumphteam.cmd.discord.DiscordCommandUtil.findExecutable;
  *
  * @param <S> The sender type.
  */
-public final class JdaCommandManager<S> extends CommandManager<Sender, S, JdaCommandOptions<S>, Command.Choice> {
+public final class JdaCommandManager<S> extends CommandManager<JdaCommandManager<S>, JdaCommandOptions<S>, Sender, S, Command.Choice> {
 
     private final JDA jda;
 
@@ -175,6 +175,11 @@ public final class JdaCommandManager<S> extends CommandManager<Sender, S, JdaCom
         registry.register(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
         registry.register(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.reply("Invalid usage.").setEphemeral(true).queue());
         registry.register(MessageKey.INVALID_ARGUMENT, (sender, context) -> sender.reply("Invalid argument `" + context.getInvalidInput() + "` for type `" + context.getArgumentType().getSimpleName() + "`.").setEphemeral(true).queue());
+    }
+
+    @Override
+    protected @NotNull JdaCommandManager<S> getThis() {
+        return this;
     }
 
     public void execute(final @NotNull SlashCommandInteractionEvent event) {

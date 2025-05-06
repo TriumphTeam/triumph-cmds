@@ -36,13 +36,13 @@ import dev.triumphteam.cmd.discord.annotation.NSFW
 import dev.triumphteam.cmds.kord.sender.Sender
 import dev.triumphteam.cmds.useCoroutines
 
-public class KordCommandOptions<S>(
+public class KordCommandOptions<S : Any>(
     senderExtension: SenderExtension<Sender, S>,
     builder: Builder<S>,
-) : CommandOptions<Sender, S, KordCommandOptions<S>, Choice>(senderExtension, builder) {
+) : CommandOptions<KordCommandOptions<S>, KordCommandManager<S>, Sender, S, Choice>(senderExtension, builder) {
 
-    public class Builder<S>(kord: Kord) :
-        CommandOptions.Builder<Sender, S, KordCommandOptions<S>, Builder<S>, Choice>() {
+    public class Builder<S : Any>(kord: Kord) :
+        CommandOptions.Builder<Builder<S>, KordCommandManager<S>, KordCommandOptions<S>, Sender, S, Choice>() {
 
         init {
             // Setters have to be done first thing, so they can be overridden.

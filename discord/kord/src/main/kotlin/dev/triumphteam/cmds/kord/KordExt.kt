@@ -107,10 +107,10 @@ internal val Class<*>.kordType: ApplicationCommandOptionType
     get() = TYPE_MAPPING[this] ?: ApplicationCommandOptionType.String
 
 private val InternalArgument<*, *>.kordDescription
-    get() = description.ifEmpty { name }
+    get() = description.ifEmpty { name }.take(100)
 
 internal val InternalCommand<*, *, *>.kordDescription
-    get() = description.ifEmpty { name }
+    get() = description.ifEmpty { name }.take(100)
 
 internal val InteractionCommand.fullName: Deque<String>
     get() {

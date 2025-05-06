@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender, S, BukkitCommandOptions<S>, String> {
+public final class BukkitCommandOptions<S> extends CommandOptions<BukkitCommandOptions<S>, BukkitCommandManager<S>, CommandSender, S, String> {
 
     public BukkitCommandOptions(
             final @NotNull SenderExtension<CommandSender, S> senderExtension,
@@ -43,7 +43,7 @@ public final class BukkitCommandOptions<S> extends CommandOptions<CommandSender,
         super(senderExtension, builder);
     }
 
-    public static final class Builder<S> extends CommandOptions.Builder<CommandSender, S, BukkitCommandOptions<S>, Builder<S>, String> {
+    public static final class Builder<S> extends CommandOptions.Builder<Builder<S>, BukkitCommandManager<S>, BukkitCommandOptions<S>, CommandSender, S, String> {
 
         private CommandPermission globalPermission = null;
 

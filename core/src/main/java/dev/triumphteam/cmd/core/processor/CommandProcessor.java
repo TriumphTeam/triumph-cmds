@@ -59,7 +59,7 @@ public interface CommandProcessor<D, S, ST> {
      */
     @NotNull CommandMeta createMeta(final @NotNull Settings.Builder<D, S> settingsBuilder);
 
-    @NotNull CommandOptions<D, S, ?, ST> getCommandOptions();
+    @NotNull CommandOptions<?, ?, D, S, ST> getCommandOptions();
 
     @NotNull RegistryContainer<D, S, ST> getRegistryContainer();
 

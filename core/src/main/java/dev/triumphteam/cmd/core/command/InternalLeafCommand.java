@@ -34,6 +34,7 @@ import dev.triumphteam.cmd.core.extension.ValidationResult;
 import dev.triumphteam.cmd.core.extension.command.CommandExecutor;
 import dev.triumphteam.cmd.core.extension.command.Settings;
 import dev.triumphteam.cmd.core.extension.meta.CommandMeta;
+import dev.triumphteam.cmd.core.extension.meta.MetaKey;
 import dev.triumphteam.cmd.core.extension.registry.MessageRegistry;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.core.message.MessageKey;
@@ -86,15 +87,16 @@ public class InternalLeafCommand<D, S, ST> implements InternalCommand<D, S, ST> 
             final @NotNull LeafCommandProcessor<D, S, ST> processor,
             final @NotNull InternalCommand<D, S, ST> parentCommand
     ) {
-        this.invocationInstance = invocationInstance;
-        this.method = method;
-        this.name = processor.getName();
-        this.description = processor.getDescription();
-        this.aliases = processor.getAliases();
-
+        // TODO: This should be moved into the processor so meta is always available.
         final Settings.Builder<D, S> settingsBuilder = new Settings.Builder<>();
         processor.captureRequirements(settingsBuilder);
         this.meta = processor.createMeta(settingsBuilder);
+
+        this.invocationInstance = invocationInstance;
+        this.method = method;
+        this.name = processor.getName();
+        this.aliases = processor.getAliases();
+        this.description = meta.getOrDefault(MetaKey.DESCRIPTION, "");
 
         this.senderType = processor.senderType();
         this.argumentList = processor.arguments(meta);
@@ -104,7 +106,7 @@ public class InternalLeafCommand<D, S, ST> implements InternalCommand<D, S, ST> 
 
         this.containsLimitless = argumentList.stream().anyMatch(LimitlessInternalArgument.class::isInstance);
 
-        final CommandOptions<D, S, ?, ST> commandOptions = processor.getCommandOptions();
+        final CommandOptions<?, ?, D, S, ST> commandOptions = processor.getCommandOptions();
 
         this.messageRegistry = processor.getRegistryContainer().getMessageRegistry();
         this.senderExtension = commandOptions.getCommandExtensions().getSenderExtension();

@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public final class EnumSuggestion<S, ST> implements InternalSuggestion<S, ST> {
+public final class EnumSuggestion<S, ST> implements InternalSuggestion.Simple<S, ST> {
 
     private final Class<? extends Enum<?>> enumType;
     private final SuggestionMapper<ST> mapper;

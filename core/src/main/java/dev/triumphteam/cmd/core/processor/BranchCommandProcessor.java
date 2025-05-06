@@ -51,7 +51,7 @@ public final class BranchCommandProcessor<D, S, ST> extends AbstractCommandProce
             final @NotNull Object invocationInstance,
             final @NotNull Class<?> klass,
             final @NotNull RegistryContainer<D, S, ST> registryContainer,
-            final @NotNull CommandOptions<D, S, ?, ST> commandOptions,
+            final @NotNull CommandOptions<?, ?, D, S, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         super(invocationInstance, klass, registryContainer, commandOptions, parentMeta);
@@ -75,7 +75,7 @@ public final class BranchCommandProcessor<D, S, ST> extends AbstractCommandProce
 
         // Defaults
         meta.add(MetaKey.NAME, getName());
-        meta.add(MetaKey.DESCRIPTION, getDescription());
+        meta.add(MetaKey.DESCRIPTION, descriptionOf());
 
         // Process all the class annotations
         processAnnotations(getCommandOptions().getCommandExtensions(), klass, ProcessorTarget.PARENT_COMMAND, meta);

@@ -27,6 +27,7 @@ import dev.triumphteam.cmd.core.annotations.Syntax;
 import dev.triumphteam.cmd.core.argument.StringInternalArgument;
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
 import dev.triumphteam.cmd.core.extension.InternalArgumentResult;
+import dev.triumphteam.cmd.core.extension.meta.MetaKey;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.processor.BranchCommandProcessor;
 import dev.triumphteam.cmd.core.processor.CommandProcessor;
@@ -77,7 +78,7 @@ public class InternalBranchCommand<D, S, ST> extends InternalParentCommand<D, S,
         this.hasArgument = argument != null;
 
         this.name = processor.getName();
-        this.description = processor.getDescription();
+        this.description = getMeta().getOrDefault(MetaKey.DESCRIPTION, "");
         this.aliases = processor.getAliases();
         this.syntax = createSyntax(parentCommand, processor);
     }

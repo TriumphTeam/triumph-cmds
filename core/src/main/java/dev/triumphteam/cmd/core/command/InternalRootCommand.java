@@ -24,6 +24,7 @@
 package dev.triumphteam.cmd.core.command;
 
 import dev.triumphteam.cmd.core.exceptions.CommandExecutionException;
+import dev.triumphteam.cmd.core.extension.meta.MetaKey;
 import dev.triumphteam.cmd.core.processor.RootCommandProcessor;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +43,7 @@ public class InternalRootCommand<D, S, ST> extends InternalParentCommand<D, S, S
         super(processor);
 
         this.name = processor.getName();
-        this.description = processor.getDescription();
+        this.description = getMeta().getOrDefault(MetaKey.DESCRIPTION, "");
         this.aliases = processor.getAliases();
         this.syntax = "/" + name;
     }

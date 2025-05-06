@@ -28,8 +28,8 @@ import dev.triumphteam.cmd.core.extension.defaults.DefaultArgumentValidator;
 import dev.triumphteam.cmd.core.extension.defaults.DefaultCommandExecutor;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import dev.triumphteam.cmd.discord.NsfwProcessor;
-import dev.triumphteam.cmd.jda.annotation.Defer;
 import dev.triumphteam.cmd.discord.annotation.NSFW;
+import dev.triumphteam.cmd.jda.annotation.Defer;
 import dev.triumphteam.cmd.jda.sender.Sender;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -37,7 +37,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-public final class JdaCommandOptions<S> extends CommandOptions<Sender, S, JdaCommandOptions<S>, Command.Choice> {
+public final class JdaCommandOptions<S> extends CommandOptions<JdaCommandOptions<S>, JdaCommandManager<S>, Sender, S, Command.Choice> {
 
     private final boolean autoRegisterListener;
 
@@ -53,7 +53,7 @@ public final class JdaCommandOptions<S> extends CommandOptions<Sender, S, JdaCom
         return autoRegisterListener;
     }
 
-    public static final class Builder<S> extends CommandOptions.Builder<Sender, S, JdaCommandOptions<S>, Builder<S>, Command.Choice> {
+    public static final class Builder<S> extends CommandOptions.Builder<Builder<S>, JdaCommandManager<S>, JdaCommandOptions<S>, Sender, S, Command.Choice> {
 
         private boolean autoRegisterListener = true;
 

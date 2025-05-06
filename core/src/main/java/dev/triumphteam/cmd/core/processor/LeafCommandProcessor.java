@@ -25,6 +25,7 @@ package dev.triumphteam.cmd.core.processor;
 
 import dev.triumphteam.cmd.core.annotations.ArgDescriptions;
 import dev.triumphteam.cmd.core.annotations.CommandFlags;
+import dev.triumphteam.cmd.core.annotations.Description;
 import dev.triumphteam.cmd.core.annotations.NamedArguments;
 import dev.triumphteam.cmd.core.annotations.Suggestion;
 import dev.triumphteam.cmd.core.annotations.Suggestions;
@@ -84,7 +85,7 @@ public final class LeafCommandProcessor<D, S, ST> extends AbstractCommandProcess
             final @NotNull Object invocationInstance,
             final @NotNull Method method,
             final @NotNull RegistryContainer<D, S, ST> registryContainer,
-            final @NotNull CommandOptions<D, S, ?, ST> commandOptions,
+            final @NotNull CommandOptions<?, ?, D, S, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         super(invocationInstance, method, registryContainer, commandOptions, parentMeta);
@@ -110,7 +111,7 @@ public final class LeafCommandProcessor<D, S, ST> extends AbstractCommandProcess
 
         // Defaults
         meta.add(MetaKey.NAME, getName());
-        meta.add(MetaKey.DESCRIPTION, getDescription());
+        meta.add(MetaKey.DESCRIPTION, descriptionOf());
 
         // Process all the class annotations
         processAnnotations(getCommandOptions().getCommandExtensions(), method, ProcessorTarget.COMMAND, meta);
@@ -124,6 +125,13 @@ public final class LeafCommandProcessor<D, S, ST> extends AbstractCommandProcess
 
         // Return modified meta
         return meta.build();
+    }
+
+    @Override
+    protected @NotNull String descriptionOf() {
+        final Description descriptionAnnotation = method.getAnnotation(Description.class);
+        if (descriptionAnnotation != null) return descriptionAnnotation.value();
+        return "";
     }
 
     /**

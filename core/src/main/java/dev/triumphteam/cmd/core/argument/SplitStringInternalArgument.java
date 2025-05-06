@@ -78,14 +78,18 @@ public final class SplitStringInternalArgument<S, ST> extends StringInternalArgu
         final String last = peek == null ? "" : peek;
 
         final List<String> split = Arrays.asList(last.split(regex));
-        if (split.size() == 0) return Collections.emptyList();
+        if (split.isEmpty()) return Collections.emptyList();
 
         final String current = last.endsWith(regex) ? "" : split.get(split.size() - 1);
         final String joined = String.join(regex, current.isEmpty() ? split : split.subList(0, split.size() - 1));
         final String map = joined.isEmpty() ? "" : joined + regex;
 
-        return getSuggestion()
-                .getSuggestions(sender, current, new ArrayList<>(arguments))
+        final InternalSuggestion<S, ST> suggestion = getSuggestion();
+
+        if (!(suggestion instanceof InternalSuggestion.Simple)) return Collections.emptyList();
+
+
+        return ((InternalSuggestion.Simple<S, ST>) suggestion).getSuggestions(sender, current, new ArrayList<>(arguments))
                 .stream()
                 .map(it -> map + it)
                 .collect(Collectors.toList());

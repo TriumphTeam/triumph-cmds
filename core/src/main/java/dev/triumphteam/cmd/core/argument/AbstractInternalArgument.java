@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.suggestion.InternalSuggestion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,7 +70,8 @@ public abstract class AbstractInternalArgument<S, ST> implements InternalArgumen
 
     @Override
     public @NotNull List<ST> suggestions(final @NotNull S sender, final @NotNull String current, final @NotNull List<String> arguments) {
-        return suggestion.getSuggestions(sender, current, arguments);
+        if (!(suggestion instanceof InternalSuggestion.Simple)) return Collections.emptyList();
+        return ((InternalSuggestion.Simple<S, ST>) suggestion).getSuggestions(sender, current, arguments);
     }
 
     @Override

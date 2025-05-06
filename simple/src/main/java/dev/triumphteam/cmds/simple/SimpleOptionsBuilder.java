@@ -30,7 +30,7 @@ import dev.triumphteam.cmd.core.extension.defaults.DefaultSuggestionMapper;
 import dev.triumphteam.cmd.core.extension.sender.SenderExtension;
 import org.jetbrains.annotations.NotNull;
 
-public final class SimpleOptionsBuilder<S> extends CommandOptions.Builder<S, S, SimpleCommandOptions<S>, SimpleOptionsBuilder<S>, String> {
+public final class SimpleOptionsBuilder<S> extends CommandOptions.Builder<SimpleOptionsBuilder<S>, SimpleCommandManager<S>, SimpleCommandOptions<S>, S, S, String> {
 
     public SimpleOptionsBuilder() {
         extensions(extension -> {

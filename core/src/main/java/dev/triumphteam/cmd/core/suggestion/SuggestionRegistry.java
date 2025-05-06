@@ -45,6 +45,13 @@ public final class SuggestionRegistry<S, ST> implements Registry {
 
     public void register(
             final @NotNull SuggestionKey key,
+            final @NotNull InternalSuggestion<S, ST> suggestion
+    ) {
+        this.suggestions.put(key, suggestion);
+    }
+
+    public void register(
+            final @NotNull SuggestionKey key,
             final @NotNull SuggestionResolver.Simple<S> resolver,
             final @NotNull SuggestionMethod method,
             final @NotNull SuggestionMapper<ST> suggestionMapper

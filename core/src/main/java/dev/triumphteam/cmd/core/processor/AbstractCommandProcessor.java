@@ -98,7 +98,6 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
     private final Object invocationInstance;
     private final String name;
     private final List<String> aliases;
-    private final String description;
     private final Syntax syntax;
     private final AnnotatedElement annotatedElement;
 
@@ -107,7 +106,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
     private final SuggestionRegistry<S, ST> suggestionRegistry;
     private final ArgumentRegistry<S, ST> argumentRegistry;
 
-    private final CommandOptions<D, S, ?, ST> commandOptions;
+    private final CommandOptions<?, ?, D, S, ST> commandOptions;
     private final CommandMeta parentMeta;
 
     private final Map<SuggestionKey, InternalSuggestion<S, ST>> localSuggestions;
@@ -117,14 +116,13 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
             final @NotNull Object invocationInstance,
             final @NotNull AnnotatedElement annotatedElement,
             final @NotNull RegistryContainer<D, S, ST> registryContainer,
-            final @NotNull CommandOptions<D, S, ?, ST> commandOptions,
+            final @NotNull CommandOptions<?, ?, D, S, ST> commandOptions,
             final @NotNull CommandMeta parentMeta
     ) {
         this.invocationInstance = invocationInstance;
         this.annotatedElement = annotatedElement;
         this.name = nameOf();
         this.aliases = aliasesOf();
-        this.description = descriptionOf();
         this.parentMeta = parentMeta;
 
         this.commandOptions = commandOptions;
@@ -146,7 +144,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
     }
 
     @Override
-    public @NotNull CommandOptions<D, S, ?, ST> getCommandOptions() {
+    public @NotNull CommandOptions<?, ?, D, S, ST> getCommandOptions() {
         return commandOptions;
     }
 
@@ -193,10 +191,6 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
 
     public @NotNull List<String> getAliases() {
         return aliases;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     protected @NotNull InternalArgument<S, ST> argumentFromParameter(
@@ -494,7 +488,7 @@ abstract class AbstractCommandProcessor<D, S, ST> implements CommandProcessor<D,
         return "";
     }
 
-    private @NotNull String descriptionOf() {
+    protected @NotNull String descriptionOf() {
         final Class<?> commandClass = invocationInstance.getClass();
         final Description descriptionAnnotation = commandClass.getAnnotation(Description.class);
 

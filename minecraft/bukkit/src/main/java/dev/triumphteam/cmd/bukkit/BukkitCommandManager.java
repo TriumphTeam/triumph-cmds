@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public final class BukkitCommandManager<S> extends CommandManager<CommandSender, S, BukkitCommandOptions<S>, String> {
+public final class BukkitCommandManager<S> extends CommandManager<BukkitCommandManager<S>, BukkitCommandOptions<S>, CommandSender, S, String> {
 
     private final Plugin plugin;
 
@@ -179,6 +179,11 @@ public final class BukkitCommandManager<S> extends CommandManager<CommandSender,
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new CommandRegistrationException("Unable get Bukkit commands. Commands might not be registered correctly!");
         }
+    }
+
+    @Override
+    protected @NotNull BukkitCommandManager<S> getThis() {
+        return this;
     }
 
     @Override

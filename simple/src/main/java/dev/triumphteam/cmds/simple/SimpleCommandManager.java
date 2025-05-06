@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public final class SimpleCommandManager<S> extends CommandManager<S, S, SimpleCommandOptions<S>, String> {
+public final class SimpleCommandManager<S> extends CommandManager<SimpleCommandManager<S>, SimpleCommandOptions<S>, S, S, String> {
 
     private final Map<String, InternalRootCommand<S, S, String>> commands = new HashMap<>();
 
@@ -60,6 +60,11 @@ public final class SimpleCommandManager<S> extends CommandManager<S, S, SimpleCo
         final SimpleOptionsBuilder<S> extensionBuilder = new SimpleOptionsBuilder<>();
         builder.accept(extensionBuilder);
         return new SimpleCommandManager<>(extensionBuilder.build(senderExtension), registryContainer);
+    }
+
+    @Override
+    protected @NotNull SimpleCommandManager<S> getThis() {
+        return this;
     }
 
     @Override

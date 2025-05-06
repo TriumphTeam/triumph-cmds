@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public final class SimpleSuggestion<S, ST> implements InternalSuggestion<S, ST> {
+public final class SimpleSuggestion<S, ST> implements InternalSuggestion.Simple<S, ST> {
 
     private final SimpleSuggestionHolder<S, ST> holder;
     private final SuggestionMapper<ST> mapper;
