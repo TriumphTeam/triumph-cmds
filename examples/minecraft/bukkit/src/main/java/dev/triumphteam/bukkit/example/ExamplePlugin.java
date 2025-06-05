@@ -29,6 +29,7 @@ import dev.triumphteam.cmd.core.argument.keyed.Argument;
 import dev.triumphteam.cmd.core.argument.keyed.ArgumentKey;
 import dev.triumphteam.cmd.core.argument.keyed.Flag;
 import dev.triumphteam.cmd.core.argument.keyed.FlagKey;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -53,6 +54,10 @@ public final class ExamplePlugin extends JavaPlugin {
 
         commandManager.registerRichSuggestion(SuggestionKey.of("test"), context -> {
             return Arrays.asList("5", "8");
+        });
+
+        commandManager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> {
+
         });
 
         commandManager.registerNamedArguments(

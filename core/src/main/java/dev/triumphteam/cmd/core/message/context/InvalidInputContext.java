@@ -30,15 +30,16 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Context with an invalid input.
  */
-abstract class InvalidInputContext extends BasicMessageContext {
+abstract class InvalidInputContext extends SyntaxMessageContext {
 
     private final String invalidInput;
 
     public InvalidInputContext(
             final @NotNull CommandMeta meta,
+            final @NotNull String syntax,
             final @Nullable String invalidInput
     ) {
-        super(meta);
+        super(meta, syntax);
         this.invalidInput = invalidInput == null ? "" : invalidInput;
     }
 

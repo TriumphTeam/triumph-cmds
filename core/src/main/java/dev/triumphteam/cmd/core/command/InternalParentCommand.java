@@ -168,7 +168,7 @@ public abstract class InternalParentCommand<D, S, ST> implements InternalCommand
             // No default command found, send a message and return null
             // If there is a default command, then return it
             if (defaultCommand == null && sendMessage) {
-                messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, ""));
+                messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, getSyntax(), ""));
             }
 
             return defaultCommand;
@@ -185,7 +185,7 @@ public abstract class InternalParentCommand<D, S, ST> implements InternalCommand
             // No command found with the name [name]
             final InternalCommand<D, S, ST> parentCommandWithArgument = getCommandByName(InternalCommand.PARENT_CMD_WITH_ARGS_NAME);
             if (parentCommandWithArgument == null && sendMessage) {
-                messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, name));
+                messageRegistry.sendMessage(MessageKey.UNKNOWN_COMMAND, sender, new InvalidCommandContext(meta, getSyntax(), name));
             }
 
             // Don't pop because it'll be the argument

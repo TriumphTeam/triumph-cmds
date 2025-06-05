@@ -28,11 +28,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Context for when user types an invalid argument based on its type.
+ * Context for when a user types an invalid argument based on its type.
  */
 public final class InvalidArgumentContext extends InvalidInputContext {
 
-    private final String syntax;
     private final String name;
     private final Class<?> type;
 
@@ -43,14 +42,9 @@ public final class InvalidArgumentContext extends InvalidInputContext {
             final @NotNull String name,
             final @NotNull Class<?> type
     ) {
-        super(meta, invalidInput);
-        this.syntax = syntax;
+        super(meta, syntax, invalidInput);
         this.name = name;
         this.type = type;
-    }
-
-    public @NotNull String getSyntax() {
-        return syntax;
     }
 
     public @NotNull String getArgumentName() {

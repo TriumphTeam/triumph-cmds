@@ -26,6 +26,7 @@ package dev.triumphteam.cmd.core.message;
 import dev.triumphteam.cmd.core.message.context.InvalidArgumentContext;
 import dev.triumphteam.cmd.core.message.context.InvalidCommandContext;
 import dev.triumphteam.cmd.core.message.context.MessageContext;
+import dev.triumphteam.cmd.core.message.context.SyntaxMessageContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,8 +39,8 @@ public class MessageKey<C extends MessageContext> extends ContextualKey<C> {
 
     // Default keys
     public static final MessageKey<InvalidCommandContext> UNKNOWN_COMMAND = of("unknown.command", InvalidCommandContext.class);
-    public static final MessageKey<MessageContext> TOO_MANY_ARGUMENTS = of("too.many.arguments", MessageContext.class);
-    public static final MessageKey<MessageContext> NOT_ENOUGH_ARGUMENTS = of("not.enough.arguments", MessageContext.class);
+    public static final MessageKey<SyntaxMessageContext> TOO_MANY_ARGUMENTS = of("too.many.arguments", SyntaxMessageContext.class);
+    public static final MessageKey<SyntaxMessageContext> NOT_ENOUGH_ARGUMENTS = of("not.enough.arguments", SyntaxMessageContext.class);
     public static final MessageKey<InvalidArgumentContext> INVALID_ARGUMENT = of("invalid.argument", InvalidArgumentContext.class);
 
     protected MessageKey(final @NotNull String key, final @NotNull Class<C> type) {

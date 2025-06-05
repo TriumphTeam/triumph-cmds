@@ -62,7 +62,7 @@ public class ExampleCommand {
     public CommandExecuteResult<CommandSender> execute(final CommandSender sender) {
         sender.sendMessage("executed");
         return CommandExecuteResult.failure((messageSender, sender1, meta) -> {
-            messageSender.sendMessage(MessageKey.UNKNOWN_COMMAND, sender1, new InvalidCommandContext(meta, "example"));
+            messageSender.sendMessage(MessageKey.UNKNOWN_COMMAND, sender1, new InvalidCommandContext(meta, "", "example"));
         });
     }
 

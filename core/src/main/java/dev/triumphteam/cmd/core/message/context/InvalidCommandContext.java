@@ -34,8 +34,9 @@ public final class InvalidCommandContext extends InvalidInputContext {
 
     public InvalidCommandContext(
             final @NotNull CommandMeta meta,
+            final @NotNull String syntax,
             final @Nullable String invalidInput
     ) {
-        super(meta, invalidInput);
+        super(meta, syntax, invalidInput);
     }
 }

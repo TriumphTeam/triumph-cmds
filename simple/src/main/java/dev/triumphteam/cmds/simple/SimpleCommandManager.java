@@ -103,7 +103,7 @@ public final class SimpleCommandManager<S> extends CommandManager<SimpleCommandM
                     MessageKey.UNKNOWN_COMMAND,
                     sender,
                     // Empty meta
-                    new InvalidCommandContext(new CommandMeta.Builder(null).build(), commandName)
+                    new InvalidCommandContext(new CommandMeta.Builder(null).build(), "", commandName)
             );
             return;
         }
