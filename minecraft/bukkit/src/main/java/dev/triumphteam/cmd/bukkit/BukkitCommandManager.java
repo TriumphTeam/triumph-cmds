@@ -206,7 +206,18 @@ public final class BukkitCommandManager<S> extends CommandManager<BukkitCommandM
 
     @Override
     public void unregisterCommand(final @NotNull Object command) {
-        // TODO add a remove functionality
+        final RootCommandProcessor<CommandSender, S, String> processor = new RootCommandProcessor<>(
+                command,
+                getRegistryContainer(),
+                getCommandOptions()
+        );
+
+        final String name = processor.getName();
+        final BukkitCommand<S> bukkitCommand = commands.remove(name);
+        if (bukkitCommand != null) {
+            bukkitCommand.unregister(commandMap);
+            bukkitCommands.remove(name);
+        }
     }
 
     private @NotNull BukkitCommand<S> createAndRegisterCommand(
