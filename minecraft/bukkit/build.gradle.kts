@@ -1,6 +1,6 @@
 plugins {
-    id("cmds.base-conventions")
-    id("cmds.library-conventions")
+    id("cmds.base")
+    id("cmds.library")
 }
 
 repositories {

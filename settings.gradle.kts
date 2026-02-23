@@ -48,5 +48,9 @@ projects {
             single(id = "jda", includeNamespace = true)
             single(id = "kord", includeNamespace = true)
         }
+
+        single(id = "hytale", includeNamespace = true)
     }
+
+    single(id = "hytale")
 }

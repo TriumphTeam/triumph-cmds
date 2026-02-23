@@ -1,6 +1,6 @@
 plugins {
-    id("cmds.base-conventions")
-    id("cmds.logger-conventions")
+    id("cmds.base")
+    id("cmds.logger")
 }
 
 dependencies {

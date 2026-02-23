@@ -1,7 +1,7 @@
 import xyz.jpenilla.resourcefactory.bukkit.BukkitPluginYaml
 
 plugins {
-    id("cmds.base-conventions")
+    id("cmds.base")
     id("cmds.bukkit-example")
 }
 

@@ -1,3 +1,3 @@
 plugins {
-    id("cmds.parent-conventions")
+    id("cmds.parent")
 }

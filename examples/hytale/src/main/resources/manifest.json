@@ -1,0 +1,15 @@
+{
+    "Group": "TriumphTeam",
+    "Name": "Example Plugin",
+    "Version": "1.0.0",
+    "Description": "Example plugin for cmds.",
+    "Authors": [
+        {
+            "Name": "TriumphTeam"
+        }
+    ],
+    "DisabledByDefault": false,
+    "IncludesAssetPack": false,
+    "ServerVersion": "2026.02.19-1a311a592",
+    "Main": "dev.triumphteam.cmd.hytale.example.ExamplePlugin"
+}
